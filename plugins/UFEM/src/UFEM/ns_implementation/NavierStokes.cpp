@@ -56,6 +56,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   u2("AdvectionVelocity2", "linearized_velocity"),
   u3("AdvectionVelocity3", "linearized_velocity"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
+  g("Force", "body_force"),
   rho("density"),
   nu("kinematic_viscosity"),
 

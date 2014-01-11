@@ -1,11 +1,18 @@
 import sys
 import coolfluid as cf
 
+# Flow configuration
+h = 0.5
+re_tau = 50.
+nu = 0.0001
+a_tau = re_tau**2*nu**2/h**3
+Uc = a_tau/nu*(h**2/2.)
+
 # Some shortcuts
 root = cf.Core.root()
 env = cf.Core.environment()
 
-# Global confifuration
+# Global configuration
 env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
@@ -26,20 +33,20 @@ blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
 points = blocks.create_points(dimensions = 2, nb_points = 6)
 points[0]  = [0, 0.]
 points[1]  = [10., 0.]
-points[2]  = [0., 0.5]
-points[3]  = [10., 0.5]
-points[4]  = [0.,1.]
-points[5]  = [10., 1.]
+points[2]  = [0., h]
+points[3]  = [10., h]
+points[4]  = [0.,2.*h]
+points[5]  = [10., 2.*h]
 
 block_nodes = blocks.create_blocks(2)
 block_nodes[0] = [0, 1, 3, 2]
 block_nodes[1] = [2, 3, 5, 4]
 
 block_subdivs = blocks.create_block_subdivisions()
-block_subdivs[0] = [10, 40]
-block_subdivs[1] = [10, 40]
+block_subdivs[0] = [10, 10]
+block_subdivs[1] = [10, 10]
 
-grading = 5.
+grading = 1.2
 gradings = blocks.create_block_gradings()
 gradings[0] = [1., 1., grading, grading]
 gradings[1] = [1., 1., 1./grading, 1./grading]
@@ -75,14 +82,18 @@ partitioner.execute()
 
 ns_solver.regions = [mesh.topology.interior.uri()]
 
-u_in = [2., 0.]
+u_in = [0., 0.]
 
 #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
+ic_g = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'body_force')
+ic_g.variable_name = 'Force'
+ic_g.regions = [mesh.topology.uri()]
+ic_g.value = [str(a_tau), '0', '0']
 
 # Physical constants
-physics.options().set('density', 1000.)
-physics.options().set('dynamic_viscosity', 10.)
+physics.density =  1.
+physics.dynamic_viscosity = nu
 
 # Boundary conditions
 bc = ns_solver.BoundaryConditions
@@ -105,27 +116,37 @@ bulk_velocity.history.file = cf.URI('bulk-velocity.tsv')
 bulk_velocity.history.dimension = 1
 
 lss = ns_solver.LSS
+#lss.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+#lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'
+#lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.add_parameter(name = 'ML output', value = 10)
+#lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.default_values = 'NSSA'
+#lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.eigen_analysis_type = 'Anorm'
+#lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.aggregation_type = 'Uncoupled'
+#lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_type = 'Chebyshev'
+#lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_sweeps = 6
+
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block GMRES'
 lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-5
-lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 50
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 2000
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.num_blocks = 1000
+
+write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
+write_manager.interval = 10
+writer = write_manager.create_component('PVTUWriter', 'cf3.mesh.VTKXML.Writer')
+writer.mesh = mesh
+writer.file = cf.URI('periodic-channel-2d-{iteration}.pvtu')
 
 # Time setup
 time = model.create_time()
-time.options().set('time_step', 0.1)
+time.time_step =  1000.
+time.end_time = 20000.
 
-# Setup a time series write
-final_end_time = 10.
-save_interval = 1.
-current_end_time = 0.
-iteration = 0
+# Create the fields, so we can easily set the writer field URI
+solver.create_fields()
+writer.fields = [mesh.geometry.navier_stokes_solution.uri()]
 
-while current_end_time < final_end_time:
-  current_end_time += save_interval
-  time.options().set('end_time', current_end_time)
-  model.simulate()
-  domain.write_mesh(cf.URI('laminar-channel-2d_output-' +str(iteration) + '.pvtu'))
-  iteration += 1
-  if iteration == 1:
-    solver.options().set('disabled_actions', ['InitialConditions'])
+# run the simulation
+model.simulate()
 
 # print timings
 model.print_timing_tree()
@@ -136,7 +157,7 @@ for [u,v,p] in mesh.geometry.navier_stokes_solution:
   if u > u_max:
     u_max = u
 
-print 'Uc / Ub =', u_max / bulk_velocity.result
+print 'found u_max:',u_max
 
-if (u_max / bulk_velocity.result) > 1.6 or (u_max / bulk_velocity.result) < 1.4:
+if abs(u_max - Uc) > 0.05:
   raise Exception('Laminar profile not reached')

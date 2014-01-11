@@ -91,6 +91,9 @@ private:
 
   /// Temperature field
   FieldVariable<7, ScalarField> Temp;
+  
+  // Body force
+  FieldVariable<8, VectorField> g;
 
 
   /// Access to the physics
