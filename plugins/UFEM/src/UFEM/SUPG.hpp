@@ -152,7 +152,7 @@ struct ComputeTauImpl : boost::noncopyable
 
       tau_su = 1. / sqrt((4.*c1*c1/(dt*dt)) + tau_adv_sq + c2*tau_diff);
       tau_ps = tau_su;
-      tau_bulk = 1./(tau_su * gij.trace());
+      tau_bulk = sqrt(tau_adv_sq) / gij.trace();
     }
       
     tau_ps *= alpha_ps;
