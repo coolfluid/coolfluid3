@@ -99,7 +99,7 @@ struct VelocityAssembly
 
       const Real w = GaussT::instance().weights[gauss_idx] * u.support().jacobian_determinant();
 
-      const Real bulk_coeff = w*tau_bulk;
+      const Real bulk_coeff = w*(tau_bulk + nu_eff.eval());
       laplacian = w*nu_eff.eval()*(u.nabla().transpose()*u.nabla()); // laplacian operator
       if(ideal_order == 2)
       {
@@ -130,17 +130,14 @@ struct VelocityAssembly
     nu_eff.compute_values(Gauss1T::instance().coords.col(gauss_idx));
 
     const Real w = Gauss1T::instance().weights[gauss_idx] * u.support().jacobian_determinant();
-    const Real bulk_coeff = w*tau_bulk;
     
     for(Uint i = 0; i != dim; ++i)
     {
-      //M.template block<nb_nodes, nb_nodes>(i*nb_nodes, i*nb_nodes) += bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(i);
-      
       for(Uint j = i+1; j != dim; ++j)
       {
-        bulk_block = bulk_coeff * u.nabla().row(i).transpose()*u.nabla().row(j);
-        M.template block<nb_nodes, nb_nodes>(i*nb_nodes, j*nb_nodes) += bulk_block;
-        M.template block<nb_nodes, nb_nodes>(j*nb_nodes, i*nb_nodes) += bulk_block.transpose();
+        bulk_block = w * u.nabla().row(i).transpose()*u.nabla().row(j);
+        M.template block<nb_nodes, nb_nodes>(i*nb_nodes, j*nb_nodes) += tau_bulk * bulk_block + nu_eff.eval() * bulk_block.transpose();
+        M.template block<nb_nodes, nb_nodes>(j*nb_nodes, i*nb_nodes) += tau_bulk * bulk_block.transpose() + nu_eff.eval() * bulk_block;
       }
     }
   }
@@ -316,9 +313,16 @@ struct VelocityRHS
 
 
           result.template segment<nb_nodes>(i*nb_nodes) += adv.transpose() * a
-          + u.nabla().row(i).transpose() * (b + f_bulk)
-          + N_plus_adv.transpose() * (c + e + (f_skew * u.eval()[i]))
-          + u.nabla().transpose() * d;
+            + u.nabla().row(i).transpose() * (b + f_bulk)
+            + N_plus_adv.transpose() * (c + e + (f_skew * u.eval()[i]))
+            + u.nabla().transpose() * d;
+          
+          //Viscous stress matrix
+          for(Uint j = 0; j != dim; ++j)
+          {
+            const Real d2 = w_visc*(u.nabla().row(i)*dt_a_min_u.row(j).transpose())[0];
+            result.template segment<nb_nodes>(i*nb_nodes) += u.nabla().row(j).transpose() * d2;
+          }
         }
       }
       else
@@ -329,8 +333,15 @@ struct VelocityRHS
           const Eigen::Matrix<Real, dim, 1> d = w_visc*(u.nabla()*dt_a_min_u.row(i).transpose());
 
           result.template segment<nb_nodes>(i*nb_nodes) += adv.transpose() * a
-          + u.nabla().row(i).transpose() * (b + f_bulk)
-          + u.nabla().transpose() * d;
+            + u.nabla().row(i).transpose() * (b + f_bulk)
+            + u.nabla().transpose() * d;
+            
+          //Viscous stress matrix
+          for(Uint j = 0; j != dim; ++j)
+          {
+            const Real d2 = w_visc*(u.nabla().row(i)*dt_a_min_u.row(j).transpose())[0];
+            result.template segment<nb_nodes>(i*nb_nodes) += u.nabla().row(j).transpose() * d2;
+          }
         }
       }
     }

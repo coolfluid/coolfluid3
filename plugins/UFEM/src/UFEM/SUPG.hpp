@@ -158,11 +158,6 @@ struct ComputeTauImpl : boost::noncopyable
     tau_ps *= alpha_ps;
     tau_su *= alpha_su;
     tau_bulk *= alpha_bu;
-    
-    if(!use_metric_tensor)
-    {
-      tau_bulk = std::max(tau_bulk, element_nu/3.);
-    }
   }
 
   Real alpha_ps, alpha_su, alpha_bu;
