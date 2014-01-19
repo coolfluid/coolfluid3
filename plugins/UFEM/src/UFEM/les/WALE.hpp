@@ -107,6 +107,38 @@ struct ComputeNuWALE
     Real nu_t = cw*cw*f*f*delta_iso * ::pow(Sd_norm2, 1.5) / (::pow(S_norm2, 2.5) + ::pow(Sd_norm2, 1.25));
     if(nu_t < 0. || !std::isfinite(nu_t))
       nu_t = 0.;
+
+//    Morpheus version, giving the same result
+//    const Eigen::Matrix<Real, dim, 1> du = grad_u.col(0);
+//    const Eigen::Matrix<Real, dim, 1> dv = grad_u.col(1);
+//    const Eigen::Matrix<Real, dim, 1> dw = grad_u.col(2);
+
+//    const Real S2= (du[0]*du[0]+dv[1]*dv[1]+dw[2]*dw[2])
+//          +1./2.*( (du[1]+dv[0])*(du[1]+dv[0])
+//                  +(du[2]+dw[0])*(du[2]+dw[0])
+//                  +(dv[2]+dw[1])*(dv[2]+dw[1]));
+
+//      Real Sd2=0.;
+//      Real Sdtmp = du[2]*dw[0]+dv[2]*dw[1]+2.*dw[2]*dw[2]-du[0]*du[0]-2.*du[1]*dv[0]-dv[1]*dv[1];
+//      Sd2+= 1./9.*Sdtmp*Sdtmp;
+//      Sdtmp = du[1]*dv[0]+2.*dv[1]*dv[1]+dv[2]*dw[1]-du[0]*du[0]-2.*du[2]*dw[0]-dw[2]*dw[2];
+//      Sd2+= 1./9.*Sdtmp*Sdtmp;
+//      Sdtmp = 2.*du[0]*du[0]+du[1]*dv[0]+du[2]*dw[0]-dv[1]*dv[1]-2.*dv[2]*dw[1]-dw[2]*dw[2];
+//      Sd2+= 1./9.*Sdtmp*Sdtmp;
+//      Sdtmp = du[1]*dw[0]+du[2]*dv[0]+dv[1]*dv[2]+dv[1]*dw[1]+dv[2]*dw[2]+dw[1]*dw[2];
+//      Sd2+= 1./2.*Sdtmp*Sdtmp;
+//      Sdtmp = du[0]*du[2]+du[0]*dw[0]+du[1]*dv[2]+du[2]*dw[2]+dv[0]*dw[1]+dw[0]*dw[2];
+//      Sd2+= 1./2.*Sdtmp*Sdtmp;
+//      Sdtmp = du[0]*du[1]+du[0]*dv[0]+du[1]*dv[1]+du[2]*dw[1]+dv[0]*dv[1]+dv[2]*dw[0];
+//      Sd2+= 1./2.*Sdtmp*Sdtmp;
+
+//      if(common::PE::Comm::instance().rank() == 0)
+//        std::cout << "Tamas S2: " << S2 << ", Sd2: " << Sd2 << ", Bart S2: " << S_norm2 << ", Sd2: " << Sd_norm2 << std::endl;
+
+//      const Real Ls = ::pow(u.support().volume(), 1./3.)*cw;
+//      const Real Sd2_32=pow(Sd2,3./2.);
+//      const Real Sd2_54_plus_S2_52=pow(Sd2,5./4.)+pow(S2,5./2.);
+      //const Real nu_t = (Sd2_54_plus_S2_52!=0.) ? Ls*Ls*Sd2_32/Sd2_54_plus_S2_52 : 0.;
     
     const Eigen::Matrix<Real, ElementT::nb_nodes, 1> nodal_vals = (nu_t + nu_visc)*valence.value().array().inverse();
     nu.add_nodal_values(nodal_vals);
