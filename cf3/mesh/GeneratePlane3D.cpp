@@ -245,8 +245,6 @@ void GeneratePlane3D::execute()
   const Real angle = ::acos(standard_normal.dot(target_normal));
   const RealVector3 axis = ::fabs(angle) > 1e-10 ? target_normal.cross(standard_normal).normalized() : standard_normal;
   
-  std::cout << "angle: " << angle << ", axis: " << axis.transpose() << std::endl;
-  
   const RealMatrix3 transformation_matrix = (Eigen::AngleAxis<Real>(angle, axis).toRotationMatrix() * Eigen::DiagonalMatrix<Real, 3>(size[0], size[1], 1.)).transpose();
   const RealVector3 offset(origin.data());
   
