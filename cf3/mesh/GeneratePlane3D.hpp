@@ -4,13 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_MeshGenerator_hpp
-#define cf3_mesh_MeshGenerator_hpp
+#ifndef cf3_mesh_GeneratePlane3D_hpp
+#define cf3_mesh_GeneratePlane3D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Action.hpp"
 
+#include "mesh/MeshGenerator.hpp"
 #include "mesh/LibMesh.hpp"
 
 namespace cf3 {
@@ -20,35 +21,23 @@ namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// MeshGenerator component class
-/// This class serves as a component that that will read
-/// the mesh format from file
-/// @author Willem Deconinck
-class Mesh_API MeshGenerator : public common::Action {
-public:
+/// GeneratePlane3D component class
+/// Create a plane in 3D
+class Mesh_API GeneratePlane3D : public MeshGenerator {
+
+public: // functions
+
   /// Contructor
   /// @param name of the component
-  MeshGenerator ( const std::string& name );
+  GeneratePlane3D ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~MeshGenerator();
+  virtual ~GeneratePlane3D();
 
   /// Get the class name
-  static std::string type_name () { return "MeshGenerator"; }
-
-  /// execute
-  virtual void execute() = 0;
-
-  /// generate, wraps execute() and returns the mesh reference
-  Mesh& generate();
-
-private: // functions
-
-  void config_mesh();
-
-protected: // data
-
-  Handle<Mesh> m_mesh;
+  static std::string type_name () { return "GeneratePlane3D"; }
+  
+  virtual void execute();
 
 };
 
@@ -59,4 +48,4 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_MeshGenerator_hpp
+#endif // cf3_mesh_GeneratePlane3D_hpp
