@@ -396,7 +396,7 @@ void configure_option_recursively(ComponentWrapper& self, const std::string& opt
 Uint get_len(ComponentWrapper& self)
 {
   if(is_null(self.get_list_interface()))
-    throw common::NotSupported(FromHere(), "Object does not support len()");
+    throw common::NotSupported(FromHere(), "Object "+self.component().uri().string()+" does not support len()");
 
   return self.get_list_interface()->len();
 }
