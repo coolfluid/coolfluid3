@@ -382,7 +382,10 @@ void TurbulenceStatistics::setup()
     m_statistics_field->add_tag("turbulence_statistics");
   }
 
-  reset_statistics();
+  // Reset statistics without changing m_count
+  const Uint nb_accs = (2.*m_dim + m_dim-1 + m_dim-2)*m_probe_nodes.size();
+  m_means.assign(nb_accs, MeanAccT());
+  m_rolling_means.assign(nb_accs, RollingAccT(boost::accumulators::tag::rolling_window::window_size = options().value<Uint>("rolling_window")));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
