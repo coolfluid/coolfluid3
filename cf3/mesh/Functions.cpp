@@ -35,28 +35,33 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
   const List<bool>* periodic_links_active = dynamic_cast< const List<bool>* >(dictionary.get_child("periodic_links_active").get());
 
   // First count the number of unique nodes
-  boost_foreach(const Handle<Entities const>& entities, entities_vector)
+  boost_foreach( const Handle<Space>& space, dictionary.spaces() )
   {
-    const Space& space = entities->space(dictionary);
-    const Uint nb_elems = space.size();
-
-    for (Uint idx=0; idx<nb_elems; ++idx)
+    boost_foreach( const Handle<Entities const>& entities, entities_vector )
     {
-      // Don't include ghost-elements if not requested
-      if(include_ghost_elems || entities->is_ghost(idx) == false)
+      if( &space->support() == entities.get() )
       {
-        boost_foreach(const Uint node, space.connectivity()[idx])
+        const Uint nb_elems = space->size();
+
+        for (Uint idx=0; idx<nb_elems; ++idx)
         {
-          cf3_assert(node<node_is_used.size());
-          if(!node_is_used[node])
+          // Don't include ghost-elements if not requested
+          if(include_ghost_elems || entities->is_ghost(idx) == false)
           {
-            node_is_used[node] = true;
+            boost_foreach(const Uint node, space->connectivity()[idx])
+            {
+              cf3_assert(node<node_is_used.size());
+              if(!node_is_used[node])
+              {
+                node_is_used[node] = true;
+              }
+            }
           }
         }
       }
     }
   }
-  
+
   if(follow_periodic_links && periodic_links_active)
   {
     const List<Uint>& per_links = *periodic_links_nodes;

@@ -157,7 +157,7 @@ bool Dictionary::is_ghost(const Uint idx) const
 const Space& Dictionary::space(const Entities& entities) const
 {
   const Handle< Space const>& s = m_raw_spaces_map.find(&entities)->second;
-  cf3_assert(s);
+  cf3_assert_desc(entities.uri().string()+" not registered in "+uri().string(), is_not_null(s) );
   return *s;
 }
 
@@ -166,7 +166,6 @@ const Space& Dictionary::space(const Entities& entities) const
 const Handle< Space const>& Dictionary::space(const Handle<Entities const>& entities) const
 {
   const Handle< Space const>& s = m_spaces_map.find(entities)->second;
-  cf3_assert(s);
   return s;
 }
 
