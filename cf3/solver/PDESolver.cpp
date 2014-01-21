@@ -64,7 +64,7 @@ PDESolver::PDESolver( const std::string& name ) :
   options().add( "max_iteration",math::Consts::uint_max()).mark_basic();
   options().add( "history", m_history).link_to(&m_history);
   options().add( "pre_iteration", m_pre_iteration).link_to(&m_pre_iteration);
-  options().add( "post_iteration", m_post_iteration).link_to(&m_post_iteration);
+  options().add( "post_iteration", m_post_iteration).mark_basic().link_to(&m_post_iteration);
   options().add( "pre_update", m_pre_update).link_to(&m_pre_update);
   options().add( "post_update", m_post_update).link_to(&m_post_update);
 
