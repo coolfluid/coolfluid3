@@ -26,8 +26,11 @@ ns_solver.options.theta = 0.5
 ns_solver.options.nb_iterations = 2
 ns_solver.enable_body_force = True
 ns_solver.options.pressure_rcg_solve = True
+ns_solver.options.alpha_su = 0.
 #ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.DirectStrategy'
 refinement_level = 1
+
+supg_terms = solver.add_unsteady_solver('cf3.UFEM.SUPGFields')
 
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -95,6 +98,7 @@ physics.options().set('dynamic_viscosity', 1.)
 tstep = 0.5
 
 ns_solver.regions = [mesh.topology.uri()]
+supg_terms.regions = [mesh.topology.uri()]
 
 for strat in [ns_solver.children.FirstPressureStrategy, ns_solver.children.SecondPressureStrategy]:
   strat.MLParameters.aggregation_type = 'Uncoupled'
@@ -130,6 +134,10 @@ bc_u.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value =
 bc_u.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0.]
 # Pressure BC
 ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 0.
+
+solver.create_fields()
+supg_avg = solver.add_unsteady_solver('cf3.solver.actions.FieldTimeAverage')
+supg_avg.field = mesh.geometry.supg_terms
 
 # Time setup
 time = model.create_time()

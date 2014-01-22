@@ -30,6 +30,9 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "SUPGFields"; }
+
+  virtual void execute();
+  virtual void on_regions_set();
   
 private:
   ComputeTau compute_tau;
@@ -40,6 +43,11 @@ private:
 
   Handle<solver::Time> m_time;
   Real m_dt;
+
+  // Action to handle computation of the SUPG terms
+  Handle<solver::actions::Proto::ProtoAction> m_supg_terms;
+
+  Handle<solver::actions::Proto::ProtoAction> m_zero_field;
 };
 
 } // UFEM
