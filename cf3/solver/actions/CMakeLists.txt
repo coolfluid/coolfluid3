@@ -15,6 +15,8 @@ list( APPEND coolfluid_solver_actions_files
   ProbePostProcFunction.cpp
   ProbePostProcHistory.hpp
   ProbePostProcHistory.cpp
+  FieldTimeAverage.hpp
+  FieldTimeAverage.cpp
   ForAllCells.hpp
   ForAllCells.cpp
   ForAllElements.hpp

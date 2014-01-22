@@ -57,6 +57,9 @@ stats.add_probe([1., 0.5 ])
 stats.add_probe([1., 0.15])
 stats.setup()
 
+avg = domain.create_component('Average', 'cf3.solver.actions.FieldTimeAverage')
+avg.field = velocity
+
 dir_avg = domain.create_component('DirectionalAverage', 'cf3.solver.actions.DirectionalAverage')
 dir_avg.direction = 1
 dir_avg.field = mesh.geometry.turbulence_statistics
@@ -67,11 +70,12 @@ for i in range(1000):
   randomizer.options.seed = i
   randomizer.execute()
   stats.execute()
+  avg.execute()
 
 dir_avg.execute()
 
 writer = domain.create_component('PVWriter', 'cf3.mesh.VTKXML.Writer')
-writer.fields = [velocity.uri(), mesh.geometry.coordinates.uri(), mesh.geometry.turbulence_statistics.uri()]
+writer.fields = [velocity.uri(), mesh.geometry.coordinates.uri(), mesh.geometry.turbulence_statistics.uri(), mesh.geometry.average_velocity.uri()]
 writer.mesh = mesh
 writer.file = cf.URI('turbulence-statistics.pvtu')
 writer.execute()
