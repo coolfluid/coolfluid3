@@ -80,8 +80,10 @@ SUPGFields::SUPGFields(const std::string& name) :
   FieldVariable<4, ScalarField> p("Pressure", "navier_stokes_p_solution");
   FieldVariable<5, VectorField> supg_a("supg_a", "supg_terms");
   FieldVariable<6, VectorField> supg_t("supg_t", "supg_terms");
+  FieldVariable<7, VectorField> bulk("bulk", "supg_terms");
 
   static boost::proto::terminal< ElementVector< boost::mpl::int_<1> > >::type const _b = {};
+  static boost::proto::terminal< ElementVector< boost::mpl::int_<2> > >::type const _c = {};
 
   m_supg_terms = create_static_component<ProtoAction>("SUPGTerms");
   m_supg_terms->set_expression(elements_expression
@@ -91,15 +93,17 @@ SUPGFields::SUPGFields(const std::string& name) :
     group
     (
       compute_tau.apply(u_adv, nu_eff, lit(m_dt), lit(tau_ps), lit(tau_su), lit(tau_bu)),
-      _A(u) = _0, _a[u] = _0, _b[u] = _0,
+      _A(u) = _0, _a[u] = _0, _b[u] = _0, _c[u] = _0,
       element_quadrature
       (
         _a[u[_i]] += transpose(tau_su*u_adv*nabla(u)) * (nabla(p)[_i] * nodal_values(p) + u_adv*nabla(u) * transpose(transpose(nodal_values(u))[_i])),
         _a[u[_i]] += 0.5*transpose(u_adv[_i]*(tau_su*u_adv*nabla(u))) * nabla(u)[_j] * transpose(transpose(nodal_values(u))[_j]),
-        _b[u[_i]] += transpose(tau_su*u_adv*nabla(u)) * N(u) * transpose(transpose(nodal_values(u))[_i] - transpose(nodal_values(u1))[_i])
+        _b[u[_i]] += transpose(tau_su*u_adv*nabla(u)) * N(u) * transpose(transpose(nodal_values(u))[_i] - transpose(nodal_values(u1))[_i]),
+        _c[u[_i]] += transpose(tau_bu*nabla(u)[_i]) * nabla(u)[_j] * transpose(transpose(nodal_values(u))[_j])
       ),
       supg_a += _a / volume,
-      supg_t += _b /(volume * m_dt)
+      supg_t += _b /(volume * m_dt),
+      bulk += _c / volume
     )
   ));
 
