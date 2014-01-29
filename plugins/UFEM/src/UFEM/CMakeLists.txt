@@ -116,6 +116,7 @@ coolfluid3_add_library( TARGET     coolfluid_ufem
 set_source_files_properties(
   HeatConductionSteady.cpp
   SpalartAllmaras.cpp
+  SUPGFields.cpp
 PROPERTIES COMPILE_FLAGS "-g0")
 
 add_subdirectory(demo)
