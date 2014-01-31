@@ -59,6 +59,36 @@ SUPGFields::SUPGFields(const std::string& name) :
     .attach_trigger(boost::bind(&SUPGFields::trigger_time, this))
     .link_to(&m_time);
     
+  options().add("alpha_ps", compute_tau.data.op.alpha_ps)
+    .pretty_name("alpha_ps")
+    .description("Constant to multiply the PSPG parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_ps));
+      
+  options().add("alpha_su", compute_tau.data.op.alpha_su)
+    .pretty_name("alpha_su")
+    .description("Constant to multiply the SUPG parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_su));
+      
+  options().add("alpha_bu", compute_tau.data.op.alpha_bu)
+    .pretty_name("alpha_bu")
+    .description("Constant to multiply the Bulk parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_bu));
+    
+  options().add("use_metric_tensor", compute_tau.data.op.use_metric_tensor)
+    .pretty_name("Use Metric Tensor")
+    .description("Use the metric tensor instead of the minimal element edge length as length scale.")
+    .link_to(&(compute_tau.data.op.use_metric_tensor));
+    
+  options().add("c1", compute_tau.data.op.c1)
+    .pretty_name("c1")
+    .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+    .link_to(&(compute_tau.data.op.c1));
+    
+  options().add("c2", compute_tau.data.op.c2)
+    .pretty_name("c2")
+    .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+    .link_to(&(compute_tau.data.op.c2));
+    
   FieldVariable<0, VectorField> u_adv("AdvectionVelocity", "linearized_velocity");
   FieldVariable<1, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
   FieldVariable<2, ScalarField> su_fd("tau_su", "supg", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
