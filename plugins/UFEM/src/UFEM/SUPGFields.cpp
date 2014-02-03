@@ -134,9 +134,9 @@ SUPGFields::SUPGFields(const std::string& name) :
         _a[u[_i]] += 0.5*transpose(u_adv[_i]*(tau_su*u_adv*nabla(u))) * nabla(u)[_j] * transpose(transpose(nodal_values(u))[_j]),
         _b[u[_i]] += transpose(tau_su*u_adv*nabla(u)) * N(u) * transpose(transpose(nodal_values(u))[_i] - transpose(nodal_values(u1))[_i]),
         _c[u[_i]] += transpose(tau_bu*nabla(u)[_i]) * nabla(u)[_j] * transpose(transpose(nodal_values(u))[_j]),
-        _d[u[_i]] += nu_eff * transpose(nabla(u)) * nabla(u) * transpose(transpose(nodal_values(u))[_i]),
         _e[u[_i]] += transpose(N(u)) * u_adv*nabla(u) * transpose(transpose(nodal_values(u))[_i])
       ),
+      _d[u[0]] = integral<8>(nu_eff * transpose(nabla(u)) * nabla(u) * transpose(transpose(nodal_values(u))[0])*jacobian_determinant),
       supg_a += _a / volume,
       supg_t += _b /(volume * m_dt),
       bulk += _c / volume,
