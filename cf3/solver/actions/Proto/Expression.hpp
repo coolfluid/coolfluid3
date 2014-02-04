@@ -261,7 +261,7 @@ public:
 };
 
 /// Expression for looping over nodes
-template<typename ExprT>
+template<typename ExprT, typename DimsT>
 class NodesExpression : public ExpressionBase<ExprT>
 {
   typedef ExpressionBase<ExprT> BaseT;
@@ -279,7 +279,7 @@ public:
       INVALID_NODE_EXPRESSION,
       (NodeGrammar));
 
-    boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<typename BaseT::CopiedExprT>(BaseT::m_expr, region, BaseT::m_variables) );
+    boost::mpl::for_each< DimsT >( NodeLooper<typename BaseT::CopiedExprT>(BaseT::m_expr, region, BaseT::m_variables) );
   }
 };
 
@@ -305,9 +305,30 @@ boost::shared_ptr< ElementsExpression<ExprT, DefaultElementTypes> > elements_exp
 /// Convenience method to construct an Expression to loop over elements
 /// @returns a shared pointer to the constructed expression
 template<typename ExprT>
-boost::shared_ptr< NodesExpression<ExprT> > nodes_expression(const ExprT& expr)
+boost::shared_ptr< NodesExpression<ExprT, boost::mpl::range_c<Uint, 1, 4> > > nodes_expression(const ExprT& expr)
 {
-  return boost::shared_ptr< NodesExpression<ExprT> >(new NodesExpression<ExprT>(expr));
+  return boost::shared_ptr< NodesExpression<ExprT, boost::mpl::range_c<Uint, 1, 4> > >(new NodesExpression<ExprT, boost::mpl::range_c<Uint, 1, 4> >(expr));
+}
+
+// 1D version
+template<typename ExprT>
+boost::shared_ptr< NodesExpression<ExprT, boost::mpl::range_c<Uint, 1, 2> > > nodes_expression_1d(const ExprT& expr)
+{
+  return boost::shared_ptr< NodesExpression<ExprT, boost::mpl::range_c<Uint, 1, 2> > >(new NodesExpression<ExprT, boost::mpl::range_c<Uint, 1, 2> >(expr));
+}
+
+// 2D version
+template<typename ExprT>
+boost::shared_ptr< NodesExpression<ExprT, boost::mpl::range_c<Uint, 2, 3> > > nodes_expression_2d(const ExprT& expr)
+{
+  return boost::shared_ptr< NodesExpression<ExprT, boost::mpl::range_c<Uint, 2, 3> > >(new NodesExpression<ExprT, boost::mpl::range_c<Uint, 2, 3> >(expr));
+}
+
+// 3D version
+template<typename ExprT>
+boost::shared_ptr< NodesExpression<ExprT, boost::mpl::range_c<Uint, 3, 4> > > nodes_expression_3d(const ExprT& expr)
+{
+  return boost::shared_ptr< NodesExpression<ExprT, boost::mpl::range_c<Uint, 3, 4> > >(new NodesExpression<ExprT, boost::mpl::range_c<Uint, 3, 4> >(expr));
 }
 
 } // namespace Proto
