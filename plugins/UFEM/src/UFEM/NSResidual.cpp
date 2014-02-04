@@ -110,7 +110,7 @@ NSResidual::NSResidual(const std::string& name) :
   
   set_expression(elements_expression
   (
-    boost::mpl::vector1<mesh::LagrangeP1::Quad2D>(),//, mesh::LagrangeP1::Hexa3D>(),
+    boost::mpl::vector2<mesh::LagrangeP1::Quad2D, mesh::LagrangeP1::Hexa3D>(),
     group
     (
       compute_tau.apply(u_adv, nu_eff, lit(m_dt), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
