@@ -34,8 +34,17 @@ valence = domain.create_component('Valences', 'cf3.solver.actions.NodeValence')
 valence.regions = [mesh.topology.uri()]
 valence.execute()
 
+# take the opportunity to test the copier
+copyfd = mesh.geometry.create_field(name = 'copy_node_valence', variables='copy_Valence[scalar]')
+copyfd.add_tag('copy_node_valence')
+copier = domain.create_component('Copier', 'cf3.solver.actions.CopyScalar')
+copier.regions = [mesh.topology.uri()]
+copier.source_field_tag = 'node_valence'
+copier.source_variable_name = 'Valence'
+copier.execute()
+
 writer = domain.create_component('PVWriter', 'cf3.mesh.VTKXML.Writer')
-writer.fields = [valfield.uri()]
+writer.fields = [valfield.uri(), copyfd.uri()]
 writer.mesh = mesh
 writer.file = cf.URI('node_valence.pvtu')
 writer.execute()

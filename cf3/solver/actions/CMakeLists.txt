@@ -98,6 +98,8 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/Transforms.hpp
 
     # Actions using Proto
+    CopyScalar.hpp
+    CopyScalar.cpp
     NodeValence.hpp
     NodeValence.cpp
 )
