@@ -20,6 +20,9 @@ domain = model.create_domain()
 physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
+# Copy the pressure once, to get the history
+p_copy = solver.add_unsteady_solver('cf3.solver.actions.CopyScalar')
+
 # Add the Navier-Stokes solver as an unsteady solver
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
 ns_solver.options.theta = 0.5
@@ -31,6 +34,7 @@ ns_solver.options.alpha_su = 0.
 refinement_level = 1
 
 supg_terms = solver.add_unsteady_solver('cf3.UFEM.SUPGFields')
+residuals = solver.add_unsteady_solver('cf3.UFEM.NSResidual')
 
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -99,6 +103,8 @@ tstep = 0.5
 
 ns_solver.regions = [mesh.topology.uri()]
 supg_terms.regions = [mesh.topology.uri()]
+residuals.regions = [mesh.topology.uri()]
+p_copy.regions = [mesh.topology.uri()]
 
 for strat in [ns_solver.children.FirstPressureStrategy, ns_solver.children.SecondPressureStrategy]:
   strat.MLParameters.aggregation_type = 'Uncoupled'
@@ -133,11 +139,14 @@ bc_u = ns_solver.VelocityLSS.BC
 bc_u.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [0., 0.]
 bc_u.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0.]
 # Pressure BC
-ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 0.
+ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 10.
 
 solver.create_fields()
 supg_avg = solver.add_unsteady_solver('cf3.solver.actions.FieldTimeAverage')
 supg_avg.field = mesh.geometry.supg_terms
+
+res_avg = solver.add_unsteady_solver('cf3.solver.actions.FieldTimeAverage')
+res_avg.field = mesh.geometry.navier_stokes_residual
 
 # Time setup
 time = model.create_time()
