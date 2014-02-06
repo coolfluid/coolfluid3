@@ -90,6 +90,8 @@ list( APPEND coolfluid_ufem_files
   SUPGFields.cpp
   Tags.hpp
   Tags.cpp
+  VelocityGradient.hpp
+  VelocityGradient.cpp
   WriteRestartManager.hpp
   WriteRestartManager.cpp
 
