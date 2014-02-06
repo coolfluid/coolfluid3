@@ -4,6 +4,8 @@ coolfluid3_add_library(TARGET coolfluid_ufem_particles
     EulerDNS.cpp
     LibUFEMParticles.hpp
     LibUFEMParticles.cpp
+    TaylorGreen.hpp
+    TaylorGreen.cpp
   LIBS     
     coolfluid_mesh_lagrangep1 
     coolfluid_mesh_lagrangep2 
