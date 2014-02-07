@@ -26,7 +26,8 @@ public:
   static FieldSynchronizer& instance();
 
   /// Insert a field to synchronize
-  void insert(mesh::Field& f);
+  /// @param do_periodic_element_update Sum together periodic entries, i.e. after an element loop that updates nodal values
+  void insert(mesh::Field& f, bool do_periodic_element_update);
 
   /// Sync fields and clear the list
   void synchronize();
@@ -36,7 +37,7 @@ private:
 
   // Fields to synchronize are put in a map using the URI as key, so ensure they are sorted the same way
   // on each cpu.
-  typedef std::map< std::string, Handle<mesh::Field> > FieldsT;
+  typedef std::map< std::string, std::pair<Handle<mesh::Field>, bool> > FieldsT;
   FieldsT m_fields;
 };
 
