@@ -93,7 +93,11 @@ static MakeSFOp<SetGradient>::type const set_gradient = {};
 
 VelocityGradient::VelocityGradient(const std::string& name) :
   ProtoAction(name)
-{  
+{ 
+  options().add("velocity_variable", "Velocity")
+    .pretty_name("Velocity Variable")
+    .description("Name for the velocity variable");
+  
   options().add("velocity_tag", "navier_stokes_u_solution")
     .pretty_name("Velocity Tag")
     .description("Tag for the field containing the velocity");
@@ -118,7 +122,7 @@ void VelocityGradient::on_regions_set()
 {
   const Uint dim = physical_model().ndim();
 
-  FieldVariable<0, VectorField> u("Velocity", options().value<std::string>("velocity_tag"));
+  FieldVariable<0, VectorField> u(options().value<std::string>("velocity_variable"), options().value<std::string>("velocity_tag"));
   FieldVariable<1, ScalarField> valence("Valence", "node_valence");
 
   const std::string grad_tag = "velocity_gradient";
@@ -149,6 +153,10 @@ void VelocityGradient::on_regions_set()
     ));
     
     m_zero_fields->set_expression(nodes_expression(group(grad_ux[_i] = 0., grad_uy[_i] = 0., grad_uz[_i] = 0.)));
+  }
+  else
+  {
+    throw common::SetupError(FromHere(), "Unsupported dimension " + common::to_str(dim) + " for VelocityGradient");
   }
 
   if(is_not_null(m_node_valence))

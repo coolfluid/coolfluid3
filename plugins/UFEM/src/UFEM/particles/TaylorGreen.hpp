@@ -40,16 +40,14 @@ struct TaylorGreenModel
   }
   
   // Fluid X velocity
-  Real ux() const;
+  Real ux(const Real t) const;
   // Fluid Y velocity
-  Real uy() const;
+  Real uy(const Real t) const;
   // Particle X velocity
-  Real vx() const;
+  Real vx(const Real t) const;
   // Particle Y velocity
-  Real vy() const;
+  Real vy(const Real t) const;
   
-  /// Time at which to evaluate
-  Real t;
   /// Coordinates at which to evaluate
   Real x,y;
   
@@ -85,6 +83,11 @@ private:
   
   detail::TaylorGreenModel m_tg_model;
   RealVector m_tg_values;
+
+  /// Previous time level
+  Real m_t;
+  /// Time step
+  Real m_dt;
 };
 
 } // Particles

@@ -49,46 +49,63 @@ inline Real square(const Real x)
   return x*x;
 }
 
-Real TaylorGreenModel::ux() const
+Real TaylorGreenModel::ux(const Real t) const
 {
-  return Ua - (Vs*::cos((pi()*(-(t*Ua) + x))/D)*::sin((pi()*(-(t*Va) + y))/D))/::exp((2*nu*pi()*pi()*t)/D*D);
+  return Ua - (Vs*::cos((pi()*(-(t*Ua) + x))/D)*::sin((pi()*(-(t*Va) + y))/D))/::exp((2*nu*pi()*pi()*t)/(D*D));
 }
 
-Real TaylorGreenModel::uy() const
+Real TaylorGreenModel::uy(const Real t) const
 {
-  return Va + (Vs*::cos((pi()*(-(t*Va) + y))/D)*::sin((pi()*(-(t*Ua) + x))/D))/::exp((2*nu*pi()*pi()*t)/D*D);
+  return Va + (Vs*::cos((pi()*(-(t*Va) + y))/D)*::sin((pi()*(-(t*Ua) + x))/D))/::exp((2*nu*pi()*pi()*t)/(D*D));
 }
 
-Real TaylorGreenModel::vx() const
+Real TaylorGreenModel::vx(const Real t) const
 {
-  return (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop)*Ua + 4*::exp((2*nu*(pi()*pi())*t)/(D*D))*pi()*taup*(Vs*Vs)*(D*pi()*square(rhof + 2*rhop)*taup*Ua*(::cos((2*pi()*(t*Ua - x))/D)
-    + ::cos((2*pi()*(t*Va - y))/D)) + 4*(rhof - rhop)*((D*D)*rhop + nu*(pi()*pi())*(rhof + 2*rhop)*taup)*::sin((2*pi()*(t*Ua - x))/D))
-    + 16*D*::exp((4*nu*(pi()*pi())*t)/(D*D))*rhop*((D*D)*rhop + 2*nu*(pi()*pi())*(-rhof + rhop)*taup)*Vs*(::sin((pi()*(t*(Ua + Va) - x - y))/D)
-    - ::sin((pi()*(t*(Ua - Va) - x + y))/D)) + 3*D*(pi()*pi())*rhof*(rhof + 2*rhop)*(taup*taup)*(Vs*Vs*Vs)*(::sin((pi()*(t*(Ua + 3*Va) - x - 3*y))/D)
-    + ::sin((pi()*(3*t*Ua + t*Va - 3*x - y))/D) - ::sin((pi()*(3*t*Ua - t*Va - 3*x + y))/D) - ::sin((pi()*(t*Ua - 3*t*Va - x + 3*y))/D)))
-    / (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop) + 4*D*::exp((2*nu*(pi()*pi())*t)/(D*D))*(pi()*pi())*square(rhof + 2*rhop)*(taup*taup)*(Vs*Vs)*(::cos((2*pi()*(-(t*Ua) + x))/D)
-    + ::cos((2*pi()*(-(t*Va) + y))/D)));
+//  return (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop)*Ua + 4*::exp((2*nu*(pi()*pi())*t)/(D*D))*pi()*taup*(Vs*Vs)*(D*pi()*square(rhof + 2*rhop)*taup*Ua*(::cos((2*pi()*(t*Ua - x))/D)
+//    + ::cos((2*pi()*(t*Va - y))/D)) + 4*(rhof - rhop)*((D*D)*rhop + nu*(pi()*pi())*(rhof + 2*rhop)*taup)*::sin((2*pi()*(t*Ua - x))/D))
+//    + 16*D*::exp((4*nu*(pi()*pi())*t)/(D*D))*rhop*((D*D)*rhop + 2*nu*(pi()*pi())*(-rhof + rhop)*taup)*Vs*(::sin((pi()*(t*(Ua + Va) - x - y))/D)
+//    - ::sin((pi()*(t*(Ua - Va) - x + y))/D)) + 3*D*(pi()*pi())*rhof*(rhof + 2*rhop)*(taup*taup)*(Vs*Vs*Vs)*(::sin((pi()*(t*(Ua + 3*Va) - x - 3*y))/D)
+//    + ::sin((pi()*(3*t*Ua + t*Va - 3*x - y))/D) - ::sin((pi()*(3*t*Ua - t*Va - 3*x + y))/D) - ::sin((pi()*(t*Ua - 3*t*Va - x + 3*y))/D)))
+//    / (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop) + 4*D*::exp((2*nu*(pi()*pi())*t)/(D*D))*(pi()*pi())*square(rhof + 2*rhop)*(taup*taup)*(Vs*Vs)*(::cos((2*pi()*(-(t*Ua) + x))/D)
+//    + ::cos((2*pi()*(-(t*Va) + y))/D)));
+  return Ua + (pi()*(Vs*Vs)*::sin((2*pi()*(-(t*Ua) + x))/D)*taup)/(2.*D*::exp((4*nu*(pi()*pi())*t)/(D*D))) - (Vs*::cos((pi()*(-(t*Ua) + x))/D)*::sin((pi()*(-(t*Va) + y))/D)*((D*D) + 2*nu*(pi()*pi())*taup))/((D*D)*::exp((2*nu*(pi()*pi())*t)/(D*D)));
+
+  // This is du/dt:
+//   return (pi()*Vs*(D*Ua*::sin((pi()*(t*Ua - x))/D)*::sin((pi()*(-(t*Va) + y))/D) +
+//     ::cos((pi()*(-(t*Ua) + x))/D)*(D*Va*::cos((pi()*(-(t*Va) + y))/D) +
+//     2*nu*pi()*::sin((pi()*(-(t*Va) +
+//     y))/D))))/((D*D)*::exp((2*nu*(pi()*pi())*t)/(D*D)));
+  
 }
 
-Real TaylorGreenModel::vy() const
+Real TaylorGreenModel::vy(const Real t) const
 {
-  return (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop)*Va + 4*::exp((2*nu*(pi()*pi())*t)/(D*D))*pi()*taup*(Vs*Vs)*(D*pi()*square(rhof + 2*rhop)*taup*Va*(::cos((2*pi()*(t*Ua - x))/D)
-    + ::cos((2*pi()*(t*Va - y))/D)) + 4*(rhof - rhop)*((D*D)*rhop + nu*(pi()*pi())*(rhof + 2*rhop)*taup)*::sin((2*pi()*(t*Va - y))/D))
-    - 16*D*::exp((4*nu*(pi()*pi())*t)/(D*D))*rhop*((D*D)*rhop + 2*nu*(pi()*pi())*(-rhof + rhop)*taup)*Vs*(::sin((pi()*(t*(Ua + Va) - x - y))/D)
-    + ::sin((pi()*(t*(Ua - Va) - x + y))/D)) - 3*D*(pi()*pi())*rhof*(rhof + 2*rhop)*(taup*taup)*(Vs*Vs*Vs)*(::sin((pi()*(t*(Ua + 3*Va) - x - 3*y))/D)
-    + ::sin((pi()*(3*t*Ua + t*Va - 3*x - y))/D) + ::sin((pi()*(3*t*Ua - t*Va - 3*x + y))/D) + ::sin((pi()*(t*Ua - 3*t*Va - x + 3*y))/D)))
-    / (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop) + 4*D*::exp((2*nu*(pi()*pi())*t)/(D*D))*(pi()*pi())*square(rhof + 2*rhop)*(taup*taup)*(Vs*Vs)*(::cos((2*pi()*(-(t*Ua) + x))/D)
-    + ::cos((2*pi()*(-(t*Va) + y))/D)));
+//  return (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop)*Va + 4*::exp((2*nu*(pi()*pi())*t)/(D*D))*pi()*taup*(Vs*Vs)*(D*pi()*square(rhof + 2*rhop)*taup*Va*(::cos((2*pi()*(t*Ua - x))/D)
+//    + ::cos((2*pi()*(t*Va - y))/D)) + 4*(rhof - rhop)*((D*D)*rhop + nu*(pi()*pi())*(rhof + 2*rhop)*taup)*::sin((2*pi()*(t*Va - y))/D))
+//    - 16*D*::exp((4*nu*(pi()*pi())*t)/(D*D))*rhop*((D*D)*rhop + 2*nu*(pi()*pi())*(-rhof + rhop)*taup)*Vs*(::sin((pi()*(t*(Ua + Va) - x - y))/D)
+//    + ::sin((pi()*(t*(Ua - Va) - x + y))/D)) - 3*D*(pi()*pi())*rhof*(rhof + 2*rhop)*(taup*taup)*(Vs*Vs*Vs)*(::sin((pi()*(t*(Ua + 3*Va) - x - 3*y))/D)
+//    + ::sin((pi()*(3*t*Ua + t*Va - 3*x - y))/D) + ::sin((pi()*(3*t*Ua - t*Va - 3*x + y))/D) + ::sin((pi()*(t*Ua - 3*t*Va - x + 3*y))/D)))
+//    / (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop) + 4*D*::exp((2*nu*(pi()*pi())*t)/(D*D))*(pi()*pi())*square(rhof + 2*rhop)*(taup*taup)*(Vs*Vs)*(::cos((2*pi()*(-(t*Ua) + x))/D)
+//    + ::cos((2*pi()*(-(t*Va) + y))/D)));
+  return Va + (pi()*(Vs*Vs)*::sin((2*pi()*(-(t*Va) + y))/D)*taup)/(2.*D*::exp((4*nu*(pi()*pi())*t)/(D*D))) + (Vs*::cos((pi()*(-(t*Va) + y))/D)*::sin((pi()*(-(t*Ua) + x))/D)*((D*D) + 2*nu*(pi()*pi())*taup))/((D*D)*::exp((2*nu*(pi()*pi())*t)/(D*D)));
+  
+  // This is dv/dt:
+//   return (pi()*Vs*(-(::cos((pi()*(-(t*Va) + y))/D)*(D*Ua*::cos((pi()*(-(t*Ua) +
+//     x))/D) + 2*nu*pi()*::sin((pi()*(-(t*Ua) + x))/D))) +
+//     D*Va*::sin((pi()*(-(t*Ua) + x))/D)*::sin((pi()*(-(t*Va) +
+//     y))/D)))/((D*D)*::exp((2*nu*(pi()*pi())*t)/(D*D)));
 }
 
-void update_tg_values_func(const TaylorGreenModel& d, RealVector& out)
+void update_tg_values_func(const TaylorGreenModel& d, RealVector& out, const Real t, const Real dt)
 {
-  out[0] = d.ux();
-  out[1] = d.uy();
-  out[2] = d.vx();
-  out[3] = d.vy();
+  out[0] = d.ux(t);
+  out[1] = d.uy(t);
+  out[2] = d.ux(t+dt);
+  out[3] = d.uy(t+dt);
+  out[4] = d.vx(t+dt);
+  out[5] = d.vy(t+dt);
 }
-static boost::proto::terminal< void(*)(const TaylorGreenModel&, RealVector&) >::type const update_tg_values = {&update_tg_values_func};
+static boost::proto::terminal< void(*)(const TaylorGreenModel&, RealVector&, const Real, const Real) >::type const update_tg_values = {&update_tg_values_func};
 
 }
 
@@ -96,7 +113,7 @@ common::ComponentBuilder < TaylorGreen, common::Action, LibUFEMParticles > Taylo
 
 TaylorGreen::TaylorGreen(const std::string& name) :
   ProtoAction(name),
-  m_tg_values(4)
+  m_tg_values(6)
 {
   options().add(solver::Tags::time(), m_time)
     .pretty_name("Time")
@@ -135,7 +152,8 @@ TaylorGreen::TaylorGreen(const std::string& name) :
     .link_to(&(m_tg_model.rhop));
     
   FieldVariable<0, VectorField> u("FluidVelocityTG", "taylor_green");
-  FieldVariable<1, VectorField> v("ParticleVelocityTG", "taylor_green");
+  FieldVariable<1, VectorField> u1("AdvectionVelocity1", "linearized_velocity");
+  FieldVariable<2, VectorField> v("ParticleVelocityTG", "taylor_green");
   PhysicsConstant nu("kinematic_viscosity");
   PhysicsConstant rho_f("density");
   
@@ -143,15 +161,23 @@ TaylorGreen::TaylorGreen(const std::string& name) :
   (
     group
     (
-      lit(m_tg_model.nu) = nu,
-      lit(m_tg_model.rhof) = rho_f,
-      lit(m_tg_model.x) = coordinates[0],
-      lit(m_tg_model.y) = coordinates[1],
-      detail::update_tg_values(lit(m_tg_model), lit(m_tg_values)),
-      u[0] = lit(m_tg_values)[0],
-      u[1] = lit(m_tg_values)[1],
-      v[0] = lit(m_tg_values)[2],
-      v[1] = lit(m_tg_values)[3]
+      group
+      (
+        lit(m_tg_model.nu) = nu,
+        lit(m_tg_model.rhof) = rho_f,
+        lit(m_tg_model.x) = coordinates[0],
+        lit(m_tg_model.y) = coordinates[1]
+      ),
+      detail::update_tg_values(lit(m_tg_model), lit(m_tg_values), lit(m_t), lit(m_dt)),
+      group
+      (
+        u1[0] = lit(m_tg_values)[0],
+        u1[1] = lit(m_tg_values)[1],
+        u[0] = lit(m_tg_values)[2],
+        u[1] = lit(m_tg_values)[3],
+        v[0] = lit(m_tg_values)[4],
+        v[1] = lit(m_tg_values)[5]
+      )
     )
   ));
 }
@@ -167,12 +193,14 @@ void TaylorGreen::trigger_time()
       return;
 
   m_time->options().option("current_time").attach_trigger(boost::bind(&TaylorGreen::trigger_current_time, this));
+  m_time->options().option("time_step").attach_trigger(boost::bind(&TaylorGreen::trigger_current_time, this));
   trigger_current_time();
 }
 
 void TaylorGreen::trigger_current_time()
 {
-  m_tg_model.t = m_time->current_time();
+  m_t = m_time->current_time();
+  m_dt = m_time->dt();
 }
 
 } // namespace particles

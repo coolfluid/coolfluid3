@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_EulerDNS_hpp
-#define cf3_UFEM_EulerDNS_hpp
+#ifndef cf3_UFEM_VelocityGradient_hpp
+#define cf3_UFEM_VelocityGradient_hpp
 
 #include "InitialConditions.hpp"
 
@@ -41,4 +41,4 @@ private:
 } // cf3
 
 
-#endif // cf3_UFEM_EulerDNS_hpp
+#endif // cf3_UFEM_VelocityGradient_hpp
