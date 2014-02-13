@@ -47,9 +47,8 @@ struct EquilibriumEuler::VelocityFunctor : FunctionBase
   typedef void result_type;
   
   VelocityFunctor() :
-    rho_f(1.),
-    rho_p(1000.),
-    tau_p(0.01)
+    beta(0.),
+    tau(0.01)
   {
   }
   
@@ -65,17 +64,15 @@ struct EquilibriumEuler::VelocityFunctor : FunctionBase
   template<typename VectorT, typename TensorT>
   void compute_velocity(const VectorT& u, const VectorT& u1, const VectorT& g, const TensorT& grad_u)
   {
-    const TensorT invgrad = (TensorT::Identity() + tau_p*(1+rho_f/(2.*rho_p))*grad_u).inverse();
+    const TensorT invgrad = (TensorT::Identity() + tau*grad_u).inverse();
     const VectorT du_dt = (u - u1)/dt;
-    //v = u - tau_p*invgrad*( (1.-rho_f/rho_p)*(du_dt + grad_u*u) - (rho_p-rho_f)/rho_p*g );
-    v = u - tau_p*(du_dt + grad_u*u);
+    v = u - tau*(1-beta)*invgrad*(du_dt + grad_u*u - g);
   }
   
   Real dt;
   
-  Real rho_f;
-  Real rho_p;
-  Real tau_p;
+  Real beta;
+  Real tau;
 
   // The computed particle velocity
   RealVector v;
@@ -99,17 +96,17 @@ EquilibriumEuler::EquilibriumEuler(const std::string& name) :
     .attach_trigger(boost::bind(&EquilibriumEuler::trigger_time, this))
     .link_to(&m_time);
 
-  options().add("particle_density", m_functor->rho_p)
-    .pretty_name("Particle Density")
-    .description("Mass density for the particle")
+  options().add("beta", m_functor->beta)
+    .pretty_name("Beta")
+    .description("Density ratio parameter")
     .mark_basic()
-    .link_to(&m_functor->rho_p);
+    .link_to(&m_functor->beta);
 
-  options().add("particle_relaxation_time", m_functor->tau_p)
-    .pretty_name("Particle Relaxation Time")
-    .description("Relaxation time for the particles")
+  options().add("tau", m_functor->tau)
+    .pretty_name("Tau")
+    .description("Generalized particle relaxation time")
     .mark_basic()
-    .link_to(&m_functor->tau_p);
+    .link_to(&m_functor->tau);
     
   m_velocity_gradient = Handle<common::Action>(create_component("VelocityGradient", "cf3.UFEM.VelocityGradient"));
 }
@@ -138,8 +135,8 @@ void EquilibriumEuler::on_regions_set()
   {
     m_functor->v.resize(2);
 
-    FieldVariable<3, VectorField> grad_ux("grad_ux", grad_tag);
-    FieldVariable<4, VectorField> grad_uy("grad_uy", grad_tag);
+    FieldVariable<4, VectorField> grad_ux("grad_ux", grad_tag);
+    FieldVariable<5, VectorField> grad_uy("grad_uy", grad_tag);
     
     set_expression(nodes_expression_2d
     (
@@ -173,7 +170,6 @@ void EquilibriumEuler::on_regions_set()
 
 void EquilibriumEuler::execute()
 {
-  m_functor->rho_f = physical_model().options().value<Real>("density");
   m_velocity_gradient->execute();
   cf3::solver::actions::Proto::ProtoAction::execute();
 }

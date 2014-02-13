@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_EulerDNS_hpp
-#define cf3_UFEM_EulerDNS_hpp
+#ifndef cf3_UFEM_ParticleConcentration_hpp
+#define cf3_UFEM_ParticleConcentration_hpp
 
 #include "LibUFEMParticles.hpp"
 #include "../LSSActionUnsteady.hpp"
@@ -17,16 +17,16 @@ namespace particles {
 
 /// Particle concentration transport, following
 /// Ferry, J. & Balachandarb, S. A fast Eulerian method for disperse two-phase flow International Journal of Multiphase Flow, {2001}, {27}, 1199-1226
-class EulerDNS : public LSSActionUnsteady
+class ParticleConcentration : public LSSActionUnsteady
 {
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  EulerDNS ( const std::string& name );
+  ParticleConcentration ( const std::string& name );
 
   /// Get the class name
-  static std::string type_name () { return "EulerDNS"; }
+  static std::string type_name () { return "ParticleConcentration"; }
 
 private:
 
@@ -35,8 +35,8 @@ private:
 
   /// Stabilization coefficient
   Real tau_su;
-  /// Particle relaxation time
-  Real tau_p;
+  /// Theta parameter for the theta-scheme
+  Real m_theta;
 
   ComputeTau compute_tau;
 };
@@ -46,4 +46,4 @@ private:
 } // cf3
 
 
-#endif // cf3_UFEM_EulerDNS_hpp
+#endif // cf3_UFEM_ParticleConcentration_hpp

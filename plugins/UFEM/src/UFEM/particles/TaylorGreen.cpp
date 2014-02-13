@@ -61,39 +61,12 @@ Real TaylorGreenModel::uy(const Real t) const
 
 Real TaylorGreenModel::vx(const Real t) const
 {
-//  return (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop)*Ua + 4*::exp((2*nu*(pi()*pi())*t)/(D*D))*pi()*taup*(Vs*Vs)*(D*pi()*square(rhof + 2*rhop)*taup*Ua*(::cos((2*pi()*(t*Ua - x))/D)
-//    + ::cos((2*pi()*(t*Va - y))/D)) + 4*(rhof - rhop)*((D*D)*rhop + nu*(pi()*pi())*(rhof + 2*rhop)*taup)*::sin((2*pi()*(t*Ua - x))/D))
-//    + 16*D*::exp((4*nu*(pi()*pi())*t)/(D*D))*rhop*((D*D)*rhop + 2*nu*(pi()*pi())*(-rhof + rhop)*taup)*Vs*(::sin((pi()*(t*(Ua + Va) - x - y))/D)
-//    - ::sin((pi()*(t*(Ua - Va) - x + y))/D)) + 3*D*(pi()*pi())*rhof*(rhof + 2*rhop)*(taup*taup)*(Vs*Vs*Vs)*(::sin((pi()*(t*(Ua + 3*Va) - x - 3*y))/D)
-//    + ::sin((pi()*(3*t*Ua + t*Va - 3*x - y))/D) - ::sin((pi()*(3*t*Ua - t*Va - 3*x + y))/D) - ::sin((pi()*(t*Ua - 3*t*Va - x + 3*y))/D)))
-//    / (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop) + 4*D*::exp((2*nu*(pi()*pi())*t)/(D*D))*(pi()*pi())*square(rhof + 2*rhop)*(taup*taup)*(Vs*Vs)*(::cos((2*pi()*(-(t*Ua) + x))/D)
-//    + ::cos((2*pi()*(-(t*Va) + y))/D)));
-  return Ua + (pi()*(Vs*Vs)*::sin((2*pi()*(-(t*Ua) + x))/D)*taup)/(2.*D*::exp((4*nu*(pi()*pi())*t)/(D*D))) - (Vs*::cos((pi()*(-(t*Ua) + x))/D)*::sin((pi()*(-(t*Va) + y))/D)*((D*D) + 2*nu*(pi()*pi())*taup))/((D*D)*::exp((2*nu*(pi()*pi())*t)/(D*D)));
-
-  // This is du/dt:
-//   return (pi()*Vs*(D*Ua*::sin((pi()*(t*Ua - x))/D)*::sin((pi()*(-(t*Va) + y))/D) +
-//     ::cos((pi()*(-(t*Ua) + x))/D)*(D*Va*::cos((pi()*(-(t*Va) + y))/D) +
-//     2*nu*pi()*::sin((pi()*(-(t*Va) +
-//     y))/D))))/((D*D)*::exp((2*nu*(pi()*pi())*t)/(D*D)));
-  
+  return (8*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*Ua + Vs*(4*::exp((2*nu*(pi()*pi())*t)/(D*D))*pi()*Vs*tau*(D*pi()*Ua*tau*(::cos((2*pi()*(-(t*Ua) + x))/D) + ::cos((2*pi()*(-(t*Va) + y))/D)) + (-1 + beta)*((D*D) + 2*nu*(pi()*pi())*tau)*::sin((2*pi()*(t*Ua - x))/D)) - 4*D*::exp((4*nu*(pi()*pi())*t)/(D*D))*((D*D) - 2*nu*(pi()*pi())*(-1 + beta)*tau)*(::sin((pi()*(t*(Ua - Va) - x + y))/D) + ::sin((pi()*(-(t*(Ua + Va)) + x + y))/D)) + D*(pi()*pi())*(Vs*Vs)*beta*(tau*tau)*(::sin((pi()*(t*(Ua + 3*Va) - x - 3*y))/D) + ::sin((pi()*(3*t*Ua + t*Va - 3*x - y))/D) - ::sin((pi()*(3*t*Ua - t*Va - 3*x + y))/D) - ::sin((pi()*(t*Ua - 3*t*Va - x + 3*y))/D))))/(8*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D)) + 4*D*::exp((2*nu*(pi()*pi())*t)/(D*D))*(pi()*pi())*(Vs*Vs)*(tau*tau)*(::cos((2*pi()*(-(t*Ua) + x))/D) + ::cos((2*pi()*(-(t*Va) + y))/D)));
 }
 
 Real TaylorGreenModel::vy(const Real t) const
 {
-//  return (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop)*Va + 4*::exp((2*nu*(pi()*pi())*t)/(D*D))*pi()*taup*(Vs*Vs)*(D*pi()*square(rhof + 2*rhop)*taup*Va*(::cos((2*pi()*(t*Ua - x))/D)
-//    + ::cos((2*pi()*(t*Va - y))/D)) + 4*(rhof - rhop)*((D*D)*rhop + nu*(pi()*pi())*(rhof + 2*rhop)*taup)*::sin((2*pi()*(t*Va - y))/D))
-//    - 16*D*::exp((4*nu*(pi()*pi())*t)/(D*D))*rhop*((D*D)*rhop + 2*nu*(pi()*pi())*(-rhof + rhop)*taup)*Vs*(::sin((pi()*(t*(Ua + Va) - x - y))/D)
-//    + ::sin((pi()*(t*(Ua - Va) - x + y))/D)) - 3*D*(pi()*pi())*rhof*(rhof + 2*rhop)*(taup*taup)*(Vs*Vs*Vs)*(::sin((pi()*(t*(Ua + 3*Va) - x - 3*y))/D)
-//    + ::sin((pi()*(3*t*Ua + t*Va - 3*x - y))/D) + ::sin((pi()*(3*t*Ua - t*Va - 3*x + y))/D) + ::sin((pi()*(t*Ua - 3*t*Va - x + 3*y))/D)))
-//    / (32*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*(rhop*rhop) + 4*D*::exp((2*nu*(pi()*pi())*t)/(D*D))*(pi()*pi())*square(rhof + 2*rhop)*(taup*taup)*(Vs*Vs)*(::cos((2*pi()*(-(t*Ua) + x))/D)
-//    + ::cos((2*pi()*(-(t*Va) + y))/D)));
-  return Va + (pi()*(Vs*Vs)*::sin((2*pi()*(-(t*Va) + y))/D)*taup)/(2.*D*::exp((4*nu*(pi()*pi())*t)/(D*D))) + (Vs*::cos((pi()*(-(t*Va) + y))/D)*::sin((pi()*(-(t*Ua) + x))/D)*((D*D) + 2*nu*(pi()*pi())*taup))/((D*D)*::exp((2*nu*(pi()*pi())*t)/(D*D)));
-  
-  // This is dv/dt:
-//   return (pi()*Vs*(-(::cos((pi()*(-(t*Va) + y))/D)*(D*Ua*::cos((pi()*(-(t*Ua) +
-//     x))/D) + 2*nu*pi()*::sin((pi()*(-(t*Ua) + x))/D))) +
-//     D*Va*::sin((pi()*(-(t*Ua) + x))/D)*::sin((pi()*(-(t*Va) +
-//     y))/D)))/((D*D)*::exp((2*nu*(pi()*pi())*t)/(D*D)));
+  return (8*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D))*Va + 4*::exp((2*nu*(pi()*pi())*t)/(D*D))*pi()*(Vs*Vs)*tau*(D*pi()*Va*tau*(::cos((2*pi()*(-(t*Ua) + x))/D) + ::cos((2*pi()*(-(t*Va) + y))/D)) + (-1 + beta)*((D*D) + 2*nu*(pi()*pi())*tau)*::sin((2*pi()*(t*Va - y))/D)) - 4*D*::exp((4*nu*(pi()*pi())*t)/(D*D))*Vs*((D*D) - 2*nu*(pi()*pi())*(-1 + beta)*tau)*(::sin((pi()*(t*(Ua - Va) - x + y))/D) - ::sin((pi()*(-(t*(Ua + Va)) + x + y))/D)) - D*(pi()*pi())*(Vs*Vs*Vs)*beta*(tau*tau)*(::sin((pi()*(t*(Ua + 3*Va) - x - 3*y))/D) + ::sin((pi()*(3*t*Ua + t*Va - 3*x - y))/D) + ::sin((pi()*(3*t*Ua - t*Va - 3*x + y))/D) + ::sin((pi()*(t*Ua - 3*t*Va - x + 3*y))/D)))/(8*(D*D*D)*::exp((6*nu*(pi()*pi())*t)/(D*D)) + 4*D*::exp((2*nu*(pi()*pi())*t)/(D*D))*(pi()*pi())*(Vs*Vs)*(tau*tau)*(::cos((2*pi()*(-(t*Ua) + x))/D) + ::cos((2*pi()*(-(t*Va) + y))/D)));
 }
 
 void update_tg_values_func(const TaylorGreenModel& d, RealVector& out, const Real t, const Real dt)
@@ -141,15 +114,15 @@ TaylorGreen::TaylorGreen(const std::string& name) :
     .description("Vortex diameter")
     .link_to(&(m_tg_model.D));
 
-  options().add("tau_p", m_tg_model.taup)
-    .pretty_name("Tau_p")
-    .description("Particle relaxation time")
-    .link_to(&(m_tg_model.taup));
+  options().add("beta", m_tg_model.beta)
+    .pretty_name("Beta")
+    .description("Particle density ratio parameter")
+    .link_to(&(m_tg_model.beta));
 
-  options().add("rho_p", m_tg_model.rhop)
-    .pretty_name("Rho_p")
-    .description("Particle density")
-    .link_to(&(m_tg_model.rhop));
+  options().add("tau", m_tg_model.tau)
+    .pretty_name("Tau")
+    .description("Generalized particle relaxation time")
+    .link_to(&(m_tg_model.tau));
     
   FieldVariable<0, VectorField> u("FluidVelocityTG", "taylor_green");
   FieldVariable<1, VectorField> u1("AdvectionVelocity1", "linearized_velocity");
@@ -164,7 +137,6 @@ TaylorGreen::TaylorGreen(const std::string& name) :
       group
       (
         lit(m_tg_model.nu) = nu,
-        lit(m_tg_model.rhof) = rho_f,
         lit(m_tg_model.x) = coordinates[0],
         lit(m_tg_model.y) = coordinates[1]
       ),

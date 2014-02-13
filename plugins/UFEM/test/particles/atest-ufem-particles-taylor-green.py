@@ -14,15 +14,21 @@ env.exception_backtrace = False
 env.regist_signal_handlers = False
 env.log_level = 4
 
-dt = 0.001
-segs = 32
-D = 0.5
-tau_p = 0.05
-
-numsteps = 5
-write_interval = 1
-
 nu = 1./5000.
+
+segs = 96
+D = 0.5
+Ua = 0.
+Va = 0.
+
+tau = 0.25
+beta = 3.
+
+dt = 15./tau / 100000.
+
+numsteps = 100
+write_interval = 10
+
 
 def create_mesh(domain, segments):
   blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -43,8 +49,8 @@ def create_mesh(domain, segments):
   block_subdivs[1] = [segments, segments/2]
 
   gradings = blocks.create_block_gradings()
-  #gradings[0] = [1., 1., 10., 10.]
-  #gradings[1] = [1., 1., 0.1, 0.1]
+  # gradings[0] = [1., 1., 10., 10.]
+  # gradings[1] = [1., 1., 0.1, 0.1]
   gradings[0] = [1., 1., 1., 1.]
   gradings[1] = [1., 1., 1., 1.]
 
@@ -98,14 +104,18 @@ physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 physics.options.dimension = 2
 solver = model.create_solver('cf3.UFEM.Solver')
 tg_solver = solver.add_unsteady_solver('cf3.UFEM.particles.TaylorGreen')
-tg_solver.options.tau_p = tau_p
-tg_solver.options.ua = 0.
-tg_solver.options.va = 0.
+tg_solver.options.ua = Ua
+tg_solver.options.va = Va
+tg_solver.options.tau = tau
+tg_solver.options.beta = beta
 
 eq_euler = solver.add_unsteady_solver('cf3.UFEM.particles.EquilibriumEuler')
 eq_euler.options.velocity_variable = 'FluidVelocityTG'
 eq_euler.options.velocity_tag = 'taylor_green'
-eq_euler.particle_relaxation_time = tau_p
+eq_euler.tau = tau
+eq_euler.beta = beta
+
+particle_c = solver.add_unsteady_solver('cf3.UFEM.particles.ParticleConcentration')
 
 # Set up the physical constants
 physics.density = 1.
@@ -115,6 +125,7 @@ physics.dynamic_viscosity = nu
 mesh = create_mesh(domain, segs)
 tg_solver.regions = [mesh.topology.interior.uri()]
 eq_euler.regions = [mesh.topology.interior.uri()]
+particle_c.regions = [mesh.topology.interior.uri()]
 
 if eq_euler.name() == 'EquilibriumEulerFEM':
   lss = eq_euler.LSS
@@ -122,7 +133,12 @@ if eq_euler.name() == 'EquilibriumEulerFEM':
   lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.convergence_tolerance = 1e-12
   lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.maximum_iterations = 300
 
-    
+particle_c.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+
+ic_c = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionConstant', field_tag = 'particle_concentration')
+ic_c.c = 1.
+ic_c.regions = particle_c.regions
+
 series_writer = solver.TimeLoop.create_component('TimeWriter', 'cf3.solver.actions.TimeSeriesWriter')
 writer = series_writer.create_component('Writer', 'cf3.mesh.VTKXML.Writer')
 writer.file = cf.URI('taylor-green-{iteration}.pvtu')
@@ -130,7 +146,7 @@ writer.mesh = mesh
 series_writer.interval = write_interval
 
 solver.create_fields()
-writer.fields = [mesh.geometry.taylor_green.uri(), mesh.geometry.ufem_particle_velocity.uri()]
+writer.fields = [mesh.geometry.taylor_green.uri(), mesh.geometry.ufem_particle_velocity.uri(), mesh.geometry.particle_concentration.uri()]
     
 # Time setup
 time = model.create_time()
@@ -152,7 +168,7 @@ for i in range(len(error_fd)):
   err_row[0] = err_array[i][0]
   err_row[1] = err_array[i][1]
 
-writer.fields = [mesh.geometry.taylor_green.uri(), mesh.geometry.ufem_particle_velocity.uri(), error_fd.uri(), mesh.geometry.linearized_velocity.uri()]
+writer.fields = [mesh.geometry.taylor_green.uri(), mesh.geometry.ufem_particle_velocity.uri(), error_fd.uri(), mesh.geometry.linearized_velocity.uri(), mesh.geometry.particle_concentration.uri()]
 writer.file = cf.URI('taylor-green-error.pvtu')
 writer.execute()
 

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "EulerDNS.hpp"
+#include "ParticleConcentration.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -21,6 +21,7 @@
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+#include <solver/actions/Proto/ElementGradDiv.hpp>
 #include "solver/actions/Iterate.hpp"
 #include "solver/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
@@ -38,58 +39,23 @@ using boost::proto::lit;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < EulerDNS, LSSActionUnsteady, LibUFEMParticles > EulerDNS_builder;
+common::ComponentBuilder < ParticleConcentration, LSSActionUnsteady, LibUFEMParticles > ParticleConcentration_builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace detail
-{
-/// Evaluate the divergence of the advection operation
-struct DivAdvOp
-{
-  // The result is a scalar
-  typedef Real result_type;
-
-  template<typename VarT>
-  Real operator()(const VarT& var) const
-  {
-    const typename VarT::GradientT& nabla = var.nabla();
-    Real result = 0.;
-    for(int i = 0; i != VarT::EtypeT::dimensionality; ++i)
-    {
-      for(int j = 0; j != VarT::EtypeT::dimensionality; ++j)
-      {
-        result += nabla.row(j) * var.value().col(i) * nabla.row(i) * var.value().col(j);
-      }
-    }
-    return result;
-  }
-};
-
-static MakeSFOp<DivAdvOp>::type const div_adv = {};
-}
-
-EulerDNS::EulerDNS(const std::string& name) :
+ParticleConcentration::ParticleConcentration(const std::string& name) :
   LSSActionUnsteady(name),
-  tau_p(1e-3)
+  m_theta(0.5)
 {
-  options().add("velocity_tag", "navier_stokes_solution")
+  options().add("velocity_tag", "ufem_particle_velocity")
     .pretty_name("Velocity Tag")
     .description("Tag for the field containing the velocity")
-    .attach_trigger(boost::bind(&EulerDNS::trigger_set_expression, this));
+    .attach_trigger(boost::bind(&ParticleConcentration::trigger_set_expression, this));
 
-  options().add("enable_body_force", false)
-    .pretty_name("Enable Body Force")
-    .description("Enable the body force term for the particle equation.")
-    .attach_trigger(boost::bind(&EulerDNS::trigger_set_expression, this));
-
-  options().add("theta", 0.5)
+  options().add("theta", m_theta)
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
-    .attach_trigger(boost::bind(&EulerDNS::trigger_set_expression, this));
-
-  options().add("tau_p", tau_p)
-  .link_to(&tau_p);
+    .link_to(&m_theta);
 
   set_solution_tag("particle_concentration");
 
@@ -100,29 +66,38 @@ EulerDNS::EulerDNS(const std::string& name) :
   create_component<solver::actions::Proto::ProtoAction>("Update");
 
   get_child("BoundaryConditions")->mark_basic();
+      
+  options().add("alpha_su", compute_tau.data.op.alpha_su)
+    .pretty_name("alpha_su")
+    .description("Constant to multiply the SUPG parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_su));
+    
+  options().add("use_metric_tensor", compute_tau.data.op.use_metric_tensor)
+    .pretty_name("Use Metric Tensor")
+    .description("Use the metric tensor instead of the minimal element edge length as length scale.")
+    .link_to(&(compute_tau.data.op.use_metric_tensor));
+    
+  options().add("c1", compute_tau.data.op.c1)
+    .pretty_name("c1")
+    .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+    .link_to(&(compute_tau.data.op.c1));
+    
+  options().add("c2", compute_tau.data.op.c2)
+    .pretty_name("c2")
+    .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+    .link_to(&(compute_tau.data.op.c2));
   
   trigger_set_expression();
 }
 
 
-void EulerDNS::trigger_set_expression()
+void ParticleConcentration::trigger_set_expression()
 {
   // Fluid velocity
-  FieldVariable<0, VectorField> u("Velocity", options().value<std::string>("velocity_tag"));
+  FieldVariable<0, VectorField> v("ParticleVelocity", options().value<std::string>("velocity_tag"));
 
   // Particle concentration
   FieldVariable<1, ScalarField> c("c", "particle_concentration");
-
-  // Previous timestep fluid velocity
-  FieldVariable<2, VectorField> u1("AdvectionVelocity1", "linearized_velocity");
-
-  // Particle body force
-  FieldVariable<3, VectorField> g("Force", "body_force");
-
-  FieldVariable<4, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-
-  // Enable o disable the body force
-  const Real body_force_enable = options().value<bool>("enable_body_force") ? 1. : 0.;
 
   const Real theta = options().value<Real>("theta");
 
@@ -143,12 +118,11 @@ void EulerDNS::trigger_set_expression()
     group
     (
       _A = _0, _T = _0,
-      compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_su)),
+      compute_tau.apply(v, 0., lit(dt()), lit(tau_su)),
       element_quadrature
       (
-        _A(c,c) +=  transpose(N(c) + tau_su*u*nabla(c)) * u*nabla(c) - // advection of concentration
-                    lit(tau_p)*transpose(N(c)) * ((invdt()*(u - u1) + body_force_enable*g + u*nabla(u)*nodal_values(u)) * nabla(c) + detail::div_adv(u)*N(c)), // Particle inertia
-        _T(c,c) +=  transpose(N(c) + tau_su*u*nabla(c)) * N(c)
+        _A(c,c) +=  transpose(N(c) + lit(tau_su)*(v*nabla(c))) * (v*nabla(c) + divergence(v)*N(c)),
+        _T(c,c) +=  transpose(N(c) + lit(tau_su)*(v*nabla(c))) * N(c)
       ),
       system_matrix += invdt()*_T + theta*_A,
       system_rhs += -_A*_x

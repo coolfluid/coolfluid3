@@ -107,6 +107,7 @@ void EquilibriumEulerFEM::trigger_set_expression()
         _a[v[_i]] += transpose(N(u)) * (u[_i] - lit(tau_p)*( (u[_i]-u1[_i])*lit(invdt()) + (u*nabla(u)*transpose(transpose(nodal_values(u))[_i]))[0] ) )
         //_a[v[_i]] += -0.5*lit(tau_p)*transpose(u[_i]*N(u)) * nabla(u)[_j] * transpose(transpose(nodal_values(u))[_j])
       ),
+      //lump(_A),
       system_matrix += _A,
       system_rhs += _a
     )

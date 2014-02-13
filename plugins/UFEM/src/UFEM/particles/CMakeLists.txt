@@ -4,10 +4,10 @@ coolfluid3_add_library(TARGET coolfluid_ufem_particles
     EquilibriumEuler.cpp
     EquilibriumEulerFEM.hpp
     EquilibriumEulerFEM.cpp
-    EulerDNS.hpp
-    EulerDNS.cpp
     LibUFEMParticles.hpp
     LibUFEMParticles.cpp
+    ParticleConcentration.hpp
+    ParticleConcentration.cpp
     TaylorGreen.hpp
     TaylorGreen.cpp
   LIBS     

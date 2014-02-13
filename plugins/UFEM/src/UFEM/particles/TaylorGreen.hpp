@@ -33,9 +33,8 @@ struct TaylorGreenModel
     Vs(1.),
     D(0.5),
     nu(1.),
-    rhof(1.),
-    rhop(1000.),
-    taup(0.1)
+    beta(0.),
+    tau(0.01)
   {
   }
   
@@ -55,7 +54,7 @@ struct TaylorGreenModel
   Real Ua, Va, Vs, D, nu;
 
   /// Coefficients for the particle dispersion
-  Real rhof, rhop, taup;
+  Real beta, tau;
 };
 
 }
