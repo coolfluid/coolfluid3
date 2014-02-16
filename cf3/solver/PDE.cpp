@@ -53,7 +53,7 @@ PDE::PDE ( const std::string& name  ) :
   options().add("bdry_fields", m_bdry_fields )
       .mark_basic()
       .link_to(&m_bdry_fields)
-      .attach_trigger( boost::bind( &PDE::create_bdry_fields, this) );
+      .attach_trigger( boost::bind( &PDE::create_bdry_fields_trigger, this) );
   options().add("bdry_solution", m_bdry_solution ).mark_basic().link_to(&m_bdry_solution);
   options().add("bdry_solution_gradient", m_bdry_solution_gradient ).mark_basic().link_to(&m_bdry_solution_gradient);
 
@@ -97,6 +97,11 @@ std::string PDE::solution_variables() const
 void PDE::create_fields_trigger()
 {
   create_fields(); // this function can be overloaded
+}
+
+void PDE::create_bdry_fields_trigger()
+{
+  create_bdry_fields(); // this function can be overloaded
 }
 
 void PDE::create_fields()

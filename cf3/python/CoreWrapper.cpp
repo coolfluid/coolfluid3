@@ -70,6 +70,11 @@ struct CoreWrapper
     return common::PE::Comm::instance().size();
   }
 
+  static void barrier()
+  {
+    common::PE::Comm::instance().barrier();
+  }
+
   static void terminate()
   {
     common::Core::instance().terminate();
@@ -100,6 +105,8 @@ void def_core()
     .staticmethod("rank")
     .def("nb_procs", CoreWrapper::nb_procs)
     .staticmethod("nb_procs")
+    .def("barrier", CoreWrapper::barrier)
+    .staticmethod("barrier")
     .def("wait_for_debugger", CoreWrapper::wait_for_debugger)
     .staticmethod("wait_for_debugger");
 }

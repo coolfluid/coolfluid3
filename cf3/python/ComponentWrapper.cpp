@@ -355,7 +355,7 @@ boost::python::object get_child(ComponentWrapper& self, const std::string& name)
   if (self.component().get_child(name))
     return wrap_component(self.component().get_child(name));
   else
-    throw common::ValueNotFound(FromHere(),"Component "+common::to_str(self.component().uri()/name)+" does not exist");
+    return boost::python::object(); // This is the None object in python
 }
 
 boost::python::object access_component_uri(ComponentWrapper& self, const common::URI& uri)
@@ -396,7 +396,7 @@ void configure_option_recursively(ComponentWrapper& self, const std::string& opt
 Uint get_len(ComponentWrapper& self)
 {
   if(is_null(self.get_list_interface()))
-    throw common::NotSupported(FromHere(), "Object does not support len()");
+    throw common::NotSupported(FromHere(), "Object "+self.component().uri().string()+" does not support len()");
 
   return self.get_list_interface()->len();
 }

@@ -10,6 +10,7 @@
 #include "mesh/Field.hpp"
 #include "solver/Time.hpp"
 #include "solver/TimeStepComputer.hpp"
+#include "common/Signal.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,25 @@ TimeStepComputer::TimeStepComputer ( const std::string& name ) :
     .description("Time Tracking component")
     .pretty_name("Time")
     .link_to(&m_time);
+
+  regist_signal ( "max_cfl" )
+      .description( "Get the maximum cfl number" )
+      .pretty_name("Maximum CFL" )
+      .connect   ( boost::bind ( &TimeStepComputer::signal_max_cfl,    this, _1 ) )
+      .signature ( boost::bind ( &TimeStepComputer::signature_max_cfl, this, _1 ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
+void TimeStepComputer::signal_max_cfl( common::SignalArgs& node )
+{
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add( "return_value", max_cfl() );
+}
+
+void TimeStepComputer::signature_max_cfl( common::SignalArgs& node )
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

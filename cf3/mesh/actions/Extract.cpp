@@ -152,7 +152,7 @@ void Extract::execute()
         region.parent()->remove_component(region.name());
     }
   }
-
+  mesh.update_structures();
 
 }
 

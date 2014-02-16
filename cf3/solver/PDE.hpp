@@ -135,6 +135,7 @@ public: // signals
 private:
 
   void create_fields_trigger();
+  void create_bdry_fields_trigger();
 
 protected: // data
 

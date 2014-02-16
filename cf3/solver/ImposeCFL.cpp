@@ -50,6 +50,14 @@ ImposeCFL::ImposeCFL ( const std::string& name ) :
 void ImposeCFL::parse_cfl()
 {
   m_cfl_function.parse( options().value<std::string>("cfl"), "i,t,cfl" );
+  if( is_not_null(m_time) )
+  {
+    std::vector<Real> args(3);
+    args[0] = m_time->iter();
+    args[1] = m_time->current_time();
+    args[2] = m_cfl;
+    m_cfl = m_cfl_function(args);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
