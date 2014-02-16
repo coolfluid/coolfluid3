@@ -37,7 +37,7 @@ common::ComponentBuilder < NavierStokesManual, LSSAction, LibUFEMDemo > NavierSt
 class NavierStokesManualAssembly : public solver::Action
 {
 public:
-  NavierStokesManualAssembly ( const std::string& name ) : solver::Action(name), u_ref(0.), rho(1.), invdt(1.), theta(0.5)
+  NavierStokesManualAssembly ( const std::string& name ) : solver::Action(name), rho(1.), invdt(1.), theta(0.5)
   {
   }
   
@@ -103,23 +103,31 @@ public:
           normals(2, XX) = nodes(0, YY) - nodes(1, YY);
           normals(2, YY) = nodes(1, XX) - nodes(0, XX);
 
-          const Real he = sqrt(4./3.141592654*volume);
-          const Real ree=u_ref*he/(2.*nu);
-          cf3_assert(ree > 0.);
-          const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-          const Real tau_ps = he*xi/(2.*u_ref);
-          const Real tau_bulk = he*u_ref/xi;
-
           const Real umag = u_avg.norm();
-          Real tau_su = 0.;
-          if(umag > 1e-10)
+
+          // Get the minimal edge length
+          Real h_rgn = 1e10;
+          for(Uint i = 0; i != 3; ++i)
           {
-            const Real h = 2. * volume / (normals * (u_avg / umag)).array().abs().sum();
-            Real ree=umag*h/(2.*nu);
-            cf3_assert(ree > 0.);
-            const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-            tau_su = h*xi/(2.*umag);
+            for(Uint j = 0; j != 3; ++j)
+            {
+              if(i != j)
+              {
+                h_rgn = std::min(h_rgn, (nodes.row(i) - nodes.row(j)).squaredNorm());
+              }
+            }
           }
+          h_rgn = sqrt(h_rgn);
+          
+          const Real h_ugn = h_rgn;//fabs(2.*umag / (u.eval()*u.nabla()).sum());
+          
+          const Real tau_adv_inv = (2.*umag)/h_ugn;
+          const Real tau_time_inv = 2.*invdt;
+          const Real tau_diff_inv = (nu)/(h_rgn*h_rgn);
+          
+          const Real tau_su = 1./(tau_adv_inv + tau_time_inv + 4.*tau_diff_inv);
+          const Real tau_ps = tau_su;
+          const Real tau_bulk = tau_su*umag*umag;
 
           A.setZero();
           T.setZero();
@@ -221,7 +229,6 @@ public:
   }
   
   Handle<math::LSS::System> m_lss;
-  Real u_ref;
   Real rho;
   Real invdt;
   Real theta;
@@ -270,7 +277,6 @@ void NavierStokesManual::execute()
 
   // Set the physical constants
   assembly->rho = physical_model().options().value<Real>("density");
-  assembly->u_ref = physical_model().options().value<Real>("reference_velocity");
 
   // Set theta
   assembly->theta = options().value<Real>("theta");

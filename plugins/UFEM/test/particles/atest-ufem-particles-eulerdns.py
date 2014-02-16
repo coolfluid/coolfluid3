@@ -92,7 +92,6 @@ eulerdns = solver.add_unsteady_solver('cf3.UFEM.particles.EulerDNS')
 # Set up the physical constants
 physics.density = 1.
 physics.dynamic_viscosity = nu
-physics.reference_velocity = 1.
 
 # Create the mesh
 mesh = create_mesh(domain, segs)
@@ -137,7 +136,7 @@ for i in range(len(mesh.geometry.coordinates)):
   #if abs(x) < 0.0001:
     #tg_impl.mesh.geometry.particle_concentration[i][0] = 1.
 
-eulerdns.options.tau_p = 0.25
+eulerdns.options.tau_p = 0.01
     
 # Time setup
 time = model.create_time()

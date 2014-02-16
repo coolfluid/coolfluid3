@@ -5,6 +5,8 @@ list( APPEND coolfluid_solver_files
   Action.cpp
   ActionDirector.hpp
   ActionDirector.cpp
+  ActionDirectorWithSkip.hpp
+  ActionDirectorWithSkip.cpp
   BC.hpp
   BC.cpp
   Criterion.hpp

@@ -157,7 +157,6 @@ class TaylorGreen:
     # Physical constants
     physics.density = 1.
     physics.dynamic_viscosity = 0.001
-    physics.reference_velocity = 1.
     
     return self.solver
 
@@ -187,13 +186,13 @@ class TaylorGreen:
       writer.fields = [mesh.geometry.navier_stokes_solution.uri()]
       lss = self.ns_solver.LSS
       lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'
-      lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-16
+      lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-14
       lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 2000
       lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.default_values = 'NSSA'
       lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.eigen_analysis_type = 'Anorm'
       lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.add_parameter(name = 'PDE equations', value =3)
-      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.aggregation_type = 'MIS'
-      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_type = 'symmetric block Gauss-Seidel'
+      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.aggregation_type = 'Uncoupled-MIS'
+      lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_type = 'Chebyshev'#'symmetric block Gauss-Seidel'
       lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_sweeps = 3
 
     else:
@@ -214,8 +213,15 @@ class TaylorGreen:
     # Time setup
     time = self.model.create_time()
     time.time_step = tstep
-    time.end_time = numsteps*tstep
-    self.model.simulate()
+    if self.builder == 'cf3.UFEM.NavierStokes':
+      time.end_time = numsteps*tstep
+      self.model.simulate()
+    else:
+      time.end_time = 0.
+      while time.end_time < numsteps*tstep:
+        time.end_time += save_interval*tstep
+        self.model.simulate()
+        self.solver.InitialConditions.options.disabled_actions = ['NavierStokes', 'linearized_velocity']
     self.model.print_timing_tree()
     
   def iterate_restart(self, end_time, save_interval = 1):    
@@ -250,7 +256,7 @@ root = cf.Core.root()
 meshdiff = root.create_component('MeshDiff', 'cf3.mesh.actions.MeshDiff')
 meshdiff.left = tg_impl.mesh
 meshdiff.right = tg_impl_restart.mesh
-meshdiff.max_ulps = 500000 # this relatively high number is due to the use of the iterative LSS solver
+meshdiff.max_ulps = 1000000000 # this relatively high number is due to the use of the iterative LSS solver
 meshdiff.execute()
 if not meshdiff.properties()['mesh_equal']:
   raise Exception('Bad restart for implicit solve')
@@ -269,7 +275,7 @@ tg_semi_impl_restart.setup(0.3, 0.2, D=0.5, theta=theta)
 tg_semi_impl_restart.set_restart(tg_semi_impl.prefix+'-5.cf3restart')
 tg_semi_impl_restart.iterate_restart(10.*dt, 5)
 
-meshdiff.max_ulps = 10
+meshdiff.max_ulps = 1000000000
 meshdiff.left = tg_semi_impl.mesh
 meshdiff.right = tg_semi_impl_restart.mesh
 meshdiff.execute()

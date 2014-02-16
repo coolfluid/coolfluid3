@@ -179,11 +179,32 @@ double OSystemLayer::memory_usage() const
         }
 #endif
 
-  return
+  double result = 
       static_cast<double>(info.arena)    +
       static_cast<double>(info.hblkhd)   +
       static_cast<double>(info.uordblks) +
       static_cast<double>(info.fordblks) ;
+      
+  if (!(result > 0.))
+  {
+    char buf[30];
+    snprintf(buf, 30, "/proc/%u/statm", (unsigned)getpid());
+    FILE* pf = fopen(buf, "r");
+    if (pf)
+    {
+      unsigned size; //       total program size
+      unsigned resident;//   resident set size
+      unsigned share;//      shared pages
+      unsigned text;//       text (code)
+      unsigned lib;//        library
+      unsigned data;//       data/stack
+      unsigned dt;//         dirty pages (unused in Linux 2.6)
+      fscanf(pf, "%u %u %u %u %u %u", &size, &resident, &share, &text, &lib, &data);
+      result = static_cast<double>(resident);
+    }
+  }
+  
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -25,7 +25,8 @@ ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
 ns_solver.options.theta = 0.5
 ns_solver.options.nb_iterations = 2
 ns_solver.enable_body_force = True
-
+ns_solver.options.pressure_rcg_solve = True
+#ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.DirectStrategy'
 refinement_level = 1
 
 # Generate mesh
@@ -90,14 +91,28 @@ link_horizontal.execute()
 # Physical constants
 physics.options().set('density', 1.)
 physics.options().set('dynamic_viscosity', 1.)
-physics.options().set('reference_velocity', 1.)
 
 tstep = 0.5
 
 ns_solver.regions = [mesh.topology.uri()]
 
-ns_solver.PressureLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-ns_solver.VelocityLSS.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
+for strat in [ns_solver.children.FirstPressureStrategy, ns_solver.children.SecondPressureStrategy]:
+  strat.MLParameters.aggregation_type = 'Uncoupled'
+  strat.MLParameters.max_levels = 4
+  strat.MLParameters.smoother_sweeps = 2
+  strat.MLParameters.coarse_type = 'Amesos-KLU'
+  strat.MLParameters.add_parameter(name = 'repartition: start level', value = 0)
+  strat.MLParameters.add_parameter(name = 'repartition: max min ratio', value = 1.1)
+  #strat.SolverParameters.convergence_tolerance = 1e-6
+
+lss = ns_solver.VelocityLSS.LSS
+lss.SolutionStrategy.preconditioner_reset = 20000000
+lss.SolutionStrategy.Parameters.preconditioner_type = 'Ifpack'
+lss.SolutionStrategy.Parameters.PreconditionerTypes.Ifpack.overlap = 0
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block CG'
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.convergence_tolerance = 1e-6
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.maximum_iterations = 300
+#lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.num_blocks = 100
 
 # Initial conditions
 ic_u = solver.InitialConditions.NavierStokes.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_u_solution')
@@ -128,7 +143,7 @@ for ((x, y), (u, v)) in zip(mesh.geometry.coordinates, mesh.geometry.navier_stok
   u_ref = y*(2-y)
   if abs(u_ref - u) > 1e-2:
     raise Exception('Error in u component: {u} != {u_ref} at y = {y}'.format(u = u, u_ref = u_ref, y = y))
-  if abs(v) > 1e-8:
+  if abs(v) > 1e-3:
     raise Exception('Non-zero v-component {v} at y = {y}'.format(v = v, y = y))
 
 # print timings

@@ -30,7 +30,6 @@
 #include "solver/Tags.hpp"
 
 #include "../NavierStokesSpecializations.hpp"
-#include "../SUPG.hpp"
 #include "../Tags.hpp"
 
 #include "../BoussinesqAssembly.hpp"
@@ -57,7 +56,6 @@ NavierStokes::NavierStokes(const std::string& name) :
   u2("AdvectionVelocity2", "linearized_velocity"),
   u3("AdvectionVelocity3", "linearized_velocity"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
-  u_ref("reference_velocity"),
   rho("density"),
   nu("kinematic_viscosity"),
 

@@ -105,7 +105,6 @@ ic_ns.Velocity = u_in
 # properties for Navier-Stokes
 physics.density = 1.2
 physics.dynamic_viscosity = 1.7894e-5
-physics.reference_velocity = u_in[0]
 
 # Boundary conditions for Navier-Stokes
 bc = nstokes.BoundaryConditions

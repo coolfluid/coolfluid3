@@ -31,6 +31,7 @@
 #include "math/LSS/Trilinos/TekoBlockedOperator.hpp"
 #include "math/LSS/Trilinos/TrilinosVector.hpp"
 
+#include "solver/ActionDirectorWithSkip.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Iterate.hpp"
@@ -277,7 +278,6 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   u2("AdvectionVelocity2", "linearized_velocity"),
   u3("AdvectionVelocity3", "linearized_velocity"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
-  u_ref("reference_velocity"),
   nu("kinematic_viscosity")
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_u_solution")("navier_stokes_p_solution")("linearized_velocity")("navier_stokes_viscosity");
@@ -315,6 +315,16 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
     .description("Activate the volume force term")
     .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
     .mark_basic();
+    
+  options().add("c1", boost::proto::value(compute_tau).op.c1)
+    .pretty_name("c1")
+    .description("Constant to divide the time step by, for calibrating the SUPG parameter")
+    .link_to(&(boost::proto::value(compute_tau).op.c1));
+    
+  options().add("c2", boost::proto::value(compute_tau).op.c2)
+    .pretty_name("c2")
+    .description("Constant to adjust the diffusion contribution of SUPG stabilization")
+    .link_to(&(boost::proto::value(compute_tau).op.c2));
 
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
   get_child("LinearizeU")->add_tag(detail::my_tag());
@@ -325,16 +335,16 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   m_p_lss->add_tag(detail::my_tag());
   m_p_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
 
+  // Assembly of the velocity system matrices
   m_u_lss = create_component<LSSAction>("VelocityLSS");
   m_u_lss->mark_basic();
-  m_u_lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
+  m_velocity_assembly = m_u_lss->create_component<solver::ActionDirectorWithSkip>("Assembly");
+  m_velocity_assembly->create_static_component<math::LSS::ZeroLSS>("ZeroLSS");
+  m_velocity_assembly->add_tag(detail::my_tag());
+  m_velocity_assembly->mark_basic();
   m_u_lss->set_solution_tag("navier_stokes_u_solution");
   m_u_lss->add_tag(detail::my_tag());
   m_u_lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
-  
-  // Assembly of the velocity system matrices
-  m_velocity_assembly = create_component<solver::ActionDirector>("VelocityAssembly");
-  m_velocity_assembly->add_tag(detail::my_tag());
 
   // Boundary conditions
   Handle<BoundaryConditions> pressure_bc =  m_p_lss->create_component<BoundaryConditions>("BC");
@@ -401,6 +411,10 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   m_pressure_assembly->options().set("pressure_lss_action", m_p_lss);
   m_pressure_assembly->add_tag(detail::my_tag());
   m_pressure_assembly->options().set("theta", theta);
+  m_pressure_assembly->options().set("c1", options().value<Real>("c1"));
+  m_pressure_assembly->options().set("c2", options().value<Real>("c2"));
+  options().option("c1").link_option(m_pressure_assembly->options().option_ptr("c1"));
+  options().option("c2").link_option(m_pressure_assembly->options().option_ptr("c2"));
   
   if(is_not_null(m_mass_matrix_assembly))
     m_initial_conditions->remove_component("MassMatrixAssembly");

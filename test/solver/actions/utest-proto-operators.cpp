@@ -313,22 +313,29 @@ BOOST_AUTO_TEST_CASE( CustomOp )
 /// Custom op that just modifies its argument
 struct Counter
 {
+  Counter() : increment(0.)
+  {
+  }
+  
   /// Dummy result
   typedef void result_type;
 
   result_type operator()(int& arg) const
   {
-    ++arg;
+    arg += increment;
   }
+  
+  Real increment;
 };
-
-MakeSFOp<Counter>::type counter = {};
 
 /// Test a custom operator that modifies its arguments
 BOOST_AUTO_TEST_CASE( VoidOp )
 {
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line2");
   Tools::MeshGeneration::create_line(*mesh, 1., 10);
+  
+  MakeSFOp<Counter>::type counter;
+  boost::proto::value(counter).op.increment = 2.;
 
   // Check if the counter really counts
   int count = 0;
@@ -338,7 +345,7 @@ BOOST_AUTO_TEST_CASE( VoidOp )
     counter(count)
   );
 
-  BOOST_CHECK_EQUAL(count, 10);
+  BOOST_CHECK_EQUAL(count, 20);
 }
 
 BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )

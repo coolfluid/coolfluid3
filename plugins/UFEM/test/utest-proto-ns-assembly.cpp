@@ -30,7 +30,6 @@
 #include <solver/ModelUnsteady.hpp>
 #include <solver/Solver.hpp>
 
-#include "UFEM/SUPG.hpp"
 #include <UFEM/Solver.hpp>
 #include <UFEM/LSSActionUnsteady.hpp>
 
@@ -50,7 +49,7 @@ typedef std::vector<Uint> SizesT;
 struct NavierStokesAssemblyFixture
 {
   template<Uint Dim, typename ExprT>
-  void run_model(const boost::shared_ptr<Mesh>& mesh, const ExprT& initial_condition_expression, const Real eps = 1e-12)
+  void run_model(const boost::shared_ptr<Mesh>& mesh, const ExprT& initial_condition_expression, const Real eps = 1e-10)
   {
     boost::shared_ptr<common::Group> root = allocate_component<Group>("Root");
     Handle<ModelUnsteady> model = root->create_component<ModelUnsteady>("NavierStokes");
@@ -63,7 +62,6 @@ struct NavierStokesAssemblyFixture
 
     physical_model.options().set("density", 1.);
     physical_model.options().set("dynamic_viscosity", 1.);
-    physical_model.options().set("reference_velocity", 1.);
 
     Time& time = model->create_time();
     time.options().set("time_step", 1.);
@@ -192,14 +190,14 @@ BOOST_AUTO_TEST_CASE( GenericTriangleVortex )
 {
   RealMatrix2 n_op; n_op << 0., 100., -100., 0.; // Linear operator to create a normal vector in 2D
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
-  run_model<2>(create_triangle(RealVector2(100.2, 100.1), RealVector2(100.75, 99.9), RealVector2(100.33, 100.83)), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]), 0.05);
+  run_model<2>(create_triangle(RealVector2(100.2, 100.1), RealVector2(100.75, 99.9), RealVector2(100.33, 100.83)), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]), 0.5);
 }
 
 BOOST_AUTO_TEST_CASE( GenericTetraVortex )
 {
   RealMatrix3 n_op; n_op << 0., 1., 0., -1., 0., 0., 0., 0., 0.; // Linear operator to create a normal vector
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
-  run_model<3>(create_tetra(RealVector3(100.2, 100.1, 99.9), RealVector3(100.75, 99.9, 100.05), RealVector3(100.33, 100.83, 100.23), RealVector3(100.1, 99.9, 100.67)), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]), 0.2);
+  run_model<3>(create_tetra(RealVector3(100.2, 100.1, 99.9), RealVector3(100.75, 99.9, 100.05), RealVector3(100.33, 100.83, 100.23), RealVector3(100.1, 99.9, 100.67)), u = n_op*coordinates / (coordinates[0]*coordinates[0] + coordinates[1]*coordinates[1]), 5.);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

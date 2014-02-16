@@ -21,6 +21,7 @@
 #include "ui/core/PropertyModel.hpp"
 
 #include "test/ui/CoreApplication.hpp"
+#include <boost/lexical_cast.hpp>
 
 using namespace cf3;
 using namespace cf3::common;
@@ -91,13 +92,13 @@ BOOST_AUTO_TEST_CASE( data )
   BOOST_CHECK_EQUAL( model.data( model.index(0, 1), role ).toString().toStdString(), std::string("cpath:/") );
 
   BOOST_CHECK_EQUAL( model.data( model.index(1, 0), role ).toString().toStdString(), std::string("Euler") );
-  BOOST_CHECK_EQUAL( model.data( model.index(1, 1), role ).toString().toStdString(), std::string("2.71") );
+  BOOST_CHECK_CLOSE( boost::lexical_cast<Real>(model.data( model.index(1, 1), role ).toString().toStdString()), 2.71, 1e-10 );
 
   BOOST_CHECK_EQUAL( model.data( model.index(2, 0), role ).toString().toStdString(), std::string("MyString") );
   BOOST_CHECK_EQUAL( model.data( model.index(2, 1), role ).toString().toStdString(), std::string("Hello, World!") );
 
   BOOST_CHECK_EQUAL( model.data( model.index(3, 0), role ).toString().toStdString(), std::string("Pi") );
-  BOOST_CHECK_EQUAL( model.data( model.index(3, 1), role ).toString().toStdString(), std::string("3.14159") );
+  BOOST_CHECK_CLOSE( boost::lexical_cast<Real>(model.data( model.index(3, 1), role ).toString().toStdString()), 3.14159, 1e-10 );
 
   BOOST_CHECK_EQUAL( model.data( model.index(4, 0), role ).toString().toStdString(), std::string("SomeBool") );
   BOOST_CHECK_EQUAL( model.data( model.index(4, 1), role ).toString().toStdString(), std::string("true") );

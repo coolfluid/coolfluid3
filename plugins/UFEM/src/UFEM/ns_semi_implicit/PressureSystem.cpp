@@ -27,8 +27,6 @@
 #include "solver/Tags.hpp"
 #include "solver/actions/Proto/ElementLooper.hpp"
 
-#include "../SUPG.hpp"
-
 #include "PressureSystem.hpp"
 
 #include <coolfluid-ufem-config.hpp>
@@ -76,6 +74,16 @@ public:
       .pretty_name("Theta")
       .description("Theta parameter for the theta scheme")
       .link_to(&theta);
+      
+    options().add("c1", boost::proto::value(compute_tau).op.c1)
+      .pretty_name("c1")
+      .description("Constant to divide the time step by, for calibrating the SUPG parameter")
+      .link_to(&(boost::proto::value(compute_tau).op.c1));
+    
+    options().add("c2", boost::proto::value(compute_tau).op.c2)
+      .pretty_name("c2")
+      .description("Constant to adjust the diffusion contribution of SUPG stabilization")
+      .link_to(&(boost::proto::value(compute_tau).op.c2));
   }
 
   static std::string type_name () { return "PressureSystemAssembly"; }
@@ -111,11 +119,10 @@ public:
   template<typename ElementT>
   void assemble_pp(const SystemMatrix& mat)
   {
-    const Real u_ref = physical_model().options().value<Real>("reference_velocity");
     for_each_element<ElementT>(group
     (
       _A = _0,
-      compute_tau(u, nu_eff, u_ref, lit(m_pressure_lss_action->dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau(u, nu_eff, lit(m_pressure_lss_action->dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       element_quadrature( _A(p, p) += transpose(nabla(p)) * nabla(p) ),
       mat += lit(theta) * (lit(tau_ps) + lit(m_pressure_lss_action->dt())) *_A
     ));
@@ -145,6 +152,8 @@ private:
 
   Real tau_ps, tau_su, tau_bulk;
   Real theta;
+
+  ComputeTauT compute_tau;
 };
 
 common::ComponentBuilder < PressureSystemAssembly, common::Action, LibUFEM > PressureSystemAssembly_Builder;

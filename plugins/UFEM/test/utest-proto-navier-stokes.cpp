@@ -29,7 +29,6 @@
 
 #include "UFEM/LSSActionUnsteady.hpp"
 #include "UFEM/Solver.hpp"
-#include "UFEM/SUPG.hpp"
 #include "UFEM/Tags.hpp"
 #include "UFEM/ParsedFunctionExpression.hpp"
 
@@ -60,17 +59,6 @@ check_close(const Real a, const Real b, const Real threshold)
 }
 
 static boost::proto::terminal< void(*)(Real, Real, Real) >::type const _check_close = {&check_close};
-
-/// Creates the standard UFEM NS solver, by extracting it from an actual solver.
-boost::shared_ptr<ProtoAction> extract_ns_action(LSSActionUnsteady& solver)
-{
-  Handle<Component> ns_solver = Core::instance().root().create_component("ns_solver", "cf3.UFEM.NavierStokes");
-  cf3_assert(is_not_null(ns_solver));
-
-  boost::shared_ptr<ProtoAction> result(boost::dynamic_pointer_cast<ProtoAction>(ns_solver->get_child("Assembly")->remove_component("AssemblyQuads")));
-  cf3_assert(is_not_null(result));
-  return result;
-}
 
 BOOST_AUTO_TEST_CASE( InitMPI )
 {
@@ -113,9 +101,9 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
 
   // List of (Navier-)Stokes creation functions, with their names
-  const std::vector<std::string> names = boost::assign::list_of("stokes_artifdiss")("stokes_pspg")("navier_stokes_pspg")("navier_stokes_supg")("generic_ns_assembly");
+  const std::vector<std::string> names = boost::assign::list_of("stokes_artifdiss")("stokes_pspg")("navier_stokes_pspg")("navier_stokes_supg");
   typedef boost::shared_ptr< ProtoAction > (*FactoryT)(LSSActionUnsteady&);
-  std::vector<FactoryT> factories = boost::assign::list_of(&stokes_artifdiss)(&stokes_pspg)(&navier_stokes_pspg)(&navier_stokes_supg)(&extract_ns_action);
+  std::vector<FactoryT> factories = boost::assign::list_of(&stokes_artifdiss)(&stokes_pspg)(&navier_stokes_pspg)(&navier_stokes_supg);
 
   // Loop over all model types
   for(Uint i = 0; i != names.size(); ++i)
@@ -176,7 +164,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     }
     physical_model.options().set("density", rho);
     physical_model.options().set("dynamic_viscosity", mu);
-    physical_model.options().set("reference_velocity", c);
 
     // Setup mesh
     boost::shared_ptr<MeshGenerator> create_rectangle = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","create_line");

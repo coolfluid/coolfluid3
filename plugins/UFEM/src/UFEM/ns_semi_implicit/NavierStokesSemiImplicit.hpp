@@ -14,6 +14,8 @@
 #include "../LSSActionUnsteady.hpp"
 #include "../NavierStokesPhysics.hpp"
 
+#include "../SUPG.hpp"
+
 #include "LSSVectorOps.hpp"
 
 namespace cf3 {
@@ -82,7 +84,6 @@ private:
   SFOp< CustomSFOp<ScalarLSSVector> > delta_p_sum;
   
   /// Access to the physics
-  PhysicsConstant u_ref;
   PhysicsConstant nu;
 
   /// Storage of the stabilization coefficients
@@ -109,6 +110,8 @@ private:
   
   // Time component
   Handle<solver::Time> m_time;
+
+  ComputeTauT compute_tau;
 };
 
 } // UFEM

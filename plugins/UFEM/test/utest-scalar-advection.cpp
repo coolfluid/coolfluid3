@@ -156,6 +156,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   RealVector initial_u(1); initial_u.setConstant(-10.);
 
+  UFEM::ComputeTauT compute_tau;
+
   // add the top-level actions (assembly, BC and solve)
   *ic << create_proto_action("Initialize", nodes_expression(group(T = 0., u_adv = initial_u, nu_eff = nu)));
   *lss_action
@@ -169,7 +171,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
            group
            (
              _A = _0, _T = _0,
-             UFEM::compute_tau(u_adv, nu_eff, lit(dt()), lit(tau_su)),
+             compute_tau(u_adv, nu_eff, lit(lss_action->dt()), lit(tau_su)),
              element_quadrature( _A(T) += transpose(N(T)) * u_adv * nabla(T) + tau_su * transpose(u_adv*nabla(T))  * u_adv * nabla(T) +  alpha * transpose(nabla(T)) * nabla(T) ,
                    _T(T,T) +=  transpose(N(T) + tau_su * u_adv * nabla(T)) * N(T) ),
                    lss_action->system_matrix += lss_action->invdt() * _T + 1.0 * _A,
@@ -187,7 +189,6 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   physics::PhysModel& physical_model = model.create_physics("cf3.UFEM.NavierStokesPhysics");
   physical_model.options().set("dynamic_viscosity", 1.7894e-5);
   physical_model.options().set("density", 1.);
-  physical_model.options().set("reference_velocity", 1.);
 
   // Setup mesh
   // Mesh& mesh = *domain.create_component<Mesh>("Mesh");

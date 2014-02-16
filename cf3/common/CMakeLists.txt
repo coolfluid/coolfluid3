@@ -116,6 +116,8 @@ list( APPEND coolfluid_common_files
     OptionURI.cpp
     OptionURI.hpp
     OptionComponent.hpp
+    PrintTimingTree.hpp
+    PrintTimingTree.cpp
     PropertyList.hpp
     PropertyList.cpp
     OSystem.cpp

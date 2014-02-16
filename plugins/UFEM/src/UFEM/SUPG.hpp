@@ -33,71 +33,113 @@ inline Real norm(const Real scalar)
   return scalar;
 }
 
+// Helper to get the transpose of either a vector or a scalar
+
+template<typename T>
+inline Eigen::Transpose<T const> transpose(const T& mat)
+{
+  return mat.transpose();
+}
+
+inline Real transpose(const Real val)
+{
+  return val;
+}
+
 }
 
 /// Calculation of the stabilization coefficients for the SUPG method
 struct ComputeTau
 {
+  ComputeTau() :
+    c1(1.),
+    c2(4.)
+  {
+  }
+
   typedef void result_type;
 
   /// Compute the coefficients for the full Navier-Stokes equations
   template<typename UT, typename NUT>
-  void operator()(const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
+  void operator()(const UT& u, const NUT& nu_eff, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
   {
-    typedef typename UT::EtypeT ElementT;
-
     // Average viscosity
-    Real element_nu = fabs(nu_eff.value().mean());
+    const Real element_nu = fabs(nu_eff.value().mean());
 
-    const Real he = UT::dimension == 2 ? sqrt(4./3.141592654*u.support().volume()) : ::pow(3./4./3.141592654*u.support().volume(),1./3.);
-    const Real ree=u_ref*he/(2.*element_nu);
-    cf3_assert(ree > 0.);
-    const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-    tau_ps = he*xi/(2.*u_ref);
-    tau_bulk = he*u_ref/xi;
-    tau_su = compute_tau_su(u, element_nu, dt);
+    compute_coefficients(u, element_nu, dt, tau_ps, tau_su, tau_bulk);
   }
 
   /// Only compute the SUPG coefficient
   template<typename UT, typename NUT>
   void operator()(const UT& u, const NUT& nu_eff, const Real& dt, Real& tau_su) const
   {
-    tau_su = compute_tau_su(u, fabs(nu_eff.value().mean()), dt);
+    Real tau_ps, tau_bu;
+    compute_coefficients(u, fabs(nu_eff.value().mean()), dt, tau_ps, tau_su, tau_bu);
   }
   
   /// Only compute the SUPG coefficient, overload for scalar viscosity
   template<typename UT>
   void operator()(const UT& u, const Real& nu_eff, const Real& dt, Real& tau_su) const
   {
-    tau_su = compute_tau_su(u, nu_eff, dt);
+    Real tau_ps, tau_bu;
+    compute_coefficients(u, nu_eff, dt, tau_ps, tau_su, tau_bu);
   }
 
   template<typename UT>
-  Real compute_tau_su(const UT& u, const Real& element_nu, const Real& dt) const
+  void compute_coefficients(const UT& u, const Real element_nu, const Real& dt, Real& tau_ps, Real& tau_su, Real& tau_bulk) const
   {
     typedef typename UT::EtypeT ElementT;
+    static const Uint dim = ElementT::dimension;
     typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
-
-
-    // cell velocity
+    
     u.compute_values(GaussT::instance().coords.col(0));
-    const Real umag = detail::norm(u.eval());
 
-    if(umag > 1e-10)
+    // Get the minimal edge length
+    Real h_rgn = 1e10;
+    for(Uint i = 0; i != ElementT::nb_nodes; ++i)
     {
-      const Real h = 2.*umag / (u.eval()*u.nabla()).sum();
-      const Real tau_adv = h/(2.*umag);
-      const Real tau_time = 0.5*dt;
-      const Real tau_diff = h*h/(4.*element_nu);
-      return 1./(1./tau_adv + 1./tau_time + 1./tau_diff);
+      for(Uint j = 0; j != ElementT::nb_nodes; ++j)
+      {
+        if(i != j)
+        {
+          h_rgn = std::min(h_rgn, (u.support().nodes().row(i) - u.support().nodes().row(j)).squaredNorm());
+        }
+      }
     }
+    h_rgn = sqrt(h_rgn);
+    
+    const Real umag = detail::norm(u.eval());
+    const Real h_ugn = h_rgn;//fabs(2.*umag / (u.eval()*u.nabla()).sum());
+    
+    const Real tau_adv_inv = (2.*umag)/h_ugn;
+    const Real tau_time_inv = 2./dt;
+    const Real tau_diff_inv = (element_nu)/(h_rgn*h_rgn);
+    
+    tau_su = 1./(tau_adv_inv + c1*tau_time_inv + c2*tau_diff_inv);
+    tau_ps = tau_su;
+    tau_bulk = tau_su*umag*umag;
+    
+    //std::cout << "tau_su: " << tau_su << ", tau_ps: " << tau_ps << ", tau_bulk: " << tau_bulk << ", h_rgn: " << h_rgn << std::endl;
+    
+//    Eigen::Matrix<Real, ElementT::dimensionality, ElementT::dimensionality> gij; // metric tensor
+//    gij.noalias() = u.nabla()*u.nabla().transpose();
+//    const Real c2 = 1.;
 
-    return 0.;
+//    const Real tau_adv_sq = fabs((u.eval()*gij*detail::transpose(u.eval()))[0]); // Very close 0 but slightly negative sometimes
+//    const Real tau_diff = element_nu*element_nu*gij.squaredNorm();
+
+//    tau_su = 1. / sqrt((4./(dt*dt)) + tau_adv_sq + c2*tau_diff);
+//    tau_bulk = tau_adv_sq < 1e-13 ? 0 : sqrt(tau_adv_sq)/gij.trace();
   }
+
+  // c1 and c2 parameters as defined in:
+  //Trofimova, A. V.; Tejada-Martinez, A. E.; Jansen, K. E. & Lahey, R. T. Direct numerical simulation of turbulent channel flows using a stabilized finite element method Computers & Fluids, 2009, 38, 924-938
+  Real c1, c2;
 };
 
-/// Placeholder for the compute_tau operation. Use as compute_tau(velocity_field, nu_eff_field, u_ref, dt, tau_ps, tau_su, tau_bulk)
-static solver::actions::Proto::MakeSFOp<ComputeTau>::type const compute_tau = {};
+/// Type for a compute_tau operation. Use as compute_tau(velocity_field, nu_eff_field, dt, tau_ps, tau_su, tau_bulk)
+typedef solver::actions::Proto::MakeSFOp<ComputeTau>::type ComputeTauT;
+
 
 } // UFEM
 } // cf3

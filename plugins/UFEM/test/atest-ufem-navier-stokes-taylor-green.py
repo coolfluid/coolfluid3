@@ -151,7 +151,6 @@ class TaylorGreen:
     # Physical constants
     physics.density = 1.
     physics.dynamic_viscosity = 0.001
-    physics.reference_velocity = 1.
     
     return self.solver
 

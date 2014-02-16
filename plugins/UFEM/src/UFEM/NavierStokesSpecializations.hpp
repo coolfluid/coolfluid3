@@ -15,6 +15,7 @@
 #include "solver/actions/Proto/ElementOperations.hpp"
 
 #include "NavierStokesPhysics.hpp"
+#include "SUPG.hpp"
 
 namespace cf3 {
 
@@ -27,14 +28,14 @@ struct SUPGSpecialized
   typedef void result_type;
 
   template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
-  void operator()(const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T)
+  void operator()(const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& dt, const Real& rho, MatrixT& A, MatrixT& T) const
   {
-    apply(typename UT::EtypeT(), p, u, u_adv, nu_eff, u_ref, rho, A, T);
+    apply(typename UT::EtypeT(), p, u, u_adv, nu_eff, dt, rho, A, T);
   }
 
   /// Specialization for triangles
   template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T)
+  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& dt, const Real& rho, MatrixT& A, MatrixT& T) const
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
     const RealVector2 u_avg = u_adv.value().colwise().mean();
@@ -52,23 +53,8 @@ struct SUPGSpecialized
     normals(2, XX) = nodes(0, YY) - nodes(1, YY);
     normals(2, YY) = nodes(1, XX) - nodes(0, XX);
 
-    const Real he = sqrt(4./3.141592654*volume);
-    const Real ree=u_ref*he/(2.*nu);
-    cf3_assert(ree > 0.);
-    const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-    const Real tau_ps = he*xi/(2.*u_ref);
-    const Real tau_bulk = he*u_ref/xi;
-
-    const Real umag = u_avg.norm();
-    Real tau_su = 0.;
-    if(umag > 1e-10)
-    {
-      const Real h = 2. * volume / (normals * (u_avg / umag)).array().abs().sum();
-      Real ree=umag*h/(2.*nu);
-      cf3_assert(ree > 0.);
-      const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-      tau_su = h*xi/(2.*umag);
-    }
+    Real tau_ps, tau_su, tau_bulk;
+    compute_tau.compute_coefficients(u, nu, dt, tau_ps, tau_su, tau_bulk);
 
     for(Uint i=0; i<3; ++i)
     {
@@ -161,7 +147,7 @@ struct SUPGSpecialized
 
   /// Specialization for tetrahedra
   template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& u_ref, const Real& rho, MatrixT& A, MatrixT& T)
+  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& dt, const Real& rho, MatrixT& A, MatrixT& T) const
   {
     typedef mesh::LagrangeP1::Tetra3D ElementT;
     const RealVector3 u_avg = u_adv.value().colwise().mean();
@@ -186,23 +172,9 @@ struct SUPGSpecialized
     normals(3, ZZ) = ((nodes(1, XX)-nodes(0, XX))*(nodes(2, YY)-nodes(0, YY)) - (nodes(2, XX)-nodes(0, XX))*(nodes(1, YY)-nodes(0, YY))) / 2.0;
 
 
-    const Real he = ::pow(3./4./3.141592654*volume,1./3.);
-    const Real ree=u_ref*he/(2.*nu);
-    cf3_assert(ree > 0.);
-    const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-    const Real tau_ps = he*xi/(2.*u_ref);
-    const Real tau_bulk = he*u_ref/xi;
+    Real tau_ps, tau_su, tau_bulk;
+    compute_tau.compute_coefficients(u, nu, dt, tau_ps, tau_su, tau_bulk);
 
-    const Real umag = u_avg.norm();
-    Real tau_su = 0.;
-    if(umag > 1e-10)
-    {
-      const Real h = 2. * volume / (normals * (u_avg / umag)).array().abs().sum();
-      Real ree=umag*h/(2.*nu);
-      cf3_assert(ree > 0.);
-      const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-      tau_su = h*xi/(2.*umag);
-    }
     Real val;
     for(Uint i=0; i<4; ++i)
     {
@@ -327,6 +299,8 @@ struct SUPGSpecialized
     }
   }
 
+  ComputeTau compute_tau;
+  
 };
 
 /// Placeholder for the specialized ops, to be used as function inside proto expressions

@@ -25,6 +25,7 @@
 #include "UFEM/Tags.hpp"
 
 #include "NavierStokesSpecialized.hpp"
+#include "../SUPG.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -39,7 +40,7 @@ struct NavierStokesSpecializedAssembly
   typedef void result_type;
 
   template<typename PT, typename UT, typename NUT, typename LSST>
-  void operator()(const PT& p, const UT& u, const NUT& nu_eff, const Real& u_ref, const Real& rho, const Real& theta, const Real& invdt, LSST& lss, math::LSS::BlockAccumulator& acc)
+  void operator()(const PT& p, const UT& u, const NUT& nu_eff, const Real& rho, const Real& theta, const Real& invdt, LSST& lss, math::LSS::BlockAccumulator& acc) const
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
     const RealVector2 u_avg = u.value().colwise().mean();
@@ -63,23 +64,8 @@ struct NavierStokesSpecializedAssembly
     normals(2, XX) = nodes(0, YY) - nodes(1, YY);
     normals(2, YY) = nodes(1, XX) - nodes(0, XX);
 
-    const Real he = sqrt(4./3.141592654*volume);
-    const Real ree=u_ref*he/(2.*nu);
-    cf3_assert(ree > 0.);
-    const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-    const Real tau_ps = he*xi/(2.*u_ref);
-    const Real tau_bulk = he*u_ref/xi;
-
-    const Real umag = u_avg.norm();
-    Real tau_su = 0.;
-    if(umag > 1e-10)
-    {
-      const Real h = 2. * volume / (normals * (u_avg / umag)).array().abs().sum();
-      Real ree=umag*h/(2.*nu);
-      cf3_assert(ree > 0.);
-      const Real xi = ree < 3. ? 0.3333333333333333*ree : 1.;
-      tau_su = h*xi/(2.*umag);
-    }
+    Real tau_ps, tau_su, tau_bulk;
+    compute_tau.compute_coefficients(u, nu, 1./invdt, tau_ps, tau_su, tau_bulk);
 
     for(Uint i=0; i<3; ++i)
     {
@@ -178,6 +164,8 @@ struct NavierStokesSpecializedAssembly
     lss.matrix().add_values(acc);
     lss.rhs().add_rhs_values(acc);
   }
+  
+  ComputeTau compute_tau;
 };
 
 static solver::actions::Proto::MakeSFOp<NavierStokesSpecializedAssembly>::type const assemble_ns_triags = {};
@@ -206,13 +194,12 @@ NavierStokesSpecialized::NavierStokesSpecialized ( const std::string& name ) : L
   FieldVariable<0, VectorField> u("Velocity", solution_tag());
   FieldVariable<1, ScalarField> p("Pressure", solution_tag());
   FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-  PhysicsConstant u_ref("reference_velocity");
   PhysicsConstant rho("density");
   
   Handle<ProtoAction> assembly = create_component<ProtoAction>("Assembly");
   assembly->set_expression(elements_expression(
     boost::mpl::vector1< mesh::LagrangeP1::Triag2D>(),
-    assemble_ns_triags(p, u, nu_eff, u_ref, rho, lit(theta), lit(invdt()), system_matrix, m_block_accumulator)
+    assemble_ns_triags(p, u, nu_eff, rho, lit(theta), lit(invdt()), system_matrix, m_block_accumulator)
   ));
 
 

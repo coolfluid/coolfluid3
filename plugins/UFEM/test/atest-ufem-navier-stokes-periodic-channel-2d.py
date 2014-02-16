@@ -83,7 +83,6 @@ solver.InitialConditions.navier_stokes_solution.Velocity = u_in
 # Physical constants
 physics.options().set('density', 1000.)
 physics.options().set('dynamic_viscosity', 10.)
-physics.options().set('reference_velocity', u_in[0])
 
 # Boundary conditions
 bc = ns_solver.BoundaryConditions

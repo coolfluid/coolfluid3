@@ -24,7 +24,6 @@ domain = model.create_domain()
 physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 physics.density = 1.
 physics.dynamic_viscosity = 1.
-physics.reference_velocity = 1.
 # Manager for finite element solvers
 solver = model.create_solver('cf3.UFEM.Solver')
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.demo.NavierStokesChorin')

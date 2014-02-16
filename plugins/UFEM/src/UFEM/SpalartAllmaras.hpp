@@ -80,9 +80,11 @@ private:
   SACoeffs m_sa_coeffs;
 
   /// Coefficients for Model
-   Real cb1, cb2, cw1, cw2, cw3, cv1, one_over_sigma;
-   Real r, g, shat;
-   Real tau_su;
+  Real cb1, cb2, cw1, cw2, cw3, cv1, one_over_sigma;
+  Real r, g, shat;
+  Real tau_su;
+
+  ComputeTauT compute_tau;
 
 };
 

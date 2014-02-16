@@ -46,7 +46,6 @@ class TestCase:
 
     self.physics.options().set('density', 1000.)
     self.physics.options().set('dynamic_viscosity', 10.)
-    self.physics.options().set('reference_velocity', 1.)
 
     self.ns_solver = self.solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
     self.ns_solver.options().set('use_specializations', use_spec)

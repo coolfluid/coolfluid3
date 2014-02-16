@@ -117,7 +117,6 @@ BOOST_AUTO_TEST_CASE( EquationVars )
   FieldVariable<4, VectorField> u2("AdvectionVelocity2", "linearized_velocity");
   FieldVariable<5, VectorField> u3("AdvectionVelocity3", "linearized_velocity");
   FieldVariable<6, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-  PhysicsConstant u_ref("reference_velocity");
   PhysicsConstant rho("density");
   PhysicsConstant nu("kinematic_viscosity");
   
