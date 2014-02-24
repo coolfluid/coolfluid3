@@ -86,6 +86,7 @@ list( APPEND coolfluid_ufem_files
   SurfaceIntegral.hpp
   SurfaceIntegral.cpp
   SUPG.hpp
+  SUPG.cpp
   SUPGFields.hpp
   SUPGFields.cpp
   Tags.hpp

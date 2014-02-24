@@ -72,11 +72,12 @@ ParticleConcentration::ParticleConcentration(const std::string& name) :
     .description("Constant to multiply the SUPG parameter with.")
     .link_to(&(compute_tau.data.op.alpha_su));
     
-  options().add("use_metric_tensor", compute_tau.data.op.use_metric_tensor)
-    .pretty_name("Use Metric Tensor")
-    .description("Use the metric tensor instead of the minimal element edge length as length scale.")
-    .link_to(&(compute_tau.data.op.use_metric_tensor));
-    
+  options().add("supg_type", compute_tau.data.op.supg_type_str)
+    .pretty_name("SUPG Type")
+    .description("Type of computation for the stabilization coefficients.")
+    .link_to(&(compute_tau.data.op.supg_type_str))
+    .attach_trigger(boost::bind(&ComputeTauImpl::trigger_supg_type, &compute_tau.data.op));
+  
   options().add("c1", compute_tau.data.op.c1)
     .pretty_name("c1")
     .description("Constant adjusting the time part of SUPG in the metric tensor formulation")

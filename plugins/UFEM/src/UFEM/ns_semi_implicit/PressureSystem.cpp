@@ -80,10 +80,11 @@ public:
       .description("Constant to multiply the PSPG parameter with.")
       .link_to(&(compute_tau.data.op.alpha_ps));
       
-    options().add("use_metric_tensor", compute_tau.data.op.use_metric_tensor)
-      .pretty_name("Use Metric Tensor")
-      .description("Use the metric tensor instead of the minimal element edge length as length scale.")
-      .link_to(&(compute_tau.data.op.use_metric_tensor));
+    options().add("supg_type", compute_tau.data.op.supg_type_str)
+      .pretty_name("SUPG Type")
+      .description("Type of computation for the stabilization coefficients.")
+      .link_to(&(compute_tau.data.op.supg_type_str))
+      .attach_trigger(boost::bind(&ComputeTauImpl::trigger_supg_type, &compute_tau.data.op));
     
     options().add("c1", compute_tau.data.op.c1)
       .pretty_name("c1")
@@ -94,6 +95,11 @@ public:
       .pretty_name("c2")
       .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
       .link_to(&(compute_tau.data.op.c2));
+      
+    options().add("u_ref", compute_tau.data.op.u_ref)
+      .pretty_name("Reference velocity")
+      .description("Reference velocity for the CF2 SUPG method")
+      .link_to(&(compute_tau.data.op.u_ref));
   }
 
   static std::string type_name () { return "PressureSystemAssembly"; }

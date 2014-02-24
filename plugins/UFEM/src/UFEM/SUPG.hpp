@@ -7,10 +7,12 @@
 #ifndef cf3_UFEM_SUPG_hpp
 #define cf3_UFEM_SUPG_hpp
 
+#include "common/EnumT.hpp"
+
 #include "math/MatrixTypes.hpp"
 
 #include "solver/actions/Proto/ElementOperations.hpp"
-#include <solver/actions/Proto/ElementData.hpp>
+#include "solver/actions/Proto/ElementData.hpp"
 
 #include "NavierStokesPhysics.hpp"
 
@@ -57,7 +59,57 @@ inline Real transpose(const Real val)
   return val;
 }
 
+/// Helper struct to get the face normals of an element
+template<typename ElementT>
+struct ElementNormals
+{
+  typedef Eigen::Matrix<Real, ElementT::nb_faces, ElementT::dimension> NormalsT;
+
+  void operator()(const typename ElementT::NodesT& nodes, NormalsT& normals)
+  {
+    const mesh::ElementType::FaceConnectivity& face_conn = ElementT::faces();
+    const mesh::ElementType& face_etype = ElementT::face_type(0);
+    const Uint nb_face_nodes = face_etype.nb_nodes();
+    RealMatrix face_nodes(nb_face_nodes, ElementT::dimension);
+    RealVector normal(ElementT::dimension);
+    for(Uint i = 0; i != ElementT::nb_faces; ++i)
+    {
+      for(Uint j = 0; j != nb_face_nodes; ++j)
+        face_nodes.row(j) = nodes.row(face_conn.nodes[nb_face_nodes*i+j]);
+      face_etype.compute_normal(face_nodes, normal);
+      normals.row(i) = face_etype.area(face_nodes) * normal;
+    }
+  }
+};
+
 }
+
+/// Possible types of SUPG computation to apply
+class UFEM_API SUPGTypes
+{
+  public:
+
+  /// Enumeration of the worker statuses recognized in CF
+  enum Type  { 
+               INVALID     =-1,
+               // Definition from Tezduyar et al.
+               TEZDUYAR    = 0,
+               // definition from i.e. Trofimova et al. (Direct numerical simulation of turbulent channel flows using a stabilized finite element method Computers & Fluids, 2009, 38, 924-938)
+               METRIC      = 1,
+               // Implementation from Coolfluid 2
+               CF2         = 2
+             };
+
+  typedef common::EnumT< SUPGTypes > ConverterBase;
+
+  struct UFEM_API Convert : public ConverterBase
+  {
+    /// constructor where all the converting maps are built
+    Convert();
+    /// get the unique instance of the converter class
+    static Convert& instance();
+  };
+};
 
 /// Calculation of the stabilization coefficients for the SUPG method
 struct ComputeTauImpl : boost::noncopyable
@@ -66,9 +118,11 @@ struct ComputeTauImpl : boost::noncopyable
     alpha_ps(1.),
     alpha_su(1.),
     alpha_bu(1.),
-    use_metric_tensor(false),
+    supg_type(SUPGTypes::METRIC),
+    supg_type_str("metric"),
     c1(1.),
-    c2(16.)
+    c2(16.),
+    u_ref(1.)
   {
   }
 
@@ -115,7 +169,7 @@ struct ComputeTauImpl : boost::noncopyable
     
     u.compute_values(GaussT::instance().coords.col(0));
 
-    if(!use_metric_tensor)
+    if(supg_type == SUPGTypes::TEZDUYAR)
     {
       // Get the minimal edge length
       Real h_rgn = 1e10;
@@ -142,7 +196,7 @@ struct ComputeTauImpl : boost::noncopyable
       tau_ps = tau_su;
       tau_bulk = tau_su*umag*umag;
     }
-    else
+    else if(supg_type == SUPGTypes::METRIC)
     {
       u.support().compute_jacobian(GaussT::instance().coords.col(0));
       
@@ -157,16 +211,53 @@ struct ComputeTauImpl : boost::noncopyable
       const Real tau_su_std = 1. / sqrt((4./(dt*dt)) + tau_adv_sq + 16.*tau_diff);
       tau_bulk = (1./tau_su_std) / gij.trace();
     }
+    else if(supg_type == SUPGTypes::CF2)
+    {
+      const Real he = UT::dimension == 2 ? sqrt(4./3.141592654*u.support().volume()) : ::pow(3./4./3.141592654*u.support().volume(),1./3.);
+      const Real ree=u_ref*he/(2.*element_nu);
+      cf3_assert(ree > 0.);
+      const Real xi = ree < 3. ? ree/3. : 1.;
+      tau_ps = he*xi/(2.*u_ref);
+      tau_bulk = he*u_ref/xi;
+      
+      tau_su = 0.;
+      const typename ElementT::CoordsT u_avg = u.value().colwise().mean();
+      const Real umag = u_avg.norm();
+      if(umag > 1e-10)
+      {
+        typename detail::ElementNormals<ElementT>::NormalsT normals;
+        detail::ElementNormals<ElementT>()(u.support().nodes(), normals);
+        const Real h = 2. * u.support().volume() / (normals * (u_avg / umag)).array().abs().sum();
+        Real ree=umag*h/(2.*element_nu);
+        cf3_assert(ree > 0.);
+        const Real xi = ree < 3. ? ree/3. : 1.;
+        tau_su = h*xi/(2.*umag);
+      }
+    }
+    else
+    {
+      throw common::ShouldNotBeHere(FromHere(), "Unsupported SUPG method chosen");
+    }
       
     tau_ps *= alpha_ps;
     tau_su *= alpha_su;
     tau_bulk *= alpha_bu;
   }
+  
+  void trigger_supg_type()
+  {
+    supg_type = SUPGTypes::Convert::instance().to_enum(supg_type_str);
+  }
 
   Real alpha_ps, alpha_su, alpha_bu;
-  bool use_metric_tensor; // If True, uses the definition from i.e. Trofimova et al. (Direct numerical simulation of turbulent channel flows using a stabilized finite element method Computers & Fluids, 2009, 38, 924-938)
-  // Configuration constants for the abov method:
+  SUPGTypes::Type supg_type;
+  std::string supg_type_str;
+  
+  // Constants for the METRIC method
   Real c1,c2;
+  
+  // Reference velocity for the CF2 method
+  Real u_ref;
 };
 
 /// Convenience type for a compute_tau operation, grouping the stored operator and its proto counterpart
