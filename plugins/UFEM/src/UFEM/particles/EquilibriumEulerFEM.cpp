@@ -42,9 +42,29 @@ common::ComponentBuilder < EquilibriumEulerFEM, LSSActionUnsteady, LibUFEMPartic
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
+  
+struct LocalImplicit
+{
+  typedef const RealMatrix2& result_type;
+  
+  template<typename UT>
+  result_type operator()(RealMatrix2& result, const UT& u, const Real tau) const
+  {
+    result = (RealMatrix2::Identity() + tau*u.nabla()*u.value()).inverse();
+    return result;
+  }
+};
+
+static MakeSFOp<LocalImplicit>::type const local_implicit = {};
+  
+}
+
 EquilibriumEulerFEM::EquilibriumEulerFEM(const std::string& name) :
   LSSActionUnsteady(name),
-  tau_p(0.01)
+  tau(0.01),
+  beta(0.)
 {
   options().add("velocity_tag", "navier_stokes_solution")
     .pretty_name("Velocity Tag")
@@ -56,16 +76,17 @@ EquilibriumEulerFEM::EquilibriumEulerFEM(const std::string& name) :
     .description("Name for the velocity variable");
 //     .attach_trigger(boost::bind(&EquilibriumEulerFEM::trigger_set_expression, this));
 
-  options().add("particle_density", 1000.)
-    .pretty_name("Particle Density")
-    .description("Mass density for the particle")
-    .mark_basic();
-
-  options().add("particle_relaxation_time", tau_p)
-    .pretty_name("Particle Relaxation Time")
-    .description("Relaxation time for the particles")
+  options().add("beta", beta)
+    .pretty_name("Beta")
+    .description("Density ratio parameter")
     .mark_basic()
-    .link_to(&tau_p);
+    .link_to(&beta);
+
+  options().add("tau", tau)
+    .pretty_name("Tau")
+    .description("Generalized particle relaxation time")
+    .mark_basic()
+    .link_to(&tau);
 
   set_solution_tag("ufem_particle_velocity");
 
@@ -90,7 +111,7 @@ void EquilibriumEulerFEM::trigger_set_expression()
   // List of applicable elements
   typedef boost::mpl::vector2<
     mesh::LagrangeP1::Quad2D,
-    mesh::LagrangeP1::Hexa3D
+    mesh::LagrangeP1::Triag2D
   > AllowedElementTypesT;
 
   // Set the proto expression that handles the assembly
@@ -104,8 +125,7 @@ void EquilibriumEulerFEM::trigger_set_expression()
       element_quadrature
       (
         _A(v[_i],v[_i]) +=  transpose(N(v)) * N(v),
-        _a[v[_i]] += transpose(N(u)) * (u[_i] - lit(tau_p)*( (u[_i]-u1[_i])*lit(invdt()) + (u*nabla(u)*transpose(transpose(nodal_values(u))[_i]))[0] ) )
-        //_a[v[_i]] += -0.5*lit(tau_p)*transpose(u[_i]*N(u)) * nabla(u)[_j] * transpose(transpose(nodal_values(u))[_j])
+        _a[v[_i]] += transpose(transpose(N(u)) * (u - lit(tau)*(1-lit(beta))*( (u-u1)*lit(invdt()) + (u*nabla(u)*nodal_values(u) ) )*detail::local_implicit(u, lit(tau))))[_i]
       ),
       //lump(_A),
       system_matrix += _A,

@@ -2,6 +2,8 @@ coolfluid3_add_library(TARGET coolfluid_ufem_particles
   SOURCES
     EquilibriumEuler.hpp
     EquilibriumEuler.cpp
+    EquilibriumEulerConvergence.hpp
+    EquilibriumEulerConvergence.cpp
     EquilibriumEulerFEM.hpp
     EquilibriumEulerFEM.cpp
     LibUFEMParticles.hpp

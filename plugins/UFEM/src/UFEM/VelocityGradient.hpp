@@ -16,7 +16,7 @@
 namespace cf3 {
 namespace UFEM {
 
-/// Compute a field containing the velocity gradient tensor
+/// Compute a field containing the velocity gradient tensor and the divergence
 class VelocityGradient : public solver::actions::Proto::ProtoAction
 {
 public: // functions

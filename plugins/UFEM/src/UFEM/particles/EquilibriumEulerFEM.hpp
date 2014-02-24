@@ -31,9 +31,8 @@ private:
 
   /// Triggered when an option that requires rebuilding the expressions is changed
   void trigger_set_expression();
-
-  /// Particle relaxation time
-  Real tau_p;
+  
+  Real tau, beta;
 };
 
 } // particles

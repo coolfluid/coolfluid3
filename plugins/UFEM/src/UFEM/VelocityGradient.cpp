@@ -48,8 +48,8 @@ struct SetGradient
 {
   typedef void result_type;
   
-  template<typename UT, typename ValencesT, typename GradUxT, typename GradUyT>
-  void operator()(const UT& u, const ValencesT& valence, GradUxT& grad_ux, GradUyT& grad_uy) const
+  template<typename UT, typename ValencesT, typename GradUxT, typename GradUyT, typename DivT>
+  void operator()(const UT& u, const ValencesT& valence, GradUxT& grad_ux, GradUyT& grad_uy, DivT& div_u) const
   {
     typedef typename UT::EtypeT ElementT;
     typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
@@ -61,10 +61,12 @@ struct SetGradient
     grad_ux.add_nodal_values_component(grad_mat(YY, XX)*inverse_valence, YY);
     grad_uy.add_nodal_values_component(grad_mat(XX, YY)*inverse_valence, XX);
     grad_uy.add_nodal_values_component(grad_mat(YY, YY)*inverse_valence, YY);
+    
+    div_u.add_nodal_values(grad_mat.trace()*inverse_valence);
   }
   
-  template<typename UT, typename ValencesT, typename GradUxT, typename GradUyT, typename GradUzT>
-  void operator()(const UT& u, const ValencesT& valence, GradUxT& grad_ux, GradUyT& grad_uy, GradUzT& grad_uz) const
+  template<typename UT, typename ValencesT, typename GradUxT, typename GradUyT, typename GradUzT, typename DivT>
+  void operator()(const UT& u, const ValencesT& valence, GradUxT& grad_ux, GradUyT& grad_uy, GradUzT& grad_uz, DivT& div_u) const
   {
     typedef typename UT::EtypeT ElementT;
     typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
@@ -84,6 +86,8 @@ struct SetGradient
     grad_uz.add_nodal_values_component(grad_mat(XX, ZZ)*inverse_valence, XX);
     grad_uz.add_nodal_values_component(grad_mat(YY, ZZ)*inverse_valence, YY);
     grad_uz.add_nodal_values_component(grad_mat(ZZ, ZZ)*inverse_valence, ZZ);
+    
+    div_u.add_nodal_values(grad_mat.trace()*inverse_valence);
   }
 };
 
@@ -101,6 +105,14 @@ VelocityGradient::VelocityGradient(const std::string& name) :
   options().add("velocity_tag", "navier_stokes_u_solution")
     .pretty_name("Velocity Tag")
     .description("Tag for the field containing the velocity");
+
+  options().add("gradient_name", "u")
+    .pretty_name("Gradient Name")
+    .description("Base name for the gradient variable. Will be appended with x, y and z for the different components and prefixed with grad for the gradient and div for the divergence.");
+
+  options().add("gradient_tag", "velocity_gradient")
+    .pretty_name("Gradient Tag")
+    .description("Tag for the field containing the gradients");
     
   options().add("initial_conditions", m_initial_conditions)
     .pretty_name("Initial Conditions")
@@ -121,38 +133,41 @@ void VelocityGradient::execute()
 void VelocityGradient::on_regions_set()
 {
   const Uint dim = physical_model().ndim();
+  
+  const std::string grad_tag = options().value<std::string>("gradient_tag");
+  const std::string grad_base = options().value<std::string>("gradient_name");
+  const std::string grad_name = "grad_" + grad_base;
 
   FieldVariable<0, VectorField> u(options().value<std::string>("velocity_variable"), options().value<std::string>("velocity_tag"));
   FieldVariable<1, ScalarField> valence("Valence", "node_valence");
-
-  const std::string grad_tag = "velocity_gradient";
+  FieldVariable<2, ScalarField> div_u("div_"+grad_base, grad_tag);
 
   if(dim == 2)
   {
-    FieldVariable<2, VectorField> grad_ux("grad_ux", grad_tag);
-    FieldVariable<3, VectorField> grad_uy("grad_uy", grad_tag);
+    FieldVariable<3, VectorField> grad_ux(grad_name+"x", grad_tag);
+    FieldVariable<4, VectorField> grad_uy(grad_name+"y", grad_tag);
     
     set_expression(elements_expression
     (
       boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Quad2D>(),
-      detail::set_gradient(u, valence, grad_ux, grad_uy)
+      detail::set_gradient(u, valence, grad_ux, grad_uy, div_u)
     ));
     
-    m_zero_fields->set_expression(nodes_expression(group(grad_ux[_i] = 0., grad_uy[_i] = 0.)));
+    m_zero_fields->set_expression(nodes_expression(group(grad_ux[_i] = 0., grad_uy[_i] = 0., div_u = 0.)));
   }
   else if(dim == 3)
   {
-    FieldVariable<2, VectorField> grad_ux("grad_ux", grad_tag);
-    FieldVariable<3, VectorField> grad_uy("grad_uy", grad_tag);
-    FieldVariable<4, VectorField> grad_uz("grad_uz", grad_tag);
+    FieldVariable<3, VectorField> grad_ux(grad_name+"x", grad_tag);
+    FieldVariable<4, VectorField> grad_uy(grad_name+"y", grad_tag);
+    FieldVariable<5, VectorField> grad_uz(grad_name+"z", grad_tag);
     
     set_expression(elements_expression
     (
       boost::mpl::vector3<mesh::LagrangeP1::Tetra3D, mesh::LagrangeP1::Hexa3D, mesh::LagrangeP1::Prism3D>(),
-      detail::set_gradient(u, valence, grad_ux, grad_uy, grad_uz)
+      detail::set_gradient(u, valence, grad_ux, grad_uy, grad_uz, div_u)
     ));
     
-    m_zero_fields->set_expression(nodes_expression(group(grad_ux[_i] = 0., grad_uy[_i] = 0., grad_uz[_i] = 0.)));
+    m_zero_fields->set_expression(nodes_expression(group(grad_ux[_i] = 0., grad_uy[_i] = 0., grad_uz[_i] = 0., div_u = 0.)));
   }
   else
   {
