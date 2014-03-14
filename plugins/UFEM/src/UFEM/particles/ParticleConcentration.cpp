@@ -51,6 +51,16 @@ ParticleConcentration::ParticleConcentration(const std::string& name) :
     .pretty_name("Velocity Tag")
     .description("Tag for the field containing the velocity")
     .attach_trigger(boost::bind(&ParticleConcentration::trigger_set_expression, this));
+    
+  options().add("velocity_variable", "ParticleVelocity")
+    .pretty_name("Velocity Variable")
+    .description("Variable for the particle velocity")
+    .attach_trigger(boost::bind(&ParticleConcentration::trigger_set_expression, this));
+    
+  options().add("concentration_variable", "c")
+    .pretty_name("Concentration Variable")
+    .description("Variable for the particle concentration")
+    .attach_trigger(boost::bind(&ParticleConcentration::trigger_set_expression, this));
 
   options().add("theta", m_theta)
     .pretty_name("Theta")
@@ -95,10 +105,10 @@ ParticleConcentration::ParticleConcentration(const std::string& name) :
 void ParticleConcentration::trigger_set_expression()
 {
   // Fluid velocity
-  FieldVariable<0, VectorField> v("ParticleVelocity", options().value<std::string>("velocity_tag"));
+  FieldVariable<0, VectorField> v(options().value<std::string>("velocity_variable"), options().value<std::string>("velocity_tag"));
 
   // Particle concentration
-  FieldVariable<1, ScalarField> c("c", "particle_concentration");
+  FieldVariable<1, ScalarField> c(options().value<std::string>("concentration_variable"), solution_tag());
 
   const Real theta = options().value<Real>("theta");
 

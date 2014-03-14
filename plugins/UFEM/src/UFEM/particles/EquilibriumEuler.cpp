@@ -47,22 +47,21 @@ struct EquilibriumEuler::VelocityFunctor : FunctionBase
   typedef void result_type;
   
   VelocityFunctor() :
-    beta(0.),
-    tau(0.01)
+    beta(0.)
   {
   }
   
   template<typename VectorT>
-  void operator()(const VectorT& u, const VectorT& u1, const VectorT& g, const VectorT& grad_ux, const VectorT& grad_uy)
+  void operator()(const VectorT& u, const VectorT& u1, const VectorT& g, const Real tau, const VectorT& grad_ux, const VectorT& grad_uy)
   {
     RealMatrix2 grad_u;
     grad_u.row(XX) = grad_ux;
     grad_u.row(YY) = grad_uy;
-    compute_velocity(u, u1, g, grad_u);
+    compute_velocity(u, u1, g, tau, grad_u);
   }
 
   template<typename VectorT, typename TensorT>
-  void compute_velocity(const VectorT& u, const VectorT& u1, const VectorT& g, const TensorT& grad_u)
+  void compute_velocity(const VectorT& u, const VectorT& u1, const VectorT& g, const Real tau, const TensorT& grad_u)
   {
     const TensorT invgrad = (TensorT::Identity() + tau*grad_u).inverse();
     const VectorT du_dt = (u - u1)/dt;
@@ -72,7 +71,6 @@ struct EquilibriumEuler::VelocityFunctor : FunctionBase
   Real dt;
   
   Real beta;
-  Real tau;
 
   // The computed particle velocity
   RealVector v;
@@ -90,6 +88,10 @@ EquilibriumEuler::EquilibriumEuler(const std::string& name) :
     .pretty_name("Velocity Variable")
     .description("Name for the velocity variable");
 
+  options().add("particle_velocity_variable", "ParticleVelocity")
+    .pretty_name("Particle Velocity Variable")
+    .description("Name for the particle velocity variable");
+
   options().add(solver::Tags::time(), m_time)
     .pretty_name("Time")
     .description("Component that keeps track of time for this simulation")
@@ -102,13 +104,13 @@ EquilibriumEuler::EquilibriumEuler(const std::string& name) :
     .mark_basic()
     .link_to(&m_functor->beta);
 
-  options().add("tau", m_functor->tau)
-    .pretty_name("Tau")
-    .description("Generalized particle relaxation time")
-    .mark_basic()
-    .link_to(&m_functor->tau);
+  options().add("tau_variable", "tau")
+    .pretty_name("Tau Variable")
+    .description("Field for the generalized particle relaxation time");
     
-  m_velocity_gradient = Handle<common::Action>(create_component("VelocityGradient", "cf3.UFEM.VelocityGradient"));
+  options().add("compute_gradient", true)
+    .pretty_name("Compute Gradient")
+    .description("Compute the fluid velocity gradient, or rely on previously computed value");
 }
 
 EquilibriumEuler::~EquilibriumEuler()
@@ -118,9 +120,17 @@ EquilibriumEuler::~EquilibriumEuler()
 
 void EquilibriumEuler::on_regions_set()
 {
-  m_velocity_gradient->options().set("velocity_variable", options().option("velocity_variable").value());
-  m_velocity_gradient->options().set("velocity_tag", options().option("velocity_tag").value());
-  m_velocity_gradient->options().set("regions", options().option("regions").value());
+  if(options().value<bool>("compute_gradient"))
+  {
+    if(is_null(m_velocity_gradient))
+    {
+      m_velocity_gradient = Handle<common::Action>(create_component("VelocityGradient", "cf3.UFEM.VelocityGradient"));
+      m_velocity_gradient->configure_option_recursively("physical_model", options()["physical_model"].value());
+    }
+    m_velocity_gradient->options().set("velocity_variable", options().option("velocity_variable").value());
+    m_velocity_gradient->options().set("velocity_tag", options().option("velocity_tag").value());
+    m_velocity_gradient->options().set("regions", options().option("regions").value());
+  }
   
   const Uint dim = physical_model().ndim();
   const std::string grad_tag = "velocity_gradient";
@@ -128,21 +138,22 @@ void EquilibriumEuler::on_regions_set()
   // Fluid velocity
   FieldVariable<0, VectorField> u(options().value<std::string>("velocity_variable"), options().value<std::string>("velocity_tag"));
   FieldVariable<1, VectorField> u1("AdvectionVelocity1", "linearized_velocity");
-  FieldVariable<2, VectorField> v("ParticleVelocity", "ufem_particle_velocity");
+  FieldVariable<2, VectorField> v(options().value<std::string>("particle_velocity_variable"), "ufem_particle_velocity");
   FieldVariable<3, VectorField> g("Force", "body_force");
+  FieldVariable<4, ScalarField> tau(options().value<std::string>("tau_variable"), "ufem_particle_relaxation_time");
   
   if(dim == 2)
   {
     m_functor->v.resize(2);
 
-    FieldVariable<4, VectorField> grad_ux("grad_ux", grad_tag);
-    FieldVariable<5, VectorField> grad_uy("grad_uy", grad_tag);
+    FieldVariable<5, VectorField> grad_ux("grad_ux", grad_tag);
+    FieldVariable<6, VectorField> grad_uy("grad_uy", grad_tag);
     
     set_expression(nodes_expression_2d
     (
       group
       (
-        lit(*m_functor)(u, u1, g, grad_ux, grad_uy),
+        lit(*m_functor)(u, u1, g, tau, grad_ux, grad_uy),
         v[_i] = lit(m_functor->v)[_i]
       )
     ));
@@ -170,7 +181,14 @@ void EquilibriumEuler::on_regions_set()
 
 void EquilibriumEuler::execute()
 {
-  m_velocity_gradient->execute();
+  if(options().value<bool>("compute_gradient"))
+  {
+    m_velocity_gradient->execute();
+  }
+  else
+  {
+    cf3_assert(is_null(m_velocity_gradient));
+  }
   cf3::solver::actions::Proto::ProtoAction::execute();
 }
 

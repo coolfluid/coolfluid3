@@ -18,7 +18,7 @@ nu = 1./5000.
 
 segs = 32
 D = 0.5
-Vs = 1/(4.*np.pi)
+Vs = 1./(4.*np.pi)
 Ua = 0.
 Va = 0.
 
@@ -27,8 +27,8 @@ beta = 3.
 
 dt = 0.1
 
-numsteps = 20
-write_interval = 50
+numsteps = 1
+write_interval = 5
 
 
 def create_mesh(domain, segments):
@@ -110,53 +110,33 @@ tg_solver.options.va = Va
 tg_solver.options.tau = tau
 tg_solver.options.beta = beta
 tg_solver.options.vs = Vs
+tg_solver.options.d = D
 
-eq_euler = solver.add_unsteady_solver('cf3.UFEM.particles.EquilibriumEuler')
-eq_euler.options.velocity_variable = 'FluidVelocityTG'
-eq_euler.options.velocity_tag = 'taylor_green'
-eq_euler.beta = beta
-
-conv = solver.add_unsteady_solver('cf3.UFEM.particles.EquilibriumEulerConvergence')
-conv.tau = tau
-
-particle_c = solver.add_unsteady_solver('cf3.UFEM.particles.ParticleConcentration')
-#particle_c.options.alpha_su = 0.
+polydisp = solver.add_unsteady_solver('cf3.UFEM.particles.Polydisperse')
+polydisp.options.velocity_variable = 'FluidVelocityTG'
+polydisp.options.velocity_tag = 'taylor_green'
 
 # Set up the physical constants
 physics.density = 1.
 physics.dynamic_viscosity = nu
 
+polydisp.initial_diameters = [1e-5, 1e-4,1e-3]
+polydisp.initial_concentrations = [1.e20, 1.e20, 1.e20]
+polydisp.nb_phases = 3
+
 # Create the mesh
 mesh = create_mesh(domain, segs)
 tg_solver.regions = [mesh.topology.interior.uri()]
-eq_euler.regions = [mesh.topology.interior.uri()]
-particle_c.regions = [mesh.topology.interior.uri()]
-conv.regions = [mesh.topology.interior.uri()]
-
-if eq_euler.name() == 'EquilibriumEulerFEM':
-  lss = eq_euler.LSS
-  lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block CG'
-  lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.convergence_tolerance = 1e-12
-  lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.maximum_iterations = 300
-
-particle_c.LSS.SolutionStrategy.Parameters.linear_solver_type = 'Amesos'
-
-ic_c = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionConstant', field_tag = 'particle_concentration')
-ic_c.c = 1.
-ic_c.regions = particle_c.regions
-
-ic_tau = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionConstant', field_tag = 'ufem_particle_relaxation_time')
-ic_tau.tau = tau
-ic_tau.regions = eq_euler.regions
+polydisp.regions = [mesh.topology.interior.uri()]
 
 series_writer = solver.TimeLoop.create_component('TimeWriter', 'cf3.solver.actions.TimeSeriesWriter')
 writer = series_writer.create_component('Writer', 'cf3.mesh.VTKXML.Writer')
-writer.file = cf.URI('taylor-green-{iteration}.pvtu')
+writer.file = cf.URI('taylor-green-polydisperse-{iteration}.pvtu')
 writer.mesh = mesh
 series_writer.interval = write_interval
 
 solver.create_fields()
-writer.fields = [mesh.geometry.taylor_green.uri(), mesh.geometry.ufem_particle_velocity.uri(), mesh.geometry.particle_concentration.uri()]
+writer.fields = [mesh.geometry.taylor_green.uri(), mesh.geometry.particle_concentration_2.uri(), mesh.geometry.weighted_particle_volume_2.uri()]
     
 # Time setup
 time = model.create_time()
@@ -166,20 +146,4 @@ time.end_time = numsteps*dt
 model.simulate()
 model.print_timing_tree()
 
-
-ufem_velocity = np.array(mesh.geometry.ufem_particle_velocity)
-tg_particle_velocity = np.array(mesh.geometry.taylor_green)
-err_array = np.abs(ufem_velocity-tg_particle_velocity[:,2:4])
-print 'Maximum error:',np.max(err_array)
-
-error_fd = mesh.geometry.create_field(name = 'error_field', variables = 'VelocityError[vector]')
-for i in range(len(error_fd)):
-  err_row = error_fd[i]
-  err_row[0] = err_array[i][0]
-  err_row[1] = err_array[i][1]
-
-writer.fields = [mesh.geometry.taylor_green.uri(), mesh.geometry.ufem_particle_velocity.uri(), error_fd.uri(), mesh.geometry.particle_concentration.uri(), mesh.geometry.particle_velocity_gradient.uri(), mesh.geometry.ufem_particle_convergence.uri(), mesh.geometry.velocity_gradient.uri()]
-writer.file = cf.URI('taylor-green-error.pvtu')
-writer.execute()
-
-
+domain.write_mesh(cf.URI('taylor-green-polydisperse-end.pvtu'))

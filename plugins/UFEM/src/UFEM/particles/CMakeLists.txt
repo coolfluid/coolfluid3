@@ -10,6 +10,10 @@ coolfluid3_add_library(TARGET coolfluid_ufem_particles
     LibUFEMParticles.cpp
     ParticleConcentration.hpp
     ParticleConcentration.cpp
+    Polydisperse.hpp
+    Polydisperse.cpp
+    RelaxationTime.hpp
+    RelaxationTime.cpp
     TaylorGreen.hpp
     TaylorGreen.cpp
   LIBS     
