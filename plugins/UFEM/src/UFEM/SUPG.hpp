@@ -59,29 +59,6 @@ inline Real transpose(const Real val)
   return val;
 }
 
-/// Helper struct to get the face normals of an element
-template<typename ElementT>
-struct ElementNormals
-{
-  typedef Eigen::Matrix<Real, ElementT::nb_faces, ElementT::dimension> NormalsT;
-
-  void operator()(const typename ElementT::NodesT& nodes, NormalsT& normals)
-  {
-    const mesh::ElementType::FaceConnectivity& face_conn = ElementT::faces();
-    const mesh::ElementType& face_etype = ElementT::face_type(0);
-    const Uint nb_face_nodes = face_etype.nb_nodes();
-    RealMatrix face_nodes(nb_face_nodes, ElementT::dimension);
-    RealVector normal(ElementT::dimension);
-    for(Uint i = 0; i != ElementT::nb_faces; ++i)
-    {
-      for(Uint j = 0; j != nb_face_nodes; ++j)
-        face_nodes.row(j) = nodes.row(face_conn.nodes[nb_face_nodes*i+j]);
-      face_etype.compute_normal(face_nodes, normal);
-      normals.row(i) = face_etype.area(face_nodes) * normal;
-    }
-  }
-};
-
 }
 
 /// Possible types of SUPG computation to apply
@@ -221,17 +198,14 @@ struct ComputeTauImpl : boost::noncopyable
       tau_bulk = he*u_ref/xi;
       
       tau_su = 0.;
-      const typename ElementT::CoordsT u_avg = u.value().colwise().mean();
-      const Real umag = u_avg.norm();
+      const Real umag = detail::norm(u.eval());
       if(umag > 1e-10)
       {
-        typename detail::ElementNormals<ElementT>::NormalsT normals;
-        detail::ElementNormals<ElementT>()(u.support().nodes(), normals);
-        const Real h = 2. * u.support().volume() / (normals * (u_avg / umag)).array().abs().sum();
-        Real ree=umag*h/(2.*element_nu);
-        cf3_assert(ree > 0.);
-        const Real xi = ree < 3. ? ree/3. : 1.;
-        tau_su = h*xi/(2.*umag);
+        const Real h = 2.*umag / (u.eval()*u.nabla()).sum();
+        const Real tau_adv = h/(2.*umag);
+        const Real tau_time = 0.5*dt;
+        const Real tau_diff = h*h/(4.*element_nu);
+        tau_su = 1./(1./tau_adv + 1./tau_time + 1./tau_diff);
       }
     }
     else
