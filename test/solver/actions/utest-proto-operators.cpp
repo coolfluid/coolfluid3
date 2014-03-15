@@ -914,6 +914,19 @@ BOOST_AUTO_TEST_CASE( MetricTensorTest )
   );
 }
 
+
+BOOST_AUTO_TEST_CASE( NodeIdxOutput )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("NodeIdxGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 0.2, 2., 1, 1);
+
+  Uint idx_total = 0;
+  
+  for_each_node(mesh->topology(), lit(idx_total) += node_index);
+  
+  BOOST_CHECK_EQUAL(idx_total, 6);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
