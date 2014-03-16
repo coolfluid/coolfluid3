@@ -68,7 +68,7 @@ struct DirichletBCSetter :
         lss,
         state,
         data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).value(), // old value
-        boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx),
+        boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx()),
         data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset
       );
     }
@@ -96,7 +96,7 @@ struct DirichletBCComponentSetter :
         lss,
         state,
         data.var_data(boost::proto::value(boost::proto::left(boost::proto::child_c<1>(expr)))).value()[vec_component], // old value
-        boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx),
+        boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx()),
         data.var_data(boost::proto::value(boost::proto::left(boost::proto::child_c<1>(expr)))).offset + vec_component
       );
     }

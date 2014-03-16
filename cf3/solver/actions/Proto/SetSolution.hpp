@@ -36,7 +36,7 @@ struct SetSolutionSetter :
               , typename impl::data_param data
     ) const
     {
-      const int node_idx = boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx);
+      const int node_idx = boost::proto::value( boost::proto::child_c<0>(expr) ).node_to_lss(data.node_idx());
       if(node_idx < 0)
         return;
       typedef boost::mpl::int_< VarDataType<typename VarChild<ExprT, 1>::type, DataT>::type::dimension > DimT;
