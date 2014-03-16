@@ -53,6 +53,8 @@ private:
   std::vector<std::string> m_weighted_volume_variables;
   std::vector<std::string> m_tau_variables;
   std::vector<std::string> m_velocity_variables;
+  std::vector<std::string> m_concentration_src_variables;
+  std::vector<std::string> m_weighted_volume_src_variables;
   
   Handle<LSSAction> m_concentration_solver;
 };

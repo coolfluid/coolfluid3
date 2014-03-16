@@ -61,6 +61,16 @@ ParticleConcentration::ParticleConcentration(const std::string& name) :
     .pretty_name("Concentration Variable")
     .description("Variable for the particle concentration")
     .attach_trigger(boost::bind(&ParticleConcentration::trigger_set_expression, this));
+    
+  options().add("source_term_tag", "concentration_source_terms")
+    .pretty_name("Source Term Tag")
+    .description("Tag for the field containing a source term")
+    .attach_trigger(boost::bind(&ParticleConcentration::trigger_set_expression, this));
+    
+  options().add("source_term_variable", "c_src")
+    .pretty_name("Source Term Variable")
+    .description("Variable name for the source term")
+    .attach_trigger(boost::bind(&ParticleConcentration::trigger_set_expression, this));
 
   options().add("theta", m_theta)
     .pretty_name("Theta")
@@ -109,6 +119,11 @@ void ParticleConcentration::trigger_set_expression()
 
   // Particle concentration
   FieldVariable<1, ScalarField> c(options().value<std::string>("concentration_variable"), solution_tag());
+  
+  // Source term
+  FieldVariable<2, ScalarField> s(options().value<std::string>("source_term_variable"), options().value<std::string>("source_term_tag"));
+  
+//   std::cout << "options summary: " << options().value<std::string>("velocity_variable") << ", " <<  options().value<std::string>("velocity_tag") << ", " << options().value<std::string>("concentration_variable") << ", " << solution_tag() << ", " << options().value<std::string>("source_term_variable") << ", " << options().value<std::string>("source_term_tag") << std::endl;
 
   const Real theta = options().value<Real>("theta");
 
@@ -128,15 +143,16 @@ void ParticleConcentration::trigger_set_expression()
     AllowedElementTypesT(),
     group
     (
-      _A = _0, _T = _0,
+      _A = _0, _T = _0, _a = _0,
       compute_tau.apply(v, 0., lit(dt()), lit(tau_su)),
       element_quadrature
       (
         _A(c,c) +=  transpose(N(c) + lit(tau_su)*(v*nabla(c))) * (v*nabla(c) + divergence(v)*N(c)),
-        _T(c,c) +=  transpose(N(c) + lit(tau_su)*(v*nabla(c))) * N(c)
+        _T(c,c) +=  transpose(N(c) + lit(tau_su)*(v*nabla(c))) * N(c),
+        _a[c]   +=  transpose(N(c) + lit(tau_su)*(v*nabla(c))) * s
       ),
       system_matrix += invdt()*_T + theta*_A,
-      system_rhs += -_A*_x
+      system_rhs += -_A*_x + _a
     )
   ));
 
