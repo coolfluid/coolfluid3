@@ -66,6 +66,11 @@ RelaxationTime::RelaxationTime(const std::string& name) :
   options().add("tau_variable", "zeta")
     .pretty_name("Tau Variable")
     .description("Variable for the relaxation time");
+
+  options().add("reference_volume", m_reference_volume)
+    .pretty_name("Reference Volume")
+    .description("Reference volume, all particle volumes are divided by this")
+    .link_to(&m_reference_volume);
 }
 
 RelaxationTime::~RelaxationTime()
@@ -87,7 +92,7 @@ void RelaxationTime::on_regions_set()
   (
     group
     (
-      tau = lit(2./9.)*rho_p/mu*_std_pow(lit(3./(4.*pi()))*zeta/c, lit(2./3.))
+      tau = lit(2./9.)*rho_p/mu*_std_pow(lit(3./(4.*pi()))*zeta/c*lit(m_reference_volume), lit(2./3.))
     )
   ));
 }

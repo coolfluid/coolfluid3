@@ -58,6 +58,9 @@ private:
   std::vector<std::string> m_gradient_tags;
   
   Handle<LSSAction> m_concentration_solver;
+  Handle<common::Group> m_boundary_conditions;
+
+  Real m_reference_volume;
 };
 
 } // particles

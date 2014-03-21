@@ -32,6 +32,8 @@ public: // functions
 
 private:
   virtual void on_regions_set();
+
+  Real m_reference_volume;
 };
 
 } // particles
