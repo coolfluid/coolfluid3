@@ -23,15 +23,15 @@ g = 10.
 
 dt = 0.1
 
-numsteps = 50
+numsteps = 5
 write_interval = 50
 
 resolution = 64
 
-diams = [0.000014780083820428836,0.000037524723159600705,0.00009527042372103855]
+diams = [20.e-6, 40.e-6, 80.e-6]
 volumes = [4./3.*np.pi*(d/2.)**3 for d in diams]
-ref_vol = float(np.array(volumes).mean())
-c_reduced = [0.6651655093559956,0.32852888621727705,0.006305604426727372]
+ref_vol = 1e-15
+c_reduced = [1, 1., 1.]
 zeta = [v/ref_vol*c for (v,c) in zip(volumes,c_reduced)]
 
 # Create the model and solvers

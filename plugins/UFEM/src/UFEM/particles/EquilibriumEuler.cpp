@@ -28,6 +28,7 @@
 #include "solver/Tags.hpp"
 
 #include "../Tags.hpp"
+#include "../InitialConditions.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -121,6 +122,10 @@ EquilibriumEuler::EquilibriumEuler(const std::string& name) :
   options().add("compute_gradient", true)
     .pretty_name("Compute Gradient")
     .description("Compute the fluid velocity gradient, or rely on previously computed value");
+    
+  options().add("initial_conditions", Handle<UFEM::InitialConditions>())
+    .pretty_name("Initial Conditions")
+    .description("The component that is used to manage the initial conditions in the solver this action belongs to");
 }
 
 EquilibriumEuler::~EquilibriumEuler()
@@ -136,6 +141,8 @@ void EquilibriumEuler::on_regions_set()
     {
       m_velocity_gradient = Handle<common::Action>(create_component("VelocityGradient", "cf3.UFEM.VelocityGradient"));
       m_velocity_gradient->configure_option_recursively("physical_model", options()["physical_model"].value());
+      m_velocity_gradient->options().set("initial_conditions", options()["initial_conditions"].value());
+      options().option("initial_conditions").link_option(m_velocity_gradient->options().option_ptr("initial_conditions"));
     }
     m_velocity_gradient->options().set("velocity_variable", options().option("velocity_variable").value());
     m_velocity_gradient->options().set("velocity_tag", options().option("velocity_tag").value());

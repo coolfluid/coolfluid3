@@ -178,8 +178,7 @@ for i in range(len(error_fd)):
   err_row[0] = err_array[i][0]
   err_row[1] = err_array[i][1]
 
-writer.fields = [mesh.geometry.taylor_green.uri(), mesh.geometry.ufem_particle_velocity.uri(), error_fd.uri(), mesh.geometry.particle_concentration.uri(), mesh.geometry.particle_velocity_gradient.uri(), mesh.geometry.ufem_particle_convergence.uri(), mesh.geometry.velocity_gradient.uri()]
-writer.file = cf.URI('taylor-green-error.pvtu')
-writer.execute()
+domain.write_mesh(cf.URI('taylor-green-end.pvtu'))
+
 
 
