@@ -81,8 +81,12 @@ struct NoCollisionKernel
 };
 
 // Evaluation of the collision kernel based on the knowledge of the particle rate-of-strain tensor
+template<Uint dim>
 struct DNSCollisionKernel
 {
+  typedef Eigen::Matrix<Real, dim, 1> VectorT;
+  typedef Eigen::Matrix<Real, dim, dim> MatrixT;
+
   DNSCollisionKernel(const mesh::Field& particle_velocity_field, const std::vector<mesh::Field*>& concentration_fields, const std::vector<mesh::Field*>& weighted_volume_fields, const std::vector<mesh::Field*>& gradient_fields, const Real reference_volume) :
     m_particle_velocity_field(particle_velocity_field),
     m_concentration_fields(concentration_fields),
@@ -96,9 +100,8 @@ struct DNSCollisionKernel
   {
     const Real vol_alpha = (*m_weighted_volume_fields[alpha])[node_idx][0] / (*m_concentration_fields[alpha])[node_idx][0] * m_reference_volume;
     const Real vol_gamma = (*m_weighted_volume_fields[gamma])[node_idx][0] / (*m_concentration_fields[gamma])[node_idx][0] * m_reference_volume;
-    const Uint dim = 3;
-    const Eigen::Map<RealVector3 const> v_alpha(&m_particle_velocity_field[node_idx][alpha*dim]);
-    const Eigen::Map<RealVector3 const> v_gamma(&m_particle_velocity_field[node_idx][gamma*dim]);
+    const Eigen::Map<VectorT const> v_alpha(&m_particle_velocity_field[node_idx][alpha*dim]);
+    const Eigen::Map<VectorT const> v_gamma(&m_particle_velocity_field[node_idx][gamma*dim]);
     const Real r_alpha = ::pow(3./(4.*pi())*vol_alpha, 1./3.);
     const Real r_gamma = ::pow(3./(4.*pi())*vol_gamma,1./3.);
     const Real r_col_3 = pow_int(r_alpha + r_gamma, 3); // Collision radius ^3
@@ -107,11 +110,11 @@ struct DNSCollisionKernel
     const Real beta1 = (v_alpha - v_gamma).norm() * pi() * pow_int(r_alpha + r_gamma, 2);
 
     // Velocity gradient tensor (transposed, but not important here)
-    const Eigen::Map<RealMatrix3> g(&((*m_gradient_fields[gamma])[node_idx][0]));
+    const Eigen::Map<MatrixT> g(&((*m_gradient_fields[gamma])[node_idx][0]));
     // Rate of strain tensor
-    const RealMatrix3 s = (g + g.transpose())/2.;
-    std::vector<Real> ev(3); // vector so we can use std::sort
-    Eigen::Map<RealVector3>(ev.data()) = s.selfadjointView<Eigen::Upper>().eigenvalues();
+    const MatrixT s = (g + g.transpose())/2.;
+    std::vector<Real> ev(3, 0.); // vector so we can use std::sort
+    Eigen::Map<VectorT>(ev.data()) = s.template selfadjointView<Eigen::Upper>().eigenvalues();
     std::sort(ev.begin(), ev.end(), std::greater<double>()); // Sort from largest to smallest
     Real beta2 = 0;
     const Real approx_zero = 1e-8;
@@ -121,7 +124,7 @@ struct DNSCollisionKernel
     }
     else if(ev[0] < approx_zero) // All < 0
     {
-      beta2 = -2./3.*pi()*r_col_3*(ev[0]+ev[1]+ev[2]);
+      beta2 = -4./3.*pi()*r_col_3*(ev[0]+ev[1]+ev[2]);
     }
     // The above conditions ensure that always ev[0] > 0 and ev[2] < 0
     else if(::fabs(ev[1]) < approx_zero)
@@ -507,7 +510,18 @@ void Polydisperse::execute()
     }
     else if(collision_kernel_type == "DNSCollisionKernel")
     {
-      detail::source_term_loop<detail::DNSCollisionKernel>(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume);
+      if(physical_model().ndim() == 3)
+      {
+        detail::source_term_loop< detail::DNSCollisionKernel<3> >(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume);
+      }
+      else if(physical_model().ndim() == 2)
+      {
+        detail::source_term_loop< detail::DNSCollisionKernel<2> >(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume);
+      }
+      else
+      {
+        throw common::SetupError(FromHere(), "Unsupported dimension for collision kernel: " + common::to_str(physical_model().ndim()));
+      }
     }
     else if(collision_kernel_type == "NoCollisionKernel")
     {
