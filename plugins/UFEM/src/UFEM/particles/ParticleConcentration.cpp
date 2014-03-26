@@ -45,7 +45,8 @@ common::ComponentBuilder < ParticleConcentration, LSSActionUnsteady, LibUFEMPart
 
 ParticleConcentration::ParticleConcentration(const std::string& name) :
   LSSActionUnsteady(name),
-  m_theta(0.5)
+  m_theta(0.5),
+  discontinuity_capture(boost::proto::as_child(m_capt_data))
 {
   options().add("velocity_tag", "ufem_particle_velocity")
     .pretty_name("Velocity Tag")
@@ -107,6 +108,16 @@ ParticleConcentration::ParticleConcentration(const std::string& name) :
     .pretty_name("c2")
     .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
     .link_to(&(compute_tau.data.op.c2));
+    
+  options().add("u_ref", compute_tau.data.op.u_ref)
+    .pretty_name("Reference velocity")
+    .description("Reference velocity for the CF2 SUPG method")
+    .link_to(&(compute_tau.data.op.u_ref));
+    
+  options().add("c0", m_capt_data.op.c0)
+    .pretty_name("c0")
+    .description("Reference concentration for discontinuity capturing stabilization")
+    .link_to(&(m_capt_data.op.c0));
   
   trigger_set_expression();
 }
@@ -122,8 +133,6 @@ void ParticleConcentration::trigger_set_expression()
   
   // Source term
   FieldVariable<2, ScalarField> s(options().value<std::string>("source_term_variable"), options().value<std::string>("source_term_tag"));
-  
-//   std::cout << "options summary: " << options().value<std::string>("velocity_variable") << ", " <<  options().value<std::string>("velocity_tag") << ", " << options().value<std::string>("concentration_variable") << ", " << solution_tag() << ", " << options().value<std::string>("source_term_variable") << ", " << options().value<std::string>("source_term_tag") << std::endl;
 
   const Real theta = options().value<Real>("theta");
 
@@ -145,11 +154,12 @@ void ParticleConcentration::trigger_set_expression()
     (
       _A = _0, _T = _0, _a = _0,
       compute_tau.apply(v, 0., lit(dt()), lit(tau_su)),
+      discontinuity_capture(v, c, lit(tau_dc)),
       element_quadrature
       (
-        _A(c,c) +=  transpose(N(c) + lit(tau_su)*(v*nabla(c))) * (v*nabla(c) + divergence(v)*N(c)),
-        _T(c,c) +=  transpose(N(c) + lit(tau_su)*(v*nabla(c))) * N(c),
-        _a[c]   +=  transpose(N(c) + lit(tau_su)*(v*nabla(c))) * s
+        _A(c,c) +=  transpose(N(c) + (lit(tau_su)*v + lit(tau_dc)*transpose(gradient(c)))*nabla(c)) * (v*nabla(c) + divergence(v)*N(c)),
+        _T(c,c) +=  transpose(N(c) + (lit(tau_su)*v + lit(tau_dc)*transpose(gradient(c)))*nabla(c)) * N(c),
+        _a[c]   +=  transpose(N(c) + (lit(tau_su)*v + lit(tau_dc)*transpose(gradient(c)))*nabla(c)) * s
       ),
       system_matrix += invdt()*_T + theta*_A,
       system_rhs += -_A*_x + _a
