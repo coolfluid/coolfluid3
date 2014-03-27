@@ -46,7 +46,8 @@ common::ComponentBuilder < ParticleConcentration, LSSActionUnsteady, LibUFEMPart
 ParticleConcentration::ParticleConcentration(const std::string& name) :
   LSSActionUnsteady(name),
   m_theta(0.5),
-  discontinuity_capture(boost::proto::as_child(m_capt_data))
+  discontinuity_capture(boost::proto::as_child(m_capt_data)),
+  diffusion_coeff(boost::proto::as_child(m_diff_data))
 {
   options().add("velocity_tag", "ufem_particle_velocity")
     .pretty_name("Velocity Tag")
@@ -118,6 +119,11 @@ ParticleConcentration::ParticleConcentration(const std::string& name) :
     .pretty_name("c0")
     .description("Reference concentration for discontinuity capturing stabilization")
     .link_to(&(m_capt_data.op.c0));
+
+  options().add("d0", m_diff_data.op.d0)
+    .pretty_name("d0")
+    .description("Multiplication factor for the artificial diffusion term")
+    .link_to(&(m_diff_data.op.d0));
   
   trigger_set_expression();
 }
@@ -157,7 +163,7 @@ void ParticleConcentration::trigger_set_expression()
       //discontinuity_capture(v, c, lit(tau_dc)),
       element_quadrature
       (
-        _A(c,c) +=  transpose(N(c) + (lit(tau_su)*v + discontinuity_capture(v, c)*transpose(gradient(c)))*nabla(c)) * (v*nabla(c) + divergence(v)*N(c)),// + lit(tau_dc)*transpose(nabla(c))*nabla(c),
+        _A(c,c) +=  transpose(N(c) + (lit(tau_su)*v + discontinuity_capture(v, c)*transpose(gradient(c)))*nabla(c)) * (v*nabla(c) + divergence(v)*N(c)) + diffusion_coeff(v,c)*transpose(nabla(c))*nabla(c),
         _T(c,c) +=  transpose(N(c) + (lit(tau_su)*v + discontinuity_capture(v, c)*transpose(gradient(c)))*nabla(c)) * N(c),
         _a[c]   +=  transpose(N(c) + (lit(tau_su)*v + discontinuity_capture(v, c)*transpose(gradient(c)))*nabla(c)) * s
       ),
@@ -167,7 +173,7 @@ void ParticleConcentration::trigger_set_expression()
   ));
 
   // Set the proto expression for the update step
-  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(c += solution(c)) );
+  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(c = _max(c + solution(c), 0.)) );
 }
 
 } // particles

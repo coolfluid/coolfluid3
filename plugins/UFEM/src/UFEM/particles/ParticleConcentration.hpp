@@ -57,21 +57,14 @@ struct DiscontinuityCapture
 
 struct CrosswindDiffusion
 {
-  template<typename Signature>
-  struct result;
-
-  template<typename This, typename UT, typename CT>
-  struct result<This(UT, CT)>
-  {
-    typedef const typename UT::EtypeT::JacobianT& type;
-  };
+  typedef Real result_type;
   
-  CrosswindDiffusion() : c0(1.)
+  CrosswindDiffusion() : d0(1e-4)
   {
   }
   
-  template<typename ResultT, typename UT, typename CT>
-  const ResultT& operator()(ResultT& result, const UT& u, const CT& c)
+  template<typename UT, typename CT>
+  Real operator()(const UT& u, const CT& c)
   {
     typedef typename UT::EtypeT ElementT;
     static const Uint dim = ElementT::dimension;
@@ -87,18 +80,14 @@ struct CrosswindDiffusion
     const Real u_norm = u.eval().norm();
     if(grad_norm < 1e-10 || u_norm < 1e-10)
     {
-      result.setZero();
-      return result;
+      return 0.;
     }
     g /= grad_norm;
     const Real hg = 2./(g.transpose()*c.nabla()).cwiseAbs().sum();
-    //result.noalias() = (c0*u_norm*hg * ResultT::Identity()) - u.eval().transpose()*u.eval()/(u_norm*u_norm);
-    result.noalias() = ResultT::Identity()*c0;
-    
-    return result;
+    return d0*hg*u_norm;
   }
   
-  Real c0;
+  Real d0;
 };
   
 /// Particle concentration transport, following
@@ -127,6 +116,9 @@ private:
   ComputeTau compute_tau;
   solver::actions::Proto::MakeSFOp<DiscontinuityCapture>::stored_type m_capt_data;
   solver::actions::Proto::MakeSFOp<DiscontinuityCapture>::reference_type discontinuity_capture;
+
+  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::stored_type m_diff_data;
+  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::reference_type diffusion_coeff;
 };
 
 } // particles
