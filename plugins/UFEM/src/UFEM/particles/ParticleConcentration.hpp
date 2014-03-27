@@ -20,40 +20,82 @@ namespace particles {
 /// Stabilization as described by Tezduyar et al.
 struct DiscontinuityCapture
 {
-  typedef void result_type;
+  typedef Real result_type;
   
   DiscontinuityCapture() : c0(1.)
   {
   }
   
   template<typename UT, typename CT>
-  void operator()(const UT& u, const CT& c, Real& tau_dc)
+  Real operator()(const UT& u, const CT& c)
   {
     typedef typename UT::EtypeT ElementT;
     static const Uint dim = ElementT::dimension;
     typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
     typedef Eigen::Matrix<Real, dim, 1> ColVecT;
     
-    u.compute_values(GaussT::instance().coords.col(0));
-    c.compute_values(GaussT::instance().coords.col(0));
-    u.support().compute_jacobian(GaussT::instance().coords.col(0));
+    const Real tol = 1e-8;
+
+//    u.compute_values(GaussT::instance().coords.col(0));
+//    c.compute_values(GaussT::instance().coords.col(0));
+//    u.support().compute_jacobian(GaussT::instance().coords.col(0));
+    
+    ColVecT g = c.nabla() * c.value();
+    const Real grad_norm = g.norm();
+    if(grad_norm < tol)
+      return 0;
+    const Real hg = 2./((g.transpose()/grad_norm)*c.nabla()).cwiseAbs().sum();
+    g /= grad_norm; // gradient unit vector
+    const Real u_norm = u.eval().norm();
+    const Real alpha = u_norm < tol ? 0.5 : ::fabs((u.eval() * g)[0]/u_norm); // Maximum value if velocity is zero
+    const Real eta = 2.*alpha*(1-alpha);
+    return 0.5*hg*hg/c0*eta;
+  }
+  
+  Real c0;
+};
+
+struct CrosswindDiffusion
+{
+  template<typename Signature>
+  struct result;
+
+  template<typename This, typename UT, typename CT>
+  struct result<This(UT, CT)>
+  {
+    typedef const typename UT::EtypeT::JacobianT& type;
+  };
+  
+  CrosswindDiffusion() : c0(1.)
+  {
+  }
+  
+  template<typename ResultT, typename UT, typename CT>
+  const ResultT& operator()(ResultT& result, const UT& u, const CT& c)
+  {
+    typedef typename UT::EtypeT ElementT;
+    static const Uint dim = ElementT::dimension;
+    typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
+    typedef Eigen::Matrix<Real, dim, 1> ColVecT;
+    
+//     u.compute_values(GaussT::instance().coords.col(0));
+//     c.compute_values(GaussT::instance().coords.col(0));
+//     u.support().compute_jacobian(GaussT::instance().coords.col(0));
     
     ColVecT g = c.nabla() * c.value();
     const Real grad_norm = g.norm();
     const Real u_norm = u.eval().norm();
     if(grad_norm < 1e-10 || u_norm < 1e-10)
     {
-      tau_dc = 0.;
-      return;
+      result.setZero();
+      return result;
     }
     g /= grad_norm;
-    const Real ug = u.eval()*g;
-    //const Real hg = 1./::sqrt((u.support().jacobian_inverse().transpose() * u.support().jacobian_inverse()).norm());
     const Real hg = 2./(g.transpose()*c.nabla()).cwiseAbs().sum();
-    //const Real hg = 1./sqrt((g.transpose() * (u.support().jacobian_inverse().transpose() * u.support().jacobian_inverse()) * g)[0]);
-    const Real ugu = ::fabs(ug)/u_norm;
-    const Real eta = 2.*(1.-ugu)*ugu;
-    tau_dc = 0.5*hg*hg/c0*(ug>0 ? 1. : -1.);
+    //result.noalias() = (c0*u_norm*hg * ResultT::Identity()) - u.eval().transpose()*u.eval()/(u_norm*u_norm);
+    result.noalias() = ResultT::Identity()*c0;
+    
+    return result;
   }
   
   Real c0;

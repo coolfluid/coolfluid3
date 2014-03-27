@@ -154,12 +154,12 @@ void ParticleConcentration::trigger_set_expression()
     (
       _A = _0, _T = _0, _a = _0,
       compute_tau.apply(v, 0., lit(dt()), lit(tau_su)),
-      discontinuity_capture(v, c, lit(tau_dc)),
+      //discontinuity_capture(v, c, lit(tau_dc)),
       element_quadrature
       (
-        _A(c,c) +=  transpose(N(c) + (lit(tau_su)*v + lit(tau_dc)*transpose(gradient(c)))*nabla(c)) * (v*nabla(c) + divergence(v)*N(c)),
-        _T(c,c) +=  transpose(N(c) + (lit(tau_su)*v + lit(tau_dc)*transpose(gradient(c)))*nabla(c)) * N(c),
-        _a[c]   +=  transpose(N(c) + (lit(tau_su)*v + lit(tau_dc)*transpose(gradient(c)))*nabla(c)) * s
+        _A(c,c) +=  transpose(N(c) + (lit(tau_su)*v + discontinuity_capture(v, c)*transpose(gradient(c)))*nabla(c)) * (v*nabla(c) + divergence(v)*N(c)),// + lit(tau_dc)*transpose(nabla(c))*nabla(c),
+        _T(c,c) +=  transpose(N(c) + (lit(tau_su)*v + discontinuity_capture(v, c)*transpose(gradient(c)))*nabla(c)) * N(c),
+        _a[c]   +=  transpose(N(c) + (lit(tau_su)*v + discontinuity_capture(v, c)*transpose(gradient(c)))*nabla(c)) * s
       ),
       system_matrix += invdt()*_T + theta*_A,
       system_rhs += -_A*_x + _a
