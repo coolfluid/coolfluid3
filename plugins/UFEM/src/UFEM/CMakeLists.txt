@@ -48,6 +48,8 @@ list( APPEND coolfluid_ufem_files
   ComputeTfluid.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
+  ICNSImplicitToSemi.hpp
+  ICNSImplicitToSemi.cpp
   ICNSSemiToImplicit.hpp
   ICNSSemiToImplicit.cpp
   InitialConditionConstant.hpp
