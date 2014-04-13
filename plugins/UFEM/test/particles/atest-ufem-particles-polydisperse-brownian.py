@@ -14,12 +14,13 @@ env.exception_backtrace = False
 env.regist_signal_handlers = False
 env.log_level = 3
 
-nu = 1./5000.
+nu = 1.7894e-5
+ref_vol = 1e-18
 
-dt = 0.001
+dt = 0.01
 
-numsteps = 200
-write_interval = 50
+numsteps = 10
+write_interval = 500
 
 
 # Create the model and solvers
@@ -37,10 +38,11 @@ polydisp.options.velocity_tag = 'navier_stokes_u_solution'
 physics.density = 1.
 physics.dynamic_viscosity = nu
 
-polydisp.initial_diameters = [(6./np.pi)**(1./3.), (12./np.pi)**(1./3.)]
-polydisp.initial_concentrations = [1, 0.0001]
+polydisp.initial_diameters = [352.8149349843295e-9,1196.080988061398e-9]
+polydisp.initial_concentrations = [9.819906242145143e12/ref_vol, 4.037811335485776e10/ref_vol]
+polydisp.reference_volume = ref_vol
 polydisp.nb_phases = 2
-polydisp.options.collision_kernel_type = 'UnityCollisionKernel'
+polydisp.options.collision_kernel_type = 'BrownianCollisionKernel'
 
 # Create the mesh
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
@@ -57,7 +59,7 @@ polydisp.children.ConcentrationSolver.LSS.SolutionStrategy.Parameters.linear_sol
 
 series_writer = solver.TimeLoop.create_component('TimeWriter', 'cf3.solver.actions.TimeSeriesWriter')
 writer = series_writer.create_component('Writer', 'cf3.mesh.VTKXML.Writer')
-writer.file = cf.URI('polydisperse-uniform-{iteration}.pvtu')
+writer.file = cf.URI('polydisperse-brownian-{iteration}.pvtu')
 writer.mesh = mesh
 series_writer.interval = write_interval
 
@@ -81,4 +83,4 @@ print 'zeta:', zeta0[0,0], zeta1[0,0]
 print 'c:', c0[0,0], c1[0,0]
 print 'v:', zeta0[0,0]/c0[0,0], zeta1[0,0]/c1[0,0]
 
-domain.write_mesh(cf.URI('polydisperse-uniform-end.pvtu'))
+domain.write_mesh(cf.URI('polydisperse-brownian-end.pvtu'))

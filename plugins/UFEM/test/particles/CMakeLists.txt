@@ -9,3 +9,6 @@ coolfluid_add_test( ATEST atest-ufem-particles-polydisperse-uniform
                     
 coolfluid_add_test( ATEST atest-ufem-particles-burgers
                     PYTHON atest-ufem-particles-burgers.py)
+
+coolfluid_add_test( ATEST atest-ufem-particles-polydisperse-brownian
+                    PYTHON atest-ufem-particles-polydisperse-brownian.py)

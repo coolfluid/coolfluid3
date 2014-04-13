@@ -58,7 +58,7 @@ Real pow_int(const Real in, const int pow)
 
 struct UnityCollisionKernel
 {
-  UnityCollisionKernel(const mesh::Field& particle_velocity_field, const std::vector<mesh::Field*>& concentration_fields, const std::vector<mesh::Field*>& weighted_volume_fields, const std::vector<mesh::Field*>& gradient_fields, const Real reference_volume)
+  UnityCollisionKernel(const mesh::Field& particle_velocity_field, const std::vector<mesh::Field*>& concentration_fields, const std::vector<mesh::Field*>& weighted_volume_fields, const std::vector<mesh::Field*>& gradient_fields, const Real reference_volume, const physics::PhysModel& physical_model)
   {
   }
 
@@ -70,7 +70,7 @@ struct UnityCollisionKernel
 
 struct NoCollisionKernel
 {
-  NoCollisionKernel(const mesh::Field& particle_velocity_field, const std::vector<mesh::Field*>& concentration_fields, const std::vector<mesh::Field*>& weighted_volume_fields, const std::vector<mesh::Field*>& gradient_fields, const Real reference_volume)
+  NoCollisionKernel(const mesh::Field& particle_velocity_field, const std::vector<mesh::Field*>& concentration_fields, const std::vector<mesh::Field*>& weighted_volume_fields, const std::vector<mesh::Field*>& gradient_fields, const Real reference_volume, const physics::PhysModel& physical_model)
   {
   }
 
@@ -80,6 +80,39 @@ struct NoCollisionKernel
   }
 };
 
+struct BrownianCollisionKernel
+{
+  BrownianCollisionKernel(const mesh::Field& particle_velocity_field, const std::vector<mesh::Field*>& concentration_fields, const std::vector<mesh::Field*>& weighted_volume_fields, const std::vector<mesh::Field*>& gradient_fields, const Real reference_volume, const physics::PhysModel& physical_model) :
+    m_concentration_fields(concentration_fields),
+    m_weighted_volume_fields(weighted_volume_fields),
+    m_reference_volume(reference_volume),
+    m_mu(physical_model.options().value<Real>("dynamic_viscosity"))
+  {
+  }
+
+  Real apply(const Uint node_idx, const Uint alpha, const Uint gamma)
+  {
+    const Real vol_alpha = (*m_weighted_volume_fields[alpha])[node_idx][0] / (*m_concentration_fields[alpha])[node_idx][0] * m_reference_volume;
+    const Real vol_gamma = (*m_weighted_volume_fields[gamma])[node_idx][0] / (*m_concentration_fields[gamma])[node_idx][0] * m_reference_volume;
+    const Real r_alpha = ::pow(3./(4.*pi())*vol_alpha, 1./3.);
+    const Real r_gamma = ::pow(3./(4.*pi())*vol_gamma,1./3.);
+    
+    // TODO: Mean free path and temperature in physics
+    const Real lambda = 68e-9;
+    const Real T = 293.;
+    const Real A = 1.591;
+    const Real kb = 1.3806488e-23;
+    const Real C_alpha = 1. + A*lambda/r_alpha;
+    const Real C_gamma = 1. + A*lambda/r_gamma;
+    return 2.*kb*T/(3.*m_mu) * (C_alpha/r_alpha + C_gamma/r_gamma) * (r_alpha + r_gamma);
+  }
+  
+  const std::vector<mesh::Field*>& m_concentration_fields;
+  const std::vector<mesh::Field*>& m_weighted_volume_fields;
+  const Real m_reference_volume;
+  const Real m_mu;
+};
+
 // Evaluation of the collision kernel based on the knowledge of the particle rate-of-strain tensor
 template<Uint dim>
 struct DNSCollisionKernel
@@ -87,7 +120,7 @@ struct DNSCollisionKernel
   typedef Eigen::Matrix<Real, dim, 1> VectorT;
   typedef Eigen::Matrix<Real, dim, dim> MatrixT;
 
-  DNSCollisionKernel(const mesh::Field& particle_velocity_field, const std::vector<mesh::Field*>& concentration_fields, const std::vector<mesh::Field*>& weighted_volume_fields, const std::vector<mesh::Field*>& gradient_fields, const Real reference_volume) :
+  DNSCollisionKernel(const mesh::Field& particle_velocity_field, const std::vector<mesh::Field*>& concentration_fields, const std::vector<mesh::Field*>& weighted_volume_fields, const std::vector<mesh::Field*>& gradient_fields, const Real reference_volume, const physics::PhysModel& physical_model) :
     m_particle_velocity_field(particle_velocity_field),
     m_concentration_fields(concentration_fields),
     m_weighted_volume_fields(weighted_volume_fields),
@@ -193,7 +226,7 @@ struct MomentSourceFunctor : FunctionBase
 {
   typedef void result_type;
 
-  MomentSourceFunctor(mesh::Region& region, const std::vector<std::string>& concentration_tags, const std::vector<std::string>& weighted_volume_tags, const std::vector<std::string>& gradient_tags, const Real reference_volume) :
+  MomentSourceFunctor(mesh::Region& region, const std::vector<std::string>& concentration_tags, const std::vector<std::string>& weighted_volume_tags, const std::vector<std::string>& gradient_tags, const Real reference_volume, const physics::PhysModel& physical_model) :
     m_nb_phases(concentration_tags.size()),
     m_mat(2*m_nb_phases, 2*m_nb_phases),
     m_rhs(2*m_nb_phases)
@@ -210,7 +243,7 @@ struct MomentSourceFunctor : FunctionBase
       m_weighted_volume_fields.push_back(&(dict.field(weighted_volume_tags[i])));
       m_gradient_fields.push_back(&(dict.field(gradient_tags[i])));
     }
-    m_beta.reset(new CollisionKernelT(dict.field("ufem_particle_velocity"), m_concentration_fields, m_weighted_volume_fields, m_gradient_fields, reference_volume));
+    m_beta.reset(new CollisionKernelT(dict.field("ufem_particle_velocity"), m_concentration_fields, m_weighted_volume_fields, m_gradient_fields, reference_volume, physical_model));
     m_collision_rate_field = Handle<mesh::Field>(dict.get_child("collision_rate")).get();
   }
 
@@ -238,6 +271,7 @@ struct MomentSourceFunctor : FunctionBase
         const Real n_gamma = (*m_concentration_fields[gamma])[node_idx][0];
         const Real vol_gamma = (*m_weighted_volume_fields[gamma])[node_idx][0] / n_gamma;
         const Real beta = m_beta->apply(node_idx, alpha, gamma);
+        //std::cout << "computing for vol_alpha " << vol_alpha << ", vol_gamma: " << vol_gamma << ", n_alpha " << n_alpha << ", n_gamma " << n_gamma << ", beta " << beta << std::endl;
         for(int k = 0; k != nb_moments; ++k ) // For all moments
         {
           m_rhs[k] += (0.5*pow_int(vol_alpha + vol_gamma, k ) - pow_int(vol_alpha, k )) * (beta*n_alpha*n_gamma);
@@ -252,6 +286,17 @@ struct MomentSourceFunctor : FunctionBase
     }
 
     Eigen::Map<RealVector> x(&(*m_source_field)[node_idx][0], nb_moments);
+    
+    // Check for NaN
+    for(Uint k = 0; k != nb_moments; ++k)
+    {
+      if(!std::isfinite(m_rhs[k]))
+      {
+        x.setZero();
+        return;
+      }
+    }
+    
     Eigen::FullPivLU<RealMatrix> lu(m_mat);
     if(!lu.isInvertible())
     {
@@ -282,9 +327,9 @@ struct MomentSourceFunctor : FunctionBase
 };
 
 template<typename CollisionKernelT>
-void source_term_loop(mesh::Region& region, const std::vector<std::string>& concentration_tags, const std::vector<std::string>& weighted_volume_tags, const std::vector<std::string>& gradient_tags, const Real reference_volume)
+void source_term_loop(mesh::Region& region, const std::vector<std::string>& concentration_tags, const std::vector<std::string>& weighted_volume_tags, const std::vector<std::string>& gradient_tags, const Real reference_volume, const physics::PhysModel& physical_model)
 {
-  MomentSourceFunctor<CollisionKernelT> compute_source_terms(region, concentration_tags, weighted_volume_tags, gradient_tags, reference_volume);
+  MomentSourceFunctor<CollisionKernelT> compute_source_terms(region, concentration_tags, weighted_volume_tags, gradient_tags, reference_volume, physical_model);
   for_each_node(region, lit(compute_source_terms)(node_index));
 }
 
@@ -506,17 +551,17 @@ void Polydisperse::execute()
   {
     if(collision_kernel_type == "UnityCollisionKernel")
     {
-      detail::source_term_loop<detail::UnityCollisionKernel>(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume);
+      detail::source_term_loop<detail::UnityCollisionKernel>(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume, physical_model());
     }
     else if(collision_kernel_type == "DNSCollisionKernel")
     {
       if(physical_model().ndim() == 3)
       {
-        detail::source_term_loop< detail::DNSCollisionKernel<3> >(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume);
+        detail::source_term_loop< detail::DNSCollisionKernel<3> >(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume, physical_model());
       }
       else if(physical_model().ndim() == 2)
       {
-        detail::source_term_loop< detail::DNSCollisionKernel<2> >(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume);
+        detail::source_term_loop< detail::DNSCollisionKernel<2> >(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume, physical_model());
       }
       else
       {
@@ -525,7 +570,11 @@ void Polydisperse::execute()
     }
     else if(collision_kernel_type == "NoCollisionKernel")
     {
-      detail::source_term_loop<detail::NoCollisionKernel>(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume);
+      detail::source_term_loop<detail::NoCollisionKernel>(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume, physical_model());
+    }
+    else if(collision_kernel_type == "BrownianCollisionKernel")
+    {
+      detail::source_term_loop<detail::BrownianCollisionKernel>(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume, physical_model());
     }
     else
     {

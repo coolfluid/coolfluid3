@@ -18,7 +18,7 @@ nu = 1./5000.
 
 segs = 32
 D = 0.5
-Vs = 1/(4.*np.pi)
+Vs = 1./(1.5*np.pi)
 Ua = 0.
 Va = 0.
 
@@ -27,7 +27,7 @@ beta = 3.
 
 dt = 0.1
 
-numsteps = 20
+numsteps = 100
 write_interval = 50
 
 
@@ -120,7 +120,13 @@ conv = solver.add_unsteady_solver('cf3.UFEM.particles.EquilibriumEulerConvergenc
 conv.tau = tau
 
 particle_c = solver.add_unsteady_solver('cf3.UFEM.particles.ParticleConcentration')
-#particle_c.options.alpha_su = 0.
+particle_c.options.supg_type = 'metric'
+#particle_c.options.c1 = 0.
+#particle_c.options.c2 = 0.
+#particle_c.options.alpha_su = 30.
+particle_c.options.c0 = 2.
+particle_c.options.d0 = 0.05
+
 
 # Set up the physical constants
 physics.density = 1.
