@@ -15,7 +15,6 @@
 #include "common/OptionArray.hpp"
 #include "common/PropertyList.hpp"
 
-#include "math/Consts.hpp"
 #include "math/LSS/SolveLSS.hpp"
 #include "math/LSS/ZeroLSS.hpp"
 #include "mesh/LagrangeP1/ElementTypes.hpp"
@@ -36,7 +35,6 @@ namespace particles {
 
 using namespace solver::actions::Proto;
 using boost::proto::lit;
-using math::Consts::pi;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -67,10 +65,12 @@ RelaxationTime::RelaxationTime(const std::string& name) :
     .pretty_name("Tau Variable")
     .description("Variable for the relaxation time");
 
-  options().add("reference_volume", m_reference_volume)
+  r2.m_reference_volume = 1.;
+    
+  options().add("reference_volume", r2.m_reference_volume)
     .pretty_name("Reference Volume")
     .description("Reference volume, all particle volumes are divided by this")
-    .link_to(&m_reference_volume);
+    .link_to(&(r2.m_reference_volume));
 }
 
 RelaxationTime::~RelaxationTime()
@@ -92,7 +92,7 @@ void RelaxationTime::on_regions_set()
   (
     group
     (
-      tau = lit(2./9.)*rho_p/mu*_std_pow(lit(3./(4.*pi()))*zeta/c*lit(m_reference_volume), lit(2./3.))
+      tau = lit(2./9.)*rho_p/mu*lit(r2)(c, zeta)
     )
   ));
 }

@@ -184,7 +184,8 @@ struct DNSCollisionKernel
     {
       std::stringstream msg;
       msg << "Unknown combination of eigenvalues: " << ev[0] << ", " << ev[1] << ", " << ev[2];
-      throw common::ShouldNotBeHere(FromHere(), msg.str());
+      CFdebug << msg.str() << CFendl;
+      beta2 = 0.;
     }
 
     return beta1 + beta2;
