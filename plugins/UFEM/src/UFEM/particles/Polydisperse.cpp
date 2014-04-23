@@ -100,7 +100,7 @@ struct BrownianCollisionKernel
     // TODO: Mean free path and temperature in physics
     const Real lambda = 68e-9;
     const Real T = 293.;
-    const Real A = 1.591;
+    const Real A = 1.591; // TODO: Configuration for Cunningham correction
     const Real kb = 1.3806488e-23;
     const Real C_alpha = 1. + A*lambda/r_alpha;
     const Real C_gamma = 1. + A*lambda/r_gamma;
@@ -220,6 +220,25 @@ struct DNSCollisionKernel
   const Real m_reference_volume;
 };
 
+/// Combined DNS and Brownian coagulation
+template<Uint dim>
+struct DNSBrownianCollisionKernel
+{
+  DNSBrownianCollisionKernel(const mesh::Field& particle_velocity_field, const std::vector<mesh::Field*>& concentration_fields, const std::vector<mesh::Field*>& weighted_volume_fields, const std::vector<mesh::Field*>& gradient_fields, const Real reference_volume, const physics::PhysModel& physical_model) :
+    m_brown(particle_velocity_field, concentration_fields, weighted_volume_fields, gradient_fields, reference_volume, physical_model),
+    m_dns(particle_velocity_field, concentration_fields, weighted_volume_fields, gradient_fields, reference_volume, physical_model)
+  {
+  }
+
+  Real apply(const Uint node_idx, const Uint alpha, const Uint gamma)
+  {
+    return ::sqrt(pow_int(m_brown.apply(node_idx, alpha, gamma), 2) + pow_int(m_dns.apply(node_idx, alpha, gamma), 2));
+  }
+  
+  BrownianCollisionKernel m_brown;
+  DNSCollisionKernel<dim> m_dns;
+};
+
 /// Functor to compute the moment source terms
 template<typename CollisionKernelT>
 struct MomentSourceFunctor : FunctionBase
@@ -271,7 +290,8 @@ struct MomentSourceFunctor : FunctionBase
         const Real n_gamma = (*m_concentration_fields[gamma])[node_idx][0];
         const Real vol_gamma = (*m_weighted_volume_fields[gamma])[node_idx][0] / n_gamma;
         const Real beta = m_beta->apply(node_idx, alpha, gamma);
-        //std::cout << "computing for vol_alpha " << vol_alpha << ", vol_gamma: " << vol_gamma << ", n_alpha " << n_alpha << ", n_gamma " << n_gamma << ", beta " << beta << std::endl;
+//         std::cout << "computing for vol_alpha " << vol_alpha << ", vol_gamma: " << vol_gamma << ", n_alpha " << n_alpha << ", n_gamma " << n_gamma << ", beta " << beta << std::endl;
+//         std::cout << "collision value: " << (beta*n_alpha*n_gamma) << std::endl;
         for(int k = 0; k != nb_moments; ++k ) // For all moments
         {
           m_rhs[k] += (0.5*pow_int(vol_alpha + vol_gamma, k ) - pow_int(vol_alpha, k )) * (beta*n_alpha*n_gamma);
@@ -562,6 +582,21 @@ void Polydisperse::execute()
       else if(physical_model().ndim() == 2)
       {
         detail::source_term_loop< detail::DNSCollisionKernel<2> >(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume, physical_model());
+      }
+      else
+      {
+        throw common::SetupError(FromHere(), "Unsupported dimension for collision kernel: " + common::to_str(physical_model().ndim()));
+      }
+    }
+    else if(collision_kernel_type == "DNSBrownianCollisionKernel")
+    {
+      if(physical_model().ndim() == 3)
+      {
+        detail::source_term_loop< detail::DNSBrownianCollisionKernel<3> >(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume, physical_model());
+      }
+      else if(physical_model().ndim() == 2)
+      {
+        detail::source_term_loop< detail::DNSBrownianCollisionKernel<2> >(*region, m_concentration_tags, m_weighted_volume_tags, m_gradient_tags, m_reference_volume, physical_model());
       }
       else
       {
