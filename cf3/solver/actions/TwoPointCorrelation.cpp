@@ -176,7 +176,7 @@ void TwoPointCorrelation::execute()
       {
         file << m_x_positions[i];
         for(Uint j = 0; j != dim; ++j)
-          file << "," << m_x_corr(i,j);
+          file << "," << common::to_str(m_x_corr(i,j));
         file << "\n";
       }
       file << "# Autocorrelation at level " << coord << " in direction " << y_direction << " for field " << m_field->descriptor().description() << "\n";
@@ -184,7 +184,7 @@ void TwoPointCorrelation::execute()
       {
         file << m_y_positions[i];
         for(Uint j = 0; j != dim; ++j)
-          file << "," << m_y_corr(i,j);
+          file << "," << common::to_str(m_y_corr(i,j));
         file << "\n";
       }
       file.close();

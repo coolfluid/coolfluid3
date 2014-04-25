@@ -132,6 +132,7 @@ void TurbulenceStatistics::execute()
       detail::update_mean(means[3], v*v, m_count);
       detail::update_mean(means[4], u*v, m_count);
       detail::update_mean(means[5], p, m_count);
+      detail::update_mean(means[6], p*p, m_count);
     }
 
     for(Uint my_probe_idx = 0; my_probe_idx != nb_my_probes; ++my_probe_idx)
@@ -172,6 +173,7 @@ void TurbulenceStatistics::execute()
       detail::update_mean(means[7], u*w, m_count);
       detail::update_mean(means[8], v*w, m_count);
       detail::update_mean(means[9], p, m_count);
+      detail::update_mean(means[10], p*p, m_count);
     }
 
     for(Uint my_probe_idx = 0; my_probe_idx != nb_my_probes; ++my_probe_idx)
@@ -400,11 +402,11 @@ void TurbulenceStatistics::setup()
   {
     if(m_dim == 2)
     {
-      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,uv,p").handle<mesh::Field>();
+      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,uv,p,pp").handle<mesh::Field>();
     }
     else if(m_dim == 3)
     {
-      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,ww,uv,uw,vw,p").handle<mesh::Field>();
+      m_statistics_field = dictionary->create_field("turbulence_statistics", "V[vector],uu,vv,ww,uv,uw,vw,p,pp").handle<mesh::Field>();
     }
     m_statistics_field->add_tag("turbulence_statistics");
   }
