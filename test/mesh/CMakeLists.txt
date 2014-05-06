@@ -284,6 +284,10 @@ coolfluid_add_test( UTEST    utest-mesh-generateplane3d
                     PYTHON   utest-mesh-generateplane3d.py
                     MPI 1)
 
+coolfluid_add_test( UTEST    utest-mesh-generateline3d
+                    PYTHON   utest-mesh-generateline3d.py
+                    MPI 1)
+
 ############################################################################################
 
 set( partitioner_lib "" )

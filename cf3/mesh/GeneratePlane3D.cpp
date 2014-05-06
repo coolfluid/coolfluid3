@@ -75,7 +75,7 @@ void GeneratePlane3D::execute()
   
   const std::vector<Real> origin = options().value< std::vector<Real> >("origin");
   if(origin.size() != 3)
-    throw common::SetupError(FromHere(), "Normal vector size of " + common::to_str(origin.size()) + " is invalid, must be 3");
+    throw common::SetupError(FromHere(), "origin size of " + common::to_str(origin.size()) + " is invalid, must be 3");
   
   const std::vector<Real> normal = options().value< std::vector<Real> >("normal");
   if(normal.size() != 3)

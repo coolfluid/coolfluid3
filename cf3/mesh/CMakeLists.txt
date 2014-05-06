@@ -102,6 +102,8 @@ list( APPEND coolfluid_mesh_files
   ElementTypeBase.hpp
   GeoShape.hpp
   GeoShape.cpp
+  GenerateLine3D.hpp
+  GenerateLine3D.cpp
   GeneratePlane3D.hpp
   GeneratePlane3D.cpp
   InterpolationFunction.hpp
