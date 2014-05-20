@@ -48,6 +48,9 @@ public: // functions
 
   virtual const Real& max_cfl() const = 0;
 
+  void signal_max_cfl( common::SignalArgs& node );
+  void signature_max_cfl( common::SignalArgs& node );
+
 protected: // data
 
   Handle<mesh::Field>  m_time_step;
