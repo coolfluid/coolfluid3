@@ -23,6 +23,7 @@
 #include "mesh/cf3mesh/Reader.hpp"
 #include "mesh/GeoShape.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/MeshAdaptor.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Dictionary.hpp"
 #include "mesh/Field.hpp"
@@ -72,9 +73,6 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
   if(mesh_node.attribute_value("version") != "1")
     throw common::FileFormatError(FromHere(), "File " + path.path() + " has incorrect version " + mesh_node.attribute_value("version") + "(expected 1)");
 
-  if(common::from_str<Uint>(mesh_node.attribute_value("nb_procs")) != comm.size())
-    throw common::FileFormatError(FromHere(), "File " + path.path() + " was created for " + mesh_node.attribute_value("nb_procs") + " processes and can't load on " + common::to_str(comm.size()) + " processors");
-  
   common::XML::XmlNode topology_node = mesh_node.content->first_node("topology");
   if(!topology_node.is_valid())
     throw common::FileFormatError(FromHere(), "File " + path.path() + " has no topology node");
@@ -83,13 +81,43 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
   if(!dictionaries_node.is_valid())
     throw common::FileFormatError(FromHere(), "File " + path.path() + " has no dictionaries node");
 
-
   data_reader = common::allocate_component<common::BinaryDataReader>("DataReader");
   data_reader->options().set("file", common::URI(mesh_node.attribute_value("binary_file")));
 
+  const Uint nb_parts = common::from_str<Uint>(mesh_node.attribute_value("nb_procs"));
+  if(nb_parts == comm.size())
+  {
+    read_mesh_part(topology_node, dictionaries_node, mesh, comm.rank());
+  }
+  else if(comm.size() != 1)
+  {
+    throw common::FileFormatError(FromHere(), "File " + path.path() + " was created for " + mesh_node.attribute_value("nb_procs") + " processes. Use the correct number of processes or use one process to merge the file");
+  }
+  else
+  {
+    MeshAdaptor mesh_adaptor(mesh);
+
+    for(Uint part=0; part != nb_parts; ++part)
+    {
+      boost::shared_ptr<Mesh> tmp_mesh = common::allocate_component<Mesh>(mesh.name() + common::to_str(part));
+      read_mesh_part(topology_node, dictionaries_node, *tmp_mesh, part);
+      mesh_adaptor.combine_mesh(*tmp_mesh);
+    }
+    mesh_adaptor.remove_duplicate_elements_and_nodes();
+    mesh_adaptor.fix_node_ranks();
+    mesh_adaptor.finish();
+  }
+
+  mesh.raise_mesh_loaded();
+}
+
+void Reader::read_mesh_part(const XmlNode& topology_node, const XmlNode& dictionaries_node, Mesh &mesh, const Uint rank)
+{
+  data_reader->options().set("rank", rank);
+
   m_entities.clear();
   read_topology(topology_node,mesh.topology(),mesh.geometry_fields());
-  read_elements(topology_node,mesh.topology(),mesh.geometry_fields());
+  read_elements(topology_node,mesh.topology(),mesh.geometry_fields(), mesh);
 
   // First import the geometry dictionary with coordinates only
   common::XML::XmlNode dictionary_node(dictionaries_node.content->first_node("dictionary"));
@@ -108,7 +136,7 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
           data_reader->read_table(mesh.geometry_fields().coordinates(), table_idx);
         }
       }
-      
+
       // Periodic links
       if(is_not_null(dictionary_node.content->first_attribute("periodic_links_nodes")) && is_not_null(dictionary_node.content->first_attribute("periodic_links_active")))
       {
@@ -121,7 +149,7 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
       }
     }
   }
-  
+
   // Then import other fields and other dictionaries
   dictionary_node.content = dictionaries_node.content->first_node("dictionary");
   for(; dictionary_node.is_valid(); dictionary_node.content = dictionary_node.content->next_sibling("dictionary"))
@@ -129,7 +157,7 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
     const std::string dict_name = dictionary_node.attribute_value("name");
     const std::string space_lib_name = dictionary_node.attribute_value("space_lib_name");
     const bool continuous = common::from_str<bool>(dictionary_node.attribute_value("continuous"));
-    
+
     // The entities used by this dictionary
     std::vector< Handle<Entities> > entities_list;
     std::vector<Uint> entities_binary_file_indices;
@@ -144,18 +172,18 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
       entities_list.push_back(entities);
       entities_binary_file_indices.push_back(common::from_str<Uint>(entities_node.attribute_value("table_idx")));
     }
-    
+
     Dictionary& dictionary =
         dict_name == "geometry" ?
             mesh.geometry_fields()
           : (continuous ?
                mesh.create_continuous_space(dict_name, space_lib_name, entities_list)
              : mesh.create_discontinuous_space(dict_name, space_lib_name, entities_list) );
-      
+
     // Read the global indices
     data_reader->read_list(dictionary.glb_idx(), common::from_str<Uint>(dictionary_node.attribute_value("global_indices")));
     data_reader->read_list(dictionary.rank(),    common::from_str<Uint>(dictionary_node.attribute_value("ranks")));
-    
+
     // Read the fields
     common::XML::XmlNode field_node(dictionary_node.content->first_node("field"));
     for(; field_node.is_valid(); field_node.content = field_node.content->next_sibling("field"))
@@ -167,10 +195,10 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
       common::XML::XmlNode tag_node = field_node.content->first_node("tag");
       for(; tag_node.is_valid(); tag_node.content = tag_node.content->next_sibling("tag"))
         field.add_tag(tag_node.attribute_value("name"));
-      
+
       data_reader->read_table(field, table_idx);
     }
-    
+
     // Read in the connectivity tables
     for(Uint i = 0; i != entities_list.size(); ++i)
     {
@@ -181,7 +209,6 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
   mesh.update_structures();
   mesh.update_statistics();
   mesh.check_sanity();
-  mesh.raise_mesh_loaded();
 }
 
 void Reader::read_topology(const common::XML::XmlNode& topology_node, Region& topology, Dictionary& geometry)
@@ -203,13 +230,13 @@ void Reader::read_topology(const common::XML::XmlNode& topology_node, Region& to
   }
 }
 
-void Reader::read_elements(const common::XML::XmlNode& topology_node, Region& topology, Dictionary& geometry)
+void Reader::read_elements(const common::XML::XmlNode& topology_node, Region& topology, Dictionary& geometry, Mesh& mesh)
 {
   common::XML::XmlNode region_node(topology_node.content->first_node("region"));
   for(; region_node.is_valid(); region_node.content = region_node.content->next_sibling("region"))
   {
     Region& region = *topology.access_component(region_node.attribute_value("name"))->handle<Region>();
-    read_elements(region_node,region,geometry);
+    read_elements(region_node,region,geometry, mesh);
     common::XML::XmlNode elements_node(region_node.content->first_node("elements"));
     for(; elements_node.is_valid(); elements_node.content = elements_node.content->next_sibling("elements"))
     {
@@ -228,7 +255,7 @@ void Reader::read_elements(const common::XML::XmlNode& topology_node, Region& to
         Handle< common::List<Uint> > periodic_links_elements = elems.create_component< common::List<Uint> >("periodic_links_elements");
         data_reader->read_list(*periodic_links_elements, common::from_str<Uint>(periodic_node.attribute_value("index")));
         Handle<common::Link> link = periodic_links_elements->create_component<common::Link>("periodic_link");
-        Handle<Elements> elements_to_link(m_mesh->access_component_checked(common::URI( periodic_node.attribute_value("periodic_link"), common::URI::Scheme::CPATH) ) );
+        Handle<Elements> elements_to_link(mesh.access_component_checked(common::URI( periodic_node.attribute_value("periodic_link"), common::URI::Scheme::CPATH) ) );
         if(is_null(elements_to_link))
           throw common::FileFormatError(FromHere(), "Invalid periodic link: " + periodic_node.attribute_value("periodic_link"));
         link->link_to(*elements_to_link);

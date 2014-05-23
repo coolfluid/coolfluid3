@@ -95,10 +95,11 @@ void DirectionalAverage::execute()
   const mesh::Field::ArrayT& field_values = m_field->array();
   const Uint nb_nodes = field_values.size();
   const mesh::Dictionary& dict = m_field->dict();
+  const common::List<bool>* periodic_links_active = Handle<common::List<bool> const>(dict.get_child("periodic_links_active")).get();
   const Uint stride = m_field->row_size()+1;
   for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
   {
-    if(!dict.is_ghost(node_idx))
+    if(!dict.is_ghost(node_idx) && !(is_not_null(periodic_links_active) && (*periodic_links_active)[node_idx]))
     {
       const Uint position_idx = m_node_position_indices[node_idx];
       const Uint node_begin = stride*position_idx;
@@ -129,11 +130,11 @@ void DirectionalAverage::execute()
       const Uint avg_begin = pos_idx*stride;
       const Uint avg_end = avg_begin+stride;
       const Real count = global_averages[avg_begin];
-      file << m_positions[pos_idx] << " " << count;
+      file << common::to_str(m_positions[pos_idx]) << " " << count;
 
       for(Uint j = avg_begin+1; j != avg_end; ++j)
       {
-        file << " " << global_averages[j]/count;
+        file << " " << common::to_str(global_averages[j]/count);
       }
       file << "\n";
     }

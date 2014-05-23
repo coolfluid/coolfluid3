@@ -212,7 +212,7 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
 
                        (
                         _A = _0, _T = _0,
-                        compute_tau(u_adv, nu_eff, lit(dt()), lit(tau_su)),
+                        compute_tau.apply(u_adv, nu_eff, lit(dt()), lit(tau_su)),
                         compute_sa_coeffs(u_adv, NU, d, m_sa_coeffs, nu_lam),
                         element_quadrature
                         (

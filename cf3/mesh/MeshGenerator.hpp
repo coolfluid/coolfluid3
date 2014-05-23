@@ -25,16 +25,7 @@ namespace mesh {
 /// the mesh format from file
 /// @author Willem Deconinck
 class Mesh_API MeshGenerator : public common::Action {
-
-public: // typedefs
-
-  /// type of pointer to Component
-  
-  /// type of pointer to constant Component
-  
-
-public: // functions
-
+public:
   /// Contructor
   /// @param name of the component
   MeshGenerator ( const std::string& name );

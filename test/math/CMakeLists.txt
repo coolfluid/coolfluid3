@@ -81,8 +81,14 @@ coolfluid_add_test( UTEST utest-lss-vector
                     LIBS  coolfluid_math_lss coolfluid_math
                     MPI   2)
 
+coolfluid_add_test( UTEST utest-lss-solvetrilinosdefault
+                    CPP utest-lss-solvetrilinosdefault.cpp
+                    LIBS coolfluid_math_lss coolfluid_math
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/matrices/orsirr1.hb
+                    MPI 1 )
+
 else()
-coolfluid_mark_not_orphan(utest-lss-atomic.cpp utest-lss-distributed-matrix.cpp utest-lss-symmetric-dirichlet.cpp utest-lss-test-matrix.hpp utest-lss-vector.cpp)
+coolfluid_mark_not_orphan(utest-lss-atomic.cpp utest-lss-distributed-matrix.cpp utest-lss-symmetric-dirichlet.cpp utest-lss-test-matrix.hpp utest-lss-vector.cpp utest-lss-solvetrilinosdefault.cpp)
 endif()
 
 coolfluid_add_test( UTEST utest-lss-solvelss

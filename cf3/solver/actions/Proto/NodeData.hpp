@@ -121,7 +121,7 @@ struct NodeVarData< ScalarField >
       Uint global_sync = 0;
       common::PE::Comm::instance().all_reduce(common::PE::plus(), &my_sync, 1, &global_sync);
       if(global_sync != 0)
-        FieldSynchronizer::instance().insert(m_field);
+        FieldSynchronizer::instance().insert(m_field, false);
     }
   }
 
@@ -208,7 +208,7 @@ struct NodeVarData<VectorField, Dim>
       Uint global_sync = 0;
       common::PE::Comm::instance().all_reduce(common::PE::plus(), &my_sync, 1, &global_sync);
       if(global_sync != 0)
-        FieldSynchronizer::instance().insert(m_field);
+        FieldSynchronizer::instance().insert(m_field, false);
     }
   }
 
@@ -361,17 +361,22 @@ public:
   /// Update node index
   void set_node(const Uint idx)
   {
-    node_idx = idx;
-    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(SetNode(m_variables_data, node_idx));
+    m_node_idx = idx;
+    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(SetNode(m_variables_data, m_node_idx));
+  }
+  
+  inline Uint node_idx() const
+  {
+    return m_node_idx;
   }
 
   /// Current node index
-  Uint node_idx;
+  Uint m_node_idx;
 
   /// Access to the current coordinates
   const CoordsT& coordinates() const
   {
-    const common::Table<Real>::ConstRow row = m_coordinates[node_idx];
+    const common::Table<Real>::ConstRow row = m_coordinates[m_node_idx];
     for(Uint i = 0; i != NbDims::value; ++i)
     {
       m_position[i] = row[i];

@@ -245,6 +245,7 @@ static boost::proto::terminal< double(*)(double) >::type const _sqrt = {&sqrt};
 static boost::proto::terminal< double(*)(double) >::type const _abs = {&fabs};
 static boost::proto::terminal< double(*)(double, double) >::type const _max = {&max};
 static boost::proto::terminal< double(*)(double, double) >::type const _min = {&min};
+static boost::proto::terminal< double(*)(double, double) >::type const _std_pow = {&std::pow};
 
 } // namespace Proto
 } // namespace actions

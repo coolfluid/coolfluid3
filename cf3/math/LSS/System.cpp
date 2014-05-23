@@ -353,6 +353,38 @@ void LSS::System::print(const std::string& filename)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void LSS::System::read_native(const common::URI& filename)
+{
+  if (is_created())
+    destroy();
+
+  const std::string matrix_builder = options().option("matrix_builder").value_str();
+  m_mat = create_component<LSS::Matrix>("Matrix", matrix_builder);
+
+  std::string vector_builder = options().option("vector_builder").value_str();
+  if(vector_builder.empty())
+    vector_builder = m_mat->properties().value_str("vector_type");
+
+  m_rhs = create_component<LSS::Vector>("RHS", vector_builder);
+  m_sol = create_component<LSS::Vector>("Solution", vector_builder);
+
+  m_rhs->mark_basic();
+  m_sol->mark_basic();
+  m_mat->mark_basic();
+
+  m_solution_strategy = create_component<SolutionStrategy>("SolutionStrategy", options().option("solution_strategy").value<std::string>());
+  m_solution_strategy->set_matrix(m_mat);
+  m_solution_strategy->set_solution(m_sol);
+  m_solution_strategy->set_rhs(m_rhs);
+  m_solution_strategy->mark_basic();
+  
+  m_mat->read_native(filename);
+  m_rhs->read_native(filename, "rhs");
+  m_sol->read_native(filename, "solution");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 const bool LSS::System::is_created()
 {
   int numcreated=0;

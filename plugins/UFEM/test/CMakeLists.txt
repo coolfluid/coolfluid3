@@ -145,5 +145,10 @@ coolfluid_add_test( ATEST atest-ufem-navier-stokes-mlaux
                     PYTHON atest-ufem-navier-stokes-mlaux.py
                     MPI 2)
 
+coolfluid_add_test( ATEST atest-ufem-velocitygradient
+                    PYTHON atest-ufem-velocitygradient.py
+                    MPI 4 )
+
 add_subdirectory(demo)
+add_subdirectory(les)
 add_subdirectory(particles)

@@ -199,6 +199,8 @@ public:
   virtual Teuchos::RCP< Thyra::LinearOpBase< Real > > thyra_operator();
 
   virtual void clone_to(Matrix &other);
+  
+  virtual void read_native(const common::URI& file);
 
 private:
 

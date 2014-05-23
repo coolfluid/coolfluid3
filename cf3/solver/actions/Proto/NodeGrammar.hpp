@@ -54,6 +54,23 @@ struct CoordsTerminals :
 {
 };
 
+struct GetNodeIdx : boost::proto::callable
+{
+  typedef Uint result_type;
+  
+  template<typename DataT>
+  Uint operator()(const DataT& data) const
+  {
+    return data.node_idx();
+  };
+};
+
+struct NodeIdxOp
+{
+};
+
+boost::proto::terminal<NodeIdxOp>::type const node_index = {};
+
 struct CoordinatesGrammar :
   boost::proto::or_
   <
@@ -61,6 +78,11 @@ struct CoordinatesGrammar :
     <
       CoordsTerminals,
       GetCoordinates
+    >,
+    boost::proto::when
+    <
+      boost::proto::terminal<NodeIdxOp>,
+      GetNodeIdx(boost::proto::_data)
     >
   >
 {

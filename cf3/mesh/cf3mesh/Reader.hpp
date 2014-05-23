@@ -48,13 +48,14 @@ public: // functions
 private:
   virtual void do_read_mesh_into(const common::URI& path, Mesh& mesh);
 
+  void read_mesh_part(const common::XML::XmlNode &topology_node, const common::XML::XmlNode &dictionaries_node, Mesh& mesh, const Uint rank);
+
   void read_topology(const common::XML::XmlNode& region_node, Region& region, Dictionary& geometry);
 
-  void read_elements(const common::XML::XmlNode& region_node, Region& region, Dictionary& geometry);
+  void read_elements(const common::XML::XmlNode& region_node, Region& region, Dictionary& geometry, Mesh &mesh);
 
 private:
   boost::shared_ptr<common::BinaryDataReader> data_reader;
-  Handle<Mesh> m_mesh;
   std::vector< Handle<Entities> > m_entities;
 }; // end Reader
 

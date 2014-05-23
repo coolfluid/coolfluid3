@@ -454,7 +454,7 @@ public:
       Uint global_sync = 0;
       common::PE::Comm::instance().all_reduce(common::PE::plus(), &my_sync, 1, &global_sync);
       if(global_sync != 0)
-        FieldSynchronizer::instance().insert(m_field);
+        FieldSynchronizer::instance().insert(m_field, true);
     }
   }
 

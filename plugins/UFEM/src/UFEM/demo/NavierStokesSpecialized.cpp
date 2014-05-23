@@ -65,6 +65,7 @@ struct NavierStokesSpecializedAssembly
     normals(2, YY) = nodes(1, XX) - nodes(0, XX);
 
     Real tau_ps, tau_su, tau_bulk;
+    ComputeTauImpl compute_tau;
     compute_tau.compute_coefficients(u, nu, 1./invdt, tau_ps, tau_su, tau_bulk);
 
     for(Uint i=0; i<3; ++i)
@@ -164,8 +165,6 @@ struct NavierStokesSpecializedAssembly
     lss.matrix().add_values(acc);
     lss.rhs().add_rhs_values(acc);
   }
-  
-  ComputeTau compute_tau;
 };
 
 static solver::actions::Proto::MakeSFOp<NavierStokesSpecializedAssembly>::type const assemble_ns_triags = {};

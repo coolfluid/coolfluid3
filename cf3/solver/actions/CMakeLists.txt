@@ -15,6 +15,8 @@ list( APPEND coolfluid_solver_actions_files
   ProbePostProcFunction.cpp
   ProbePostProcHistory.hpp
   ProbePostProcHistory.cpp
+  FieldTimeAverage.hpp
+  FieldTimeAverage.cpp
   ForAllCells.hpp
   ForAllCells.cpp
   ForAllElements.hpp
@@ -50,11 +52,14 @@ list( APPEND coolfluid_solver_actions_files
   TimeSeriesWriter.cpp
   TurbulenceStatistics.hpp
   TurbulenceStatistics.cpp
+  TwoPointCorrelation.hpp
+  TwoPointCorrelation.cpp
   WriteRestartFile.hpp
   WriteRestartFile.cpp
 )
 
 list( APPEND coolfluid_solver_actions_proto_files
+    # Core Proto files
     Proto/BlockAccumulator.hpp
     Proto/ComponentWrapper.hpp
     Proto/ConfigurableConstant.hpp
@@ -91,6 +96,12 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/SolutionVector.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp
+
+    # Actions using Proto
+    CopyScalar.hpp
+    CopyScalar.cpp
+    NodeValence.hpp
+    NodeValence.cpp
 )
 
 if( CF3_ENABLE_PROTO )

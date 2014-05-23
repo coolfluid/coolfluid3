@@ -21,7 +21,7 @@ namespace UFEM {
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-ComputeTauT compute_tau;
+ComputeTau compute_tau;
 
 typedef boost::mpl::vector1<mesh::LagrangeP1::Quad2D> AllowedElmsT;
 
@@ -79,7 +79,7 @@ boost::shared_ptr<solver::actions::Proto::ProtoAction> stokes_pspg(LSSActionUnst
     group
     (
       _A = _0, _T = _0,
-      compute_tau(u, nu_eff, lit(solver.dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau.apply(u, nu_eff, lit(solver.dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i], // Continuity, standard
@@ -113,7 +113,7 @@ boost::shared_ptr<solver::actions::Proto::ProtoAction> navier_stokes_pspg(LSSAct
     group
     (
       _A = _0, _T = _0,
-      compute_tau(u, nu_eff, lit(solver.dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau.apply(u, nu_eff, lit(solver.dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
@@ -147,7 +147,7 @@ boost::shared_ptr<solver::actions::Proto::ProtoAction> navier_stokes_supg(LSSAct
     group
     (
       _A = _0, _T = _0,
-      compute_tau(u, nu_eff, lit(solver.dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau.apply(u, nu_eff, lit(solver.dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       element_quadrature
       (
         _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection

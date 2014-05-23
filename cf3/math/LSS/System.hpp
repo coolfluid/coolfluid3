@@ -158,6 +158,9 @@ public:
 
   /// Accessor to string option describing the type of the solver
   const std::string solvertype() { return m_mat->solvertype(); }
+  
+  /// Read a linear system from file
+  void read_native(const common::URI& filename);
 
   //@} END MISCELLANEOUS
 

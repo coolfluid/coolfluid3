@@ -374,6 +374,10 @@ public: // functions
   /// Signal to set all options to their default value
   void signal_reset_options( SignalArgs& args );
 
+  /// Signal to add a tag
+  void signal_add_tag( SignalArgs& args );
+  void signature_add_tag( SignalArgs& args );
+
   //@} END SIGNALS
 
   /// marks this component as basic.

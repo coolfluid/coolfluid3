@@ -170,7 +170,7 @@ void Reader::get_file_positions()
   m_node_data_positions.clear();
   m_element_node_data_positions.clear();
   m_elements_position=0;
-  int p;
+  std::streampos p;
   std::string line;
   while (!m_file.eof())
   {
@@ -674,7 +674,7 @@ void Reader::read_element_node_data()
 
   std::map<std::string,Reader::Field> gmsh_fields;
 
-  boost_foreach(Uint element_node_data_position, m_element_node_data_positions)
+  boost_foreach(std::streampos element_node_data_position, m_element_node_data_positions)
   {
     m_file.seekg(element_node_data_position,std::ios::beg);
     read_variable_header(gmsh_fields);
@@ -786,7 +786,7 @@ void Reader::read_element_data()
 
   std::map<std::string,Reader::Field> fields;
 
-  boost_foreach(Uint element_data_position, m_element_data_positions)
+  boost_foreach(std::streampos element_data_position, m_element_data_positions)
   {
     m_file.seekg(element_data_position,std::ios::beg);
     read_variable_header(fields);
@@ -863,7 +863,7 @@ void Reader::read_node_data()
 
   std::map<std::string,Field> fields;
 
-  boost_foreach(Uint node_data_position, m_node_data_positions)
+  boost_foreach(std::streampos node_data_position, m_node_data_positions)
   {
     m_file.seekg(node_data_position,std::ios::beg);
     read_variable_header(fields);

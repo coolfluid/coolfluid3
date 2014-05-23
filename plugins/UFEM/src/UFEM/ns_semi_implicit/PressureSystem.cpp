@@ -75,15 +75,31 @@ public:
       .description("Theta parameter for the theta scheme")
       .link_to(&theta);
       
-    options().add("c1", boost::proto::value(compute_tau).op.c1)
-      .pretty_name("c1")
-      .description("Constant to divide the time step by, for calibrating the SUPG parameter")
-      .link_to(&(boost::proto::value(compute_tau).op.c1));
+    options().add("alpha_ps", compute_tau.data.op.alpha_ps)
+      .pretty_name("alpha_ps")
+      .description("Constant to multiply the PSPG parameter with.")
+      .link_to(&(compute_tau.data.op.alpha_ps));
+      
+    options().add("supg_type", compute_tau.data.op.supg_type_str)
+      .pretty_name("SUPG Type")
+      .description("Type of computation for the stabilization coefficients.")
+      .link_to(&(compute_tau.data.op.supg_type_str))
+      .attach_trigger(boost::bind(&ComputeTauImpl::trigger_supg_type, &compute_tau.data.op));
     
-    options().add("c2", boost::proto::value(compute_tau).op.c2)
+    options().add("c1", compute_tau.data.op.c1)
+      .pretty_name("c1")
+      .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+      .link_to(&(compute_tau.data.op.c1));
+      
+    options().add("c2", compute_tau.data.op.c2)
       .pretty_name("c2")
-      .description("Constant to adjust the diffusion contribution of SUPG stabilization")
-      .link_to(&(boost::proto::value(compute_tau).op.c2));
+      .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+      .link_to(&(compute_tau.data.op.c2));
+      
+    options().add("u_ref", compute_tau.data.op.u_ref)
+      .pretty_name("Reference velocity")
+      .description("Reference velocity for the CF2 SUPG method")
+      .link_to(&(compute_tau.data.op.u_ref));
   }
 
   static std::string type_name () { return "PressureSystemAssembly"; }
@@ -122,7 +138,7 @@ public:
     for_each_element<ElementT>(group
     (
       _A = _0,
-      compute_tau(u, nu_eff, lit(m_pressure_lss_action->dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau.apply(u, nu_eff, lit(m_pressure_lss_action->dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       element_quadrature( _A(p, p) += transpose(nabla(p)) * nabla(p) ),
       mat += lit(theta) * (lit(tau_ps) + lit(m_pressure_lss_action->dt())) *_A
     ));
@@ -153,7 +169,7 @@ private:
   Real tau_ps, tau_su, tau_bulk;
   Real theta;
 
-  ComputeTauT compute_tau;
+  ComputeTau compute_tau;
 };
 
 common::ComponentBuilder < PressureSystemAssembly, common::Action, LibUFEM > PressureSystemAssembly_Builder;
@@ -365,7 +381,7 @@ public:
     for_each_element<ElementT>(group
     (
       _A = _0, _T = _0,
-      compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau.apply(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       element_quadrature
       (
         _T(p, p) += tau_ps * transpose(nabla(p)[i]) * N(p),
@@ -397,7 +413,7 @@ public:
     for_each_element<ElementT>(group
     (
       _A = _0,
-      compute_tau(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+      compute_tau.apply(u, nu_eff, u_ref, lit(tau_ps), lit(tau_su), lit(tau_bulk)),
       element_quadrature( _A(p, p) += transpose(nabla(p)) * nabla(p) ),
       mat += -lit(tau_ps)*_A
     ));

@@ -153,6 +153,10 @@ public:
 
   /// Make a deep copy of the current matrix into other
   virtual void clone_to(Matrix& other) = 0;
+  
+  /// Read in a linear system, optionally filling the provided RHS and solution vector
+  virtual void read_native(const common::URI& file) = 0;
+  
 
   //@} END MISCELLANEOUS
 

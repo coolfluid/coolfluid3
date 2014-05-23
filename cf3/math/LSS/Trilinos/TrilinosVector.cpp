@@ -6,6 +6,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "EpetraExt_readEpetraLinearSystem.h"
+
 #include "common/Assertions.hpp"
 #include "common/Builder.hpp"
 #include "common/Log.hpp"
@@ -489,5 +491,26 @@ void TrilinosVector::sync()
 {
   m_comm_pattern->synchronize(name());
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosVector::read_native(const common::URI& filename, const string type)
+{
+  if(type == "rhs")
+  {
+    EpetraExt::readEpetraLinearSystem(filename.path(), m_comm, nullptr, &m_map, nullptr, &m_vec);
+  }
+  else if(type == "solution")
+  {
+    EpetraExt::readEpetraLinearSystem(filename.path(), m_comm, nullptr, &m_map, &m_vec);
+  }
+  else
+  {
+    throw common::SetupError(FromHere(), "Unknown type " + type + " for vector type when reading");
+  }
+  
+  m_is_created = true;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -56,6 +56,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   u2("AdvectionVelocity2", "linearized_velocity"),
   u3("AdvectionVelocity3", "linearized_velocity"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
+  g("Force", "body_force"),
   rho("density"),
   nu("kinematic_viscosity"),
 
@@ -74,6 +75,12 @@ NavierStokes::NavierStokes(const std::string& name) :
     .pretty_name("Use Specializations")
     .description("Activate the use of specialized high performance code")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
+
+  options().add("supg_type", compute_tau.data.op.supg_type_str)
+    .pretty_name("SUPG Type")
+    .description("Type of computation for the stabilization coefficients.")
+    .link_to(&(compute_tau.data.op.supg_type_str))
+    .attach_trigger(boost::bind(&ComputeTauImpl::trigger_supg_type, &compute_tau.data.op));
 
   options().add("theta", 1.)
     .pretty_name("Theta")

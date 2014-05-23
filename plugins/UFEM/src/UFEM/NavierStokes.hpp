@@ -91,6 +91,9 @@ private:
 
   /// Temperature field
   FieldVariable<7, ScalarField> Temp;
+  
+  // Body force
+  FieldVariable<8, VectorField> g;
 
 
   /// Access to the physics
@@ -111,7 +114,7 @@ private:
   Handle<solver::ActionDirector> m_update;
   Handle<common::Action> m_initial_conditions;
 
-  ComputeTauT compute_tau;
+  ComputeTau compute_tau;
 };
 
 } // UFEM

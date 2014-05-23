@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE( CustomOp )
 }
 
 /// Custom op that just modifies its argument
-struct Counter
+struct Counter : boost::noncopyable
 {
   Counter() : increment(0.)
   {
@@ -334,16 +334,19 @@ BOOST_AUTO_TEST_CASE( VoidOp )
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line2");
   Tools::MeshGeneration::create_line(*mesh, 1., 10);
   
-  MakeSFOp<Counter>::type counter;
-  boost::proto::value(counter).op.increment = 2.;
+  MakeSFOp<Counter>::stored_type counter;
+  MakeSFOp<Counter>::reference_type add_count = boost::proto::as_child(counter);
+  
+  counter.op.increment = 2.;
 
   // Check if the counter really counts
   int count = 0;
-  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
+  
+  elements_expression
   (
-    mesh->topology(),
-    counter(count)
-  );
+    boost::mpl::vector1<LagrangeP1::Line1D>(),
+    add_count(lit(count))
+  )->loop(mesh->topology());
 
   BOOST_CHECK_EQUAL(count, 20);
 }
@@ -872,6 +875,56 @@ BOOST_AUTO_TEST_CASE( Div )
   
   BOOST_CHECK_EQUAL(result1, 2.);
   BOOST_CHECK_EQUAL(result2, 2.);
+}
+
+
+struct MetricTensor
+{
+  /// Custom ops must implement the  TR1 result_of protocol
+  template<typename Signature>
+  struct result;
+
+  template<typename This, typename DataT>
+  struct result<This(DataT)>
+  {
+    typedef const typename DataT::SupportShapeFunction::JacobianT& type;
+  };
+
+  template<typename StorageT, typename DataT>
+  const StorageT& operator()(StorageT& result, const DataT& data) const
+  {
+    typedef mesh::Integrators::GaussMappedCoords<1, DataT::SupportShapeFunction::shape> GaussT;
+    data.support().compute_jacobian(GaussT::instance().coords.col(0));
+    result = data.support().jacobian_inverse().transpose() * data.support().jacobian_inverse();
+    return result;
+  }
+};
+
+BOOST_AUTO_TEST_CASE( MetricTensorTest )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("MetricGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 0.2, 2., 1, 1);
+
+  SFOp< CustomSFOp<MetricTensor> > metric_tensor;
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    _cout << metric_tensor << "\n"
+  );
+}
+
+
+BOOST_AUTO_TEST_CASE( NodeIdxOutput )
+{
+  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("NodeIdxGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 0.2, 2., 1, 1);
+
+  Uint idx_total = 0;
+  
+  for_each_node(mesh->topology(), lit(idx_total) += node_index);
+  
+  BOOST_CHECK_EQUAL(idx_total, 6);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

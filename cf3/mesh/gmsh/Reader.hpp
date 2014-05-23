@@ -107,12 +107,12 @@ private: // data
   std::vector<std::set<Uint> > m_node_to_glb_elements;
 
   //Markers for important places in the file to be read
-  Uint m_region_names_position;
-  Uint m_coordinates_position;
-  Uint m_elements_position;
-  std::vector<Uint> m_element_data_positions;
-  std::vector<Uint> m_node_data_positions;
-  std::vector<Uint> m_element_node_data_positions;
+  std::streampos m_region_names_position;
+  std::streampos m_coordinates_position;
+  std::streampos m_elements_position;
+  std::vector<std::streampos> m_element_data_positions;
+  std::vector<std::streampos> m_node_data_positions;
+  std::vector<std::streampos> m_element_node_data_positions;
 
 
   std::vector<std::vector<Uint> > m_nb_gmsh_elem_in_region;
@@ -128,7 +128,7 @@ private: // data
     Uint time_step;
     std::vector<Uint> var_types;
     Uint nb_entries;
-    std::vector<Uint> file_data_positions;
+    std::vector<std::streampos> file_data_positions;
     std::string description() const
     {
       std::stringstream ss;

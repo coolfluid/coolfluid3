@@ -138,6 +138,42 @@ BOOST_AUTO_TEST_CASE( CheckResult )
   BOOST_CHECK_CLOSE(result[1], 1., 1e-8);
 }
 
+struct SumVectorNorm : FunctionBase
+{
+  typedef void result_type;
+  
+  SumVectorNorm() : m_sum(0.)
+  {
+  }
+  
+  template<typename VectorT>
+  void operator()(const VectorT& vec)
+  {
+    m_sum += vec.norm();
+  }
+  
+  Real m_sum;
+};
+
+BOOST_AUTO_TEST_CASE( NodeFunctor )
+{
+  Handle<Model> model(Core::instance().root().get_child("Model"));
+
+  FieldVariable<0, VectorField> u("u","velocity");
+  
+  SumVectorNorm vec_norm;
+  
+  // Create an action that can wrap an expression
+  ProtoAction& action = *model->create_component<ProtoAction>("ActionVectorNorm");
+  action.set_expression(nodes_expression(lit(vec_norm)(u)));
+  action.options().set("physical_model", model->physics().handle<physics::PhysModel>());
+  action.options().set(solver::Tags::regions(), std::vector<URI>(1, model->domain().get_child("mesh")->handle<Mesh>()->topology().uri()));
+  
+  action.execute();
+  
+  BOOST_CHECK_CLOSE(vec_norm.m_sum, 501.*501.*sqrt(2),1e-8);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

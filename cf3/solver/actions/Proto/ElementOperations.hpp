@@ -212,7 +212,7 @@ struct JacobianOp : boost::proto::transform< JacobianOp >
   template<typename SupportT>
   struct ResultType
   {
-    typedef const typename SupportT::ShapeFunctionT::JacobianT& type;
+    typedef const typename SupportT::EtypeT::JacobianT& type;
   };
 
   template<typename ExprT, typename StateT, typename DataT>
@@ -398,7 +398,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
     {
       typedef typename VarDataType<I, DataT>::type VarDataT;
 
-      const VarDataT& operator()(const Var<I, T>& var, typename impl::data_param data) const
+      VarDataT& operator()(const Var<I, T>& var, typename impl::data_param data) const
       {
         return data.var_data(var);
       }
@@ -794,7 +794,12 @@ struct SFOp< CustomSFOp<OpT> >
 template<typename OpT>
 struct MakeSFOp
 {
+  // Type of a terminal holding the terminal by value
   typedef typename boost::proto::terminal< SFOp< CustomSFOp< OpT > > >::type type;
+  // Type of a terminal holding the terminal by reference
+  typedef typename boost::proto::terminal< SFOp< CustomSFOp< OpT > >& >::type reference_type;
+  // Type of a terminal holding the terminal by value
+  typedef SFOp< CustomSFOp< OpT > > stored_type;
 };
 
 /// Static terminals that can be used in proto expressions

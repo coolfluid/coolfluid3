@@ -48,6 +48,10 @@ list( APPEND coolfluid_ufem_files
   ComputeTfluid.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
+  ICNSImplicitToSemi.hpp
+  ICNSImplicitToSemi.cpp
+  ICNSSemiToImplicit.hpp
+  ICNSSemiToImplicit.cpp
   InitialConditionConstant.hpp
   InitialConditionConstant.cpp
   InitialConditionFunction.hpp
@@ -69,6 +73,8 @@ list( APPEND coolfluid_ufem_files
   NavierStokesSpecializations.hpp
   NavierStokesPhysics.hpp
   NavierStokesPhysics.cpp
+  NSResidual.hpp
+  NSResidual.cpp
   ParsedFunctionExpression.hpp
   ParsedFunctionExpression.cpp
   ScalarAdvection.cpp
@@ -82,8 +88,13 @@ list( APPEND coolfluid_ufem_files
   SurfaceIntegral.hpp
   SurfaceIntegral.cpp
   SUPG.hpp
+  SUPG.cpp
+  SUPGFields.hpp
+  SUPGFields.cpp
   Tags.hpp
   Tags.cpp
+  VelocityGradient.hpp
+  VelocityGradient.cpp
   WriteRestartManager.hpp
   WriteRestartManager.cpp
 
@@ -97,22 +108,25 @@ list( APPEND coolfluid_ufem_files
 set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation> $<TARGET_OBJECTS:cf3_ufem_ns_semi_implicit_implementation>)
 
 coolfluid3_add_library( TARGET     coolfluid_ufem 
-						SOURCES    
-							${coolfluid_ufem_files} 
-						RCC 
-							${coolfluid_ufem_RCC}
-						LIBS	   
-							coolfluid_mesh_lagrangep1 
-							coolfluid_mesh_lagrangep2 
-							coolfluid_solver_actions 
-							coolfluid_physics 
-							coolfluid_mesh
-					    CONDITION  CF3_ENABLE_PROTO )
+            SOURCES    
+              ${coolfluid_ufem_files} 
+            RCC 
+              ${coolfluid_ufem_RCC}
+            LIBS     
+              coolfluid_mesh_lagrangep1 
+              coolfluid_mesh_lagrangep2 
+              coolfluid_solver_actions 
+              coolfluid_physics 
+              coolfluid_mesh
+              CONDITION  CF3_ENABLE_PROTO )
 
 set_source_files_properties(
   HeatConductionSteady.cpp
+  NSResidual.cpp
   SpalartAllmaras.cpp
+  SUPGFields.cpp
 PROPERTIES COMPILE_FLAGS "-g0")
 
 add_subdirectory(demo)
+add_subdirectory(les)
 add_subdirectory(particles)

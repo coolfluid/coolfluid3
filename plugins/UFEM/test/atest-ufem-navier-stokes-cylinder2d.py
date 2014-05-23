@@ -18,6 +18,9 @@ domain = model.create_domain()
 physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
+# Store the SUPG coefficient values
+su_fields = solver.add_unsteady_solver('cf3.UFEM.SUPGFields')
+
 # Add the Navier-Stokes solver as an unsteady solver
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 ns_solver.options.use_specializations = False
@@ -25,6 +28,7 @@ ns_solver.options.use_specializations = False
 #Load mesh
 mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
+su_fields.regions = [mesh.topology.uri()]
 ns_solver.regions = [mesh.topology.uri()]
 
 u_in = [2., 0.]

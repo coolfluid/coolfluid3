@@ -31,11 +31,10 @@ namespace common {
 
 struct BinaryDataReader::Implementation
 {
-  Implementation(const URI& file) :
-    xml_doc(XML::parse_file(file))
+  Implementation(const URI& file, const Uint rank) :
+    xml_doc(XML::parse_file(file)),
+    m_rank(rank)
   {
-    PE::Comm& comm = PE::Comm::instance();
-
     XmlNode cfbinary(xml_doc->content->first_node("cfbinary"));
     cf3_assert(from_str<Uint>(cfbinary.attribute_value("version")) == version());
 
@@ -44,7 +43,7 @@ struct BinaryDataReader::Implementation
     for(; node.is_valid(); node = XmlNode(node.content->next_sibling("node")))
     {
       const Uint found_rank = from_str<Uint>(node.attribute_value("rank"));
-      if(found_rank != comm.rank())
+      if(found_rank != m_rank)
         continue;
 
       const std::string binary_file_name = node.attribute_value("filename");
@@ -54,7 +53,7 @@ struct BinaryDataReader::Implementation
     }
 
     if(!my_node.is_valid())
-      throw SetupError(FromHere(), "No node found for rank " + to_str(comm.rank()));
+      throw SetupError(FromHere(), "No node found for rank " + to_str(m_rank));
   }
 
   ~Implementation()
@@ -121,6 +120,9 @@ struct BinaryDataReader::Implementation
 
   // Xml data for the blocks associated with the current rank
   XmlNode my_node;
+
+  // Rank to read
+  const Uint m_rank;
 };
   
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +132,11 @@ BinaryDataReader::BinaryDataReader ( const std::string& name ) : Component(name)
   options().add("file", URI())
     .pretty_name("File")
     .description("File name for the output file")
+    .attach_trigger(boost::bind(&BinaryDataReader::trigger_file, this));
+
+  options().add("rank", common::PE::Comm::instance().rank())
+    .pretty_name("Rank")
+    .description("Rank for which to read data")
     .attach_trigger(boost::bind(&BinaryDataReader::trigger_file, this));
 }
 
@@ -179,7 +186,7 @@ void BinaryDataReader::trigger_file()
   {
     throw SetupError(FromHere(), "Input file " + file_uri.path() + " does not exist");
   }
-  m_implementation.reset(new Implementation(file_uri));
+  m_implementation.reset(new Implementation(file_uri, options().value<Uint>("rank")));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

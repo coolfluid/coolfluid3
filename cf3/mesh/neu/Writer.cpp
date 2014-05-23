@@ -224,7 +224,7 @@ void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
         Uint eol_counter=0;
         boost_foreach(Uint neu_node, neu_element)
         {
-          if (eol_counter == 7)
+          if (eol_counter == 8)
           {
             file << std::endl << std::setw(15) << " ";
             eol_counter = 0;

@@ -316,15 +316,41 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
     .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
     .mark_basic();
     
-  options().add("c1", boost::proto::value(compute_tau).op.c1)
-    .pretty_name("c1")
-    .description("Constant to divide the time step by, for calibrating the SUPG parameter")
-    .link_to(&(boost::proto::value(compute_tau).op.c1));
+  options().add("alpha_ps", compute_tau.data.op.alpha_ps)
+    .pretty_name("alpha_ps")
+    .description("Constant to multiply the PSPG parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_ps));
+      
+  options().add("alpha_su", compute_tau.data.op.alpha_su)
+    .pretty_name("alpha_su")
+    .description("Constant to multiply the SUPG parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_su));
+      
+  options().add("alpha_bu", compute_tau.data.op.alpha_bu)
+    .pretty_name("alpha_bu")
+    .description("Constant to multiply the Bulk parameter with.")
+    .link_to(&(compute_tau.data.op.alpha_bu));
     
-  options().add("c2", boost::proto::value(compute_tau).op.c2)
+  options().add("supg_type", compute_tau.data.op.supg_type_str)
+    .pretty_name("SUPG Type")
+    .description("Type of computation for the stabilization coefficients.")
+    .link_to(&(compute_tau.data.op.supg_type_str))
+    .attach_trigger(boost::bind(&ComputeTauImpl::trigger_supg_type, &compute_tau.data.op));
+    
+  options().add("c1", compute_tau.data.op.c1)
+    .pretty_name("c1")
+    .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+    .link_to(&(compute_tau.data.op.c1));
+    
+  options().add("c2", compute_tau.data.op.c2)
     .pretty_name("c2")
-    .description("Constant to adjust the diffusion contribution of SUPG stabilization")
-    .link_to(&(boost::proto::value(compute_tau).op.c2));
+    .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+    .link_to(&(compute_tau.data.op.c2));
+    
+  options().add("u_ref", compute_tau.data.op.u_ref)
+    .pretty_name("Reference velocity")
+    .description("Reference velocity for the CF2 SUPG method")
+    .link_to(&(compute_tau.data.op.u_ref));
 
   add_component(create_proto_action("LinearizeU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3)));
   get_child("LinearizeU")->add_tag(detail::my_tag());
@@ -411,10 +437,17 @@ void NavierStokesSemiImplicit::trigger_initial_conditions()
   m_pressure_assembly->options().set("pressure_lss_action", m_p_lss);
   m_pressure_assembly->add_tag(detail::my_tag());
   m_pressure_assembly->options().set("theta", theta);
+  
+  m_pressure_assembly->options().set("alpha_ps", options().value<Real>("alpha_ps"));
+  options().option("alpha_ps").link_option(m_pressure_assembly->options().option_ptr("alpha_ps"));
+  m_pressure_assembly->options().set("supg_type", options().value<std::string>("supg_type"));
+  options().option("supg_type").link_option(m_pressure_assembly->options().option_ptr("supg_type"));
   m_pressure_assembly->options().set("c1", options().value<Real>("c1"));
-  m_pressure_assembly->options().set("c2", options().value<Real>("c2"));
   options().option("c1").link_option(m_pressure_assembly->options().option_ptr("c1"));
+  m_pressure_assembly->options().set("c2", options().value<Real>("c2"));
   options().option("c2").link_option(m_pressure_assembly->options().option_ptr("c2"));
+  m_pressure_assembly->options().set("u_ref", options().value<Real>("u_ref"));
+  options().option("u_ref").link_option(m_pressure_assembly->options().option_ptr("u_ref"));
   
   if(is_not_null(m_mass_matrix_assembly))
     m_initial_conditions->remove_component("MassMatrixAssembly");
