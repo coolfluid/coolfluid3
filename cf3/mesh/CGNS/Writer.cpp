@@ -162,26 +162,23 @@ void Writer::write_zone(const Region& region, const Mesh& mesh)
 
   int cgns_coord_idx;
 
-  switch (m_zone.coord_dim)
+  if (m_zone.coord_dim > 0)
   {
-    case 3:
-    {
-      CFdebug << "Writing CoordinateZ" << CFendl;
-      CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,CGNS_ENUMV( RealDouble ),"CoordinateZ",zCoord,&cgns_coord_idx));
-      delete_ptr(zCoord);
-    }
-    case 2:
-    {
-      CFdebug << "Writing CoordinateY" << CFendl;
-      CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,CGNS_ENUMV( RealDouble ),"CoordinateY",yCoord,&cgns_coord_idx));
-      delete_ptr(yCoord);
-    }
-    case 1:
-    {
-      CFdebug << "Writing CoordinateX" << CFendl;
-      CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,CGNS_ENUMV( RealDouble ),"CoordinateX",xCoord,&cgns_coord_idx));
-      delete_ptr(xCoord);
-    }
+    CFdebug << "Writing CoordinateX" << CFendl;
+    CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,CGNS_ENUMV( RealDouble ),"CoordinateX",xCoord,&cgns_coord_idx));
+    delete_ptr(xCoord);
+  }
+  if (m_zone.coord_dim > 1)
+  {
+    CFdebug << "Writing CoordinateY" << CFendl;
+    CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,CGNS_ENUMV( RealDouble ),"CoordinateY",yCoord,&cgns_coord_idx));
+    delete_ptr(yCoord);
+  }
+  if (m_zone.coord_dim > 2)
+  {
+    CFdebug << "Writing CoordinateZ" << CFendl;
+    CALL_CGNS(cg_coord_write(m_file.idx,m_base.idx,m_zone.idx,CGNS_ENUMV( RealDouble ),"CoordinateZ",zCoord,&cgns_coord_idx));
+    delete_ptr(zCoord);
   }
 
   GroupsMapType grouped_elements_map;
