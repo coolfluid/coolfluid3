@@ -176,28 +176,10 @@ void VelocityGradient::on_regions_set()
 
   if(is_not_null(m_node_valence))
   {
-    const std::vector<common::URI> old_regions = m_node_valence->options().value< std::vector<common::URI> >("regions");
-    const std::vector<common::URI> added_regions = options().value< std::vector<common::URI> >("regions");
-    std::set<std::string> region_set;
-    BOOST_FOREACH(const common::URI& region_uri, old_regions)
-    {
-      region_set.insert(region_uri.string());
-    }
-    BOOST_FOREACH(const common::URI& region_uri, added_regions)
-    {
-      region_set.insert(region_uri.string());
-    }
-    std::vector<common::URI> new_regions; new_regions.reserve(region_set.size());
-    BOOST_FOREACH(const std::string& uri_str, region_set)
-    {
-      new_regions.push_back(common::URI(uri_str));
-    }
-
-    m_node_valence->options().set("regions", new_regions);
+    setup_node_valence_regions();
   }
   m_zero_fields->options().set("regions", options().option("regions").value());
 }
-
 
 void VelocityGradient::trigger_initial_conditions()
 {
@@ -209,8 +191,30 @@ void VelocityGradient::trigger_initial_conditions()
     m_node_valence = m_initial_conditions->get_child("node_valence");
     if(is_null(m_node_valence))
       m_node_valence = m_initial_conditions->create_initial_condition("node_valence", "cf3.solver.actions.NodeValence");
-    on_regions_set();
+    setup_node_valence_regions();
   }
+}
+
+void VelocityGradient::setup_node_valence_regions()
+{
+  const std::vector<common::URI> old_regions = m_node_valence->options().value< std::vector<common::URI> >("regions");
+  const std::vector<common::URI> added_regions = options().value< std::vector<common::URI> >("regions");
+  std::set<std::string> region_set;
+  BOOST_FOREACH(const common::URI& region_uri, old_regions)
+  {
+    region_set.insert(region_uri.string());
+  }
+  BOOST_FOREACH(const common::URI& region_uri, added_regions)
+  {
+    region_set.insert(region_uri.string());
+  }
+  std::vector<common::URI> new_regions; new_regions.reserve(region_set.size());
+  BOOST_FOREACH(const std::string& uri_str, region_set)
+  {
+    new_regions.push_back(common::URI(uri_str));
+  }
+
+  m_node_valence->options().set("regions", new_regions);
 }
 
 } // UFEM

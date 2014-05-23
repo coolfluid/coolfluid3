@@ -1,9 +1,6 @@
 import sys
 import coolfluid as cf
-import numpy as np
-import os
-from optparse import OptionParser
-import pylab as pl
+from math import pi
 
 env = cf.Core.environment()
 
@@ -18,7 +15,7 @@ nu = 1./5000.
 
 segs = 32
 D = 0.5
-Vs = 1./(4.*np.pi)
+Vs = 1./(4.*pi)
 Ua = 0.
 Va = 0.
 

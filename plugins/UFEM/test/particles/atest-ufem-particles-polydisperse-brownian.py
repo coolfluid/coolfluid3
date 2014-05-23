@@ -1,9 +1,6 @@
 import sys
 import coolfluid as cf
 import numpy as np
-import os
-from optparse import OptionParser
-import pylab as pl
 
 env = cf.Core.environment()
 

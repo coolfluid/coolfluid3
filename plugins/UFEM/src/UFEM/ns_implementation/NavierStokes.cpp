@@ -76,6 +76,12 @@ NavierStokes::NavierStokes(const std::string& name) :
     .description("Activate the use of specialized high performance code")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
 
+  options().add("supg_type", compute_tau.data.op.supg_type_str)
+    .pretty_name("SUPG Type")
+    .description("Type of computation for the stabilization coefficients.")
+    .link_to(&(compute_tau.data.op.supg_type_str))
+    .attach_trigger(boost::bind(&ComputeTauImpl::trigger_supg_type, &compute_tau.data.op));
+
   options().add("theta", 1.)
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")

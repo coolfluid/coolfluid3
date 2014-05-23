@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( InitMPI )
 BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 {
   // debug output
-  Core::instance().environment().options().set("log_level", 4u);
+  Core::instance().environment().options().set("log_level", 1u);
 
   const Real length = 5.;
   const Real height = 2.;
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
         << create_proto_action("IncrementU", nodes_expression(u += lss_action->solution(u)))
         << create_proto_action("IncrementP", nodes_expression(p += lss_action->solution(p)));
     solver
-      << create_proto_action("CheckP", nodes_expression(_check_close(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 5e-1)))
+      << create_proto_action("CheckP", nodes_expression(_check_close(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 1.)))
       << create_proto_action("CheckU", nodes_expression(_check_close(u[0], c * coordinates[1] * (height - coordinates[1]), 5e-2)))
       << create_proto_action("CheckV", nodes_expression(_check_close(u[1], 0., 6e-3)));
 

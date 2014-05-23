@@ -1,9 +1,6 @@
 import sys
 import coolfluid as cf
-import numpy as np
-import os
-from optparse import OptionParser
-import pylab as pl
+from math import pi
 
 env = cf.Core.environment()
 
@@ -29,7 +26,7 @@ write_interval = 50
 resolution = 64
 
 diams = [20.e-6, 40.e-6, 80.e-6]
-volumes = [4./3.*np.pi*(d/2.)**3 for d in diams]
+volumes = [4./3.*pi*(d/2.)**3 for d in diams]
 ref_vol = 1e-15
 c_reduced = [1, 1., 1.]
 zeta = [v/ref_vol*c for (v,c) in zip(volumes,c_reduced)]

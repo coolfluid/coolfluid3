@@ -35,6 +35,7 @@ private:
   Handle<InitialConditions> m_initial_conditions;
   Handle<common::Component> m_node_valence;
   Handle<solver::actions::Proto::ProtoAction> m_zero_fields;
+  void setup_node_valence_regions();
 };
 
 } // UFEM
