@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include <boost/assign/list_of.hpp> // for map_list_of
 
 #include "mesh/GeoShape.hpp"
