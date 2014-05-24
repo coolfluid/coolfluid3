@@ -56,16 +56,6 @@ private:
   template<typename GenericElementsT, typename SpecializedElementsT>
   void set_assembly_expression(const std::string& action_name);
   
-  /// Helper function to set the expression, taking into account the user's option to use specializations or not.
-  /// Implemented in BoussinesqAssembly.hpp
-  template<typename GenericElementsT, typename SpecializedElementsT>
-  void set_boussinesq_assembly_expression(const std::string& action_name);
-
-  /// Helper function to set the expression, taking into account the user's option to use specializations or not.
-  /// Implemented in BoussinesqAssemblyExtended.hpp
-  template<typename GenericElementsT, typename SpecializedElementsT>
-  void set_boussinesq_assembly_extended_expression(const std::string& action_name);
-
   /// Helper functions to split the compilation over multiple units, to save memory. Each one is in a different cpp file.
   void set_triag_assembly(const bool use_specialization);
   void set_quad_assembly();
@@ -90,7 +80,7 @@ private:
   FieldVariable<6, ScalarField> nu_eff;
 
   /// Temperature field
-  FieldVariable<7, ScalarField> Temp;
+  FieldVariable<7, ScalarField> T;
   
   // Body force
   FieldVariable<8, VectorField> g;
@@ -100,12 +90,7 @@ private:
   PhysicsConstant rho;
   PhysicsConstant nu;
 
-  PhysicsConstant temp_ref;
-  PhysicsConstant rho_ref;
-  PhysicsConstant betha;
-  PhysicsConstant cp_heat_capacity;
-  PhysicsConstant kappa_heat_cond;
-  // PhysicsConstant g_acceleration;
+  PhysicsConstant Tref;
 
   /// Storage of the stabilization coefficients
   Real tau_ps, tau_su, tau_bulk;

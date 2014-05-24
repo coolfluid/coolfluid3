@@ -51,10 +51,11 @@ private:
   /// Called when the internal name to use for the scalar variable is changed
   void trigger_scalar_name();
 
-  virtual void on_initial_conditions_set ( InitialConditions& initial_conditions );
-
   /// Scalar diffusivity
   Real m_alpha;
+
+  /// Parameter for the theta scheme
+  Real m_theta;
 
   /// Stabilization coefficient
   Real tau_su;

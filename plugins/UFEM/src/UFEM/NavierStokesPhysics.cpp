@@ -41,14 +41,9 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .attach_trigger(boost::bind(&NavierStokesPhysics::trigger_nu, this))
     .mark_basic();
 
-  options().add<Real>("reference_temperature")
+  options().add<Real>("reference_temperature", 288.)
     .description("Reference temperature for the boussinesq approximation (K)")
     .pretty_name("Reference temperature")
-    .mark_basic();
-
-  options().add("reference_density", 1.0)
-    .description("Reference mass density (kg / m^3)")
-    .pretty_name("Reference_density")
     .mark_basic();
 
   options().add("thermal_expansion_coefficient", 1.0)
@@ -75,12 +70,6 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .description("Density of the material building up a particle")
     .pretty_name("Particle Density")
     .mark_basic();
-
-  //options().add<RealVector>("gravitatonal_acceleration")
-  //  .description("Acceleration due to gravitation ()")
-  //  .pretty_name("Gravitatonal_acceleration")
-  //  .mark_basic();
-
 }
 
 void NavierStokesPhysics::trigger_rho()

@@ -140,8 +140,6 @@ void ParticleConcentration::trigger_set_expression()
   // Source term
   FieldVariable<2, ScalarField> s(options().value<std::string>("source_term_variable"), options().value<std::string>("source_term_tag"));
 
-  const Real theta = options().value<Real>("theta");
-
   // List of applicable elements
   typedef boost::mpl::vector5<
     mesh::LagrangeP1::Quad2D,
@@ -167,7 +165,7 @@ void ParticleConcentration::trigger_set_expression()
         _T(c,c) +=  transpose(N(c) + (lit(tau_su)*v + discontinuity_capture(v, c)*transpose(gradient(c)))*nabla(c)) * N(c),
         _a[c]   +=  transpose(N(c) + (lit(tau_su)*v + discontinuity_capture(v, c)*transpose(gradient(c)))*nabla(c)) * s
       ),
-      system_matrix += invdt()*_T + theta*_A,
+      system_matrix += invdt()*_T + m_theta*_A,
       system_rhs += -_A*_x + _a
     )
   ));
