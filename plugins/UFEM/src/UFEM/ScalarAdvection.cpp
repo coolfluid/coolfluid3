@@ -46,7 +46,8 @@ ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection
 
 ScalarAdvection::ScalarAdvection(const std::string& name) :
   LSSActionUnsteady(name),
-  m_theta(0.5)
+  m_theta(0.5),
+  diffusion_coeff(boost::proto::as_child(m_diff_data))
 {
   options().add("scalar_coefficient", 1.)
     .description("Scalar coefficient ")
@@ -63,6 +64,11 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
     .pretty_name("Scalar Name")
     .description("Internal (and default visible) name to use for the scalar")
     .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
+    
+  options().add("d0", m_diff_data.op.d0)
+    .pretty_name("d0")
+    .description("Multiplication factor for the artificial diffusion term")
+    .link_to(&(m_diff_data.op.d0));
 
   set_solution_tag("scalar_advection_solution");
 
@@ -87,8 +93,14 @@ void ScalarAdvection::trigger_scalar_name()
       m_physical_model->variable_manager().remove_component(solution_tag());
   }
 
-  // The code will only be active for these element types
-  boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
+  // List of applicable elements
+  typedef boost::mpl::vector5<
+    mesh::LagrangeP1::Quad2D,
+    mesh::LagrangeP1::Triag2D,
+    mesh::LagrangeP1::Hexa3D,
+    mesh::LagrangeP1::Tetra3D,
+    mesh::LagrangeP1::Prism3D
+  > AllowedElementTypesT;
 
   // Scalar name is obtained from an option
   FieldVariable<0, ScalarField> phi(options().value<std::string>("scalar_name"), solution_tag());
@@ -101,20 +113,19 @@ void ScalarAdvection::trigger_scalar_name()
   Handle<ProtoAction>(get_child("Assembly"))->set_expression(
     elements_expression
     (
-      // specialized_elements,
-      allowed_elements,
-     group
-     (
-       _A = _0, _T = _0,
-      compute_tau.apply(u_adv, nu_eff, lit(dt()), lit(tau_su)),
-      element_quadrature
+      AllowedElementTypesT(),
+      group
       (
-        _A(phi) += transpose(N(phi) + tau_su * u_adv*nabla(phi)) * u_adv * nabla(phi) +  m_alpha * transpose(nabla(phi)) * nabla(phi) ,
-        _T(phi,phi) +=  transpose(N(phi) + tau_su * u_adv*nabla(phi)) * N(phi)
-      ),
-      system_matrix += invdt() * _T + m_theta * _A,
-      system_rhs += -_A * _x
-     )
+        _A = _0, _T = _0,
+        compute_tau.apply(u_adv, nu_eff, lit(dt()), lit(tau_su)),
+        element_quadrature
+        (
+          _A(phi) += transpose(N(phi) + tau_su * u_adv*nabla(phi)) * u_adv * nabla(phi) +  (m_alpha + diffusion_coeff(u_adv,phi)) * transpose(nabla(phi)) * nabla(phi),
+          _T(phi,phi) +=  transpose(N(phi) + tau_su * u_adv*nabla(phi)) * N(phi)
+        ),
+        system_matrix += invdt() * _T + m_theta * _A,
+        system_rhs += -_A * _x
+      )
     )
   );
 
