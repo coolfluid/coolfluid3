@@ -64,6 +64,11 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
     .pretty_name("Scalar Name")
     .description("Internal (and default visible) name to use for the scalar")
     .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
+
+  options().add("velocity_tag", "navier_stokes_solution")
+    .pretty_name("Velocity Tag")
+    .description("Tag for the velocity field")
+    .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
     
   options().add("d0", m_diff_data.op.d0)
     .pretty_name("d0")
@@ -104,7 +109,7 @@ void ScalarAdvection::trigger_scalar_name()
 
   // Scalar name is obtained from an option
   FieldVariable<0, ScalarField> phi(options().value<std::string>("scalar_name"), solution_tag());
-  FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
+  FieldVariable<1, VectorField> u("Velocity",options().value<std::string>("velocity_tag"));
   FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
   ConfigurableConstant<Real> relaxation_factor_scalar("relaxation_factor_scalar", "factor for relaxation in case of coupling", 1.);
@@ -117,11 +122,11 @@ void ScalarAdvection::trigger_scalar_name()
       group
       (
         _A = _0, _T = _0,
-        compute_tau.apply(u_adv, nu_eff, lit(dt()), lit(tau_su)),
+        compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_su)),
         element_quadrature
         (
-          _A(phi) += transpose(N(phi) + tau_su * u_adv*nabla(phi)) * u_adv * nabla(phi) +  (m_alpha + diffusion_coeff(u_adv,phi)) * transpose(nabla(phi)) * nabla(phi),
-          _T(phi,phi) +=  transpose(N(phi) + tau_su * u_adv*nabla(phi)) * N(phi)
+          _A(phi) += transpose(N(phi) + tau_su * u*nabla(phi)) * u * nabla(phi) +  (m_alpha + diffusion_coeff(u,phi)) * transpose(nabla(phi)) * nabla(phi),
+          _T(phi,phi) +=  transpose(N(phi) + tau_su * u*nabla(phi)) * N(phi)
         ),
         system_matrix += invdt() * _T + m_theta * _A,
         system_rhs += -_A * _x

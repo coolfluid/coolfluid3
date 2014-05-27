@@ -146,6 +146,8 @@ private:
   /// Ensure the automatic creation of initial conditions
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
 
+  void trigger_set_expression();
+
   Real tau_su;
 
   ComputeTau compute_tau;

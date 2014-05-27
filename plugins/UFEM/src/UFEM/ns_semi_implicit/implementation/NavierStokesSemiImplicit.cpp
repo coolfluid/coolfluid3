@@ -315,6 +315,12 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
     .description("Activate the volume force term")
     .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
     .mark_basic();
+
+  options().add("enable_boussinesq", false)
+    .pretty_name("Enable Boussinesq")
+    .description("Activate the Boussinesq bouyancy approximation")
+    .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
+    .mark_basic();
     
   options().add("alpha_ps", compute_tau.data.op.alpha_ps)
     .pretty_name("alpha_ps")
