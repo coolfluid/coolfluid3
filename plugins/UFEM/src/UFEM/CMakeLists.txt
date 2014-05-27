@@ -36,6 +36,7 @@ list( APPEND coolfluid_ufem_files
   CouplingIterationControl.hpp
   CriterionConvergence.cpp
   CriterionConvergence.hpp
+  CrossWindDiffusion.hpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
   HeatCouplingFlux.hpp

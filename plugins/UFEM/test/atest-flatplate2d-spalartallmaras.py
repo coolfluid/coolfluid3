@@ -106,7 +106,7 @@ NU_wall = 0.
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
-solver.InitialConditions.spalart_allmaras_solution.TurbulentViscosity = NU_in
+solver.InitialConditions.spalart_allmaras_solution.SAViscosity = NU_in
 
 #properties for Navier-Stokes
 physics.density = 1.2
@@ -129,11 +129,11 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().se
 
 # Boundary conditions for Spalart-Allmaras
 bc = satm.get_child('BoundaryConditions')
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'TurbulentViscosity').options().set('value', NU_in)
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'TurbulentViscosity').options().set('value',  NU_wall)
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'TurbulentViscosity').options().set('value',  NU_wall)
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'TurbulentViscosity').options().set('value',  NU_in)
-bc.add_constant_bc(region_name = 'top', variable_name = 'TurbulentViscosity').options().set('value', NU_in)
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'SAViscosity').options().set('value', NU_in)
+bc.add_constant_bc(region_name = 'bottom1', variable_name = 'SAViscosity').options().set('value',  NU_wall)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'SAViscosity').options().set('value',  NU_wall)
+bc.add_constant_bc(region_name = 'bottom3', variable_name = 'SAViscosity').options().set('value',  NU_in)
+bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').options().set('value', NU_in)
 
 # Time setup
 time = model.create_time()

@@ -10,6 +10,7 @@
 #include "solver/actions/Proto/ElementOperations.hpp"
 
 #include "LibUFEMParticles.hpp"
+#include "../CrossWindDiffusion.hpp"
 #include "../LSSActionUnsteady.hpp"
 #include "../SUPG.hpp"
 
@@ -53,41 +54,6 @@ struct DiscontinuityCapture
   }
   
   Real c0;
-};
-
-struct CrosswindDiffusion
-{
-  typedef Real result_type;
-  
-  CrosswindDiffusion() : d0(1e-4)
-  {
-  }
-  
-  template<typename UT, typename CT>
-  Real operator()(const UT& u, const CT& c)
-  {
-    typedef typename UT::EtypeT ElementT;
-    static const Uint dim = ElementT::dimension;
-    typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
-    typedef Eigen::Matrix<Real, dim, 1> ColVecT;
-    
-//     u.compute_values(GaussT::instance().coords.col(0));
-//     c.compute_values(GaussT::instance().coords.col(0));
-//     u.support().compute_jacobian(GaussT::instance().coords.col(0));
-    
-    ColVecT g = c.nabla() * c.value();
-    const Real grad_norm = g.norm();
-    const Real u_norm = u.eval().norm();
-    if(grad_norm < 1e-10 || u_norm < 1e-10)
-    {
-      return 0.;
-    }
-    g /= grad_norm;
-    const Real hg = 2./(g.transpose()*c.nabla()).cwiseAbs().sum();
-    return d0*hg*u_norm;
-  }
-  
-  Real d0;
 };
   
 /// Particle concentration transport, following
