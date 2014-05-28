@@ -232,7 +232,7 @@ ComponentBuilder < InnerLoop, common::Action, LibUFEM > InnerLoop_builder;
 /// Initialize inner loop data
 struct SetupInnerLoopData : solver::Action
 {
-  SetupInnerLoopData ( const string& name ) : solver::Action(name)
+  SetupInnerLoopData ( const std::string& name ) : solver::Action(name)
   {
   }
 
