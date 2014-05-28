@@ -47,12 +47,20 @@ ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection
 ScalarAdvection::ScalarAdvection(const std::string& name) :
   LSSActionUnsteady(name),
   m_theta(0.5),
-  diffusion_coeff(boost::proto::as_child(m_diff_data))
+  diffusion_coeff(boost::proto::as_child(m_diff_data)),
+  m_pr(1.),
+  m_pr_t(1.)
 {
-  options().add("scalar_coefficient", 1.)
-    .description("Scalar coefficient ")
-    .pretty_name("Scalar coefficient")
-    .link_to(&m_alpha)
+  options().add("pr", m_pr)
+    .description("Pr")
+    .pretty_name("Prandtl number")
+    .link_to(&m_pr)
+    .mark_basic();
+
+  options().add("pr_t", m_pr_t)
+    .description("Pr_t")
+    .pretty_name("Turbulent Prandtl number")
+    .link_to(&m_pr_t)
     .mark_basic();
 
   options().add("theta", m_theta)
@@ -112,6 +120,8 @@ void ScalarAdvection::trigger_scalar_name()
   FieldVariable<1, VectorField> u("Velocity",options().value<std::string>("velocity_tag"));
   FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
+  PhysicsConstant nu_lam("kinematic_viscosity");
+
   ConfigurableConstant<Real> relaxation_factor_scalar("relaxation_factor_scalar", "factor for relaxation in case of coupling", 1.);
 
   // Set the proto expression that handles the assembly
@@ -125,7 +135,7 @@ void ScalarAdvection::trigger_scalar_name()
         compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_su)),
         element_quadrature
         (
-          _A(phi) += transpose(N(phi) + tau_su * u*nabla(phi)) * u * nabla(phi) +  (m_alpha + diffusion_coeff(u,phi)) * transpose(nabla(phi)) * nabla(phi),
+          _A(phi) += transpose(N(phi) + tau_su * u*nabla(phi)) * u * nabla(phi) +  (nu_lam / lit(m_pr) + (nu_eff - nu_lam) / lit(m_pr_t) + diffusion_coeff(u,phi)) * transpose(nabla(phi)) * nabla(phi),
           _T(phi,phi) +=  transpose(N(phi) + tau_su * u*nabla(phi)) * N(phi)
         ),
         system_matrix += invdt() * _T + m_theta * _A,

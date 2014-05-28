@@ -140,7 +140,7 @@ solver.InitialConditions.heat_conduction_solution.Temperature = phi_wall
 #properties for Navier-Stokes
 physics.density = 1.
 physics.dynamic_viscosity = 1.e-5
-scalaradv.scalar_coefficient = 1.
+scalaradv.pr = 1./physics.dynamic_viscosity
 
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')

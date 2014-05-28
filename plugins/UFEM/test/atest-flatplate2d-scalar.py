@@ -110,7 +110,7 @@ ic.scalar_advection_solution.Scalar = phi_in
 #properties for Navier-Stokes
 physics.options().set('density', 1.2)
 physics.options().set('dynamic_viscosity', 1.7894e-5)
-scalaradv.options().set('scalar_coefficient', 1.)
+scalaradv.pr = 1./physics.kinematic_viscosity
 
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')

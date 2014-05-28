@@ -52,8 +52,11 @@ private:
   /// Called when the internal name to use for the scalar variable is changed
   void trigger_scalar_name();
 
-  /// Scalar diffusivity
-  Real m_alpha;
+  /// Prandtl number
+  Real m_pr;
+
+  /// Turbulent Prandtl number
+  Real m_pr_t;
 
   /// Parameter for the theta scheme
   Real m_theta;
