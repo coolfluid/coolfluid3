@@ -180,10 +180,10 @@ void LinkPeriodicNodes::execute()
     }
   }
 
-  boost::shared_ptr<CNodeConnectivity> node_connectivity = common::allocate_component<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Elements>(*m_destination_region, IsElementsSurface()));
+  boost::shared_ptr<NodeConnectivity> node_connectivity = common::allocate_component<NodeConnectivity>("node_connectivity");
+  node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Entities>(*m_destination_region, IsElementsSurface()));
 
-  BOOST_FOREACH(mesh::Elements& elements, common::find_components_recursively_with_filter<mesh::Elements>(*m_source_region, IsElementsSurface()))
+  BOOST_FOREACH(mesh::Entities& elements, common::find_components_recursively_with_filter<mesh::Entities>(*m_source_region, IsElementsSurface()))
   {
     Handle< common::List<Uint> > periodic_links_elements_h(elements.get_child("periodic_links_elements"));
     if(is_null(periodic_links_elements_h))
@@ -219,11 +219,9 @@ void LinkPeriodicNodes::execute()
       }
       std::sort(translated_row.begin(), translated_row.end());
       bool found_match = false;
-      BOOST_FOREACH(const Uint other_element_glb_idx, node_connectivity->node_element_range(translated_row.front()))
+      BOOST_FOREACH(const NodeConnectivity::ElementReferenceT elref, node_connectivity->node_element_range(translated_row.front()))
       {
-        CNodeConnectivity::ElementReferenceT elref = node_connectivity->element(other_element_glb_idx);
-        cf3_assert(is_not_null(elref.first));
-        const Elements& other_elements = *elref.first;
+        const Entities& other_elements = *node_connectivity->entities()[elref.first];
         const Uint other_idx = elref.second;
         const Connectivity& other_conn = other_elements.geometry_space().connectivity();
         const Connectivity::ConstRow other_row = other_conn[other_idx];

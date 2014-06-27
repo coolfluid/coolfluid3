@@ -54,7 +54,7 @@ common::ComponentBuilder < AdjacentCellToFace, common::Action, LibUFEM > Adjacen
 
 AdjacentCellToFace::AdjacentCellToFace(const std::string& name) : solver::Action(name)
 {
-  m_node_connectivity = create_static_component<CNodeConnectivity>("NodeConnectivity");
+  m_node_connectivity = create_static_component<NodeConnectivity>("NodeConnectivity");
 
   options().add("field_tag", "")
     .pretty_name("Field Tag")
@@ -79,10 +79,10 @@ void AdjacentCellToFace::on_regions_set()
   {
     BOOST_FOREACH(Elements& elements, find_components_recursively_with_filter<Elements>(*region, IsElementsSurface()))
     {
-      Handle<CFaceConnectivity> face_conn(find_component_ptr_with_tag(elements, "face_to_cell_connectivity"));
+      Handle<FaceConnectivity> face_conn(find_component_ptr_with_tag(elements, "face_to_cell_connectivity"));
       if(is_null(face_conn))
       {
-        face_conn = elements.create_component<CFaceConnectivity>("FaceToCellConnectivity");
+        face_conn = elements.create_component<FaceConnectivity>("FaceToCellConnectivity");
         face_conn->add_tag("face_to_cell_connectivity");
         face_conn->initialize(*m_node_connectivity);
       }
@@ -91,8 +91,9 @@ void AdjacentCellToFace::on_regions_set()
       for(Uint i = 0; i != nb_elems; ++i)
       {
         cf3_assert(face_conn->has_adjacent_element(i, 0));
-        const CFaceConnectivity::ElementReferenceT adj_elem = face_conn->adjacent_element(i, 0);
-        adjacent_regions.insert(adj_elem.first->parent()->name());
+        const FaceConnectivity::ElementReferenceT adj_elem = face_conn->adjacent_element(i, 0);
+        const mesh::Entities& adjacent_entities = *face_conn->node_connectivity().entities()[adj_elem.first];
+        adjacent_regions.insert(adjacent_entities.parent()->name());
       }
     }
   }
@@ -118,14 +119,15 @@ void AdjacentCellToFace::execute()
     mesh::Field& field = common::find_component_recursively_with_tag<mesh::Field>(mesh, field_tag);
     BOOST_FOREACH(Elements& elements, find_components_recursively_with_filter<Elements>(*region, IsElementsSurface()))
     {
-      CFaceConnectivity& face_conn = find_component_with_tag<CFaceConnectivity>(elements, "face_to_cell_connectivity");
+      FaceConnectivity& face_conn = find_component_with_tag<FaceConnectivity>(elements, "face_to_cell_connectivity");
       const Uint own_field_elements_begin = field.dict().space(elements).connectivity()[0][0];
       const Uint nb_elems = elements.size();
       for(Uint i = 0; i != nb_elems; ++i)
       {
         cf3_assert(face_conn.has_adjacent_element(i, 0));
-        const CFaceConnectivity::ElementReferenceT adj_elem = face_conn.adjacent_element(i, 0);
-        const Uint other_field_elements_begin = field.dict().space(*adj_elem.first).connectivity()[0][0];
+        const FaceConnectivity::ElementReferenceT adj_elem = face_conn.adjacent_element(i, 0);
+        const mesh::Entities& adjacent_entities = *face_conn.node_connectivity().entities()[adj_elem.first];
+        const Uint other_field_elements_begin = field.dict().space(adjacent_entities).connectivity()[0][0];
         field.set_row(own_field_elements_begin + i, field[other_field_elements_begin + adj_elem.second]);
       }
     }

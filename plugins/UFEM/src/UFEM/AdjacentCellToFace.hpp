@@ -13,7 +13,7 @@
 #include "LibUFEM.hpp"
 
 namespace cf3 {
-  namespace mesh { class CNodeConnectivity; }
+  namespace mesh { class NodeConnectivity; }
 namespace UFEM {
 
 /// Copy field values from elements adjacent to a surface patch to the corresponding surface patch
@@ -37,7 +37,7 @@ public: // functions
 private:
   virtual void on_regions_set();
 
-  Handle<mesh::CNodeConnectivity> m_node_connectivity;
+  Handle<mesh::NodeConnectivity> m_node_connectivity;
 };
 
 } // UFEM

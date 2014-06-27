@@ -293,13 +293,13 @@ void Writer::write_groups(std::fstream& file, const Mesh& mesh)
 void Writer::write_boundaries(std::fstream& file, const Mesh& mesh)
 {
   // Add node connectivity data at the mesh level
-  Handle<CNodeConnectivity> node_connectivity = create_component<CNodeConnectivity>("node_connectivity");
+  Handle<NodeConnectivity> node_connectivity = create_component<NodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<Elements>(*Handle<Mesh const>(mesh.handle<Component>()), IsElementsVolume()));
 
-  std::map<Handle< Elements const >,boost::shared_ptr< CFaceConnectivity > > element_2_face_connecitivity;
+  std::map<Handle< Elements const >,boost::shared_ptr< FaceConnectivity > > element_2_face_connecitivity;
   boost_foreach(const Elements& elementregion, find_components_recursively_with_filter<Elements>(mesh,IsElementsSurface()))
   {
-    element_2_face_connecitivity[Handle<Elements const>(elementregion.handle<Component>())] = allocate_component<CFaceConnectivity>("face_connectivity");
+    element_2_face_connecitivity[Handle<Elements const>(elementregion.handle<Component>())] = allocate_component<FaceConnectivity>("face_connectivity");
     element_2_face_connecitivity[Handle<Elements const>(elementregion.handle<Component>())]->initialize(elementregion,*node_connectivity);
   }
 
@@ -325,7 +325,7 @@ void Writer::write_boundaries(std::fstream& file, const Mesh& mesh)
       boost_foreach(const Elements& elementregion, find_components_recursively<Elements>(*group))  // for each element type in this BC
       {
         const Connectivity& table = elementregion.geometry_space().connectivity();
-        const CFaceConnectivity& face_connectivity = *element_2_face_connecitivity[Handle<Elements const>(elementregion.handle<Component>())];
+        const FaceConnectivity& face_connectivity = *element_2_face_connecitivity[Handle<Elements const>(elementregion.handle<Component>())];
 
         const Uint nb_elems = table.size();
         const Uint nb_faces = elementregion.element_type().nb_faces();
@@ -335,9 +335,9 @@ void Writer::write_boundaries(std::fstream& file, const Mesh& mesh)
           {
             if(face_connectivity.has_adjacent_element(elem, face))
             {
-              CFaceConnectivity::ElementReferenceT connected = face_connectivity.adjacent_element(elem, face);
+              FaceConnectivity::ElementReferenceT connected = face_connectivity.adjacent_element(elem, face);
 
-              Handle< Elements const> connected_region = Handle<Elements const>(connected.first->handle<Component>());
+              Handle<Elements const> connected_region = Handle<Elements const>(face_connectivity.node_connectivity().entities()[connected.first]);
               Uint connected_region_start_idx = m_global_start_idx[connected_region];
 
               Uint elm_local_idx = connected.second;
@@ -365,12 +365,12 @@ void Writer::write_boundaries(std::fstream& file, const Mesh& mesh)
               {
                 error_msg << "node " << elementregion.geometry_space().connectivity()[elem][n] << "   face coord: " << elementregion.geometry_space().get_coordinates(elem).row(n) << std::endl;
                 error_msg << "     connected elems: \n";
-                boost_foreach( Uint nc_elem_idx, node_connectivity->node_element_range( elementregion.geometry_space().connectivity()[elem][n] ) )
+                boost_foreach( const NodeConnectivity::ElementReferenceT element, node_connectivity->node_element_range( elementregion.geometry_space().connectivity()[elem][n] ) )
                 {
-                  std::pair<Elements const*, Uint> element = node_connectivity->element(nc_elem_idx);
-                  error_msg << "          " << element.first->uri() << "[" << element.second << "]  ";
+                  const Entities& nc_entities = *node_connectivity->entities()[element.first];
+                  error_msg << "          " << nc_entities.uri() << "[" << element.second << "]  ";
                   error_msg << "   ( ";
-                  boost_foreach ( Uint elem_n, element.first->geometry_space().connectivity()[element.second] )
+                  boost_foreach ( Uint elem_n, nc_entities.geometry_space().connectivity()[element.second] )
                   {
                      error_msg << elem_n << " ";
                   }

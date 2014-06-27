@@ -152,7 +152,7 @@ struct BlockArrays::Implementation
 
   Handle<Mesh> block_mesh;
   Handle<Connectivity> default_shell_connectivity;
-  Handle<CFaceConnectivity> face_connectivity;
+  Handle<FaceConnectivity> face_connectivity;
 
   /// Encapsulate a single block, providing all data needed to produce the mesh connectivity
   struct Block
@@ -321,7 +321,7 @@ struct BlockArrays::Implementation
     const Uint nb_blocks = blocks->size();
     const Uint dimensions = points->row_size();
 
-    CFaceConnectivity& face_conn = *face_connectivity;
+    FaceConnectivity& face_conn = *face_connectivity;
 
     // Unify positive axis face_indices between 2D and 3D cases
     std::vector<Uint> positive_faces(dimensions);
@@ -377,9 +377,9 @@ struct BlockArrays::Implementation
           error_str << "]. Did you flip the ordering of patch nodes?";
           throw common::SetupError(FromHere(), error_str.str());
         }
-        CFaceConnectivity::ElementReferenceT adj_elem = face_conn.adjacent_element(block_idx, positive_faces[i]);
+        FaceConnectivity::ElementReferenceT adj_elem = face_conn.adjacent_element(block_idx, positive_faces[i]);
         block.strides[i] = stride;
-        block.bounded[i] = adj_elem.first->element_type().dimensionality() != dimensions;
+        block.bounded[i] = face_conn.node_connectivity().entities()[adj_elem.first]->element_type().dimensionality() != dimensions;
         block.nb_points[i] = subdiv_row[i] + (block.bounded[i] ? 1 : 0);
         block.segments[i] = subdiv_row[i];
         block.nb_elems *= subdiv_row[i];
@@ -392,20 +392,20 @@ struct BlockArrays::Implementation
       const std::string& my_region = block_regions[block_idx];
       for(Uint i = 0; i != dimensions; ++i)
       {
-        CFaceConnectivity::ElementReferenceT adj_elems[2];
+        FaceConnectivity::ElementReferenceT adj_elems[2];
         adj_elems[0] = face_conn.adjacent_element(block_idx, negative_faces[i]);
         adj_elems[1] = face_conn.adjacent_element(block_idx, positive_faces[i]);
         // check for a patch both in the positive and negative direction
         for(Uint dir = 0; dir != 2; ++dir)
         {
           const Uint patch_orientation = dir == 0 ? negative_faces[i] : positive_faces[i];
-          if(adj_elems[dir].first->element_type().dimensionality() == (dimensions-1))
+          if(face_conn.node_connectivity().entities()[adj_elems[dir].first]->element_type().dimensionality() == (dimensions-1))
           {
-            patch_map[adj_elems[dir].first->parent()->name()].push_back(new Patch(block, i, dir * (block.nb_points[i]-1), patch_orientation));
+            patch_map[face_conn.node_connectivity().entities()[adj_elems[dir].first]->parent()->name()].push_back(new Patch(block, i, dir * (block.nb_points[i]-1), patch_orientation));
           }
           else
           {
-            cf3_assert(adj_elems[dir].first->element_type().dimensionality() == dimensions);
+            cf3_assert(face_conn.node_connectivity().entities()[adj_elems[dir].first]->element_type().dimensionality() == dimensions);
             cf3_assert(adj_elems[dir].second < block_regions.size());
             const std::string& other_region = block_regions[adj_elems[dir].second];
             if(other_region != my_region)
@@ -814,18 +814,18 @@ struct BlockArrays::Implementation
       return true;
 
     cf3_assert(face_connectivity->has_adjacent_element(block_idx, direction));
-    const CFaceConnectivity::ElementReferenceT adj_elem = face_connectivity->adjacent_element(block_idx, direction);
+    const FaceConnectivity::ElementReferenceT adj_elem = face_connectivity->adjacent_element(block_idx, direction);
     // If we have a volume element as neighbor in the main negative direction
     // and it is not in the previous layer, then we are not in the current layer.
-    if(adj_elem.first->element_type().dimensionality() == adj_elem.first->element_type().dimension() &&
+    if(face_connectivity->node_connectivity().entities()[adj_elem.first]->element_type().dimensionality() == face_connectivity->node_connectivity().entities()[adj_elem.first]->element_type().dimension() &&
        std::count(added_blocks.begin(), added_blocks.end(), adj_elem.second) == 0)
       return false;
 
     // Recurse through the transverse directions
     BOOST_FOREACH(const Uint transverse_direction, transverse_directions)
     {
-      const CFaceConnectivity::ElementReferenceT transverse_elem = face_connectivity->adjacent_element(block_idx, transverse_direction);
-      if(transverse_elem.first->element_type().dimensionality() < transverse_elem.first->element_type().dimension()) // skip faces
+      const FaceConnectivity::ElementReferenceT transverse_elem = face_connectivity->adjacent_element(block_idx, transverse_direction);
+      if(face_connectivity->node_connectivity().entities()[transverse_elem.first]->element_type().dimensionality() < face_connectivity->node_connectivity().entities()[transverse_elem.first]->element_type().dimension()) // skip faces
         continue;
       if(!build_block_layer(transverse_elem.second, direction, transverse_directions, output_block_layer, added_blocks, recursed_blocks))
         return false;
@@ -899,7 +899,7 @@ struct BlockArrays::Implementation
 
     const Uint nb_blocks = blocks_in.block_points.size();
 
-    const CFaceConnectivity& volume_to_face_connectivity = *face_connectivity;
+    const FaceConnectivity& volume_to_face_connectivity = *face_connectivity;
 
     // Numbering of the faces
      const Uint XNEG_2D = 3;
@@ -1130,10 +1130,10 @@ struct BlockArrays::Implementation
             // Add new patches
             BOOST_FOREACH(const Uint transverse_direction, transverse_directions)
             {
-              const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, transverse_direction);
-              if(adjacent_element.first->element_type().dimensionality() < dimensions)
+              const FaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, transverse_direction);
+              if(volume_to_face_connectivity.node_connectivity().entities()[adjacent_element.first]->element_type().dimensionality() < dimensions)
               {
-                const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
+                const Uint patch_idx = patch_idx_map[volume_to_face_connectivity.node_connectivity().entities()[adjacent_element.first]->parent()->name()];
                 BOOST_FOREACH(const Uint i, etype_faces.nodes_range(transverse_direction))
                 {
                   blocks_out.patch_points[patch_idx].push_back(new_block_points[i]);
@@ -1160,11 +1160,11 @@ struct BlockArrays::Implementation
     {
       BOOST_FOREACH(const Uint lengthwise_direction, start_end_directions)
       {
-        const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, lengthwise_direction);
-        if(adjacent_element.first->element_type().dimensionality() < dimensions)
+        const FaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, lengthwise_direction);
+        if(volume_to_face_connectivity.node_connectivity().entities()[adjacent_element.first]->element_type().dimensionality() < dimensions)
         {
-          CFdebug << "adding end patch " << adjacent_element.first->parent()->name() << " to block " << block_idx << CFendl;
-          const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
+          CFdebug << "adding end patch " << volume_to_face_connectivity.node_connectivity().entities()[adjacent_element.first]->parent()->name() << " to block " << block_idx << CFendl;
+          const Uint patch_idx = patch_idx_map[volume_to_face_connectivity.node_connectivity().entities()[adjacent_element.first]->parent()->name()];
           BOOST_FOREACH(const Uint i, etype_faces.nodes_range(lengthwise_direction))
           {
             blocks_out.patch_points[patch_idx].push_back(blocks_in.block_points[block_idx][i]);
@@ -1402,9 +1402,9 @@ Handle< Mesh > BlockArrays::create_block_mesh()
   }
 
   // Create connectivity data
-  CNodeConnectivity& node_connectivity = *m_implementation->block_mesh->create_component<CNodeConnectivity>("node_connectivity");
-  node_connectivity.initialize(find_components_recursively<Elements>(*m_implementation->block_mesh));
-  m_implementation->face_connectivity = block_elements.create_component<CFaceConnectivity>("face_connectivity");
+  NodeConnectivity& node_connectivity = *m_implementation->block_mesh->create_component<NodeConnectivity>("node_connectivity");
+  node_connectivity.initialize(m_implementation->block_mesh->elements());
+  m_implementation->face_connectivity = block_elements.create_component<FaceConnectivity>("face_connectivity");
   m_implementation->face_connectivity->initialize(node_connectivity);
 
   const Uint nb_faces = dimensions == 3 ? LagrangeP1::Hexa3D::nb_faces : LagrangeP1::Quad2D::nb_faces;

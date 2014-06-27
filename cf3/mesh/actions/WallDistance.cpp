@@ -49,7 +49,7 @@ namespace detail
 /// Helper struct to handle projection to the wall near a given surface node
 struct WallProjection
 {
-  WallProjection(const Field& coordinates, const CNodeConnectivity& node_connectivity) :
+  WallProjection(const Field& coordinates, const NodeConnectivity& node_connectivity) :
     m_coords(coordinates),
     m_node_connectivity(node_connectivity)
   {
@@ -63,20 +63,20 @@ struct WallProjection
     const RealVector inner_coord = to_vector(m_coords[inner_node_idx]);
     std::vector<Uint> neighbor_nodes; // Collect neighboring nodes, so we can project onto a sharp corner in 3D if needed (i.e. near a step)
     // Loop over all surface elements around the given node
-    BOOST_FOREACH(const Uint elem_idx, m_node_connectivity.node_element_range(surface_node_idx))
+    BOOST_FOREACH(const NodeConnectivity::ElementReferenceT& element_ref, m_node_connectivity.node_element_range(surface_node_idx))
     {
       // Get the element coordinates
-      const CNodeConnectivity::ElementReferenceT element_ref = m_node_connectivity.element(elem_idx);
-      const ElementType& etype = element_ref.first->element_type();
+      const Entities& elem_entities = *m_node_connectivity.entities()[element_ref.first];
+      const ElementType& etype = elem_entities.element_type();
       const Uint element_nb_nodes = etype.nb_nodes();
       elem_coords.resize(element_nb_nodes, dim);
-      const Connectivity::ConstRow conn_row = element_ref.first->geometry_space().connectivity()[element_ref.second];
+      const Connectivity::ConstRow conn_row = elem_entities.geometry_space().connectivity()[element_ref.second];
       fill(elem_coords, m_coords, conn_row);
 
       // We consider lines, triangles and quads as viable surface elements
       if(element_nb_nodes < 2 || element_nb_nodes > 4 || etype.order() != 1)
       {
-        throw common::SetupError(FromHere(), "Unsupported surface element of type " + etype.name() + " in surface region " + element_ref.first->uri().path());
+        throw common::SetupError(FromHere(), "Unsupported surface element of type " + etype.name() + " in surface region " + elem_entities.uri().path());
       }
       
       bool in_element = false;
@@ -194,7 +194,7 @@ struct WallProjection
   }
 
   const Field& m_coords;
-  const CNodeConnectivity& m_node_connectivity;
+  const NodeConnectivity& m_node_connectivity;
 };
 }
 
@@ -216,7 +216,7 @@ void WallDistance::execute()
   const Field& coords = mesh.geometry_fields().coordinates();
   const Uint nb_nodes = coords.size();
 
-  boost::shared_ptr<CNodeConnectivity> node_connectivity = common::allocate_component<CNodeConnectivity>("NodeConnectivity");
+  boost::shared_ptr<NodeConnectivity> node_connectivity = common::allocate_component<NodeConnectivity>("NodeConnectivity");
   std::vector< Handle<Entities const> > surface_entities;
   BOOST_FOREACH(const Handle<Region const>& region, m_regions)
   {
