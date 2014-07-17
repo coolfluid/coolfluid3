@@ -22,12 +22,11 @@ namespace common {
 /// of comparisons is <= 2*log(size)+1. Since the high memory storage is
 /// an issue with the standard std::map, this class offer a valid efficient
 /// alternative to it.
-/// Consider that once that you allocate a map, you can't get rid of the
-/// allocated memory till the end of your run! This doesn't apply to the current
 /// Map that is just an Adapter of std::vector<std::pair<KEY,DATA> >.
-/// THIS IS REALLY AN IMPORTANT ADVANTAGE OF THIS MAP: since it is basically
-/// a std::vector, YOU CAN RELEASE THE MEMORY when you go out of scope or you explicitly
-/// delete a pointer to this object.
+/// The advantage of this map is that it is faster to construct (build vector, sort once)
+/// and uses less memory than std::map.
+/// The disadvantage is that it is much slower when elements need to be looked up while
+/// the map is being constructed.
 /// The class is parameterized with the types of the key and the type of the value
 /// @pre this map can handle KEYs for which the operators "<" and ">" are available
 /// @pre before using find() the Map has to be sorted. This will happen automatically
