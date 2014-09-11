@@ -66,7 +66,7 @@ Dictionary::Dictionary ( const std::string& name  ) :
   m_glb_idx = create_static_component< common::List<Uint> >(mesh::Tags::global_indices());
   m_glb_idx->add_tag(mesh::Tags::global_indices());
 
-  m_glb_to_loc = create_static_component< common::Map<boost::uint64_t,Uint> >(mesh::Tags::map_global_to_local());
+  m_glb_to_loc = create_static_component< GlbToLocT >(mesh::Tags::map_global_to_local());
   m_glb_to_loc->add_tag(mesh::Tags::map_global_to_local());
 
   m_connectivity = create_static_component< common::DynTable<SpaceElem> >("element_connectivity");
