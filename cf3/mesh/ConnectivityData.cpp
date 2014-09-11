@@ -30,12 +30,27 @@ NodeConnectivity::~NodeConnectivity()
 
 void NodeConnectivity::initialize ( const NodeConnectivity::EntitiesT& entities )
 {
+  if(entities.empty())
+  {
+    initialize(0, entities);
+    return;
+  }
+  
   std::set<const Dictionary*> nodes_set;
   BOOST_FOREACH(const Handle<Entities const>& elements, entities)
     nodes_set.insert(&elements->geometry_fields());
 
   // All elements in the range must use the same dictionary
-  cf3_always_assert(nodes_set.size() == 1);
+  if(nodes_set.size() != 1)
+  {
+    std::stringstream err;
+    err << "Elements span different geometry dicts:";
+    BOOST_FOREACH(const Dictionary* dict, nodes_set)
+    {
+      err << " " << dict->uri().path();
+    }
+    throw common::SetupError(FromHere(), err.str());
+  }
 
   // Total number of nodes in the mesh
   Uint nb_nodes = (*nodes_set.begin())->size();
