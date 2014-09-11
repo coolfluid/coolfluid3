@@ -1400,6 +1400,8 @@ Handle< Mesh > BlockArrays::create_block_mesh()
     patch_elems.resize(patch_connectivity_table.size());
     patch_elems.geometry_space().connectivity().array() = patch_connectivity_table.array();
   }
+  
+  m_implementation->block_mesh->update_structures();
 
   // Create connectivity data
   NodeConnectivity& node_connectivity = *m_implementation->block_mesh->create_component<NodeConnectivity>("node_connectivity");
