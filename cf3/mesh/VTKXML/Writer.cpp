@@ -204,8 +204,13 @@ Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
     options().add("distributed_files", false)
-    .pretty_name("Distributed Files")
-    .description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
+      .pretty_name("Distributed Files")
+      .description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
+    
+    options().add("dictionary", m_dictionary)
+      .pretty_name("Dictionary")
+      .description("Dictionary used to get the node coordinates and continuous fields")
+      .link_to(&m_dictionary);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -229,6 +234,8 @@ void Writer::write()
   my_path = my_dir / (basename + "_P" + to_str(PE::Comm::instance().rank()) + ".vtu");
 
   XmlDoc doc("1.0", "ISO-8859-1");
+  
+  const mesh::Dictionary& dict = is_null(m_dictionary) ? m_mesh->geometry_fields() : *m_dictionary;
 
   // Root node
   XmlNode vtkfile = doc.add_node("VTKFile");
@@ -239,29 +246,38 @@ void Writer::write()
 
   XmlNode unstructured_grid = vtkfile.add_node("UnstructuredGrid");
 
-  const Field& coords = m_mesh->geometry_fields().coordinates();
+  const Field& coords = dict.coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
-
+  
   // map for element types
-  std::map<GeoShape::Type,int> etype_map = boost::assign::map_list_of
-    (GeoShape::TRIAG,5)
-    (GeoShape::QUAD, 9)
-    (GeoShape::TETRA, 10)
-    (GeoShape::HEXA, 12)
-    (GeoShape::PRISM, 13);
+  std::map< std::pair<Uint,GeoShape::Type>,int> etype_map = boost::assign::map_list_of
+    (std::make_pair(1, GeoShape::TRIAG),5)
+    (std::make_pair(1, GeoShape::QUAD), 9)
+    (std::make_pair(1, GeoShape::TETRA), 10)
+    (std::make_pair(1, GeoShape::HEXA), 12)
+    (std::make_pair(1, GeoShape::PRISM), 13)
+    (std::make_pair(2, GeoShape::QUAD), 28); // Biquadratic quad
+
+  // Build a list of elements to save
+  std::vector< Handle<mesh::Elements const> > elements_list;
+  BOOST_FOREACH(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()))
+  {
+    if(elements.element_type().dimensionality() == dim  && etype_map.count(std::make_pair(elements.space(dict).shape_function().order(), elements.element_type().shape())))
+    {
+      elements_list.push_back(elements.handle<Elements const>());
+    }
+  }
 
   // Count number of elements
   Uint nb_elems = 0;
   Uint nb_conn_nodes = 0;
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
+  boost_foreach(const Handle<Elements const>& elements_h, elements_list)
   {
-    if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
-    {
-      const Uint n_elems = elements.size();
-      nb_elems += n_elems;
-      nb_conn_nodes += n_elems * elements.element_type().nb_nodes();
-    }
+    const Elements& elements  = *elements_h;
+    const Uint n_elems = elements.size();
+    nb_elems += n_elems;
+    nb_conn_nodes += n_elems * elements.space(dict).shape_function().nb_nodes();
   }
 
   XmlNode piece = unstructured_grid.add_node("Piece");
@@ -288,7 +304,7 @@ void Writer::write()
   appended_data.finish_array();
 
   XmlNode cells = piece.add_node("Cells");
-
+  
   // Write connectivity
   XmlNode connectivity = cells.add_node("DataArray");
   connectivity.set_attribute("type", "UInt32");
@@ -296,19 +312,18 @@ void Writer::write()
   connectivity.set_attribute("format", "appended");
   connectivity.set_attribute("offset", to_str(appended_data.offset()));
   appended_data.start_array(nb_conn_nodes, 4);
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
+  boost_foreach(const Handle<Elements const>& elements_h, elements_list)
   {
-    if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
+    const Elements& elements  = *elements_h;
+    const Uint n_elems = elements.size();
+    const Space& space = elements.space(dict);
+    const Connectivity& conn_table = space.connectivity();
+    const Uint n_el_nodes = space.shape_function().nb_nodes();
+    for(Uint i = 0; i != n_elems; ++i)
     {
-      const Uint n_elems = elements.size();
-      const Connectivity& conn_table = elements.geometry_space().connectivity();
-      const Uint n_el_nodes = elements.element_type().nb_nodes();
-      for(Uint i = 0; i != n_elems; ++i)
-      {
-        const Connectivity::ConstRow row = conn_table[i];
-        for(Uint j = 0; j != n_el_nodes; ++j)
-          appended_data.push_back(static_cast<boost::uint32_t>(row[j]));
-      }
+      const Connectivity::ConstRow row = conn_table[i];
+      for(Uint j = 0; j != n_el_nodes; ++j)
+        appended_data.push_back(static_cast<boost::uint32_t>(row[j]));
     }
   }
   appended_data.finish_array();
@@ -321,17 +336,15 @@ void Writer::write()
   offsets.set_attribute("offset", to_str(appended_data.offset()));
   boost::uint32_t offset = 0;
   appended_data.start_array(nb_elems, 4);
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
+  boost_foreach(const Handle<Elements const>& elements_h, elements_list)
   {
-    if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
+    const Elements& elements  = *elements_h;
+    const Uint n_elems = elements.size();
+    const Uint n_el_nodes = elements.space(dict).shape_function().nb_nodes();
+    for(Uint i = 0; i != n_elems; ++i)
     {
-      const Uint n_elems = elements.size();
-      const Uint n_el_nodes = elements.element_type().nb_nodes();
-      for(Uint i = 0; i != n_elems; ++i)
-      {
-        offset += n_el_nodes;
-        appended_data.push_back(offset);
-      }
+      offset += n_el_nodes;
+      appended_data.push_back(offset);
     }
   }
   appended_data.finish_array();
@@ -342,16 +355,15 @@ void Writer::write()
   types.set_attribute("format", "appended");
   types.set_attribute("offset", to_str(appended_data.offset()));
   appended_data.start_array(nb_elems, 1);
-  boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
+  boost_foreach(const Handle<Elements const>& elements_h, elements_list)
   {
-    if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
+    const Elements& elements  = *elements_h;
+    const Uint n_elems = elements.size();
+    const Space& space = elements.space(dict);
+    const boost::uint8_t vtk_e_type = etype_map[std::make_pair(space.shape_function().order(), space.shape_function().shape())];
+    for(Uint i = 0; i != n_elems; ++i)
     {
-      const Uint n_elems = elements.size();
-      const boost::uint8_t vtk_e_type = etype_map[elements.element_type().shape()];
-      for(Uint i = 0; i != n_elems; ++i)
-      {
-        appended_data.push_back(vtk_e_type);
-      }
+      appended_data.push_back(vtk_e_type);
     }
   }
   appended_data.finish_array();
@@ -414,7 +426,7 @@ void Writer::write()
       {
         boost_foreach(const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
         {
-          if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
+          if(elements.element_type().dimensionality() == dim && etype_map.count(std::make_pair(elements.element_type().order(), elements.element_type().shape())))
           {
             const Connectivity& field_connectivity = field.dict().space(elements).connectivity();
             const Uint n_elems = elements.size();
