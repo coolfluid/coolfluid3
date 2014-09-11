@@ -128,5 +128,43 @@ boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const Component
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void nearest_node_mapping(const RealMatrix& support_local_coords, const RealMatrix& source_local_coords, std::vector<Uint>& node_mapping, std::vector<bool>& is_interior)
+{
+  const Real eps = 1e-8;
+  const Real min = support_local_coords.minCoeff();
+  const Real max = support_local_coords.maxCoeff();
+  const Real max_sum = min == -1. ? -2. : 1.-eps;
+
+  const Eigen::Array<bool, Eigen::Dynamic, 1> is_interior_arr = ((source_local_coords.array() > min).rowwise().all() && (source_local_coords.array() < max).rowwise().all() && source_local_coords.array().rowwise().sum() < max_sum);
+
+  const Uint nb_target_nodes = source_local_coords.rows();
+
+  node_mapping.resize(nb_target_nodes);
+  is_interior.resize(nb_target_nodes);
+
+  Eigen::Array<int, Eigen::Dynamic, 1> counts(support_local_coords.rows());
+  counts.setZero();
+
+  for(Uint row_idx = 0; row_idx != nb_target_nodes; ++row_idx)
+  {
+    is_interior[row_idx] = is_interior_arr[row_idx];
+
+    // Compute the distances between the target node and the support nodes
+    const Eigen::Array<Real, Eigen::Dynamic, 1> distances = (support_local_coords.rowwise() - source_local_coords.row(row_idx)).rowwise().squaredNorm();
+
+    // Minimal distance
+    const Real min_dist = distances.minCoeff();
+
+    // Index of the nearest node that has been selected the fewest times
+    int min_idx;
+    (distances.array() == min_dist).select(counts, nb_target_nodes).minCoeff(&min_idx);
+
+    node_mapping[row_idx] = min_idx;
+    ++counts[min_idx];
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // mesh
 } // cf3

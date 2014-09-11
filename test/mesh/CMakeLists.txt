@@ -288,6 +288,10 @@ coolfluid_add_test( UTEST    utest-mesh-generateline3d
                     PYTHON   utest-mesh-generateline3d.py
                     MPI 1)
 
+coolfluid_add_test( UTEST utest-mesh-functions
+                    CPP   utest-mesh-functions.cpp
+                    LIBS  coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 )
+
 ############################################################################################
 
 set( partitioner_lib "" )
