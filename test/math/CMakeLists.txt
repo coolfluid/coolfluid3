@@ -31,8 +31,7 @@ coolfluid_add_test( UTEST utest-math-variablesdescriptor
 
 
 coolfluid_add_test( UTEST utest-math-variablemanager
-                    CPP   utest-math-variablemanager.cpp
-                    LIBS  coolfluid_math )
+                    PYTHON   utest-math-variablemanager.py)
 
 coolfluid_add_test( UTEST utest-math-integrate
                     CPP   utest-math-integrate.cpp
