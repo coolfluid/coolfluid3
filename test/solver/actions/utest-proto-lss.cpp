@@ -86,7 +86,9 @@ struct ProtoLSSFixture
       physical_model = Handle<physics::PhysModel>(model->create_physics("cf3.physics.DynamicModel").handle());
       Domain& dom = model->create_domain("Domain");
       mesh = dom.create_component<Mesh>("mesh");
-      Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
+      //Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
+      //Tools::MeshGeneration::create_line(*mesh, 3.,3);
+      Tools::MeshGeneration::create_rectangle_tris(*mesh, 1., 1., 1, 1);
       
       field_manager = model->create_component<FieldManager>("FieldManager");
       field_manager->options().set("variable_manager", model->physics().variable_manager().handle<math::VariableManager>());
@@ -101,15 +103,24 @@ struct ProtoLSSFixture
         const Uint nb_elem_nodes = connectivity.row_size();
         for(Uint elem = 0; elem != nb_elems; ++elem)
         {
+					std::cout << "Connectivity for element " << elem << ":";
           BOOST_FOREACH(const Uint node_a, connectivity[elem])
           {
+						std::cout << " " << node_a;
             BOOST_FOREACH(const Uint node_b, connectivity[elem])
             {
               connectivity_sets[node_a].insert(node_b);
             }
           }
+					std::cout << std::endl;
         }
       }
+
+			const mesh::Field& coords = mesh->geometry_fields().coordinates();
+			for(Uint i = 0; i != nb_nodes; ++i)
+			{
+				std::cout << "node " << i << ": " << coords[i][0] << ", " << coords[i][1] << std::endl;
+			}
       
       starting_indices.push_back(0);
       BOOST_FOREACH(const std::set<Uint>& nodes, connectivity_sets)
@@ -446,7 +457,7 @@ BOOST_AUTO_TEST_CASE( NestedCustomOps )
   SFOp< CustomSFOp<ScalarLSSVector> > scalar_vector;
   scalar_vector.op.set_vector(vec_copy);
 
-  boost::mpl::vector1<mesh::LagrangeP1::Quad2D> etype;
+  boost::mpl::vector1<mesh::LagrangeP1::Line1D> etype;
 
   // Run the expression
   action->set_expression(elements_expression(etype,
@@ -486,6 +497,42 @@ BOOST_AUTO_TEST_CASE( NestedCustomOps )
   Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
   std::cout << "diff norm: " << diff_norm.front() << std::endl;
   BOOST_CHECK_SMALL(diff_norm.front(), 1e-10);
+}
+
+BOOST_AUTO_TEST_CASE( MassMatrix )
+{
+  Handle<math::LSS::System> lss = root.create_component<math::LSS::System>("mass_lss");
+  lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+  lss->create(mesh->geometry_fields().comm_pattern(), 1, node_connectivity, starting_indices);
+  
+  Handle<ProtoAction> action = root.create_component<ProtoAction>("MassAssembly");
+  
+  FieldVariable<0, ScalarField> T("MassVar", "massvar");
+  SystemMatrix matrix(*lss);
+  
+  boost::mpl::vector1<mesh::LagrangeP1::Triag2D> etype;
+
+  // Run the expression
+  action->set_expression(elements_expression(etype,
+    group
+    (
+      _A = _0,
+      element_quadrature
+      (
+        _A(T,T) += transpose(N(T)) * N(T)
+      ),
+      matrix += _A
+    )
+  ));
+  
+  action->options().set("physical_model", physical_model);
+  action->options().set(solver::Tags::regions(), loop_regions);
+
+  field_manager->create_field("massvar", mesh->geometry_fields());
+  
+  action->execute();
+  
+  lss->matrix()->print(std::cout);
 }
 
 BOOST_AUTO_TEST_CASE( CleanUp )
