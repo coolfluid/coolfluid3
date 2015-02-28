@@ -34,7 +34,6 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/math/special_functions/next.hpp>
-#include <boost/math/tools/test.hpp>
 #include <boost/static_assert.hpp>
 
 #include "common/EigenAssertions.hpp"
