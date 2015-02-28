@@ -66,29 +66,14 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
   {
     const List<Uint>& per_links = *periodic_links_nodes;
     const List<bool>& per_active = *periodic_links_active;
-    // Any node connected periodically to a used node is also used. This needs to be done multiple times for multiple periodic links
-    bool update = true;
-    Uint counter = 0;
-    while(update)
+    // Any node connected periodically to a used node is also used
+    for(Uint i = 0; i != all_nb_nodes; ++i)
     {
-      update = false;
-      cf3_always_assert(counter < 4);
-      for(Uint i = 0; i != all_nb_nodes; ++i)
+      if(per_active[i] && (node_is_used[per_links[i]] || node_is_used[i]))
       {
-        if(!per_active[i])
-          continue;
-        if(node_is_used[i] && !node_is_used[per_links[i]])
-        {
-          update = true;
-          node_is_used[per_links[i]] = true;
-        }
-        if(node_is_used[per_links[i]] && !node_is_used[i])
-        {
-          update = true;
-          node_is_used[i] = true;
-        }
+        node_is_used[i] = true;
+        node_is_used[per_links[i]] = true;
       }
-      ++counter;
     }
   }
 

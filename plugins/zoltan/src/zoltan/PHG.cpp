@@ -91,6 +91,9 @@ public:
 
     for(Uint i = nb_remaining; i != m_size; ++i)
     {
+      if(m_indices_to_remove.count(i) != 0)
+        continue;
+
       array[idx_mapping[i]] = array[i];
     }
 
@@ -161,6 +164,77 @@ private:
   
   boost::scoped_ptr<IndexMapping> m_mapping;
   const Uint m_size;
+};
+
+struct PeriodicData
+{
+  PeriodicData(mesh::Dictionary& dict)
+  {
+    periodic_links_nodes = Handle< common::List<Uint> >(dict.get_child("periodic_links_nodes")).get();
+    periodic_links_active = Handle< common::List<bool> >(dict.get_child("periodic_links_active")).get();
+
+    build_inverse_links();
+  }
+
+  /// Return true if the given node has a periodic link
+  bool is_periodic(const Uint node_idx)
+  {
+    if(is_null(periodic_links_active))
+      return false;
+
+    return (*periodic_links_active)[node_idx];
+  }
+
+  /// Return the direct periodic link of the given node, or the node itself if there is none
+  Uint target_node(const Uint node_idx)
+  {
+    if(is_periodic(node_idx))
+      return (*periodic_links_nodes)[node_idx];
+
+    return node_idx;
+  }
+
+  /// The final periodic link, obtained after following all periodic links that start from the given node.
+  /// Returns the node itself if not periodic.
+  Uint final_target_node(const Uint node_idx)
+  {
+    Uint result = target_node(node_idx);
+    cf3_assert(!is_periodic(result));
+    return result;
+  }
+
+  std::vector<Uint> inverse_links(const Uint node_idx)
+  {
+    if(is_null(periodic_links_active))
+      return std::vector<Uint>();
+
+    if(is_periodic(node_idx))
+      cf3_assert(inverse_periodic_links[node_idx].empty());
+
+    return inverse_periodic_links[node_idx];
+  }
+
+  void build_inverse_links()
+  {
+    if(is_null(periodic_links_active))
+      return;
+
+    const Uint nb_nodes = periodic_links_active->size();
+    inverse_periodic_links.clear();
+    inverse_periodic_links.resize(nb_nodes);
+    for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
+    {
+      if(is_periodic(node_idx))
+      {
+        inverse_periodic_links[final_target_node(node_idx)].push_back(node_idx);
+      }
+    }
+  }
+
+  common::List<Uint>* periodic_links_nodes;
+  common::List<bool>* periodic_links_active;
+
+  std::vector< std::vector<Uint> > inverse_periodic_links;
 };
 
 /// Helper class to pack nodes in a char buffer, including all related fields. Packing is as follows:
@@ -277,6 +351,7 @@ public:
     const Uint global_id = unpack_number<GidT>();
     const Uint local_id = gid_to_local[global_id];
     dict.rank()[local_id] = unpack_number<RankT>();
+    dict.glb_idx()[local_id] = global_id;
 
     const Uint nb_fields = dict.fields().size();
     for(Uint field_idx = 0; field_idx != nb_fields; ++field_idx)
@@ -422,11 +497,14 @@ void remove_unused_nodes(const mesh::Mesh& mesh)
     for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
     {
       if(!is_used[node_idx])
+      {
         elem_remover.insert(node_idx);
+      }
     }
 
     elem_remover.remove_rows(dict.glb_idx());
     elem_remover.remove_rows(dict.rank());
+
     const Uint nb_fields = dict.fields().size();
     for(Uint field_idx = 0; field_idx != nb_fields; ++field_idx)
     {
@@ -449,11 +527,30 @@ void remove_unused_nodes(const mesh::Mesh& mesh)
         }
       }
     }
+
+    // Remove nodes from the periodic structures as well
+    common::List<Uint>* periodic_links_nodes = Handle< common::List<Uint> >(dict.get_child("periodic_links_nodes")).get();
+    common::List<bool>* periodic_links_active = Handle< common::List<bool> >(dict.get_child("periodic_links_active")).get();
+    if(is_not_null(periodic_links_nodes))
+    {
+      elem_remover.remove_rows(*periodic_links_active);
+      elem_remover.remove_rows(*periodic_links_nodes);
+
+      const Uint new_nb_nodes = periodic_links_nodes->size();
+      cf3_assert(new_nb_nodes == dict.size());
+      for(Uint i = 0; i != new_nb_nodes; ++i)
+      {
+        if((*periodic_links_active)[i])
+        {
+          (*periodic_links_nodes)[i] = elem_remover.new_idx((*periodic_links_nodes)[i]);
+        }
+      }
+    }
   }
 }
 
 /// Completes the elements, ensuring each rank has access to all the elements that use each of its local nodes
-void complete_elements(const mesh::Mesh& mesh)
+void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid_map)
 {
   common::PE::Comm& comm = common::PE::Comm::instance();
   
@@ -616,6 +713,8 @@ void complete_elements(const mesh::Mesh& mesh)
   std::vector<GidMapT> new_node_gids(nb_dicts); // For each dictionary, the new nodes to request, required to complete the elements that we receive
   std::vector<Uint> nb_nodes_to_request(comm.size(), 0); // Per rank, the number of nodes to request
 
+  GidMapT new_periodic_links;
+
   // Unpack the elements
   for(Uint rank = 0; rank != comm.size(); ++rank)
   {
@@ -649,11 +748,14 @@ void complete_elements(const mesh::Mesh& mesh)
         const Uint element_start = recv_idx;
         const Uint element_end = recv_idx + space.shape_function().nb_nodes();
         const Uint dict_idx = space.dict_idx();
+        const mesh::Dictionary* dict = mesh.dictionaries()[dict_idx].get();
         
         for(; recv_idx != element_end; ++recv_idx)
         {
           const Uint node_gid = recv_elements_for_rank[recv_idx];
           const std::pair<Uint, bool> local_id = glb_to_loc[dict_idx].create_local_id(node_gid);
+
+          cf3_assert(node_gid != math::Consts::uint_max());
           
           if(local_id.second) // We have a new node to request
           {
@@ -661,6 +763,28 @@ void complete_elements(const mesh::Mesh& mesh)
             nb_nodes_to_request[rank]++;
           }
           conn_row[recv_idx - element_start] = local_id.first;
+
+          // Check for a periodic link...
+          if(dict == &geom_dict)
+          {
+            GidMapT::const_iterator periodic_it = periodic_links_gid_map.find(node_gid);
+            if(periodic_it != periodic_links_gid_map.end())
+            {
+              const Uint periodic_gid = periodic_it->second;
+              cf3_assert(periodic_gid != math::Consts::uint_max());
+              const std::pair<Uint, bool> periodic_local_id = glb_to_loc[dict_idx].create_local_id(periodic_gid);
+              if(local_id.second) // If it was a new node, we need to add a new periodic link
+              {
+                new_periodic_links[local_id.first] = periodic_local_id.first;
+              }
+              if(periodic_local_id.second) // If the periodic node is new, we need to fetch it
+              {
+                cf3_assert(periodic_links_gid_map.count(periodic_gid) == 0);
+                new_node_gids[dict_idx][periodic_gid] = rank;
+                nb_nodes_to_request[rank]++;
+              }
+            }
+          }
         }
       }
       
@@ -760,10 +884,32 @@ void complete_elements(const mesh::Mesh& mesh)
   for(Uint dict_idx = 0; dict_idx != nb_dicts; ++dict_idx)
   {
     mesh::Dictionary& dict = *mesh.dictionaries()[dict_idx];
-    dict.resize(dict.size() + new_node_gids[dict_idx].size());
+    const Uint old_size = dict.size();
+    const Uint new_size = old_size + new_node_gids[dict_idx].size();
+    dict.resize(new_size);
+    if(&dict == &geom_dict) // Assuming periodicity is defined on the geometry dict
+    {
+      common::List<Uint>* periodic_links_nodes = Handle< common::List<Uint> >(dict.get_child("periodic_links_nodes")).get();
+      common::List<bool>* periodic_links_active = Handle< common::List<bool> >(dict.get_child("periodic_links_active")).get();
+      if(is_not_null(periodic_links_active))
+      {
+        periodic_links_nodes->resize(new_size);
+        periodic_links_active->resize(new_size);
+        std::fill(periodic_links_active->array().begin()+old_size, periodic_links_active->array().end(), false);
+        std::fill(periodic_links_nodes->array().begin()+old_size, periodic_links_nodes->array().end(), math::Consts::uint_max());
+
+        // Update the new links
+        for(GidMapT::const_iterator periodic_it = new_periodic_links.begin(); periodic_it != new_periodic_links.end(); ++periodic_it)
+        {
+          (*periodic_links_active)[periodic_it->first] = true;
+          (*periodic_links_nodes)[periodic_it->first] = periodic_it->second;
+        }
+      }
+    }
   }
 
   // Unpack nodes
+  std::vector<Uint> nb_unpacked(nb_dicts, 0);
   for(Uint rank = 0; rank != comm.size(); ++rank)
   {
     NodeUnpacker unpacker(recv_nodes[rank]);
@@ -776,7 +922,12 @@ void complete_elements(const mesh::Mesh& mesh)
       {
         unpacker.unpack_next_node(dict, glb_to_loc[dict_idx]);
       }
+      nb_unpacked[dict_idx] += dict_nb_recv_nodes;
     }
+  }
+  for(Uint dict_idx = 0; dict_idx != nb_dicts; ++dict_idx)
+  {
+    cf3_assert(nb_unpacked[dict_idx] == new_node_gids[dict_idx].size());
   }
 
   // Update element ranks and other dictionary ranks
@@ -867,77 +1018,6 @@ void remove_full_ghost_elements(mesh::Mesh& mesh)
   }
 }
 
-struct PeriodicData
-{
-  PeriodicData(const mesh::Dictionary& dict)
-  {
-    periodic_links_nodes = Handle< common::List<Uint> const >(dict.get_child("periodic_links_nodes")).get();
-    periodic_links_active = Handle< common::List<bool> const >(dict.get_child("periodic_links_active")).get();
-  }
-
-  /// Return true if the given node has a periodic link
-  bool is_periodic(const Uint node_idx)
-  {
-    if(is_null(periodic_links_active))
-      return false;
-
-    return (*periodic_links_active)[node_idx];
-  }
-
-  /// Return the direct periodic link of the given node, or the node itself if there is none
-  Uint target_node(const Uint node_idx)
-  {
-    if(is_periodic(node_idx))
-      return (*periodic_links_nodes)[node_idx];
-
-    return node_idx;
-  }
-
-  /// The final periodic link, obtained after following all periodic links that start from the given node.
-  /// Returns the node itself if not periodic.
-  Uint final_target_node(const Uint node_idx)
-  {
-    Uint result = target_node(node_idx);
-    while(is_periodic(result))
-    {
-      result = target_node(result);
-    }
-
-    return result;
-  }
-  
-  std::vector<Uint> inverse_links(const Uint node_idx)
-  {
-    if(!is_periodic(node_idx))
-      return std::vector<Uint>();
-
-    if(inverse_periodic_links.empty())
-      build_inverse_links();
-
-    return inverse_periodic_links[node_idx];
-  }
-  
-  void build_inverse_links()
-  {
-    cf3_assert(is_not_null(periodic_links_active));
-    const Uint nb_nodes = periodic_links_active->size();
-    inverse_periodic_links.clear();
-    inverse_periodic_links.resize(nb_nodes);
-    for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
-    {
-      if(is_periodic(node_idx))
-      {
-        inverse_periodic_links[final_target_node(node_idx)].push_back(node_idx);
-      }
-    }
-  }
-
-  const common::List<Uint>* periodic_links_nodes;
-  const common::List<bool>* periodic_links_active;
-  
-  std::vector< std::vector<Uint> > inverse_periodic_links;
-};
-
 struct HGCollection
 {
   HGCollection(mesh::Mesh& mesh) :
@@ -952,8 +1032,6 @@ struct HGCollection
     const Uint my_rank = comm.rank();
 
     const Uint nb_all_nodes = mesh.geometry_fields().size();
-    const common::List<Uint>& node_gids = mesh.geometry_fields().glb_idx();
-    const common::List<Uint>& node_ranks = mesh.geometry_fields().rank();
 
     // Global and local IDs for the graph vertices
     vertex_gids.reserve(nb_all_nodes);
@@ -1004,72 +1082,6 @@ struct HGCollection
     }
 
     nodes_to_remove.resize(node_gids.size(), false);
-
-// First attempt that used elements as graph vertices:
-//     // Build inverse periodic links
-//     std::vector< std::vector<Uint> > inverse_periodic_links(nb_all_nodes);
-//     std::vector<bool> has_periodic_link(nb_all_nodes, false);
-// 
-//     Handle< common::List<Uint> const > periodic_links_nodes_h(mesh.geometry_fields().get_child("periodic_links_nodes"));
-//     Handle< common::List<bool> const > periodic_links_active_h(mesh.geometry_fields().get_child("periodic_links_active"));
-//     if(is_not_null(periodic_links_nodes_h) && is_not_null(periodic_links_active_h))
-//     {
-// 
-//       const common::List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
-//       const common::List<bool>& periodic_links_active = *periodic_links_active_h;
-//       has_periodic_link.assign(periodic_links_active.array().begin(), periodic_links_active.array().end());
-//       for(Uint i = 0; i != nb_all_nodes; ++i)
-//       {
-//         if(periodic_links_active[i])
-//         {
-//           Uint final_target_node = periodic_links_nodes[i];
-//           while(periodic_links_active[final_target_node])
-//           {
-//             final_target_node = periodic_links_nodes[final_target_node];
-//           }
-//           inverse_periodic_links[final_target_node].push_back(i);
-//         }
-//         else
-//         {
-//           vertex_gids.push_back(node_gids[i]);
-//           vertex_lids.push_back(i);
-//         }
-//       }
-//     }
-// 
-// 
-// 
-// 
-// 
-//     node_connectivity = common::allocate_component<mesh::NodeConnectivity>("NodeConnectivity");
-//     node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Elements>(mesh, mesh::IsElementsVolume()));
-
-    // Build the hypergraph structure, eliminating periodic nodes
-//     hyperedge_gids.reserve(nb_all_nodes);
-//     hyperedge_ptr.reserve(nb_all_nodes);
-//     pin_gids.reserve(node_connectivity->node_elements().size());
-//     for(Uint i = 0; i != nb_all_nodes; ++i)
-//     {
-//       if(has_periodic_link[i])
-//         continue;
-// 
-//       hyperedge_gids.push_back(node_gids[i]);
-//       hyperedge_ptr.push_back(pin_gids.size());
-// 
-//       BOOST_FOREACH(const Uint element_idx, node_connectivity->node_element_range(i))
-//       {
-//         const mesh::NodeConnectivity::ElementReferenceT elref = node_connectivity->element(element_idx);
-//         pin_gids.push_back(elref.first->glb_idx()[elref.second]);
-//       }
-//       BOOST_FOREACH(const Uint linked_node_idx, inverse_periodic_links[i])
-//       {
-//         BOOST_FOREACH(const Uint element_idx, node_connectivity->node_element_range(linked_node_idx))
-//         {
-//           const mesh::NodeConnectivity::ElementReferenceT elref = node_connectivity->element(element_idx);
-//           pin_gids.push_back(elref.first->glb_idx()[elref.second]);
-//         }
-//       }
-//     }
   }
 
   // Updates the ranks of the old ghost nodes, i.e. nodes that don't stay on the current rank and are not removed
@@ -1081,7 +1093,7 @@ struct HGCollection
     std::vector< std::vector<Uint> > send_gids(comm.size()); // Nodes for which we request a rank update
     std::vector< std::vector<Uint> > recv_gids(comm.size()); // Nodes that we have to send rank updates for (received after communication)
 
-    // Request an update for all ghost nodes that have nor become a local node
+    // Request an update for all ghost nodes that have now become a local node
     for(GidMapT::const_iterator gid_it = my_ghost_nodes.begin(); gid_it != my_ghost_nodes.end(); ++gid_it)
     {
       send_gids[node_ranks[gid_it->second]].push_back(gid_it->first);
@@ -1183,14 +1195,9 @@ struct HGCollection
 
     HGCollection* coll = static_cast<HGCollection*>(data);
 
-    // At least send the coordinates
-    int result = coll->dimension * sizeof(Real);
-
-    // Also send each node (GID + coordinates) that has a periodic link to this one
-    BOOST_FOREACH(const Uint inv_link, coll->periodic_data.inverse_links(*local_id))
-    {
-      result += sizeof(ZOLTAN_ID_TYPE) + coll->dimension * sizeof(Real);
-    }
+    // At least send the coordinates and the number of periodic links
+    int result = coll->dimension * sizeof(Real) + sizeof(Uint)
+        + coll->periodic_data.inverse_links(*local_id).size() * (sizeof(Uint) + coll->dimension * sizeof(Real)); // Also send each node (GID + coordinates) that has a periodic link to this one
 
     return result;
   }
@@ -1207,117 +1214,163 @@ struct HGCollection
 
     // Coordinates of the node
     const char* in_start = reinterpret_cast<const char*>(&coll->coordinates[*local_id][0]);
-    std::copy(in_start, in_start + coord_size, out_ptr);
-    out_ptr += coord_size;
+    out_ptr = std::copy(in_start, in_start + coord_size, out_ptr);
 
     // Mark node for removal
     coll->nodes_to_remove[*local_id] = true;
     coll->node_ranks[*local_id] = dest;
 
     // The periodic links
-    BOOST_FOREACH(const Uint inv_link, coll->periodic_data.inverse_links(*local_id))
+    const std::vector<Uint> inverse_links = coll->periodic_data.inverse_links(*local_id);
+    const Uint nb_links = inverse_links.size();
+    const char* nb_links_ptr = reinterpret_cast<const char*>(&nb_links);
+    out_ptr = std::copy(nb_links_ptr, nb_links_ptr + sizeof(Uint), out_ptr);
+    BOOST_FOREACH(const Uint inv_link, inverse_links)
     {
       // Copy the GID
       const char* gid_start = reinterpret_cast<const char*>(&coll->node_gids[inv_link]);
-      std::copy(gid_start, gid_start + sizeof(Uint), out_ptr);
-      out_ptr += sizeof(Uint);
+      out_ptr = std::copy(gid_start, gid_start + sizeof(Uint), out_ptr);
 
       // Copy the coordinates
       const char* coord_start = reinterpret_cast<const char*>(&coll->coordinates[inv_link][0]);
-      std::copy(coord_start, coord_start + coord_size, out_ptr);
-      out_ptr += coord_size;
+      out_ptr = std::copy(coord_start, coord_start + coord_size, out_ptr);
 
       coll->nodes_to_remove[inv_link] = true;
       coll->node_ranks[inv_link] = dest;
     }
+    const std::ptrdiff_t filled_size = out_ptr - buffer;
+    cf3_assert_desc("incorrect fill on node " + common::to_str(*local_id) + ": " + common::to_str(filled_size) + " <= " + common::to_str(size), filled_size <= size);
   }
 
-   static void node_migration_unpack(void* data, int size_gid, int num_ids, ZOLTAN_ID_PTR global_ids, int* sizes, int* idx, char* buffer, int* ierr)
-   {
-     *ierr = ZOLTAN_OK;
+  static void node_migration_unpack(void* data, int size_gid, int num_ids, ZOLTAN_ID_PTR global_ids, int* sizes, int* idx, char* buffer, int* ierr)
+  {
+    *ierr = ZOLTAN_OK;
 
-     HGCollection* coll = static_cast<HGCollection*>(data);
+    HGCollection* coll = static_cast<HGCollection*>(data);
 
-     common::PE::Comm& comm = common::PE::Comm::instance();
+    common::PE::Comm& comm = common::PE::Comm::instance();
 
-     const std::ptrdiff_t coord_size = coll->dimension*sizeof(Real);
+    const std::ptrdiff_t coord_size = coll->dimension*sizeof(Real);
 
-     // Compute the number of coordinates to receive, including periodic nodes
-     Uint nb_to_receive = 0;
-     for(Uint i = 0; i != num_ids; ++i)
-     {
-       if(coll->my_ghost_nodes.count(global_ids[i])) // Node was a ghost already, so it doesn't need to be added
-       {
-         continue;
-       }
+    // Compute the number of coordinates to receive, including periodic nodes
+    Uint nb_to_receive = 0;
+    for(Uint i = 0; i != num_ids; ++i)
+    {
+      if(coll->my_ghost_nodes.count(global_ids[i])) // Node was a ghost already, so it doesn't need to be added
+      {
+        continue;
+      }
 
-       ++nb_to_receive;
-       if(sizes[i] > coord_size)
-       {
-         nb_to_receive += (sizes[i] - coord_size) / (coord_size + sizeof(Uint));
-       }
-     }
+      Uint nb_links;
+      char* buf_start = &buffer[idx[i]] + coord_size;
+      std::copy(buf_start, buf_start + sizeof(Uint), reinterpret_cast<char*>(&nb_links));
 
-     const Uint new_nodes_start = coll->coordinates.size();
-     const Uint new_nb_nodes = new_nodes_start + nb_to_receive;
-     coll->coordinates.resize(new_nb_nodes);
-     coll->node_gids.resize(new_nb_nodes);
-     coll->node_ranks.resize(new_nb_nodes);
-     // Initial new nodes to an invalid value, to catch omissions
-     if(nb_to_receive != 0)
-     {
-       for(Uint node_idx = new_nodes_start; node_idx != new_nb_nodes; ++node_idx)
-         coll->node_ranks[node_idx] = math::Consts::uint_max();
-     }
+      nb_to_receive += 1 + nb_links;
+    }
 
-     // Actually unpack the nodes
-     Uint node_idx = new_nodes_start;
-     for(Uint i = 0; i != num_ids; ++i)
-     {
-       const Uint node_gid = global_ids[i];
-       const GidMapT::iterator ghost_it = coll->my_ghost_nodes.find(node_gid);
-       if(ghost_it != coll->my_ghost_nodes.end()) // Node was already a ghost, so no unpacking is needed
-       {
-         const Uint local_id = ghost_it->second;
-         coll->my_ghost_nodes.erase(ghost_it);
-         coll->node_ranks[local_id] = comm.rank();
-         BOOST_FOREACH(const Uint inverse_link, coll->periodic_data.inverse_links(local_id))
-         {
-           coll->my_ghost_nodes.erase(inverse_link);
-           coll->node_ranks[inverse_link] = comm.rank();
-         }
+    const Uint new_nodes_start = coll->coordinates.size();
+    const Uint new_nb_nodes = new_nodes_start + nb_to_receive;
+    coll->geometry_dict.resize(new_nb_nodes);
+    if(is_not_null(coll->periodic_data.periodic_links_active))
+    {
+      coll->periodic_data.periodic_links_active->resize(new_nb_nodes);
+      coll->periodic_data.periodic_links_nodes->resize(new_nb_nodes);
+      std::fill(coll->periodic_data.periodic_links_active->array().begin()+new_nodes_start, coll->periodic_data.periodic_links_active->array().end(), false);
+      std::fill(coll->periodic_data.periodic_links_nodes->array().begin()+new_nodes_start, coll->periodic_data.periodic_links_nodes->array().end(), math::Consts::uint_max());
+    }
+    // Initial new nodes to an invalid value, to catch omissions
+    if(nb_to_receive != 0)
+    {
+      for(Uint node_idx = new_nodes_start; node_idx != new_nb_nodes; ++node_idx)
+        coll->node_ranks[node_idx] = math::Consts::uint_max();
+    }
 
-         continue;
-       }
+    // Actually unpack the nodes
+    Uint node_idx = new_nodes_start;
+    for(Uint i = 0; i != num_ids; ++i)
+    {
+      const Uint node_gid = global_ids[i];
+      const GidMapT::iterator ghost_it = coll->my_ghost_nodes.find(node_gid);
+      if(ghost_it != coll->my_ghost_nodes.end()) // Node was already a ghost, so no unpacking is needed
+      {
+        const Uint local_id = ghost_it->second;
+        coll->my_ghost_nodes.erase(ghost_it);
+        coll->node_ranks[local_id] = comm.rank();
+        BOOST_FOREACH(const Uint inverse_link, coll->periodic_data.inverse_links(local_id))
+        {
+          const Uint inverse_gid = coll->node_gids[inverse_link];
+          cf3_assert_desc("periodic inverse link " + common::to_str(inverse_link) + " (GID " + common::to_str(inverse_gid) + ") was not found in the ghosts list", coll->my_ghost_nodes.count(inverse_gid));
+          coll->my_ghost_nodes.erase(inverse_gid);
+          coll->node_ranks[inverse_link] = comm.rank();
+          cf3_assert(coll->periodic_data.is_periodic(inverse_link));
+          cf3_assert(coll->periodic_data.final_target_node(inverse_link) == local_id);
+        }
 
-       const int buf_size = sizes[i];
-       char* buf_start = &buffer[idx[i]];
+        continue;
+      }
 
-       // Unpack the node itself
-       cf3_assert_desc(common::to_str(node_idx) + " < " + common::to_str(coll->coordinates.size()), node_idx < coll->coordinates.size());
-       std::copy(buf_start, buf_start + coord_size, reinterpret_cast<char*>(&coll->coordinates[node_idx][0]));
-       coll->node_gids[node_idx] = global_ids[i];
-       coll->node_ranks[node_idx] = comm.rank();
-       ++node_idx;
+      const int buf_size = sizes[i];
+      char* buf_start = &buffer[idx[i]];
 
-       // Unpack the periodic links
-       char* buf_ptr = buf_start + coord_size;
-       std::ptrdiff_t nb_unpacked = buf_ptr - buf_start;
-       while(nb_unpacked < buf_size)
-       {
-         cf3_assert_desc(common::to_str(node_idx) + " < " + common::to_str(coll->coordinates.size()), node_idx < coll->coordinates.size());
-         std::copy(buf_ptr, buf_ptr + sizeof(Uint), reinterpret_cast<char*>(&coll->node_gids[node_idx]));
-         buf_ptr += sizeof(Uint);
-         std::copy(buf_ptr, buf_ptr + coord_size, reinterpret_cast<char*>(&coll->coordinates[node_idx][0]));
-         coll->node_ranks[node_idx] = comm.rank();
+      // Unpack the node itself
+      cf3_assert_desc(common::to_str(node_idx) + " < " + common::to_str(coll->coordinates.size()), node_idx < coll->coordinates.size());
+      std::copy(buf_start, buf_start + coord_size, reinterpret_cast<char*>(&coll->coordinates[node_idx][0]));
+      coll->node_gids[node_idx] = global_ids[i];
+      coll->node_ranks[node_idx] = comm.rank();
 
-         ++node_idx;
-         buf_ptr += coord_size;
-       }
-     }
-   }
+      const Uint node_local_id = node_idx; // Store this for the periodic links
 
-  //boost::shared_ptr<mesh::NodeConnectivity> node_connectivity;
+      ++node_idx;
+
+      // Unpack the periodic links
+      char* buf_ptr = buf_start + coord_size;
+      const char* buf_end = buf_start + static_cast<std::ptrdiff_t>(buf_size); // This is actually the maximum buffer end
+      Uint nb_links = 0;
+      std::copy(buf_ptr, buf_ptr + sizeof(Uint), reinterpret_cast<char*>(&nb_links));
+      buf_ptr += sizeof(Uint);
+      for(Uint link_idx = 0; link_idx != nb_links; ++link_idx)
+      {
+        cf3_assert_desc(common::to_str(node_idx) + " < " + common::to_str(coll->coordinates.size()), node_idx < coll->coordinates.size());
+        std::copy(buf_ptr, buf_ptr + sizeof(Uint), reinterpret_cast<char*>(&coll->node_gids[node_idx]));
+        buf_ptr += sizeof(Uint);
+        std::copy(buf_ptr, buf_ptr + coord_size, reinterpret_cast<char*>(&coll->coordinates[node_idx][0]));
+        buf_ptr += coord_size;
+        coll->node_ranks[node_idx] = comm.rank();
+
+        (*coll->periodic_data.periodic_links_active)[node_idx] = true;
+        (*coll->periodic_data.periodic_links_nodes)[node_idx] = node_local_id;
+
+        ++node_idx;
+        const std::ptrdiff_t nb_left = buf_end - buf_ptr;
+        cf3_assert(nb_left >= 0);
+      }
+    }
+
+    coll->periodic_data.build_inverse_links();
+  }
+
+  /// Check if the structures are still sound
+  void check()
+  {
+    const Uint nb_nodes = geometry_dict.size();
+    for(Uint i = 0; i != nb_nodes; ++i)
+    {
+      cf3_assert_desc("Invalid node GID at index " + common::to_str(i), node_gids[i] != math::Consts::uint_max());
+    }
+
+    if(is_not_null(periodic_data.periodic_links_active))
+    {
+      cf3_assert(geometry_dict.size() == periodic_data.periodic_links_active->size());
+      for(Uint i = 0; i != nb_nodes; ++i)
+      {
+        if((*periodic_data.periodic_links_active)[i])
+        {
+          const Uint target_node = (*periodic_data.periodic_links_nodes)[i];
+          cf3_assert_desc("rank mismatch on link from " + common::to_str(i) + " [" + common::to_str(node_ranks[i]) + "] to " + common::to_str(target_node) + " [" + common::to_str(node_ranks[target_node]) + "]", node_ranks[i] == node_ranks[(*periodic_data.periodic_links_nodes)[i]]);
+        }
+      }
+    }
+  }
 
   // Graph vertices are the mesh nodes (without periodic nodes)
   std::vector<ZOLTAN_ID_TYPE> vertex_gids;
@@ -1345,7 +1398,7 @@ struct HGCollection
   common::List<Uint>& node_ranks;
   
   // Dict for the geometry
-  const mesh::Dictionary& geometry_dict;
+  mesh::Dictionary& geometry_dict;
 
   // Helper data to handle mesh periodicity
   PeriodicData periodic_data;
@@ -1354,7 +1407,6 @@ struct HGCollection
   std::vector<bool> nodes_to_remove;
 
   GidMapT my_ghost_nodes;
-  GidMapT new_periodic_links;
 };
 
 PHG::PHG(const std::string& name) : mesh::MeshTransformer(name)
@@ -1396,10 +1448,25 @@ void PHG::execute()
   zz.Set_Param("PHG_EDGE_SIZE_THRESHOLD", "0.5");
   zz.Set_Param("PHG_COARSEPARTITION_METHOD", "GREEDY"); 
 
+	// After linking periodic nodes, each rank has a full view of the mesh periodicity. We store this here based on GIDs
+	GidMapT periodic_link_gid_map;
+	const common::List<Uint>* periodic_links_nodes = Handle< common::List<Uint> const >(mesh().geometry_fields().get_child("periodic_links_nodes")).get();
+	const common::List<bool>* periodic_links_active = Handle< common::List<bool> const >(mesh().geometry_fields().get_child("periodic_links_active")).get();
+	if(is_not_null(periodic_links_nodes))
+	{
+		const Uint nb_nodes = periodic_links_nodes->size();
+		for(Uint i = 0; i != nb_nodes; ++i)
+		{
+			if((*periodic_links_active)[i])
+				periodic_link_gid_map[mesh().geometry_fields().glb_idx()[i]] = mesh().geometry_fields().glb_idx()[(*periodic_links_nodes)[i]];
+		}
+	}
+
   remove_ghost_elements(mesh());
   remove_unused_nodes(mesh());
 
   HGCollection collection(mesh());
+  collection.check();
 
   zz.Set_Num_Obj_Fn(HGCollection::get_number_of_vertices, &collection);
   zz.Set_Obj_List_Fn(HGCollection::get_vertex_list, &collection);
@@ -1430,17 +1497,28 @@ void PHG::execute()
 
   zz.Migrate(numImport, importGlobalGids, importLocalGids, importProcs, importToPart, numExport, exportGlobalGids, exportLocalGids, exportProcs, exportToPart);
 
+  collection.check();
+
   mesh().geometry_fields().rebuild_map_glb_to_loc();
   
   collection.update_ranks();
-  
-  complete_elements(mesh());
+  collection.check();
+
+	complete_elements(mesh(), periodic_link_gid_map);
+
+  collection.check();
 
   remove_full_ghost_elements(mesh());
+
+  collection.check();
+
   remove_unused_nodes(mesh());
+
+  collection.check();
 
   mesh().update_structures();
   mesh().update_statistics();
+  mesh().check_sanity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

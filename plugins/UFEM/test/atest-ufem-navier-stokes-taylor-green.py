@@ -89,19 +89,41 @@ class TaylorGreen:
       triangulator.mesh = mesh
       triangulator.execute()
     
-    partitioner = domain.create_component('Partitioner', 'cf3.mesh.actions.PeriodicMeshPartitioner')
-    partitioner.mesh = mesh
+#    partitioner = domain.create_component('Partitioner', 'cf3.mesh.actions.PeriodicMeshPartitioner')
+#    partitioner.mesh = mesh
 
-    link_horizontal = partitioner.create_link_periodic_nodes()
+#    link_horizontal = partitioner.create_link_periodic_nodes()
+#    link_horizontal.source_region = mesh.topology.right
+#    link_horizontal.destination_region = mesh.topology.left
+#    link_horizontal.translation_vector = [-1., 0.]
+
+#    link_vertical = partitioner.create_link_periodic_nodes()
+#    link_vertical.source_region = mesh.topology.top
+#    link_vertical.destination_region = mesh.topology.bottom
+#    link_vertical.translation_vector = [0., -1.]
+
+#    partitioner.execute()
+
+    make_boundary_global = domain.create_component('MakeBoundaryGlobal', 'cf3.mesh.actions.MakeBoundaryGlobal')
+    make_boundary_global.mesh = mesh
+    make_boundary_global.execute()
+
+    link_horizontal = domain.create_component('LinkHorizontal', 'cf3.mesh.actions.LinkPeriodicNodes')
+    link_horizontal.mesh = mesh
     link_horizontal.source_region = mesh.topology.right
     link_horizontal.destination_region = mesh.topology.left
     link_horizontal.translation_vector = [-1., 0.]
+    link_horizontal.execute()
 
-    link_vertical = partitioner.create_link_periodic_nodes()
+    link_vertical = domain.create_component('LinkVertical', 'cf3.mesh.actions.LinkPeriodicNodes')
+    link_vertical.mesh = mesh
     link_vertical.source_region = mesh.topology.top
     link_vertical.destination_region = mesh.topology.bottom
     link_vertical.translation_vector = [0., -1.]
+    link_vertical.execute()
 
+    partitioner = domain.create_component('Partitioner', 'cf3.zoltan.PHG')
+    partitioner.mesh = mesh
     partitioner.execute()
     
     coords = self.mesh.geometry.coordinates

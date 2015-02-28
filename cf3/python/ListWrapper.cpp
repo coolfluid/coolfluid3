@@ -96,6 +96,7 @@ void add_clist_methods(ComponentWrapper& wrapped, boost::python::api::object& py
 {
   add_clist_methods<Real>(wrapped, py_obj);
   add_clist_methods<Uint>(wrapped, py_obj);
+  add_clist_methods<bool>(wrapped, py_obj);
 }
 
 template<typename ValueT>
@@ -107,6 +108,7 @@ void def_clist_types()
 {
   def_clist_types<Real>();
   def_clist_types<Uint>();
+  def_clist_types<bool>();
 }
 
 } // python

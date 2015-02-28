@@ -21,7 +21,7 @@ mesh_generator.lengths = [1.,1.]
 mesh_generator.offsets = [0.,0.]
 mesh_generator.execute()
 
-p2space = mesh.create_continuous_space(name = 'TestP2Space', shape_function = 'cf3.mesh.LagrangeP2')
+#p2space = mesh.create_continuous_space(name = 'TestP2Space', shape_function = 'cf3.mesh.LagrangeP2')
 
 my_rank = cf.Core.rank()
 
@@ -52,10 +52,10 @@ make_par_data.execute()
 
 domain.write_mesh(cf.URI('phg-output.pvtu'))
 
-writer = domain.create_component('PVWriter', 'cf3.mesh.VTKXML.Writer')
-writer.mesh = mesh
-writer.options.dictionary = p2space
-writer.fields = [p2space.node_rank.uri(), mesh.children.elems_P0.element_rank.uri()]
-writer.file = cf.URI('phg-p2out.pvtu')
-writer.execute()
+#writer = domain.create_component('PVWriter', 'cf3.mesh.VTKXML.Writer')
+#writer.mesh = mesh
+#writer.options.dictionary = p2space
+#writer.fields = [p2space.node_rank.uri(), mesh.children.elems_P0.element_rank.uri()]
+#writer.file = cf.URI('phg-p2out.pvtu')
+#writer.execute()
 

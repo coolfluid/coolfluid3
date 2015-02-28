@@ -167,6 +167,8 @@ void LinkPeriodicNodes::execute()
 
   const RealVector translation_vector = to_vector(m_translation_vector);
 
+
+	common::List<Uint>& ranks = mesh.geometry_fields().rank();
   BOOST_FOREACH(const Uint source_node_idx, source_nodes)
   {
     const RealVector source_coord = to_vector(coords[source_node_idx]) + translation_vector;
@@ -175,11 +177,13 @@ void LinkPeriodicNodes::execute()
       if(detail::is_close(source_coord, to_vector(coords[dest_node_idx])))
       {
         periodic_links_active[source_node_idx] = true;
-        periodic_links_nodes[source_node_idx] = dest_node_idx;
+				periodic_links_nodes[source_node_idx] = periodic_links_active[dest_node_idx] ? periodic_links_nodes[dest_node_idx] : dest_node_idx;
+				cf3_assert(!periodic_links_active[periodic_links_nodes[source_node_idx]]);
+				ranks[source_node_idx] = ranks[periodic_links_nodes[source_node_idx]];
       }
     }
   }
-
+/*
   boost::shared_ptr<NodeConnectivity> node_connectivity = common::allocate_component<NodeConnectivity>("node_connectivity");
   node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Entities>(*m_destination_region, IsElementsSurface()));
 
@@ -277,6 +281,7 @@ void LinkPeriodicNodes::execute()
     periodic_link->link_to(const_cast<Elements&>(*elements_to_link));
     cf3_always_assert(nb_elements == elements_to_link->size());
   }
+	*/
 }
 
 //////////////////////////////////////////////////////////////////////////////
