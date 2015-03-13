@@ -736,12 +736,14 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
       const Uint element_idx = current_entities_idx[entities_idx]++;
       
       mesh::Entities& entities = *mesh.elements()[entities_idx];
+      cf3_assert(element_idx < entities.glb_idx().size());
       entities.glb_idx()[element_idx] = element_gid;
       
       const Uint nb_spaces = entities.spaces().size();
       for(Uint space_idx = 0; space_idx != nb_spaces; ++space_idx)
       {
-        cf3_assert(recv_elements_for_rank[recv_idx++] == space_idx);
+        ++recv_idx;
+        cf3_assert(recv_elements_for_rank[recv_idx] == space_idx);
         mesh::Space& space = *entities.spaces()[space_idx];
         mesh::Connectivity::Row conn_row = space.connectivity()[element_idx];
         
