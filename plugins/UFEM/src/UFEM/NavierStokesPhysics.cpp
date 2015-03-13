@@ -56,9 +56,9 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("Specific_heat_capacity")
     .mark_basic();
 
-  options().add("heat_conductivity", 1.0)
-    .description("Heat conductivity kappa ()")
-    .pretty_name("Heat_conductivity")
+	options().add("thermal_conductivity", 1.0)
+		.description("Thermal conductivity (W/(mK))")
+		.pretty_name("Thermal Conductivity")
     .mark_basic();
 
   options().add("heat_transfer_coefficient", 1.0)
