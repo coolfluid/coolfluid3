@@ -70,7 +70,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
             INSTALL(FILES ${dllNAME}
                 DESTINATION ${CF3_INSTALL_BIN_DIR}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-                CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
+                CONFIGURATIONS "" ;None;Debug;Release;RelWithDebInfo;MinSizeRel
                 )
             # On Windows, we also need to copy the file to the
             # binary dir so our out of source builds can run.
@@ -84,7 +84,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
             INSTALL(FILES ${libNAME}
                 DESTINATION ${CF3_INSTALL_LIB_DIR}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-                CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
+                CONFIGURATIONS "" ;None;Debug;Release;RelWithDebInfo;MinSizeRel
                 )
         ENDIF(EXISTS ${libNAME})
 
@@ -147,7 +147,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                                 DESTINATION ${CF3_INSTALL_LIB_DIR}
                                 DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                                 FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-                                CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
+                                CONFIGURATIONS "" ;None;Debug;Release;RelWithDebInfo;MinSizeRel
                             )
 
                             # On Apple, we need to make the framework be executable relative
@@ -164,7 +164,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                             INSTALL(FILES ${curNAMEWithExt}
                                 DESTINATION ${CF3_INSTALL_LIB_DIR}
                                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-                                CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
+                                CONFIGURATIONS "" ;None;Debug;Release;RelWithDebInfo;MinSizeRel
                             )
 
                             # On Apple, we need to make the library be executable relative.
@@ -190,7 +190,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                     DESTINATION ${CF3_INSTALL_LIB_DIR}
                     DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                     FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-                    CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
+                    CONFIGURATIONS "" ;None;Debug;Release;RelWithDebInfo;MinSizeRel
                     PATTERN "Qt*_debug" EXCLUDE # Exclude Qt*_debug libraries in framework.
                 )
 
@@ -209,7 +209,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                 INSTALL(FILES ${tmpLIBFILE}
                     DESTINATION ${CF3_INSTALL_LIB_DIR}
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-                    CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
+                    CONFIGURATIONS "" ;None;Debug;Release;RelWithDebInfo;MinSizeRel
                 )
 
                 # On Apple, we need to make the library be executable relative.
@@ -232,7 +232,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
             INSTALL(FILES ${tmpLIBFILE}
                 DESTINATION ${CF3_INSTALL_ARCHIVE_DIR}
                 PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
-                CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
+                CONFIGURATIONS "" ;None;Debug;Release;RelWithDebInfo;MinSizeRel
             )
 
             # TODO: We could install windows import libraries here...
@@ -255,7 +255,7 @@ function ( coolfluid_install_third_party_include  pkg incdir)
                 DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                 FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                 COMPONENT headers
-                CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
+                CONFIGURATIONS "" ;None;Debug;Release;RelWithDebInfo;MinSizeRel
                 FILES_MATCHING
                 PATTERN "*.h"
                 PATTERN "*.hh"
