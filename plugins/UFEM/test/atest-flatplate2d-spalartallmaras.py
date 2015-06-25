@@ -7,7 +7,7 @@ import coolfluid as cf
 root = cf.Core.root()
 env = cf.Core.environment()
 
-## Global confifuration
+## Global configuration
 env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
@@ -137,18 +137,18 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').options()
 
 # Time setup
 time = model.create_time()
-time.time_step = 0.01
+time.time_step = 0.1
 time.end_time = 0.
 
 # Setup a time series write
-final_end_time = 0.05
-save_interval = 0.01
+final_end_time = 0.5
+save_interval = 0.1
 iteration = 0
 
 while time.end_time < final_end_time:
   time.end_time += save_interval
   model.simulate()
-  domain.write_mesh(cf.URI('atest-flatplate2d-satm-coupled_limit-' +str(iteration) + '.pvtu'))
+  domain.write_mesh(cf.URI('atest-flatplate2d-spalartallmaras-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
     solver.options().set('disabled_actions', ['InitialConditions'])
