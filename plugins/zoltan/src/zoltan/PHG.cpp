@@ -496,7 +496,7 @@ void remove_unused_nodes(const mesh::Mesh& mesh)
 
     for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
     {
-      if(!is_used[node_idx])
+      if(!is_used[node_idx] && dict.is_ghost(node_idx))
       {
         elem_remover.insert(node_idx);
       }
@@ -742,8 +742,8 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
       const Uint nb_spaces = entities.spaces().size();
       for(Uint space_idx = 0; space_idx != nb_spaces; ++space_idx)
       {
-        ++recv_idx;
         cf3_assert(recv_elements_for_rank[recv_idx] == space_idx);
+        ++recv_idx;
         mesh::Space& space = *entities.spaces()[space_idx];
         mesh::Connectivity::Row conn_row = space.connectivity()[element_idx];
         
@@ -1158,6 +1158,7 @@ struct HGCollection
     const Uint nb_vertices = coll->vertex_gids.size();
     for(Uint i = 0; i != nb_vertices; ++i)
     {
+      cf3_assert(coll->vertex_gids[i] != math::Consts::uint_max());
       global_id[i] = coll->vertex_gids[i];
       local_id[i] = coll->vertex_lids[i];
     }
@@ -1466,6 +1467,11 @@ void PHG::execute()
 
   remove_ghost_elements(mesh());
   remove_unused_nodes(mesh());
+
+  if(!mesh().check_sanity())
+  {
+    CFerror << "Error: mesh is not sane after ghost removal" << CFendl;
+  }
 
   HGCollection collection(mesh());
   collection.check();
