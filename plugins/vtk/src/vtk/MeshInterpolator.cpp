@@ -270,8 +270,8 @@ void MeshInterpolator::execute()
   
   // Probe at the point locations of the probing mesh
   vtkSmartPointer<vtkProbeFilter> prober = vtkSmartPointer<vtkProbeFilter>::New();
-  prober->SetInput(probe_poly);
-  prober->SetSource(vtk_unstruc_grid);
+  prober->SetInputData(probe_poly);
+  prober->SetSourceData(vtk_unstruc_grid);
   prober->Update();
 
   if(is_null(prober->GetOutput()))
