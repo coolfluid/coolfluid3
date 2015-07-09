@@ -41,7 +41,7 @@ public:
     return m_multiblock_set;
   }
 
-  void trigger_include_ghost_elements();
+  void reset();
 
 private:
   Handle<mesh::Mesh const> m_mesh;

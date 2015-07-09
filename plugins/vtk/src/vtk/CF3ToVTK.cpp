@@ -10,9 +10,11 @@
 
 #include <vtkCellType.h>
 #include <vtkDataSetTriangleFilter.h>
+#include <vtkDoubleArray.h>
 #include <vtkIdList.h>
 #include <vtkInformation.h>
 #include <vtkGenericCell.h>
+#include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
@@ -25,6 +27,8 @@
 #include "common/Log.hpp"
 #include "common/List.hpp"
 #include "common/OptionList.hpp"
+
+#include "math/VariablesDescriptor.hpp"
 
 #include "mesh/Connectivity.hpp"
 #include "mesh/Region.hpp"
@@ -76,8 +80,10 @@ int vtk_type(const mesh::ShapeFunction& sf)
   typedef std::map<mesh::GeoShape::Type, int> map_t;
   static const std::vector<map_t> element_type_map = boost::assign::list_of<map_t>(
     boost::assign::map_list_of
+      (mesh::LagrangeP1::Line::shape, VTK_LINE)
       (mesh::LagrangeP1::Hexa::shape, VTK_HEXAHEDRON)
       (mesh::LagrangeP1::Quad::shape, VTK_QUAD)
+      (mesh::LagrangeP1::Triag::shape, VTK_TRIANGLE)
   );
 
   if(sf.order() > element_type_map.size())
@@ -103,8 +109,9 @@ common::ComponentBuilder < CF3ToVTK, common::Action, LibVTK> CF3ToVTK_Builder;
 struct CF3ToVTK::node_mapping
 {
   // Key type for a region
-  typedef std::pair<const mesh::Dictionary*, const mesh::Region*> key_t;
+  typedef std::pair<const mesh::Dictionary*, const mesh::Region*> region_key_t;
   typedef std::map<Uint, Uint> node_map_t;
+  typedef std::map< const mesh::Field*, std::vector< vtkSmartPointer<vtkDoubleArray> > > field_map_t;
 
   node_mapping(const bool include_ghost_cells) : m_include_ghost_cells(include_ghost_cells)
   {
@@ -115,6 +122,7 @@ struct CF3ToVTK::node_mapping
   {
     const Uint my_rank = common::PE::Comm::instance().rank();
     node_map_t& node_map = m_node_maps[std::make_pair(&dict, &region)];
+    field_map_t& field_map = m_field_maps[std::make_pair(&dict, &region)];
 
     // Allocate connectivity storage
     Uint nb_cells = 0;
@@ -178,10 +186,72 @@ struct CF3ToVTK::node_mapping
       points->SetPoint(mapped_node.second, coord);
     }
     vtk_grid.SetPoints(points);
+
+    // Add point attribute arrays
+    std::map< std::string, vtkSmartPointer<vtkDoubleArray> > field_name_map; // Make sure field names are unique
+    for(const Handle<mesh::Field>& field : dict.fields())
+    {
+      if(field->has_tag(mesh::Tags::coordinates()) && !m_include_coords_field)
+      {
+        continue;
+      }
+      auto& field_arrays = field_map[field.get()];
+      field_arrays.clear();
+      const math::VariablesDescriptor& descriptor = field->descriptor();
+      const Uint nb_vars = descriptor.nb_vars();
+      field_arrays.reserve(nb_vars);
+      for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
+      {
+        auto vtk_array = vtkSmartPointer<vtkDoubleArray>::New();
+        std::string field_name = descriptor.user_variable_name(var_idx);
+        Uint idx = 1;
+        // Make sure the name is unique
+        while(field_name_map.count(field_name) != 0)
+        {
+          field_name = descriptor.user_variable_name(var_idx) + "_" + common::to_str(idx);
+          ++idx;
+        }
+        if(idx != 1)
+          CFwarn << "Duplicate field name " << descriptor.user_variable_name(var_idx) << " was replaced with " << field_name << " for conversion to VTK" << CFendl;
+        field_name_map[field_name] = vtk_array;
+        vtk_array->SetNumberOfComponents(descriptor.var_length(var_idx));
+        vtk_array->SetNumberOfTuples(node_map.size());
+        vtk_array->SetName(field_name.c_str());
+        vtk_grid.GetPointData()->AddArray(vtk_array);
+
+        field_arrays.push_back(vtk_array);
+      }
+    }
   }
 
-  std::map<key_t, node_map_t> m_node_maps;
+  void update_field_values()
+  {
+    for(auto& field_map_kv : m_field_maps)
+    {
+      const node_map_t node_map = m_node_maps[field_map_kv.first];
+      for(auto& field_vars : field_map_kv.second)
+      {
+        const mesh::Field::ArrayT& source_array = field_vars.first->array();
+        std::vector< vtkSmartPointer<vtkDoubleArray> >& arrays = field_vars.second;
+        const Uint nb_arrays = arrays.size();
+        const Uint nb_rows = source_array.size();
+        const math::VariablesDescriptor& descriptor = field_vars.first->descriptor();
+        for(const auto& node_link : node_map)
+        {
+          const mesh::Field::ConstRow row = source_array[node_link.first];
+          for(Uint array_idx = 0; array_idx != nb_arrays; ++array_idx)
+          {
+            arrays[array_idx]->SetTupleValue(node_link.second, &row[descriptor.offset(array_idx)]);
+          }
+        }
+      }
+    }
+  }
+
+  std::map<region_key_t, node_map_t> m_node_maps;
+  std::map<region_key_t, field_map_t> m_field_maps;
   const bool m_include_ghost_cells;
+  bool m_include_coords_field = false;
 };
 
 CF3ToVTK::CF3ToVTK ( const std::string& name ) : common::Action ( name )
@@ -190,24 +260,23 @@ CF3ToVTK::CF3ToVTK ( const std::string& name ) : common::Action ( name )
     .description("Mesh to convert")
     .pretty_name("Mesh")
     .link_to(&m_mesh)
+    .attach_trigger(boost::bind(&CF3ToVTK::reset, this))
     .mark_basic();
 
   options().add("include_ghost_elements", false)
     .pretty_name("Include ghost elements")
     .description("Include ghost elements in the target VTK mesh")
-    .attach_trigger(boost::bind(&CF3ToVTK::trigger_include_ghost_elements, this))
+    .attach_trigger(boost::bind(&CF3ToVTK::reset, this))
     .mark_basic();
-
-  trigger_include_ghost_elements();
 }
 
 CF3ToVTK::~CF3ToVTK()
 {
 }
 
-void CF3ToVTK::trigger_include_ghost_elements()
+void CF3ToVTK::reset()
 {
-  m_node_mapping.reset(new node_mapping(options().value<bool>("include_ghost_elements")));
+  m_node_mapping.reset();
 }
 
 void CF3ToVTK::execute()
@@ -215,87 +284,94 @@ void CF3ToVTK::execute()
   if(is_null(m_mesh))
     throw common::SetupError(FromHere(), "Mesh is not set for CF3ToVTK");
 
-  const mesh::Mesh& mesh = *m_mesh;
-
-  const bool include_ghost_elements = options().value<bool>("include_ghost_elements");
-  m_multiblock_set = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-
-  const Uint nb_dicts = mesh.dictionaries().size();
-  m_multiblock_set->SetNumberOfBlocks(nb_dicts);
-
-  for(Uint dict_idx = 0; dict_idx != nb_dicts; ++dict_idx)
+  if(m_node_mapping == nullptr)
   {
-    const mesh::Dictionary& dict = *mesh.dictionaries()[dict_idx];
-    if(dict.continuous())
+    m_node_mapping.reset(new node_mapping(options().value<bool>("include_ghost_elements")));
+
+    const mesh::Mesh& mesh = *m_mesh;
+
+    const bool include_ghost_elements = options().value<bool>("include_ghost_elements");
+    m_multiblock_set = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+
+    const Uint nb_dicts = mesh.dictionaries().size();
+    m_multiblock_set->SetNumberOfBlocks(nb_dicts);
+
+    for(Uint dict_idx = 0; dict_idx != nb_dicts; ++dict_idx)
     {
-      if (is_null(dict.get_child(mesh::Tags::coordinates())))
+      const mesh::Dictionary& dict = *mesh.dictionaries()[dict_idx];
+      if(dict.continuous())
       {
-        CFwarn << "skipping continuous dictionary " << dict.name() << " because it has no coordinates" << CFendl;
-        continue;
-      }
-
-      // Add the connectivity data
-      std::stack< vtkSmartPointer<vtkMultiBlockDataSet> > dict_tree;
-      std::stack<Uint> nb_blocks_stack;
-      dict_tree.push(vtkSmartPointer<vtkMultiBlockDataSet>::New());
-      dict_tree.top()->SetNumberOfBlocks(1);
-      m_multiblock_set->SetBlock(dict_idx, dict_tree.top());
-      m_multiblock_set->GetMetaData(dict_idx)->Set(vtkMultiBlockDataSet::NAME(), dict.name().c_str());
-      nb_blocks_stack.push(0);
-      detail::recurse(mesh.topology(),
-      [&](const mesh::Region& region) // Region begin
-      {
-        const Uint nb_entities = common::find_components<mesh::Entities>(region).size();
-        const Uint nb_regions = common::find_components<mesh::Region>(region).size();
-        cf3_assert(!dict_tree.empty());
-
-        vtkSmartPointer<vtkMultiBlockDataSet> parent = dict_tree.top();
-
-        vtkSmartPointer<vtkMultiBlockDataSet> current_multiblock_set = parent;
-        if(nb_regions != 0 || nb_entities == 0)
+        if (is_null(dict.get_child(mesh::Tags::coordinates())))
         {
-          // Create a new multiblock set if there are sub-regions, or if the region is empty
-          current_multiblock_set = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-          parent->SetBlock(nb_blocks_stack.top(), current_multiblock_set.Get());
-          parent->GetMetaData(nb_blocks_stack.top()++)->Set(vtkMultiBlockDataSet::NAME(), region.name().c_str());
-          current_multiblock_set->SetNumberOfBlocks(static_cast<Uint>(nb_entities != 0) + nb_regions);
-          nb_blocks_stack.push(0);
+          CFwarn << "skipping continuous dictionary " << dict.name() << " because it has no coordinates" << CFendl;
+          continue;
         }
 
-        dict_tree.push(current_multiblock_set); // always push, even if this was the parent (balance with pop at the end)
-
-        vtkSmartPointer<vtkDataObject> current_data_object = current_multiblock_set;
-        vtkSmartPointer<vtkUnstructuredGrid> current_grid;
-
-        // Place elements in an unstructured grid
-        if(nb_entities != 0)
+        // Add the connectivity data
+        std::stack< vtkSmartPointer<vtkMultiBlockDataSet> > dict_tree;
+        std::stack<Uint> nb_blocks_stack;
+        dict_tree.push(vtkSmartPointer<vtkMultiBlockDataSet>::New());
+        dict_tree.top()->SetNumberOfBlocks(1);
+        m_multiblock_set->SetBlock(dict_idx, dict_tree.top());
+        m_multiblock_set->GetMetaData(dict_idx)->Set(vtkMultiBlockDataSet::NAME(), dict.name().c_str());
+        nb_blocks_stack.push(0);
+        detail::recurse(mesh.topology(),
+        [&](const mesh::Region& region) // Region begin
         {
-          current_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
-          current_multiblock_set->SetBlock(nb_blocks_stack.top(), current_grid.Get());
-          current_multiblock_set->GetMetaData(nb_blocks_stack.top()++)->Set(vtkMultiBlockDataSet::NAME(), region.name().c_str());
+          const Uint nb_entities = common::find_components<mesh::Entities>(region).size();
+          const Uint nb_regions = common::find_components<mesh::Region>(region).size();
+          cf3_assert(!dict_tree.empty());
 
-          if(nb_regions == 0)
+          vtkSmartPointer<vtkMultiBlockDataSet> parent = dict_tree.top();
+
+          vtkSmartPointer<vtkMultiBlockDataSet> current_multiblock_set = parent;
+          if(nb_regions != 0 || nb_entities == 0)
           {
-            current_data_object = current_grid;
+            // Create a new multiblock set if there are sub-regions, or if the region is empty
+            current_multiblock_set = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+            parent->SetBlock(nb_blocks_stack.top(), current_multiblock_set.Get());
+            parent->GetMetaData(nb_blocks_stack.top()++)->Set(vtkMultiBlockDataSet::NAME(), region.name().c_str());
+            current_multiblock_set->SetNumberOfBlocks(static_cast<Uint>(nb_entities != 0) + nb_regions);
             nb_blocks_stack.push(0);
           }
-        }
 
-        if(is_not_null(current_grid))
+          dict_tree.push(current_multiblock_set); // always push, even if this was the parent (balance with pop at the end)
+
+          vtkSmartPointer<vtkDataObject> current_data_object = current_multiblock_set;
+          vtkSmartPointer<vtkUnstructuredGrid> current_grid;
+
+          // Place elements in an unstructured grid
+          if(nb_entities != 0)
+          {
+            current_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+            current_multiblock_set->SetBlock(nb_blocks_stack.top(), current_grid.Get());
+            current_multiblock_set->GetMetaData(nb_blocks_stack.top()++)->Set(vtkMultiBlockDataSet::NAME(), region.name().c_str());
+
+            if(nb_regions == 0)
+            {
+              current_data_object = current_grid;
+              nb_blocks_stack.push(0);
+            }
+          }
+
+          if(is_not_null(current_grid))
+          {
+            m_node_mapping->add_region(*current_grid, dict, region);
+          }
+
+
+        },
+        [&](const mesh::Region& region) // Region end
         {
-          m_node_mapping->add_region(*current_grid, dict, region);
+          dict_tree.pop();
+          nb_blocks_stack.pop();
         }
-
-
-      },
-      [&](const mesh::Region& region) // Region end
-      {
-        dict_tree.pop();
-        nb_blocks_stack.pop();
+        );
       }
-      );
     }
   }
+
+  m_node_mapping->update_field_values();
 }
 
 

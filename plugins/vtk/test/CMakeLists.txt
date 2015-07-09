@@ -10,3 +10,6 @@ coolfluid_add_test( UTEST       utest-vtk-meshinterpolator
 
 coolfluid_add_test( UTEST       utest-vtk-multiblockwriter
 										PYTHON      utest-vtk-multiblockwriter.py)
+
+coolfluid_add_test( UTEST       utest-vtk-livecoprocessor
+										PYTHON      utest-vtk-livecoprocessor.py)
