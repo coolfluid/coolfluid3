@@ -89,27 +89,6 @@ bool Signal::is_read_only() const { return m_is_read_only; }
 
 bool Signal::is_hidden() const { return m_is_hidden; }
 
-Signal& Signal::connect(const Signal::slot_type& subscriber)
-{
-  m_signal->connect( subscriber );
-  return *this;
-}
-
-Signal& Signal::connect(const Signal::slot_type& subscriber, ConnectionManager* mng )
-{
-  Signal::connection_type conn = m_signal->connect( subscriber );
-  mng->manage_connection( this->name() )
-     ->connect( conn );
-  return *this;
-}
-
-
-Signal& Signal::signature(const Signal::slot_type& subscriber)
-{
-  m_signature->connect( subscriber );
-  return *this;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 Connection::Connection( const std::string& cname ) :  m_name( cname ) {}
