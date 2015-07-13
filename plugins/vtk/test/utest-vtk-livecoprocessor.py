@@ -29,4 +29,10 @@ cf3tovtk.options().set('mesh', mesh3d)
 
 coproc = root.create_component('LiveCoProcessor', 'cf3.vtk.LiveCoProcessor')
 coproc.cf3_to_vtk = cf3tovtk
+coproc.time = root.create_component('Time', 'cf3.solver.Time')
 coproc.execute()
+
+#coproc.delete_component()
+#coproc = None
+
+#print('deleted coproc')

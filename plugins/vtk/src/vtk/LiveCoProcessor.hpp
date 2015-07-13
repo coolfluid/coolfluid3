@@ -50,8 +50,10 @@ private:
   vtkCPCxxHelper* m_sm_helper = nullptr;
   vtkSmartPointer<vtkCPProcessor> m_processor;
   vtkSmartPointer<vtkLiveInsituLink> m_link;
-  vtkSMSession* m_session = nullptr;
   vtkSmartPointer<vtkCPDataDescription> m_data_description;
+
+  /// Clean up the ParaView servermanager (called automatically on delete)
+  void finalize();
 };
   
 ////////////////////////////////////////////////////////////////////////////////

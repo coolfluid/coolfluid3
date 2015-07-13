@@ -6,11 +6,11 @@
 
 #include <boost/thread/thread.hpp>
 
+#include <vtkCPCxxHelper.h>
 #include <vtkCPDataDescription.h>
 #include <vtkCPInputDataDescription.h>
 #include <vtkCPPipeline.h>
 #include <vtkCPProcessor.h>
-#include <vtkCPCxxHelper.h>
 #include <vtkMultiBlockDataSet.h>
 #include <vtkProcessModule.h>
 #include <vtkLiveInsituLink.h>
@@ -58,12 +58,13 @@ LiveCoProcessor::LiveCoProcessor ( const std::string& name ) : common::Action ( 
   options().add(solver::Tags::time(), m_time)
     .pretty_name("Time")
     .description("Component that keeps track of time for this simulation")
-    .link_to(&m_time);
+    .link_to(&m_time)
+    .mark_basic();
 }
 
 LiveCoProcessor::~LiveCoProcessor()
 {
-  m_sm_helper->Delete();
+  finalize();
 }
 
 void LiveCoProcessor::execute()
@@ -122,41 +123,21 @@ void LiveCoProcessor::trigger_cf3_to_vtk()
 
 void LiveCoProcessor::initialize()
 {
-  if(m_processor != nullptr)
+  if(m_sm_helper != nullptr)
     return;
 
   m_sm_helper = vtkCPCxxHelper::New();
 
-  // Get the session
-  auto pm = vtkProcessModule::GetProcessModule();
-  m_session = nullptr;
-  vtkSessionIterator* iter = pm->NewSessionIterator();
-  for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-  {
-    if(iter->GetCurrentSession() != nullptr)
-    {
-      if(m_session != nullptr)
-      {
-        throw common::SetupError(FromHere(), "More than one ParaView session");
-      }
-      m_session = dynamic_cast<vtkSMSession*>(iter->GetCurrentSession());
-    }
-  }
-  iter->Delete();
-
-  if(m_session == nullptr)
-  {
-    throw common::SetupError(FromHere(), "No ParaView session active");
-  }
-
+  // Initialize the link
   m_link = vtkSmartPointer<vtkLiveInsituLink>::New();
   m_link->SetHostname("localhost");
   m_link->SetInsituPort(22222);
-  m_link->Initialize(m_session->GetSessionProxyManager());
+  m_link->Initialize(vtkSMProxyManager::GetProxyManager()->GetActiveSessionProxyManager());
 
   // Create the pipeline processor
   m_processor = vtkSmartPointer<vtkCPProcessor>::New();
 
+  // Add a pipeline
   auto pipeline = vtkSmartPointer<SourcePipeline>::New();
   pipeline->Initialize(1);
   m_processor->AddPipeline(pipeline);
@@ -165,6 +146,14 @@ void LiveCoProcessor::initialize()
   m_data_description->AddInput("input");
 }
 
+void LiveCoProcessor::finalize()
+{
+  if(m_sm_helper == nullptr)
+    return;
+
+  m_sm_helper->Delete();
+  m_sm_helper = nullptr;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
