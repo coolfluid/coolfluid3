@@ -5,9 +5,11 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <queue>
+#include <set>
 
 #include <boost/assign/list_of.hpp>
 
+#include <vtkCellData.h>
 #include <vtkCellType.h>
 #include <vtkDataSetTriangleFilter.h>
 #include <vtkDoubleArray.h>
@@ -28,6 +30,7 @@
 #include "common/List.hpp"
 #include "common/OptionList.hpp"
 
+#include "math/MatrixTypes.hpp"
 #include "math/VariablesDescriptor.hpp"
 
 #include "mesh/Connectivity.hpp"
@@ -78,12 +81,18 @@ void recurse(ComponentT& root, BeginT on_begin)
 int vtk_type(const mesh::ShapeFunction& sf)
 {
   typedef std::map<mesh::GeoShape::Type, int> map_t;
-  static const std::vector<map_t> element_type_map = boost::assign::list_of<map_t>(
-    boost::assign::map_list_of
+  static const std::vector<map_t> element_type_map = boost::assign::list_of<map_t>
+  (
+    boost::assign::map_list_of // First order
       (mesh::LagrangeP1::Line::shape, VTK_LINE)
       (mesh::LagrangeP1::Hexa::shape, VTK_HEXAHEDRON)
       (mesh::LagrangeP1::Quad::shape, VTK_QUAD)
       (mesh::LagrangeP1::Triag::shape, VTK_TRIANGLE)
+  )
+  (
+    boost::assign::map_list_of // Second order
+      (mesh::LagrangeP2::Quad::shape, VTK_BIQUADRATIC_QUAD)
+      (mesh::LagrangeP2::Line::shape, VTK_QUADRATIC_EDGE)
   );
 
   if(sf.order() > element_type_map.size())
@@ -95,6 +104,54 @@ int vtk_type(const mesh::ShapeFunction& sf)
     return -1;
 
   return it->second;
+}
+
+typedef std::map< const mesh::Field*, std::vector< vtkSmartPointer<vtkDoubleArray> > > field_map_t;
+
+// Add field arrays for the given dict
+void add_field_arrays(const mesh::Dictionary& dict, const bool include_coords_field, const Uint nb_entries, field_map_t& field_map, vtkUnstructuredGrid& vtk_grid, const bool cell_data)
+{
+  std::map< std::string, vtkSmartPointer<vtkDoubleArray> > field_name_map; // Make sure field names are unique
+  for(const Handle<mesh::Field>& field : dict.fields())
+  {
+    if(field->has_tag(mesh::Tags::coordinates()) && !include_coords_field)
+    {
+      continue;
+    }
+    auto& field_arrays = field_map[field.get()];
+    field_arrays.clear();
+    const math::VariablesDescriptor& descriptor = field->descriptor();
+    const Uint nb_vars = descriptor.nb_vars();
+    field_arrays.reserve(nb_vars);
+    for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
+    {
+      auto vtk_array = vtkSmartPointer<vtkDoubleArray>::New();
+      std::string field_name = descriptor.user_variable_name(var_idx);
+      Uint idx = 1;
+      // Make sure the name is unique
+      while(field_name_map.count(field_name) != 0)
+      {
+        field_name = descriptor.user_variable_name(var_idx) + "_" + common::to_str(idx);
+        ++idx;
+      }
+      if(idx != 1)
+        CFwarn << "Duplicate field name " << descriptor.user_variable_name(var_idx) << " was replaced with " << field_name << " for conversion to VTK" << CFendl;
+      field_name_map[field_name] = vtk_array;
+      vtk_array->SetNumberOfComponents(descriptor.var_length(var_idx));
+      vtk_array->SetNumberOfTuples(nb_entries);
+      vtk_array->SetName(field_name.c_str());
+      if(cell_data)
+      {
+        vtk_grid.GetCellData()->AddArray(vtk_array);
+      }
+      else
+      {
+        vtk_grid.GetPointData()->AddArray(vtk_array);
+      }
+
+      field_arrays.push_back(vtk_array);
+    }
+  }
 }
 
 }
@@ -111,7 +168,7 @@ struct CF3ToVTK::node_mapping
   // Key type for a region
   typedef std::pair<const mesh::Dictionary*, const mesh::Region*> region_key_t;
   typedef std::map<Uint, Uint> node_map_t;
-  typedef std::map< const mesh::Field*, std::vector< vtkSmartPointer<vtkDoubleArray> > > field_map_t;
+  typedef detail::field_map_t field_map_t;
 
   node_mapping(const bool include_ghost_cells) : m_include_ghost_cells(include_ghost_cells)
   {
@@ -123,20 +180,56 @@ struct CF3ToVTK::node_mapping
     const Uint my_rank = common::PE::Comm::instance().rank();
     node_map_t& node_map = m_node_maps[std::make_pair(&dict, &region)];
     field_map_t& field_map = m_field_maps[std::make_pair(&dict, &region)];
+    const bool is_geometry = dict.has_tag(mesh::Tags::geometry());
 
     // Allocate connectivity storage
     Uint nb_cells = 0;
+    Uint nb_all_cells = 0;
+    std::set<const mesh::Dictionary*> cell_dicts;
     for(const mesh::Entities& entities : common::find_components<mesh::Entities>(region))
     {
       if(detail::vtk_type(entities.space(dict).shape_function()) != -1)
+      {
         nb_cells += (m_include_ghost_cells ? entities.size() : std::count_if(std::begin(entities.rank().array()), std::end(entities.rank().array()), [=](const Uint element_rank){return element_rank == my_rank;}));
+
+        // Count the field arrays
+        if(is_geometry)
+        {
+          for(const Handle<mesh::Space const>& space : entities.spaces())
+          {
+            if(!space->dict().continuous()) // skip continuous dict
+            {
+              cell_dicts.insert(&space->dict());
+            }
+          }
+        }
+      }
+
+      nb_all_cells += entities.size();
     }
     vtk_grid.Allocate(nb_cells);
 
+    if(is_geometry)
+    {
+      field_map_t& cell_field_map = m_cell_field_maps[&region];
+      cell_field_map.clear();
+      // Space to map global region element index to VTK index
+      m_cell_maps[&region].resize(nb_all_cells, std::numeric_limits<Uint>::max());
+
+      for(const auto dict : cell_dicts)
+      {
+        detail::add_field_arrays(*dict, m_include_coords_field, nb_cells, cell_field_map, vtk_grid, true);
+      }
+    }
+
+
     // Keep track of what nodes have been added
     const Uint unused_node = std::numeric_limits<Uint>::max();
-    std::vector<Uint> cf3_to_vtk(dict.size(), unused_node);
+    std::vector<Uint> cf3_node_to_vtk(dict.size(), unused_node);
+    std::vector<Uint>& cf3_cell_to_vtk = m_cell_maps[&region];
     Uint vtk_point_idx = 0; // Last index of the vtk points
+    Uint vtk_cell_idx = 0; // Last VTK cell added
+    Uint cf3_cell_idx = 0;
 
     // Add connectivity data and build node map
     for(const mesh::Entities& entities : common::find_components<mesh::Entities>(region))
@@ -162,15 +255,22 @@ struct CF3ToVTK::node_mapping
         for(int j = 0; j != nb_element_nodes; ++j)
         {
           const Uint node_idx = row[j];
-          if(cf3_to_vtk[node_idx] == unused_node)
+          if(cf3_node_to_vtk[node_idx] == unused_node)
           {
             node_map[node_idx] = vtk_point_idx;
-            cf3_to_vtk[node_idx] = vtk_point_idx;
+            cf3_node_to_vtk[node_idx] = vtk_point_idx;
             ++vtk_point_idx;
           }
-          id_list->SetId(j, cf3_to_vtk[node_idx]);
+          id_list->SetId(j, cf3_node_to_vtk[node_idx]);
         }
         vtk_grid.InsertNextCell(detail::vtk_type(space.shape_function()), id_list);
+        if(is_geometry)
+        {
+          cf3_assert(cf3_cell_idx < cf3_cell_to_vtk.size());
+          cf3_cell_to_vtk[cf3_cell_idx] = vtk_cell_idx;
+        }
+        ++vtk_cell_idx;
+        ++cf3_cell_idx;
       }
     }
 
@@ -188,40 +288,7 @@ struct CF3ToVTK::node_mapping
     vtk_grid.SetPoints(points);
 
     // Add point attribute arrays
-    std::map< std::string, vtkSmartPointer<vtkDoubleArray> > field_name_map; // Make sure field names are unique
-    for(const Handle<mesh::Field>& field : dict.fields())
-    {
-      if(field->has_tag(mesh::Tags::coordinates()) && !m_include_coords_field)
-      {
-        continue;
-      }
-      auto& field_arrays = field_map[field.get()];
-      field_arrays.clear();
-      const math::VariablesDescriptor& descriptor = field->descriptor();
-      const Uint nb_vars = descriptor.nb_vars();
-      field_arrays.reserve(nb_vars);
-      for(Uint var_idx = 0; var_idx != nb_vars; ++var_idx)
-      {
-        auto vtk_array = vtkSmartPointer<vtkDoubleArray>::New();
-        std::string field_name = descriptor.user_variable_name(var_idx);
-        Uint idx = 1;
-        // Make sure the name is unique
-        while(field_name_map.count(field_name) != 0)
-        {
-          field_name = descriptor.user_variable_name(var_idx) + "_" + common::to_str(idx);
-          ++idx;
-        }
-        if(idx != 1)
-          CFwarn << "Duplicate field name " << descriptor.user_variable_name(var_idx) << " was replaced with " << field_name << " for conversion to VTK" << CFendl;
-        field_name_map[field_name] = vtk_array;
-        vtk_array->SetNumberOfComponents(descriptor.var_length(var_idx));
-        vtk_array->SetNumberOfTuples(node_map.size());
-        vtk_array->SetName(field_name.c_str());
-        vtk_grid.GetPointData()->AddArray(vtk_array);
-
-        field_arrays.push_back(vtk_array);
-      }
-    }
+    detail::add_field_arrays(dict, m_include_coords_field, node_map.size(), field_map, vtk_grid, false);
   }
 
   void update_field_values()
@@ -234,7 +301,6 @@ struct CF3ToVTK::node_mapping
         const mesh::Field::ArrayT& source_array = field_vars.first->array();
         std::vector< vtkSmartPointer<vtkDoubleArray> >& arrays = field_vars.second;
         const Uint nb_arrays = arrays.size();
-        const Uint nb_rows = source_array.size();
         const math::VariablesDescriptor& descriptor = field_vars.first->descriptor();
         for(const auto& node_link : node_map)
         {
@@ -246,10 +312,55 @@ struct CF3ToVTK::node_mapping
         }
       }
     }
+    for(const auto& cell_map_kv : m_cell_maps)
+    {
+      const mesh::Region& region = *cell_map_kv.first;
+      const std::vector<Uint>& cf3_cell_to_vtk = cell_map_kv.second;
+      field_map_t& field_map = m_cell_field_maps[&region];
+      for(auto& field_vars : field_map)
+      {
+        const mesh::Field& field = *field_vars.first;
+        const Uint row_size = field.row_size();
+        const mesh::Field::ArrayT& source_array = field.array();
+        const math::VariablesDescriptor& descriptor = field.descriptor();
+        std::vector< vtkSmartPointer<vtkDoubleArray> >& arrays = field_vars.second;
+        const Uint nb_arrays = arrays.size();
+        Uint cf3_cell_idx = 0;
+        for(const mesh::Entities& entities : common::find_components<mesh::Entities>(region))
+        {
+          const Uint nb_elements = entities.size();
+          const mesh::Connectivity& connectivity = entities.space(field.dict()).connectivity();
+          const Uint elem_nb_nodes = connectivity.row_size();
+          RealVector row_sum(elem_nb_nodes);
+          for(Uint elem_idx = 0; elem_idx != nb_elements; ++elem_idx)
+          {
+            if(entities.is_ghost(elem_idx) && !m_include_ghost_cells)
+              continue;
+
+            row_sum.setZero();
+            for(const Uint node_idx : connectivity[elem_idx])
+            {
+              row_sum += Eigen::Map<RealVector const>(&source_array[node_idx][0], row_size);
+            }
+            row_sum /= static_cast<Real>(elem_nb_nodes);
+
+            for(Uint array_idx = 0; array_idx != nb_arrays; ++array_idx)
+            {
+              cf3_assert(cf3_cell_idx < cf3_cell_to_vtk.size());
+              arrays[array_idx]->SetTupleValue(cf3_cell_to_vtk[cf3_cell_idx], row_sum.data()+descriptor.offset(array_idx));
+            }
+
+            ++cf3_cell_idx;
+          }
+        }
+      }
+    }
   }
 
   std::map<region_key_t, node_map_t> m_node_maps;
   std::map<region_key_t, field_map_t> m_field_maps;
+  std::map< const mesh::Region*, std::vector<Uint> > m_cell_maps;
+  std::map< const mesh::Region*, field_map_t > m_cell_field_maps;
   const bool m_include_ghost_cells;
   bool m_include_coords_field = false;
 };
@@ -294,8 +405,10 @@ void CF3ToVTK::execute()
     m_multiblock_set = vtkSmartPointer<vtkMultiBlockDataSet>::New();
 
     const Uint nb_dicts = mesh.dictionaries().size();
-    m_multiblock_set->SetNumberOfBlocks(nb_dicts);
+    const Uint nb_blocks_with_geom = std::count_if(mesh.dictionaries().begin(), mesh.dictionaries().end(), [](const Handle<mesh::Dictionary const>& dict) {return dict->continuous() && (dict->get_child(mesh::Tags::coordinates()) != nullptr);} );
+    m_multiblock_set->SetNumberOfBlocks(nb_blocks_with_geom);
 
+    Uint added_block_idx = 0;
     for(Uint dict_idx = 0; dict_idx != nb_dicts; ++dict_idx)
     {
       const mesh::Dictionary& dict = *mesh.dictionaries()[dict_idx];
@@ -312,8 +425,9 @@ void CF3ToVTK::execute()
         std::stack<Uint> nb_blocks_stack;
         dict_tree.push(vtkSmartPointer<vtkMultiBlockDataSet>::New());
         dict_tree.top()->SetNumberOfBlocks(1);
-        m_multiblock_set->SetBlock(dict_idx, dict_tree.top());
-        m_multiblock_set->GetMetaData(dict_idx)->Set(vtkMultiBlockDataSet::NAME(), dict.name().c_str());
+        m_multiblock_set->SetBlock(added_block_idx, dict_tree.top());
+        m_multiblock_set->GetMetaData(added_block_idx)->Set(vtkMultiBlockDataSet::NAME(), dict.name().c_str());
+        ++added_block_idx;
         nb_blocks_stack.push(0);
         detail::recurse(mesh.topology(),
         [&](const mesh::Region& region) // Region begin
