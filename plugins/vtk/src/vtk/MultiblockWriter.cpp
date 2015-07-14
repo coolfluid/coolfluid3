@@ -4,8 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <vtkMPIController.h>
 #include <vtkMultiBlockDataSet.h>
 #include <vtkXMLMultiBlockDataWriter.h>
+#include <vtkXMLPMultiBlockDataWriter.h>
 #include <vtkUnstructuredGridWriter.h>
 
 #include "common/Builder.hpp"
@@ -48,14 +50,30 @@ std::vector<std::string> MultiblockWriter::get_extensions()
 
 void MultiblockWriter::write()
 {
+  auto controller = vtkSmartPointer<vtkMPIController>::New();
+  controller->Initialize();
+  vtkMultiProcessController::SetGlobalController(controller);
+
   m_cf3_to_vtk->options().set("mesh", m_mesh);
   m_cf3_to_vtk->execute();
-  vtkSmartPointer<vtkXMLMultiBlockDataWriter> writer = vtkSmartPointer<vtkXMLMultiBlockDataWriter>::New();
+
+  vtkSmartPointer<vtkXMLMultiBlockDataWriter> writer;
+  if(common::PE::Comm::instance().size() == 1)
+  {
+    writer = vtkSmartPointer<vtkXMLMultiBlockDataWriter>::New();
+  }
+  else
+  {
+    writer = vtkSmartPointer<vtkXMLPMultiBlockDataWriter>::New();
+  }
   cf3_assert(is_not_null(m_cf3_to_vtk->vtk_multiblock_set()));
   writer->SetInputData(m_cf3_to_vtk->vtk_multiblock_set());
   writer->SetFileName(m_file_path.path().c_str());
+  //writer->SetNumberOfTimeSteps(5);
   if(writer->Write() != 1)
     CFerror << "Error writing mesh to " << m_file_path.path() << CFendl;
+
+  controller->Finalize(1);
 }
 
 const mesh::Mesh& MultiblockWriter::mesh()
