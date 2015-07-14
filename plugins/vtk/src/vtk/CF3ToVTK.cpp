@@ -432,48 +432,28 @@ void CF3ToVTK::execute()
         detail::recurse(mesh.topology(),
         [&](const mesh::Region& region) // Region begin
         {
-          const Uint nb_entities = common::find_components<mesh::Entities>(region).size();
           const Uint nb_regions = common::find_components<mesh::Region>(region).size();
           cf3_assert(!dict_tree.empty());
 
           vtkSmartPointer<vtkMultiBlockDataSet> parent = dict_tree.top();
 
-          vtkSmartPointer<vtkMultiBlockDataSet> current_multiblock_set = parent;
-          if(nb_regions != 0 || nb_entities == 0)
-          {
-            // Create a new multiblock set if there are sub-regions, or if the region is empty
-            current_multiblock_set = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-            parent->SetBlock(nb_blocks_stack.top(), current_multiblock_set.Get());
-            parent->GetMetaData(nb_blocks_stack.top()++)->Set(vtkMultiBlockDataSet::NAME(), region.name().c_str());
-            current_multiblock_set->SetNumberOfBlocks(static_cast<Uint>(nb_entities != 0) + nb_regions);
-            nb_blocks_stack.push(0);
-          }
-
-          dict_tree.push(current_multiblock_set); // always push, even if this was the parent (balance with pop at the end)
+          vtkSmartPointer<vtkMultiBlockDataSet> current_multiblock_set = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+          parent->SetBlock(nb_blocks_stack.top(), current_multiblock_set.Get());
+          parent->GetMetaData(nb_blocks_stack.top()++)->Set(vtkMultiBlockDataSet::NAME(), region.name().c_str());
+          current_multiblock_set->SetNumberOfBlocks(nb_regions);
+          nb_blocks_stack.push(0);
+          dict_tree.push(current_multiblock_set);
 
           vtkSmartPointer<vtkDataObject> current_data_object = current_multiblock_set;
           vtkSmartPointer<vtkUnstructuredGrid> current_grid;
 
           // Place elements in an unstructured grid
-          if(nb_entities != 0)
+          if(common::find_components<mesh::Entities>(region).size() != 0)
           {
             current_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
-            current_multiblock_set->SetBlock(nb_blocks_stack.top(), current_grid.Get());
-            current_multiblock_set->GetMetaData(nb_blocks_stack.top()++)->Set(vtkMultiBlockDataSet::NAME(), region.name().c_str());
-
-            if(nb_regions == 0)
-            {
-              current_data_object = current_grid;
-              nb_blocks_stack.push(0);
-            }
-          }
-
-          if(is_not_null(current_grid))
-          {
+            current_multiblock_set->SetBlock(nb_blocks_stack.top()++, current_grid.Get());
             m_node_mapping->add_region(*current_grid, dict, region);
           }
-
-
         },
         [&](const mesh::Region& region) // Region end
         {
