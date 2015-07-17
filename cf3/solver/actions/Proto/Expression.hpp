@@ -152,7 +152,7 @@ private:
 protected:
 
   /// Store a copy of the expression
-  typedef typename boost::result_of< DeepCopy(typename boost::result_of<ReplaceConfigurableConstants(typename boost::result_of<ReplacePhysicsConstants(ExprT, PhysicsConstantStorage)>::type, ConstantStorage)>::type) >::type CopiedExprT;
+  typedef typename boost::tr1_result_of< DeepCopy(typename boost::tr1_result_of<ReplaceConfigurableConstants(typename boost::tr1_result_of<ReplacePhysicsConstants(ExprT, PhysicsConstantStorage)>::type, ConstantStorage)>::type) >::type CopiedExprT;
   CopiedExprT m_expr;
 
   // Number of variables

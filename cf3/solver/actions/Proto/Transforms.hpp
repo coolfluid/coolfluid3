@@ -88,7 +88,7 @@ struct DefineType
 template<typename I, typename Expr>
 struct DefineTypeOp
 {
-  typedef typename boost::result_of<DefineType<I::value>(Expr)>::type var_type;
+  typedef typename boost::tr1_result_of<DefineType<I::value>(Expr)>::type var_type;
   typedef typename boost::mpl::if_<boost::mpl::is_void_<var_type>, boost::mpl::void_, typename var_type::type>::type type;
 };
 
@@ -97,7 +97,7 @@ template<typename ExprT>
 struct ExpressionProperties
 {
   /// Number of variables in the expression (boost mpl integral constant)
-  typedef typename boost::result_of<ExprVarArity(ExprT)>::type NbVarsT;
+  typedef typename boost::tr1_result_of<ExprVarArity(ExprT)>::type NbVarsT;
 
   /// Types of the used variables
   typedef typename boost::fusion::result_of::as_vector

@@ -29,6 +29,8 @@ option( CF3_ENABLE_STDDEBUG           "Enable debug of STL code"                
 
 set( CF3_EXTRA_DEFINES "" CACHE STRING "Extra defines or undefines to pass (examples: -DNDEBUG or -UNDEBUG)" )
 
+option( CF3_ENABLE_CPP11              "Enable C++11 support"                           OFF )
+
 # precision for real numbers
 
 set( CF3_USER_PRECISION "DOUBLE" CACHE STRING "Precision for floating point numbers" )

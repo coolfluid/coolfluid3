@@ -7,7 +7,7 @@
 #include <queue>
 #include <set>
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 
 #include <vtkCellData.h>
 #include <vtkCellType.h>

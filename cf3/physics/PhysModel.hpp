@@ -67,7 +67,7 @@ public: // functions
   virtual std::string type() const = 0;
 
   /// create a physical properties
-  virtual std::auto_ptr< physics::Properties > create_properties() = 0;
+  virtual boost::shared_ptr< physics::Properties > create_properties() = 0;
 
   /// Create a Variables component
   /// @param type is the name of the Variables

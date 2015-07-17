@@ -9,7 +9,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/assign/std/vector.hpp>
 
 #include "common/Log.hpp"

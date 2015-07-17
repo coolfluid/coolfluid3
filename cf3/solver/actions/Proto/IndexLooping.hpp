@@ -96,9 +96,9 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     /// True if index _i is used
-    typedef typename boost::result_of<HasIdx<0>(ExprT)>::type HasIT;
+    typedef typename boost::tr1_result_of<HasIdx<0>(ExprT)>::type HasIT;
     /// True if index _j is used
-    typedef typename boost::result_of<HasIdx<1>(ExprT)>::type HasJT;
+    typedef typename boost::tr1_result_of<HasIdx<1>(ExprT)>::type HasJT;
 
     /// Dimension of the problem
     typedef boost::mpl::int_<boost::remove_reference<DataT>::type::dimension> DimensionT;
@@ -122,7 +122,7 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
     struct OuterLoop<1, 1, Dummy>
     {
       typedef GrammarT< boost::mpl::int_<0>, boost::mpl::int_<0> > ConcreteGrammarT;
-      typedef typename boost::result_of<ConcreteGrammarT
+      typedef typename boost::tr1_result_of<ConcreteGrammarT
       (
         typename impl::expr_param, typename impl::state_param, typename impl::data_param
       )>::type result_type;

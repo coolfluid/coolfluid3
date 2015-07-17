@@ -60,7 +60,7 @@ struct NodeLooperDim
 
     typedef typename boost::remove_const<typename boost::remove_reference
     <
-      typename boost::result_of<NodeGrammar(const ProtoExprT&, int, DataT&)>::type
+      typename boost::tr1_result_of<NodeGrammar(const ProtoExprT&, int, DataT&)>::type
     >::type>::type ValueT;
 
     explicit NodesExpressionStored(ProtoExprT const &expr = ProtoExprT())

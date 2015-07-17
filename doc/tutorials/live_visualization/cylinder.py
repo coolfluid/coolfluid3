@@ -4,7 +4,7 @@ import coolfluid as cf
 # export PYTHONPATH=$HOME/coolfluid/build/cf3-pvandenschrick/dso
 
 env = cf.Core.environment()
-env.log_level = 2
+env.log_level = 3
 
 
 # inlet velocity
@@ -13,8 +13,8 @@ initial_velocity = [1., 0.]
 rho = 100.
 mu = 1.
 
-tstep = 0.1
-num_steps = 200.
+tstep = 0.5
+num_steps = 10.
 
 # Basic model setup (container of all the sumilation setup)
 model = cf.root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')

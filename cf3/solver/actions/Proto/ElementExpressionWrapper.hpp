@@ -99,7 +99,7 @@ struct WrapMatrixExpression : boost::proto::transform< WrapMatrixExpression >
     
     typedef WrapperSelector
     <
-      typename boost::result_of<LazyElementGrammar(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type,
+      typename boost::tr1_result_of<LazyElementGrammar(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type,
       boost::proto::matches<ExprT, WrappableElementExpressions>::value
     > ResultSelectorT;
     

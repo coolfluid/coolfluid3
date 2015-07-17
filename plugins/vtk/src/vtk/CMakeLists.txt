@@ -1,4 +1,6 @@
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DCF3_CXX_MANUAL_NATIVE_NULLPTR")
+if(NOT CF3_ENABLE_CPP11) # always needs c++11
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DCF3_CXX_MANUAL_NATIVE_NULLPTR")
+endif()
 
 coolfluid3_add_library( TARGET coolfluid_vtk
   SOURCES

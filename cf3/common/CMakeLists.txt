@@ -19,6 +19,7 @@ list( APPEND coolfluid_common_files
     BinaryDataReader.cpp
     BinaryDataWriter.hpp
     BinaryDataWriter.cpp
+		BoostAssign.hpp
     BoostIostreams.hpp
     BoostFilesystem.hpp
     BoostAnyConversion.cpp
@@ -39,7 +40,10 @@ list( APPEND coolfluid_common_files
     CommonAPI.hpp
     Component.hpp
     Component.cpp
+    ComponentFilter.hpp
+    ComponentFilter.cpp
     ComponentIterator.hpp
+		ComponentRange.hpp
     ConnectionManager.hpp
     ConnectionManager.cpp
     Core.hpp
@@ -60,6 +64,8 @@ list( APPEND coolfluid_common_files
     Factories.hpp
     Factories.cpp
     FindComponents.hpp
+    FindComponentsNew.hpp
+    FindComponentsOld.hpp
     Foreach.hpp
     Group.hpp
     Group.cpp
@@ -137,6 +143,8 @@ list( APPEND coolfluid_common_files
     Table_fwd.hpp
     Table.hpp
     Table.cpp
+    TaggedComponentFilter.hpp
+    TaggedComponentFilter.cpp
     TaggedObject.hpp
     TaggedObject.cpp
     Tags.hpp

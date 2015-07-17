@@ -114,8 +114,8 @@ struct EigenProductEval :
     typedef typename boost::proto::result_of::left<ExprT>::type LeftExprT;
     typedef typename boost::proto::result_of::right<ExprT>::type RightExprT;
 
-    typedef typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type LeftT;
-    typedef typename boost::result_of<GrammarT(RightExprT, StateT, DataT)>::type RightT;
+    typedef typename boost::tr1_result_of<GrammarT(LeftExprT, StateT, DataT)>::type LeftT;
+    typedef typename boost::tr1_result_of<GrammarT(RightExprT, StateT, DataT)>::type RightT;
 
     typedef typename boost::remove_const<typename boost::remove_reference<LeftT>::type>::type UnRefLeftT;
     typedef typename boost::remove_const<typename boost::remove_reference<RightT>::type>::type UnRefRightT;
@@ -176,7 +176,7 @@ struct EigenPlusAssignProductEval :
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       // Result type for the LHS
-      typedef typename boost::result_of
+      typedef typename boost::tr1_result_of
       <
         GrammarT(typename boost::proto::result_of::left
         <
@@ -341,7 +341,7 @@ struct MatrixSubscript :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::proto::result_of::left<ExprT>::type LeftExprT;
-    typedef typename boost::remove_reference<typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type>::type LeftT;
+    typedef typename boost::remove_reference<typename boost::tr1_result_of<GrammarT(LeftExprT, StateT, DataT)>::type>::type LeftT;
     typedef typename boost::proto::result_of::right<ExprT>::type IdxExprT;
 
     // True if the passed expression for the index is a looping index
@@ -354,7 +354,7 @@ struct MatrixSubscript :
     typedef typename boost::mpl::if_
     <
       IgnoreLoopingT,
-      typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type,
+      typename boost::tr1_result_of<GrammarT(LeftExprT, StateT, DataT)>::type,
       subscript_result_type
     >::type result_type;
 

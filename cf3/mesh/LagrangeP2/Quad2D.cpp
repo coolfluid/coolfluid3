@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 
 #include "common/Builder.hpp"
 

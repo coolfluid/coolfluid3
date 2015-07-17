@@ -351,7 +351,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
       <
         typename boost::remove_reference
         <
-          typename boost::result_of
+          typename boost::tr1_result_of
           <
             ChildGrammar(typename boost::proto::result_of::child_c<ExprT, Idx>::type, StateT, DataT)
           >::type
@@ -412,70 +412,70 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::terminal, 0, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename boost::remove_reference<DataT>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename boost::remove_reference<DataT>::type)>::type type;
     };
 
     /// Specialization for a function with one argument
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 2, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type)>::type type;
     };
 
     /// Specialization for a function with 2 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 3, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type)>::type type;
     };
 
     /// Specialization for a function with 3 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 4, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type)>::type type;
     };
 
     /// Specialization for a function with 4 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 5, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type)>::type type;
     };
 
     /// Specialization for a function with 5 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 6, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type)>::type type;
     };
 
     /// Specialization for a function with 6 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 7, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type)>::type type;
     };
 
     /// Specialization for a function with 7 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 8, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type)>::type type;
     };
 
     /// Specialization for a function with 8 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 9, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type, typename ChildType<8>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type, typename ChildType<8>::type)>::type type;
     };
     
     /// Specialization for a function with 9 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 10, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type, typename ChildType<8>::type, typename ChildType<9>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type, typename ChildType<8>::type, typename ChildType<9>::type)>::type type;
     };
 
     typedef typename ResultType<typename boost::proto::tag_of<ExprT>::type, boost::proto::arity_of<ExprT>::value>::type result_type;

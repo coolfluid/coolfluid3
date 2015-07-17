@@ -83,6 +83,7 @@
 #cmakedefine CF3_REAL_IS_FLOAT       // cf3::Real is float
 #cmakedefine CF3_REAL_IS_DOUBLE      // cf3::Real is double
 #cmakedefine CF3_REAL_IS_LONGDOUBLE  // cf3::Real is long double
+#cmakedefine CF3_ENABLE_CPP11        // C++11 support enabled
 
 // for compilers that do not define the __FUNCTION__ variable
 #ifndef CF3_HAVE_FUNCTION_DEF

@@ -9,7 +9,7 @@
 #include <sstream>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/regex.hpp>
 #include <boost/bind.hpp>
 

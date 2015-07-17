@@ -113,7 +113,7 @@ namespace detail
   template<typename ExprT, typename MatchingGrammarT>
   struct HasSubExpr
   {
-    static const bool value = boost::result_of<HasSubGrammar<MatchingGrammarT>(ExprT)>::type::value;
+    static const bool value = boost::tr1_result_of<HasSubGrammar<MatchingGrammarT>(ExprT)>::type::value;
   };
   
   /// Returns true if an interpolation op is used
@@ -1193,7 +1193,7 @@ private:
     template<typename I>
     void operator()(const I&)
     {
-      apply(typename boost::result_of<detail::UsesVar<I::value>(ExprT)>::type(), I(), boost::fusion::at<I>(m_variables_data));
+      apply(typename boost::tr1_result_of<detail::UsesVar<I::value>(ExprT)>::type(), I(), boost::fusion::at<I>(m_variables_data));
     }
 
     template<typename I, typename T>
@@ -1204,7 +1204,7 @@ private:
     template<typename I, typename T>
     void apply(boost::mpl::true_, I, T*& d)
     {
-//       static const bool needs_eval = boost::result_of<detail::HasEvalVar<I::value>(ExprT)>::type::value;
+//       static const bool needs_eval = boost::tr1_result_of<detail::HasEvalVar<I::value>(ExprT)>::type::value;
       d->compute_values(m_mapped_coords);
     }
 

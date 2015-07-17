@@ -9,7 +9,7 @@
 
 #define FUSION_MAX_VECTOR_SIZE 12 // For edgeGrading
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/config/warning_disable.hpp>
 #include <boost/foreach.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>

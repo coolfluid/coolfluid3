@@ -8,7 +8,7 @@
 #include "PythonAny.hpp"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
 

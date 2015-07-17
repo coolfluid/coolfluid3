@@ -88,6 +88,10 @@ coolfluid_add_test( UTEST utest-component-iterator
                     CPP   utest-component-iterator.cpp
                     LIBS  coolfluid_common )
 
+coolfluid_add_test( UTEST utest-component-range
+                    CPP   utest-component-range.cpp
+                    LIBS  coolfluid_common )
+
 
 coolfluid_add_test( UTEST utest-foreach
                     CPP   utest-foreach.cpp

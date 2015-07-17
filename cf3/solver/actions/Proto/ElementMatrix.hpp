@@ -191,7 +191,7 @@ struct IsEquationVariable :
 template<typename I, typename ExprT>
 struct EquationVariablesOp
 {
-  typedef typename boost::result_of<IsEquationVariable<I::value>(ExprT)>::type type;
+  typedef typename boost::tr1_result_of<IsEquationVariable<I::value>(ExprT)>::type type;
 };
 
 /// Calculate if a variable is part of an equation
@@ -359,7 +359,7 @@ struct ElementVectorRowsValue :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
-    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::tr1_result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
     typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
 
     typedef Eigen::Block
@@ -390,8 +390,8 @@ struct ElementMatrixBlockValue :
   {
     typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
     typedef typename boost::proto::result_of::child_c<ExprT, 2>::type Child2T;
-    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
-    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::tr1_result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::tr1_result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
     typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
     typedef typename VarDataType<ColVarIdxT, DataT>::type ColVarDataT;
 
@@ -437,7 +437,7 @@ struct SubRows : boost::proto::transform< SubRows<I, J> >
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
-    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::tr1_result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
     typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
 
     typedef typename boost::remove_reference<StateT>::type MatrixT;
@@ -468,7 +468,7 @@ struct VectorSubRows : boost::proto::transform< VectorSubRows<I, J> >
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
-    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::tr1_result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
     typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
 
     typedef typename boost::remove_reference<StateT>::type VectorT;
@@ -499,7 +499,7 @@ struct SubCols : boost::proto::transform< SubCols<I, J> >
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::proto::result_of::child_c<ExprT, 2>::type Child2T;
-    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::tr1_result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
     typedef typename VarDataType<ColVarIdxT, DataT>::type ColVarDataT;
 
     typedef typename boost::remove_reference<StateT>::type MatrixT;
@@ -531,8 +531,8 @@ struct SubMatrix : boost::proto::transform< SubMatrix<I, J> >
   {
     typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
     typedef typename boost::proto::result_of::child_c<ExprT, 2>::type Child2T;
-    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
-    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::tr1_result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::tr1_result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
     typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
     typedef typename VarDataType<ColVarIdxT, DataT>::type ColVarDataT;
 

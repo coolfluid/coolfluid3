@@ -45,7 +45,7 @@ struct GetOrder
   // The type of the data associated with the variable, containing info about the order. Void if the variable doesn't exist
   typedef typename DataT::template DataType<I>::type VarDataT;
   // The type of the variable. Void if the variable doesn't appear in the current subexpression
-  typedef typename boost::result_of<DefineType<I::value>(ExprT)>::type VarT;
+  typedef typename boost::tr1_result_of<DefineType<I::value>(ExprT)>::type VarT;
   typedef boost::mpl::int_<GetOrderFromData<VarDataT, VarT>::value> type;
 };
   
@@ -53,7 +53,7 @@ struct GetOrder
 template<typename ExprT, typename DataT>
 struct MaxOrder
 {
-  typedef typename boost::result_of<ExprVarArity(ExprT)>::type NbVarsT;
+  typedef typename boost::tr1_result_of<ExprVarArity(ExprT)>::type NbVarsT;
   
   typedef typename boost::mpl::deref<typename boost::mpl::max_element
   <
@@ -143,7 +143,7 @@ public:
     <
       typename boost::remove_reference
       <
-        typename boost::result_of
+        typename boost::tr1_result_of
         <
           ElementMathImplicit
           (
