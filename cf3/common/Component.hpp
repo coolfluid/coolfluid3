@@ -447,6 +447,7 @@ protected: // functions
   template< class T, class Y > friend void boost::detail::sp_deleter_construct(boost::shared_ptr< T >*, Y* );
   template< class T, class Y > friend void boost::detail::sp_pointer_construct(boost::shared_ptr< T >*, Y*, boost::detail::shared_count&);
 #endif
+  template<typename ComponentT> friend class BasicComponentRange;
 }; // Component
 
 
