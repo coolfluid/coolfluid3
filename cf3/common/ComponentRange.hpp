@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <deque>
+
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "common/Handle.hpp"
@@ -77,6 +79,9 @@ using component_type = typename RangeTraits<RangeT>::ComponentT;
 template<typename BaseRangeT, typename PredicateT>
 class FilteredComponentRange;
 
+template<typename BaseRangeT>
+class RecursiveComponentRange;
+
 /// Base class (CRTP) for ranges
 template<typename DerivedT>
 class RangeBase
@@ -87,7 +92,10 @@ public:
 
   /// Filter the range using the given predicate
   template<typename PredicateT>
-  FilteredComponentRange<DerivedT, PredicateT> filter(PredicateT predicate);
+  FilteredComponentRange<DerivedT, PredicateT> filter(PredicateT predicate) const;
+
+  /// Recurse on all elements
+  RecursiveComponentRange<DerivedT> recurse() const;
 
   /// C++ iterator interface
   /// Begin iterator
@@ -108,6 +116,12 @@ public:
   const_iterator end() const
   {
     return const_iterator(derived(), derived().end_position());
+  }
+
+  /// True if the range is empty
+  bool empty() const
+  {
+    return derived().start_position() == derived().end_position();
   }
 
   /// CRTP implementation
@@ -224,6 +238,7 @@ template<typename ComponentTPar>
 struct RangeTraits<ComponentVector<ComponentTPar>>
 {
   typedef ComponentTPar ComponentT;
+  static constexpr bool IsRecursive = false;
 };
 
 /// Lazy component range, strongly typed on ComponentT
@@ -285,10 +300,17 @@ private:
   const StorageT& m_components;
 };
 
+template<typename ComponentT=common::Component, typename ParentT>
+BasicComponentRange<ComponentT> make_range(ParentT& parent)
+{
+  return BasicComponentRange<ComponentT>(parent);
+}
+
 template<typename ComponentTPar>
 struct RangeTraits<BasicComponentRange<ComponentTPar>>
 {
   typedef ComponentTPar ComponentT;
+  static constexpr bool IsRecursive = false;
 };
 
 /// Filtered component range
@@ -349,18 +371,119 @@ template<typename BaseRangeT, typename PredicateT>
 struct RangeTraits<FilteredComponentRange<BaseRangeT, PredicateT>>
 {
   typedef typename RangeTraits<BaseRangeT>::ComponentT ComponentT;
+  static constexpr bool IsRecursive = RangeTraits<BaseRangeT>::IsRecursive;
 };
 
-template<typename ComponentT=common::Component, typename ParentT>
-BasicComponentRange<ComponentT> make_range(ParentT& parent)
+/// Recursive component range
+template<typename BaseRangeT>
+class Common_API RecursiveComponentRange : public RangeBase<RecursiveComponentRange<BaseRangeT>>
 {
-  return BasicComponentRange<ComponentT>(parent);
-}
+public:
+  typedef typename BaseRangeT::PositionT ElemPositionT;
+  /// Represent a postition in the range
+  typedef std::deque<ElemPositionT> PositionT;
+  typedef typename BaseRangeT::ComponentT ComponentT;
+
+
+  explicit RecursiveComponentRange(const BaseRangeT& base_range) : m_base_range(base_range)
+  {
+  }
+
+  /// Range interface
+  /// Increment the given position, taking into account types
+  void increment(PositionT& position) const
+  {
+    cf3_assert(position != end_position());
+    typename PositionT::iterator begin_it = position.begin();
+    PositionT output_position;
+    recursive_increment(m_base_range, begin_it, position.end(), output_position);
+    position = output_position;
+  }
+
+  /// Return the component at the given postition
+  ComponentT& dereference(const PositionT& position) const
+  {
+    typename PositionT::const_iterator pos_it = position.begin();
+    return recursive_dereference(m_base_range, pos_it, position.end());
+  }
+
+  /// Position of the first valid element or 0 if there is none
+  PositionT start_position() const
+  {
+    if(m_base_range.empty())
+      return PositionT();
+    return PositionT(1, m_base_range.start_position());
+  }
+
+  /// Position corresponding to the end iterator
+  PositionT end_position() const
+  {
+    return PositionT();
+  }
+
+private:
+  const BaseRangeT& m_base_range;
+
+  template<typename RangeT>
+  bool recursive_increment(const RangeT& parent_range, typename PositionT::iterator& position_iterator, const typename PositionT::iterator& position_end, PositionT& output_position) const
+  {
+    if(parent_range.empty())
+    {
+      return false;
+    }
+    if(position_iterator != position_end)
+    {
+      output_position.push_back(*position_iterator);
+      ++position_iterator;
+      if(!recursive_increment(make_range<ComponentT>(parent_range.dereference(output_position.back())), position_iterator, position_end, output_position)) // If we have no more children
+      {
+        parent_range.increment(output_position.back()); // increment this
+        if(output_position.back() == parent_range.end_position())
+        {
+          output_position.pop_back();
+          return false;
+        }
+      }
+    }
+    else // At the end of the position tree, add a new level
+    {
+      output_position.push_back(parent_range.start_position());
+    }
+    return true;
+  }
+
+  template<typename RangeT>
+  ComponentT& recursive_dereference(const RangeT& parent_range, typename PositionT::const_iterator& position_iterator, const typename PositionT::const_iterator& position_end) const
+  {
+    cf3_assert(position_iterator != position_end);
+    ElemPositionT pos = *position_iterator;
+    ++position_iterator;
+    if(position_iterator == position_end)
+    {
+      return parent_range.dereference(pos);
+    }
+    return recursive_dereference(make_range<ComponentT>(parent_range.dereference(pos)), position_iterator, position_end);
+  }
+};
+
+template<typename BaseRangeT>
+struct RangeTraits<RecursiveComponentRange<BaseRangeT>>
+{
+  typedef typename RangeTraits<BaseRangeT>::ComponentT ComponentT;
+  static constexpr bool IsRecursive = true;
+};
 
 template<class DerivedT> template<class PredicateT>
-FilteredComponentRange<DerivedT, PredicateT> RangeBase<DerivedT>::filter(PredicateT predicate)
+FilteredComponentRange<DerivedT, PredicateT> RangeBase<DerivedT>::filter(PredicateT predicate) const
 {
   return FilteredComponentRange<DerivedT, PredicateT>(derived(), predicate);
+}
+
+template<class DerivedT>
+RecursiveComponentRange<DerivedT> RangeBase<DerivedT>::recurse() const
+{
+  static_assert(!RangeTraits<DerivedT>::IsRecursive, "Cannot recurse on a recursive range");
+  return RecursiveComponentRange<DerivedT>(derived());
 }
 
 
