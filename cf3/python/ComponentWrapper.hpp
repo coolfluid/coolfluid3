@@ -44,7 +44,7 @@ class ComponentWrapper
 {
 public:
   ComponentWrapper(const Handle<common::Component>& component);
-  ~ComponentWrapper();
+  virtual ~ComponentWrapper();
 
   /// Access to the wrapped component
   common::Component& component();
@@ -79,6 +79,35 @@ void def_component();
 
 /// Wrap the passed component in a python object
 boost::python::object wrap_component(const cf3::Handle<common::Component>& component);
+
+/// Factory for component wrappers that expand functionality
+class ComponentWrapperFactory
+{
+public:
+  virtual boost::python::object wrap_component(const cf3::Handle<common::Component>& component) const = 0;
+};
+
+/// Keeps track of specialized factories for ComponentWrappers that add functionality
+class ComponentWrapperRegistry
+{
+public:
+  static ComponentWrapperRegistry& instance();
+
+  template<typename FactoryT>
+  void register_factory()
+  {
+    m_factories.push_back(boost::shared_ptr<ComponentWrapperFactory>(new FactoryT()));
+  }
+
+  boost::python::object wrap_component(const cf3::Handle<common::Component>& component) const;
+
+private:
+  ComponentWrapperRegistry()
+  {
+  }
+
+  std::vector< boost::shared_ptr<ComponentWrapperFactory> > m_factories;
+};
 
 } // python
 } // cf3

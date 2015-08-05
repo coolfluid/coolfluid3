@@ -245,7 +245,11 @@ boost::python::object wrap_component(const Handle<common::Component>& component)
   if(is_null(component))
     return boost::python::object();
 
-  boost::python::object result = boost::python::object(ComponentWrapper(component));
+  boost::python::object result = ComponentWrapperRegistry::instance().wrap_component(component);
+  if(result.is_none())
+  {
+    result = boost::python::object(ComponentWrapper(component));
+  }
   ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(result);
   wrapped.m_implementation->bind_signals(result);
 
@@ -703,6 +707,26 @@ Uint uucount_count(const common::UUCount* self){
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+ComponentWrapperRegistry& ComponentWrapperRegistry::instance()
+{
+  static ComponentWrapperRegistry registry;
+  return registry;
+}
+
+boost::python::object ComponentWrapperRegistry::wrap_component(const cf3::Handle<common::Component> &component) const
+{
+  boost::python::object result;
+
+  BOOST_FOREACH(const boost::shared_ptr<ComponentWrapperFactory>& factory, m_factories)
+  {
+    result = factory->wrap_component(component);
+    if(!result.is_none())
+      return result;
+  }
+
+  return result;
+}
 
 void def_component()
 {

@@ -6,6 +6,7 @@
 
 #include "python/BoostPython.hpp"
 
+#include "python/ComponentFilterPython.hpp"
 #include "python/ComponentWrapper.hpp"
 #include "python/CoreWrapper.hpp"
 #include "python/TableWrapper.hpp"
@@ -22,6 +23,7 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(libcoolfluid_python)
 {
   def_component();
+  def_component_filter_methods();
   def_core();
   def_ctable_types();
   def_math();
