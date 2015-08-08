@@ -26,7 +26,7 @@ ComponentFilter::ComponentFilter ( const std::string& name ) : Component(name)
 {
 }
 
-bool ComponentFilter::operator()(const Handle<Component const>& component)
+bool ComponentFilter::operator()(const Handle<Component const>& component) const
 {
   if(is_null(component))
     return false;

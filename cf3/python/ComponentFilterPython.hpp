@@ -12,8 +12,6 @@
 namespace cf3 {
 namespace python {
 
-class ComponentWrapper;
-
 void def_component_filter_methods();
 
 } // python

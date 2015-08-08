@@ -29,7 +29,7 @@ public:
   static std::string type_name () { return "TaggedComponentFilter"; }
 
   /// Implement this to return true or false depending on the criteria of the filter
-  virtual bool operator()(const Component& component);
+  virtual bool operator()(const Component& component) const;
 
 private:
   std::string m_tag;

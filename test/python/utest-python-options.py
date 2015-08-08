@@ -68,6 +68,7 @@ if opts01.string != 'easy_set':
 
 opts01.const_component = root
 check_option(opts01, 'const_component', root)
+print('type for const option is:', type(opts01.const_component))
 
 print '########################### Checking access through options attribute ##########################'
 

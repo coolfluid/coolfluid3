@@ -22,6 +22,7 @@
 namespace cf3 {
 namespace python {
 
+/// Component that takes a Python callable to define the filtering predicate
 class ComponentFilterPython : public common::ComponentFilter
 {
 public:
@@ -35,7 +36,7 @@ public:
   static std::string type_name () { return "ComponentFilterPython"; }
 
   /// Implement this to return true or false depending on the criteria of the filter
-  virtual bool operator()(const Component& component)
+  virtual bool operator()(const Component& component) const
   {
     if(m_callable.is_none())
     {
@@ -43,7 +44,7 @@ public:
       boost::python::throw_error_already_set();
     }
 
-    return m_callable(wrap_component(const_cast<common::Component*>(&component)->handle()));
+    return m_callable(wrap_component(component.handle()));
   }
 
   void set_callable(boost::python::object callable)
@@ -64,27 +65,11 @@ private:
 
 common::ComponentBuilder < ComponentFilterPython, common::ComponentFilter, LibPython > ComponentFilterPython_Builder;
 
-class ComponentFilterPythonWrapper : public ComponentWrapper
-{
-public:
-  ComponentFilterPythonWrapper(const Handle<ComponentFilterPython>& component) : ComponentWrapper(component)
-  {
-  }
-};
+// Define the python interface
+typedef DerivedComponentWrapper<ComponentFilterPython> ComponentFilterPythonWrapper;
+typedef DerivedComponentWrapper<ComponentFilterPython const> ComponentFilterPythonWrapperConst;
 
-class ComponentFilterPythonFactory : public ComponentWrapperFactory
-{
-  virtual boost::python::object wrap_component(const cf3::Handle<common::Component>& component) const
-  {
-    Handle<ComponentFilterPython> filter(component);
-    if(is_null(filter))
-      return boost::python::object();
-
-    return boost::python::object(ComponentFilterPythonWrapper(filter));
-  }
-};
-
-bool component_filter_python_call(ComponentFilterPythonWrapper& self, ComponentWrapper& component)
+bool component_filter_python_call(const ComponentWrapperBase& self, const ComponentWrapperBase& component)
 {
   return self.component<ComponentFilterPython>()(component.component());
 }
@@ -96,11 +81,14 @@ void component_filter_python_set_callable(ComponentFilterPythonWrapper& self, bo
 
 void def_component_filter_methods()
 {
-  boost::python::class_<ComponentFilterPythonWrapper, boost::python::bases<ComponentWrapper> >("Component", boost::python::no_init)
+  boost::python::class_<ComponentFilterPythonWrapperConst, boost::python::bases<ComponentWrapperConst> >("ComponentFilterConst", boost::python::no_init)
+    .def("__call__", component_filter_python_call, "Apply the filter");
+
+  boost::python::class_<ComponentFilterPythonWrapper, boost::python::bases<ComponentWrapper> >("ComponentFilter", boost::python::no_init)
     .def("__call__", component_filter_python_call, "Apply the filter")
     .def("set_callable", component_filter_python_set_callable, "Set the Python callable to use when applying the filter");
 
-  ComponentWrapperRegistry::instance().register_factory<ComponentFilterPythonFactory>();
+  ComponentWrapperRegistry::instance().register_factory< DefaultComponentWrapperFactory<ComponentFilterPython> >();
 }
 
 } // python

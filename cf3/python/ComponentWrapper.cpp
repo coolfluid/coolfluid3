@@ -9,11 +9,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "common/BasicExceptions.hpp"
-#include "common/Component.hpp"
 #include "common/ComponentIterator.hpp"
 #include "common/Log.hpp"
-#include "common/Foreach.hpp"
 #include "common/Option.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
@@ -40,7 +37,7 @@ namespace python {
 // Wrapper for signals
 struct SignalWrapper
 {
-  SignalWrapper(common::SignalPtr signal, const Handle<common::Component>& component) :
+  SignalWrapper(common::SignalPtr signal, const Handle<common::Component const>& component) :
     m_signal(signal),
     m_component(component)
   {
@@ -169,97 +166,51 @@ struct SignalWrapper
   }
 
   common::SignalPtr m_signal;
-  Handle<common::Component> m_component;
+  Handle<common::Component const> m_component;
 };
 
-struct ComponentWrapper::Implementation
+struct ComponentWrapperBase::Implementation
 {
-  Implementation(const Handle<common::Component>& component) :
-    m_component(component),
-    m_list_interface(0)
-  {
-  }
-
-  virtual ~Implementation()
-  {
-    if(is_not_null(m_list_interface))
-      delete m_list_interface;
-  }
 
   void bind_signals(boost::python::object& python_object)
   {
-    boost_foreach(SignalWrapper& signal, m_wrapped_signals)
-    {
-      signal.bind_function(python_object);
-    }
+
   }
 
-  void wrap_signal(common::SignalPtr signal)
+  void wrap_signal(common::SignalPtr signal, const Handle<common::Component const>& component)
   {
-    m_wrapped_signals.push_back(SignalWrapper(signal, m_component));
+    m_wrapped_signals.push_back(SignalWrapper(signal, component));
   }
 
-  Handle<common::Component> m_component;
   std::vector<SignalWrapper> m_wrapped_signals;
-  PythonListInterface* m_list_interface;
 };
 
-ComponentWrapper::ComponentWrapper(const Handle< common::Component >& component) :
-  m_implementation(new Implementation(component))
+ComponentWrapperBase::ComponentWrapperBase(const Handle<common::Component const>& component) :
+  m_implementation(new Implementation())
 {
   // Add the signals
   boost_foreach(common::SignalPtr signal, component->signal_list())
   {
     if(signal->name() != "create_component")
-      m_implementation->wrap_signal(signal);
+      m_implementation->wrap_signal(signal, component);
   }
 }
 
-ComponentWrapper::~ComponentWrapper()
+//const common::Component& ComponentWrapperBase::component() const
+//{
+//  throw common::NotImplemented(FromHere(), "Component access must be implemented by subclass");
+//}
+
+ComponentWrapperBase::~ComponentWrapperBase()
 {
 }
 
-common::Component& ComponentWrapper::component()
+void ComponentWrapperBase::bind_signals(boost::python::api::object &python_object)
 {
-  if(is_null(m_implementation->m_component))
-    throw common::BadPointer(FromHere(), "Wrapped object was deleted");
-
-  return *m_implementation->m_component;
-}
-
-void ComponentWrapper::set_list_interface(PythonListInterface* interface)
-{
-  if(is_not_null(m_implementation->m_list_interface))
-    delete m_implementation->m_list_interface;
-
-  m_implementation->m_list_interface = interface;
-}
-
-PythonListInterface* ComponentWrapper::get_list_interface()
-{
-  return m_implementation->m_list_interface;
-}
-
-boost::python::object wrap_component(const Handle<common::Component>& component)
-{
-  if(is_null(component))
-    return boost::python::object();
-
-  boost::python::object result = ComponentWrapperRegistry::instance().wrap_component(component);
-  if(result.is_none())
+  boost_foreach(SignalWrapper& signal, m_implementation->m_wrapped_signals)
   {
-    result = boost::python::object(ComponentWrapper(component));
+    signal.bind_function(python_object);
   }
-  ComponentWrapper& wrapped = boost::python::extract<ComponentWrapper&>(result);
-  wrapped.m_implementation->bind_signals(result);
-
-  cf3_assert(result.ptr()->ob_refcnt == 1); // Make sure there are no circular references
-
-  // Add extra functionality for derived classes
-  add_ctable_methods(wrapped, result);
-  add_clist_methods(wrapped, result);
-
-  return result;
 }
 
 /// Override setattr to allow direct handling of basic options
@@ -341,7 +292,7 @@ boost::python::object component_dir(ComponentWrapper& self)
   return result;
 }
 
-std::string name(ComponentWrapper& self)
+std::string name(const ComponentWrapperBase& self)
 {
   return self.component().name();
 }
@@ -354,7 +305,7 @@ boost::python::object create_component(ComponentWrapper& self, const std::string
   return wrap_component(built_comp->handle<common::Component>());
 }
 
-boost::python::object get_child(ComponentWrapper& self, const std::string& name)
+boost::python::object get_child(const ComponentWrapperBase& self, const std::string& name)
 {
   if (self.component().get_child(name))
     return wrap_component(self.component().get_child(name));
@@ -362,22 +313,22 @@ boost::python::object get_child(ComponentWrapper& self, const std::string& name)
     return boost::python::object(); // This is the None object in python
 }
 
-boost::python::object access_component_uri(ComponentWrapper& self, const common::URI& uri)
+boost::python::object access_component_uri(const ComponentWrapperBase& self, const common::URI& uri)
 {
   return wrap_component(self.component().access_component(uri));
 }
 
-boost::python::object access_component_str(ComponentWrapper& self, const std::string& uri)
+boost::python::object access_component_str(const ComponentWrapperBase& self, const std::string& uri)
 {
   return wrap_component(self.component().access_component(uri));
 }
 
-common::URI uri(ComponentWrapper& self)
+common::URI uri(const ComponentWrapperBase& self)
 {
   return self.component().uri();
 }
 
-std::string derived_type_name(ComponentWrapper& self)
+std::string derived_type_name(const ComponentWrapperBase& self)
 {
   return self.component().derived_type_name();
 }
@@ -397,41 +348,17 @@ void configure_option_recursively(ComponentWrapper& self, const std::string& opt
     self.component().configure_option_recursively(option_name, python_to_any(value));
 }
 
-Uint get_len(ComponentWrapper& self)
-{
-  if(is_null(self.get_list_interface()))
-    throw common::NotSupported(FromHere(), "Object "+self.component().uri().string()+" does not support len()");
-
-  return self.get_list_interface()->len();
-}
-
-boost::python::object get_item(ComponentWrapper& self, const Uint i)
-{
-  if(is_null(self.get_list_interface()))
-    throw common::NotSupported(FromHere(), "Object does not support indexing");
-
-  return self.get_list_interface()->get_item(i);
-}
-
-void set_item(ComponentWrapper& self, const Uint i, boost::python::object& value)
-{
-  if(is_null(self.get_list_interface()))
-    throw common::NotSupported(FromHere(), "Object does not support indexing");
-
-  return self.get_list_interface()->set_item(i, value);
-}
-
-std::string to_str(ComponentWrapper& self)
+std::string to_str(const ComponentWrapperBase& self)
 {
   return self.component().uri().string();
 }
 
-bool is_equal(ComponentWrapper& self, ComponentWrapper& other)
+bool is_equal(const ComponentWrapperBase& self, const ComponentWrapperBase& other)
 {
   return self.component().handle() == other.component().handle();
 }
 
-bool is_not_equal(ComponentWrapper& self, ComponentWrapper& other)
+bool is_not_equal(const ComponentWrapperBase& self, const ComponentWrapperBase& other)
 {
   return self.component().handle() != other.component().handle();
 }
@@ -714,47 +641,33 @@ ComponentWrapperRegistry& ComponentWrapperRegistry::instance()
   return registry;
 }
 
-boost::python::object ComponentWrapperRegistry::wrap_component(const cf3::Handle<common::Component> &component) const
-{
-  boost::python::object result;
-
-  BOOST_FOREACH(const boost::shared_ptr<ComponentWrapperFactory>& factory, m_factories)
-  {
-    result = factory->wrap_component(component);
-    if(!result.is_none())
-      return result;
-  }
-
-  return result;
-}
-
 void def_component()
 {
-  boost::python::class_<ComponentWrapper>("Component", boost::python::no_init)
+  boost::python::class_<ComponentWrapperBase, boost::noncopyable>("ComponentBase", boost::python::no_init)
     .def("name", name, "The name of this component")
-    .def("create_component", create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
     .def("get_child", get_child)
     .def("access_component", access_component_uri)
     .def("access_component", access_component_str)
-    .def("print_timing_tree", print_timing_tree)
-    .def("store_timings", store_timings)
-    .add_property("options", component_options)
-    .add_property("properties", component_properties)
-    .add_property("children", component_children)
     .def("uri", uri)
     .def("derived_type_name", derived_type_name, "Derived type name, i.e. the type of the concrete component")
-    .def("configure_option_recursively", configure_option_recursively, "Configure the given option recursively")
-    .def("mark_basic", component_mark_basic, "Mark the component as basic")
-    .def("__len__", get_len)
-    .def("__getitem__", get_item)
-    .def("__setitem__", set_item)
     .def("__str__", to_str)
     .def("__repr__", to_str)
     .def("__eq__", is_equal)
     .def("__ne__", is_not_equal)
-    .def("__setattr__", component_setattr)
-    .def("__getattr__", component_getattr)
     .def("__dir__", component_dir);
+
+  boost::python::class_<ComponentWrapper, boost::python::bases<ComponentWrapperBase> >("Component", boost::python::no_init)
+    .def("create_component", create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
+    .def("print_timing_tree", print_timing_tree)
+    .def("store_timings", store_timings)
+    .def("mark_basic", component_mark_basic, "Mark component as basic")
+    .add_property("options", component_options)
+    .add_property("properties", component_properties)
+    .add_property("children", component_children)
+    .def("__setattr__", component_setattr)
+    .def("__getattr__", component_getattr);
+
+  boost::python::class_<ComponentWrapperConst, boost::python::bases<ComponentWrapperBase> >("ComponentConst", boost::python::no_init);
 
   boost::python::class_<OptionListWrapper>("OptionList", boost::python::no_init)
     .def("__call__", OptionListWrapper::call) // This makes sure we can use the option list as both a property and a function

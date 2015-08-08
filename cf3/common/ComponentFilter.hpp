@@ -28,11 +28,11 @@ public:
   static std::string type_name () { return "ComponentFilter"; }
 
   /// Implement this to return true or false depending on the criteria of the filter
-  virtual bool operator()(const Component& component) = 0;
+  virtual bool operator()(const Component& component) const = 0;
 
   /// Handle version, calls the reference version
   /// Returns false for null components, override to change this behavior
-  virtual bool operator()(const Handle<Component const>& component);
+  virtual bool operator()(const Handle<Component const>& component) const;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

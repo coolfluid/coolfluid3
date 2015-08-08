@@ -31,7 +31,7 @@ TaggedComponentFilter::TaggedComponentFilter ( const std::string& name ) : Compo
     .mark_basic();
 }
 
-bool TaggedComponentFilter::operator()(const Component& component)
+bool TaggedComponentFilter::operator()(const Component& component) const
 {
   return component.has_tag(m_tag);
 }
