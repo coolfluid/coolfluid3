@@ -305,7 +305,15 @@ boost::python::object create_component(ComponentWrapper& self, const std::string
   return wrap_component(built_comp->handle<common::Component>());
 }
 
-boost::python::object get_child(const ComponentWrapperBase& self, const std::string& name)
+boost::python::object get_child_const(const ComponentWrapperBase& self, const std::string& name)
+{
+  if (self.component().get_child(name))
+    return wrap_component(self.component().get_child(name));
+  else
+    return boost::python::object(); // This is the None object in python
+}
+
+boost::python::object get_child_nonconst(ComponentWrapper& self, const std::string& name)
 {
   if (self.component().get_child(name))
     return wrap_component(self.component().get_child(name));
@@ -645,7 +653,7 @@ void def_component()
 {
   boost::python::class_<ComponentWrapperBase, boost::noncopyable>("ComponentBase", boost::python::no_init)
     .def("name", name, "The name of this component")
-    .def("get_child", get_child)
+    .def("get_child", get_child_const)
     .def("access_component", access_component_uri)
     .def("access_component", access_component_str)
     .def("uri", uri)
@@ -658,6 +666,7 @@ void def_component()
 
   boost::python::class_<ComponentWrapper, boost::python::bases<ComponentWrapperBase> >("Component", boost::python::no_init)
     .def("create_component", create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
+    .def("get_child", get_child_nonconst)
     .def("print_timing_tree", print_timing_tree)
     .def("store_timings", store_timings)
     .def("mark_basic", component_mark_basic, "Mark component as basic")

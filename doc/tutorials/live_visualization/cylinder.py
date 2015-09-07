@@ -14,7 +14,7 @@ rho = 100.
 mu = 1.
 
 tstep = 0.5
-num_steps = 10.
+num_steps = 500.
 
 # Basic model setup (container of all the sumilation setup)
 model = cf.root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
