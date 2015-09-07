@@ -155,7 +155,7 @@ void NavierStokes::on_initial_conditions_set(InitialConditions& initial_conditio
   visc_ic->set_expression(nodes_expression(nu_eff = nu));
   
   // Initial condition for the temperature field, defaulting to the reference temperature
-  Handle<ProtoAction> temp_ic(initial_conditions.create_initial_condition("scalar_advection_solution", "cf3.solver.ProtoAction"));
+  Handle<ProtoAction> temp_ic(initial_conditions.create_initial_condition("boussinesq_init_tref", "cf3.solver.ProtoAction"));
   temp_ic->set_expression(nodes_expression(T = Tref));
 
   m_initial_conditions = initial_conditions.create_initial_condition(solution_tag());

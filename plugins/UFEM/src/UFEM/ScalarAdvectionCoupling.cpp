@@ -48,7 +48,7 @@ ScalarAdvectionCoupling::ScalarAdvectionCoupling(const std::string& name) :
 
     LSSActionUnsteady(name), m_alpha("scalar_coefficient"), lambda_f("thermal_conductivity_fluid"), cp("specific_heat_capacity"), rho("density")
     {
-    options().add("scalar_name", "Scalar")
+    options().add("scalar_name", "Temperature")
      .pretty_name("Scalar Name")
      .description("Internal (and default visible) name to use for the scalar")
      .attach_trigger(boost::bind(&ScalarAdvectionCoupling::trigger_scalar_name, this));

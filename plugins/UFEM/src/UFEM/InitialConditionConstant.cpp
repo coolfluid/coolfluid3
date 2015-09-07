@@ -79,6 +79,7 @@ void InitialConditionConstant::trigger_tag()
   m_variable_options.clear();
 
   VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physical_model().variable_manager(), field_tag);
+  CFdebug << "Adding InitialConditions options for field descriptor " << descriptor.description() << " on component " << uri().path() << CFendl;
   const Uint nb_vars = descriptor.nb_vars();
   for(Uint i = 0; i != nb_vars; ++i)
   {
