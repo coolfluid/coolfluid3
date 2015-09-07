@@ -182,7 +182,6 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   GeometricSupport(const mesh::Elements& elements) :
-    m_elements(elements),
     m_coordinates(elements.geometry_fields().coordinates()),
     m_connectivity_array(elements.geometry_space().connectivity().array())
   {
@@ -325,6 +324,9 @@ private:
   
   /// Connectivity table for the current element
   boost::array<Uint, EtypeT::nb_nodes> m_connectivity;
+
+  /// Index for the current element
+  Uint m_element_idx;
 
   /// Temp storage for non-scalar results
 private:

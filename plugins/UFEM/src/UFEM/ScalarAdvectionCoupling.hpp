@@ -1,5 +1,5 @@
-//#ifndef SCALARADVECTION_H
-//#define SCALARADVECTION_H
+//#ifndef SCALARADVECTION_COUPLING_H
+//#define SCALARADVECTION_COUPLING_H
 
 //#endif // SCALARADVECTION_H
 
@@ -44,7 +44,7 @@ public: // functions
   ScalarAdvection ( const std::string& name );
 
   /// Get the class name
-  static std::string type_name () { return "ScalarAdvection"; }
+  static std::string type_name () { return "ScalarAdvectionCoupling"; }
 
 private:
 
@@ -64,6 +64,8 @@ private:
   /// Stabilization coefficient
   Real tau_su;
 
+  ComputeTau compute_tau;
+
   Handle<solver::ActionDirector> m_assembly;
   Handle<solver::ActionDirector> m_update;
   Handle<common::Action> m_initial_conditions;
@@ -74,5 +76,5 @@ private:
 } // cf3
 
 
-#endif // cf3_UFEM_ScalarAdvection_hpp
+#endif // cf3_UFEM_ScalarAdvection_COUPLING_hpp
 

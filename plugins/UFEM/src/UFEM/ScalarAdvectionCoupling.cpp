@@ -98,7 +98,7 @@ void ScalarAdvection::trigger_scalar_name()
      group
      (
        _A = _0, _T = _0,
-      UFEM::compute_tau(u_adv, nu_eff, lit(tau_su)),
+      compute_tau.apply(u_adv, nu_eff, lit(dt()), lit(tau_su)),
       element_quadrature
       (
        _A(Phi) += transpose(N(Phi)) * u_adv * nabla(Phi) + tau_su * transpose(u_adv*nabla(Phi)) * u_adv * nabla(Phi) + transpose(nabla(Phi)) * nabla(Phi) * lambda_f/(boost::proto::lit(rho)*cp) ,
