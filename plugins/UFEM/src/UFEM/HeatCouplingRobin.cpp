@@ -51,19 +51,19 @@ struct ExtractHeatFlux
     typedef void result_type;
 
     template<typename TempT>
-    void operator()(TempT& T, Real& flux, Real& h_dynamic, const Real& t_bulk)
+    void operator()(TempT& T, Real& flux, Real& h_dynamic, const Real& t_bulk) const
     {
-        mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(T.support().m_coordinates);
+        mesh::Mesh& mesh = T.support().mesh();
         mesh::Field& flux_field = Handle<mesh::Dictionary>(mesh.get_child("cf3.mesh.LagrangeP0"))->field("gradient_field");
 
-        const Uint field_begin = flux_field.dict().space(T.support().m_elements).connectivity()[0][0];
+        const Uint field_begin = flux_field.dict().space(T.support().elements()).connectivity()[0][0];
 
         const math::VariablesDescriptor& descr = flux_field.descriptor();
         const Uint grad_offset = descr.offset("TemperatureGradient");
         Eigen::Matrix<Real, TempT::EtypeT::dimension, 1> grad_T;
         for(Uint i = 0; i != TempT::EtypeT::dimension; ++i)
         {
-            const mesh::Field::ConstRow row = flux_field[field_begin + T.support().m_element_idx];
+            const mesh::Field::ConstRow row = flux_field[field_begin + T.support().element_idx()];
             grad_T[i] = row[grad_offset + i];
         }
 

@@ -183,7 +183,8 @@ public:
 
   GeometricSupport(const mesh::Elements& elements) :
     m_coordinates(elements.geometry_fields().coordinates()),
-    m_connectivity_array(elements.geometry_space().connectivity().array())
+    m_connectivity_array(elements.geometry_space().connectivity().array()),
+    m_elements(elements)
   {
   }
 
@@ -291,6 +292,23 @@ public:
     return m_connectivity;
   }
 
+  /// Access the mesh
+  mesh::Mesh& mesh() const
+  {
+    return common::find_parent_component<mesh::Mesh>(m_coordinates);
+  }
+
+  /// Access the elements
+  const mesh::Elements& elements() const
+  {
+    return m_elements;
+  }
+
+  Uint element_idx() const
+  {
+    return m_element_idx;
+  }
+
 private:
   void compute_normal_dispatch(boost::mpl::false_, const typename EtypeT::MappedCoordsT&) const
   {
@@ -327,6 +345,8 @@ private:
 
   /// Index for the current element
   Uint m_element_idx;
+
+  const mesh::Elements& m_elements;
 
   /// Temp storage for non-scalar results
 private:

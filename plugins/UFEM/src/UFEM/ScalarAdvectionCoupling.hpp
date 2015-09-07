@@ -35,13 +35,13 @@ namespace cf3 {
 namespace UFEM {
 
 /// solver for scalar transport
-class UFEM_API ScalarAdvection : public LSSActionUnsteady
+class UFEM_API ScalarAdvectionCoupling : public LSSActionUnsteady
 {
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  ScalarAdvection ( const std::string& name );
+  ScalarAdvectionCoupling( const std::string& name );
 
   /// Get the class name
   static std::string type_name () { return "ScalarAdvectionCoupling"; }

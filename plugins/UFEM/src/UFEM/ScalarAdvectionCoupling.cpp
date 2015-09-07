@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "ScalarAdvection.hpp"
+#include "ScalarAdvectionCoupling.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -40,18 +40,18 @@ using boost::proto::lit;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection_builder;
+ComponentBuilder < ScalarAdvectionCoupling, LSSActionUnsteady, LibUFEM > ScalarAdvectionCoupling_builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-ScalarAdvection::ScalarAdvection(const std::string& name) :
+ScalarAdvectionCoupling::ScalarAdvectionCoupling(const std::string& name) :
 
     LSSActionUnsteady(name), m_alpha("scalar_coefficient"), lambda_f("thermal_conductivity_fluid"), cp("specific_heat_capacity"), rho("density")
     {
     options().add("scalar_name", "Scalar")
      .pretty_name("Scalar Name")
      .description("Internal (and default visible) name to use for the scalar")
-     .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
+     .attach_trigger(boost::bind(&ScalarAdvectionCoupling::trigger_scalar_name, this));
 
   set_solution_tag("scalar_advection_solution");
 
@@ -67,7 +67,7 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
   trigger_scalar_name();
 }
 
-void ScalarAdvection::trigger_scalar_name()
+void ScalarAdvectionCoupling::trigger_scalar_name()
 {
   // Make sure variables aren't registered multiple times
   if(is_not_null(m_physical_model))
@@ -126,7 +126,7 @@ void ScalarAdvection::trigger_scalar_name()
 
 }
 
-void ScalarAdvection::on_initial_conditions_set ( InitialConditions& initial_conditions )
+void ScalarAdvectionCoupling::on_initial_conditions_set ( InitialConditions& initial_conditions )
 {
 FieldVariable<0, ScalarField> Phi("Temperature", solution_tag());
 FieldVariable<3, ScalarField> temperature1_sa("TemperatureHistorySA1", "temperature_history_sa");

@@ -119,7 +119,7 @@ void HeatConductionSteady::trigger()
             _A(T) += lambda_s * transpose(nabla(T)) * nabla(T)
           )
         ),
-        specialized_elements(heat_specialized(T, k, _A(T))),
+        specialized_elements(heat_specialized(T, lambda_s, _A(T))),
         system_matrix +=  _A,
         system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q)
       )
