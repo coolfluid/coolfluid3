@@ -34,7 +34,8 @@ private:
   Handle<solver::actions::Proto::ProtoAction> m_assembly;
   // Solution update
   Handle<solver::actions::Proto::ProtoAction> m_update;
-  PhysicsConstant k; // thermal conductivity
+
+  PhysicsConstant lambda_s;
 };
 
 } // UFEM

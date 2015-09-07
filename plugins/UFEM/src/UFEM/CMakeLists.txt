@@ -41,10 +41,10 @@ list( APPEND coolfluid_ufem_files
   HeatConductionSteady.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
-  ComputeFlux.hpp
-  ComputeFlux.cpp
-  ComputeTfluid.hpp
-  ComputeTfluid.cpp
+  ComputeFluxFluid.hpp
+  ComputeFluxFluid.cpp
+  ComputeFluxSolid.hpp
+  ComputeFluxSolid.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
   ICNSImplicitToSemi.hpp
@@ -78,6 +78,8 @@ list( APPEND coolfluid_ufem_files
   ParsedFunctionExpression.cpp
   ScalarAdvection.cpp
   ScalarAdvection.hpp
+  ScalarAdvectionCoupling.cpp
+  ScalarAdvectionCoupling.hpp
   SpalartAllmaras.cpp
   SpalartAllmaras.hpp
   SparsityBuilder.hpp
@@ -102,6 +104,11 @@ list( APPEND coolfluid_ufem_files
   ns_semi_implicit/NavierStokesSemiImplicit.hpp
   ns_semi_implicit/PressureSystem.hpp
   ns_semi_implicit/PressureSystem.cpp
+
+  TemperatureHistoryScalarAdvection.cpp
+  TemperatureHistoryScalarAdvection.hpp
+  TemperatureHistoryHeatConduction.cpp
+  TemperatureHistoryHeatConduction.hpp
 )
 
 set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation> $<TARGET_OBJECTS:cf3_ufem_ns_semi_implicit_implementation>)

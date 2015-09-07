@@ -21,7 +21,7 @@
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Iterate.hpp"
-#include "solver/CriterionTime.hpp"
+//#include "solver/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
 #include "solver/Time.hpp"
 #include "solver/Tags.hpp"
@@ -45,43 +45,13 @@ ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ScalarAdvection::ScalarAdvection(const std::string& name) :
-  LSSActionUnsteady(name),
-  m_theta(0.5),
-  diffusion_coeff(boost::proto::as_child(m_diff_data)),
-  m_pr(1.),
-  m_pr_t(1.)
-{
-  options().add("pr", m_pr)
-    .description("Pr")
-    .pretty_name("Prandtl number")
-    .link_to(&m_pr)
-    .mark_basic();
 
-  options().add("pr_t", m_pr_t)
-    .description("Pr_t")
-    .pretty_name("Turbulent Prandtl number")
-    .link_to(&m_pr_t)
-    .mark_basic();
-
-  options().add("theta", m_theta)
-    .pretty_name("Theta")
-    .description("Theta coefficient for the theta-method.")
-    .link_to(&m_theta);
-
-  options().add("scalar_name", "Scalar")
-    .pretty_name("Scalar Name")
-    .description("Internal (and default visible) name to use for the scalar")
-    .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
-
-  options().add("velocity_tag", "navier_stokes_solution")
-    .pretty_name("Velocity Tag")
-    .description("Tag for the velocity field")
-    .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
-    
-  options().add("d0", m_diff_data.op.d0)
-    .pretty_name("d0")
-    .description("Multiplication factor for the artificial diffusion term")
-    .link_to(&(m_diff_data.op.d0));
+    LSSActionUnsteady(name), m_alpha("scalar_coefficient"), lambda_f("thermal_conductivity_fluid"), cp("specific_heat_capacity"), rho("density")
+    {
+    options().add("scalar_name", "Scalar")
+     .pretty_name("Scalar Name")
+     .description("Internal (and default visible) name to use for the scalar")
+     .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
 
   set_solution_tag("scalar_advection_solution");
 
@@ -106,24 +76,16 @@ void ScalarAdvection::trigger_scalar_name()
       m_physical_model->variable_manager().remove_component(solution_tag());
   }
 
-  // List of applicable elements
-  typedef boost::mpl::vector5<
-    mesh::LagrangeP1::Quad2D,
-    mesh::LagrangeP1::Triag2D,
-    mesh::LagrangeP1::Hexa3D,
-    mesh::LagrangeP1::Tetra3D,
-    mesh::LagrangeP1::Prism3D
-  > AllowedElementTypesT;
+  // The code will only be active for these element types
+  boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // Scalar name is obtained from an option
-  FieldVariable<0, ScalarField> phi(options().value<std::string>("scalar_name"), solution_tag());
-  FieldVariable<1, VectorField> u("Velocity",options().value<std::string>("velocity_tag"));
+  FieldVariable<0, ScalarField> Phi("Temperature", solution_tag());
+  FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
   FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
   FieldVariable<3, ScalarField> temperature1_sa("TemperatureHistorySA1", "temperature_history_sa");
   FieldVariable<4, ScalarField> temperature2_sa("TemperatureHistorySA2", "temperature_history_sa");
   FieldVariable<5, ScalarField> temperature3_sa("TemperatureHistorySA3", "temperature_history_sa");
-
-  PhysicsConstant nu_lam("kinematic_viscosity");
 
   ConfigurableConstant<Real> relaxation_factor_scalar("relaxation_factor_scalar", "factor for relaxation in case of coupling", 1.);
 
@@ -131,24 +93,52 @@ void ScalarAdvection::trigger_scalar_name()
   Handle<ProtoAction>(get_child("Assembly"))->set_expression(
     elements_expression
     (
-      AllowedElementTypesT(),
-      group
+      // specialized_elements,
+      allowed_elements,
+     group
+     (
+       _A = _0, _T = _0,
+      UFEM::compute_tau(u_adv, nu_eff, lit(tau_su)),
+      element_quadrature
       (
-        _A = _0, _T = _0,
-        compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_su)),
-        element_quadrature
-        (
-          _A(phi) += transpose(N(phi) + tau_su * u*nabla(phi)) * u * nabla(phi) +  (nu_lam / lit(m_pr) + (nu_eff - nu_lam) / lit(m_pr_t) + diffusion_coeff(u,phi)) * transpose(nabla(phi)) * nabla(phi),
-          _T(phi,phi) +=  transpose(N(phi) + tau_su * u*nabla(phi)) * N(phi)
-        ),
-        system_matrix += invdt() * _T + m_theta * _A,
-        system_rhs += -_A * _x
-      )
+       _A(Phi) += transpose(N(Phi)) * u_adv * nabla(Phi) + tau_su * transpose(u_adv*nabla(Phi)) * u_adv * nabla(Phi) + transpose(nabla(Phi)) * nabla(Phi) * lambda_f/(boost::proto::lit(rho)*cp) ,
+       _T(Phi,Phi) +=  transpose(N(Phi) + tau_su * u_adv * nabla(Phi)) * N(Phi)
+      ),
+      system_matrix += invdt() * _T + 1.0 * _A,
+      system_rhs += -_A * _x
+     )
     )
   );
 
   // Set the proto expression for the update step
-  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(phi += relaxation_factor_scalar * solution(phi)) );
+  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression
+        (group
+        (
+        (Phi += relaxation_factor_scalar * solution(Phi)),
+        temperature3_sa = temperature2_sa,
+        temperature2_sa = temperature1_sa,
+        temperature1_sa = Phi
+        ))
+
+        );
+
+  configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+
+}
+
+void ScalarAdvection::on_initial_conditions_set ( InitialConditions& initial_conditions )
+{
+FieldVariable<0, ScalarField> Phi("Temperature", solution_tag());
+FieldVariable<3, ScalarField> temperature1_sa("TemperatureHistorySA1", "temperature_history_sa");
+FieldVariable<4, ScalarField> temperature2_sa("TemperatureHistorySA2", "temperature_history_sa");
+FieldVariable<5, ScalarField> temperature3_sa("TemperatureHistorySA3", "temperature_history_sa");
+
+initial_conditions.create_initial_condition(solution_tag());
+
+  // Use a proto action to set the temperature_history easily
+Handle<ProtoAction> temp_history_ic (initial_conditions.create_initial_condition("temperature_history", "cf3.solver.ProtoAction"));
+temp_history_ic->set_expression(nodes_expression(group(temperature1_sa = Phi, temperature2_sa = Phi, temperature3_sa = Phi)));
+
 }
 
 } // UFEM

@@ -8,7 +8,7 @@
 #define cf3_UFEM_HeatCouplingRobin_hpp
 
 
-#include "solver/ActionDirector.hpp"
+#include "solver/Action.hpp"
 #include <solver/actions/Proto/BlockAccumulator.hpp>
 
 #include "LibUFEM.hpp"
@@ -26,7 +26,7 @@ namespace UFEM {
 /// The "gradient_region" option determines the region in which the temperature gradient is calculated
 /// The "lss" option determines the linear system to which the boundary condition is applied
 /// The "temperature_field_tag" option determines the tag to use when looking for the temperature field
-class UFEM_API HeatCouplingRobin : public solver::ActionDirector
+class UFEM_API HeatCouplingRobin : public solver::Action
 {
 public:
 
@@ -38,6 +38,9 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "HeatCouplingRobin"; }
+
+  /// Execute the control of heat transfer coefficient usage (dynamic or static)
+  virtual void execute();
 
 private:
   /// Called when the boundary regions are set
@@ -57,6 +60,17 @@ private:
   // Access to the physics
 
   PhysicsConstant h;
+  PhysicsConstant h_dynamic;
+  PhysicsConstant m_alpha;
+  PhysicsConstant t_bulk;
+
+  PhysicsConstant lambda_f;
+  PhysicsConstant lambda_s;
+  PhysicsConstant cp;
+  PhysicsConstant rho;
+
+  Real m_area;
+  Real m_heat_flux;
 
 };
 

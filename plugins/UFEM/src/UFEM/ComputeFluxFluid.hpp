@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_ComputeTfluid_hpp
-#define cf3_UFEM_ComputeTfluid_hpp
+#ifndef cf3_UFEM_ComputeFluxFluid_hpp
+#define cf3_UFEM_ComputeFluxFluid_hpp
 
 
 #include "solver/ActionDirector.hpp"
@@ -27,33 +27,36 @@ namespace UFEM {
 /// is calculated
 /// The "lss" option determines the linear system to which the boundary condition is applied
 /// The "temperature_field_tag" option determines the tag to use when looking for the temperature field
-class UFEM_API ComputeTfluid : public solver::ActionDirector
+class UFEM_API ComputeFluxFluid : public solver::ActionDirector
 {
 public:
 
   /// Contructor
   /// @param name of the component
-  ComputeTfluid ( const std::string& name );
-  
-  virtual ~ComputeTfluid();
+  ComputeFluxFluid ( const std::string& name );
+
+  virtual ~ComputeFluxFluid();
 
   /// Get the class name
-  static std::string type_name () { return "ComputeTfluid"; }
+  static std::string type_name () { return "ComputeFluxFluid"; }
 
 private:
-  /// Called when the boundary regions are set
+
+  /// Called when the regions are set
   virtual void on_regions_set();
 
   /// Called when the "lss" or "temperature_field_tag" options are changed
   void trigger_setup();
 
-  cf3::solver::actions::Proto::SystemRHS m_rhs;
-  PhysicsConstant h;
+  // Access to the physics
 
+  PhysicsConstant lambda_f;
+  PhysicsConstant cp;
+  PhysicsConstant rho;
 };
 
 } // UFEM
 } // cf3
 
 
-#endif // cf3_UFEM_ComputeTfluid_hpp
+#endif // cf3_UFEM_ComputeFluxFluid_hpp

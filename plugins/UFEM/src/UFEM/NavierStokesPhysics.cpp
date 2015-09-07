@@ -28,14 +28,14 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .link_to(&m_rho)
     .mark_basic();
 
-  options().add("dynamic_viscosity", 1.7894e-5)
+  options().add("dynamic_viscosity", 1.7894e-5) //1.7894e-5
     .description("Dynamic Viscosity (kg / m s)")
     .pretty_name("Dynamic Viscosity")
     .attach_trigger(boost::bind(&NavierStokesPhysics::trigger_mu, this))
     .link_to(&m_mu)
     .mark_basic();
 
-  options().add("kinematic_viscosity", 1.7894e-5/1.2)
+  options().add("kinematic_viscosity", 1.7894e-5/1.2) // 1.7894e-5/1.
     .description("Kinematic Viscosity (m^2/s)")
     .pretty_name("Kinematic Viscosity")
     .attach_trigger(boost::bind(&NavierStokesPhysics::trigger_nu, this))
@@ -51,25 +51,50 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("Thermal_expansion_coefficient")
     .mark_basic();
 
-  options().add("specific_heat_capacity", 1.0)
+  options().add("specific_heat_capacity", 1.0) //cp
     .description("Specific heat capacity cp ()")
     .pretty_name("Specific_heat_capacity")
     .mark_basic();
 
-	options().add("thermal_conductivity", 1.0)
-		.description("Thermal conductivity (W/(mK))")
-		.pretty_name("Thermal Conductivity")
+  options().add("thermal_conductivity_solid", 1.0) //lambda_s
+    .description("thermal conductivity in the solid ()")
+    .pretty_name("Thermal_Conductivity_Solid")
     .mark_basic();
 
-  options().add("heat_transfer_coefficient", 1.0)
+  options().add("scalar_coefficient", 1.0)  //m_alpha
+    .description("scalar coefficient for scalar advection equaiton ()")
+    .pretty_name("Scalar_Coefficient")
+    .mark_basic();
+
+  options().add("thermal_conductivity_fluid", 1.0) //lambda_f
+    .description("thermal conductivity in the fluid ()")
+    .pretty_name("Thermal_Conductivity_Fluid")
+    .mark_basic();
+
+  options().add("heat_transfer_coefficient", 1.0) //h
     .description("Heat transfer coefficient h for Robin boundary condition ()")
     .pretty_name("Heat_transfer_coefficient")
     .mark_basic();
-    
+
   options().add("particle_density", 1000.0)
     .description("Density of the material building up a particle")
     .pretty_name("Particle Density")
     .mark_basic();
+
+  options().add("heat_transfer_coefficient_dynamic", 1.0) //h_dynamic
+    .description("Heat transfer coefficient h for Robin boundary condition, dynamically and locally calculated")
+    .pretty_name("Heat_transfer_coefficient_dynamic")
+    .mark_basic();
+
+  options().add("bulk_temperature", 1000.) //t_bulk[K]
+    .description("bulk temperature for dynamically calculated heat transfer coefficient")
+    .pretty_name("Bulk_Temperature")
+    .mark_basic();
+
+  //options().add<RealVector>("gravitatonal_acceleration")
+  //  .description("Acceleration due to gravitation ()")
+  //  .pretty_name("Gravitatonal_acceleration")
+  //  .mark_basic();
 }
 
 void NavierStokesPhysics::trigger_rho()

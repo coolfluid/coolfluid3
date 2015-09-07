@@ -131,7 +131,6 @@ bc.add_constant_bc(region_name = 'inlet', variable_name = 'Scalar').options().se
 bc_wall_flux = bc.create_bc_action(region_name = 'bottom1', builder_name = 'cf3.UFEM.BCNeumannConstant')
 bc_wall_flux.set_tags(neumann_field = 'scalar_advection_solution', neumann_variable = 'Scalar')
 
-
 # Time setup
 time = model.create_time()
 time.options().set('time_step', 0.01)

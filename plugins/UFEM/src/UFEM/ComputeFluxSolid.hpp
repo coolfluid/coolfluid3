@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_ComputeFlux_hpp
-#define cf3_UFEM_ComputeFlux_hpp
+#ifndef cf3_UFEM_ComputeFluxSolid_hpp
+#define cf3_UFEM_ComputeFluxSolid_hpp
 
 
 #include "solver/ActionDirector.hpp"
@@ -27,37 +27,34 @@ namespace UFEM {
 /// is calculated
 /// The "lss" option determines the linear system to which the boundary condition is applied
 /// The "temperature_field_tag" option determines the tag to use when looking for the temperature field
-class UFEM_API ComputeFlux : public solver::ActionDirector
+class UFEM_API ComputeFluxSolid : public solver::ActionDirector
 {
 public:
 
   /// Contructor
   /// @param name of the component
-  ComputeFlux ( const std::string& name );
-  
-  virtual ~ComputeFlux();
+  ComputeFluxSolid ( const std::string& name );
+
+  virtual ~ComputeFluxSolid();
 
   /// Get the class name
-  static std::string type_name () { return "ComputeFlux"; }
+  static std::string type_name () { return "ComputeFluxSolid"; }
 
 private:
 
-  /// Called when the boundary regions are set
+  /// Called when the regions are set
   virtual void on_regions_set();
-
-//  void trigger_gradient_region();
 
   /// Called when the "lss" or "temperature_field_tag" options are changed
   void trigger_setup();
 
-//  Handle<mesh::Region> m_gradient_region;
-  cf3::solver::actions::Proto::SystemRHS m_rhs;
-  PhysicsConstant h;
+  // Access to the physics
 
+  PhysicsConstant lambda_s;
 };
 
 } // UFEM
 } // cf3
 
 
-#endif // cf3_UFEM_ComputeFlux_hpp
+#endif // cf3_UFEM_ComputeFluxSolid_hpp

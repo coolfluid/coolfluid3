@@ -28,13 +28,12 @@
 #include "LibUFEM.hpp"
 #include "LSSActionUnsteady.hpp"
 
-#include "CrossWindDiffusion.hpp"
 #include "SUPG.hpp"
 
 namespace cf3 {
 
 namespace UFEM {
-  
+
 /// solver for scalar transport
 class UFEM_API ScalarAdvection : public LSSActionUnsteady
 {
@@ -55,22 +54,20 @@ private:
   /// Called when the internal name to use for the scalar variable is changed
   void trigger_scalar_name();
 
-  /// Prandtl number
-  Real m_pr;
+  virtual void on_initial_conditions_set ( InitialConditions& initial_conditions );
 
-  /// Turbulent Prandtl number
-  Real m_pr_t;
-
-  /// Parameter for the theta scheme
-  Real m_theta;
+  PhysicsConstant m_alpha;
+  PhysicsConstant lambda_f;
+  PhysicsConstant cp;
+  PhysicsConstant rho;
 
   /// Stabilization coefficient
   Real tau_su;
 
-  ComputeTau compute_tau;
-  
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::stored_type m_diff_data;
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::reference_type diffusion_coeff;
+  Handle<solver::ActionDirector> m_assembly;
+  Handle<solver::ActionDirector> m_update;
+  Handle<common::Action> m_initial_conditions;
+
 };
 
 } // UFEM
