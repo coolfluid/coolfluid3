@@ -104,6 +104,8 @@ list( APPEND coolfluid_solver_actions_proto_files
     CopyScalar.cpp
     NodeValence.hpp
     NodeValence.cpp
+    FaceNormals.hpp
+    FaceNormals.cpp
 )
 
 if( CF3_ENABLE_PROTO )

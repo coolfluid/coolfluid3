@@ -410,7 +410,7 @@ struct BlockArrays::Implementation
             const std::string& other_region = block_regions[adj_elems[dir].second];
             if(other_region != my_region)
             {
-              const std::string internal_patch_name = std::string("region_bnd_") + my_region + "_" + other_region;
+              const std::string internal_patch_name = my_region + std::string("_interface_to_") + other_region;
               patch_map[internal_patch_name].push_back(new Patch(block, i, dir * (block.nb_points[i]), patch_orientation));
             }
           }

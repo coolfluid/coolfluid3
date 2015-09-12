@@ -95,6 +95,9 @@ int vtk_type(const mesh::ShapeFunction& sf)
       (mesh::LagrangeP2::Line::shape, VTK_QUADRATIC_EDGE)
   );
 
+  if(sf.order() == 0)
+    return -1;
+
   if(sf.order() > element_type_map.size())
     return -1;
 
@@ -331,7 +334,7 @@ struct CF3ToVTK::node_mapping
           const Uint nb_elements = entities.size();
           const mesh::Connectivity& connectivity = entities.space(field.dict()).connectivity();
           const Uint elem_nb_nodes = connectivity.row_size();
-          RealVector row_sum(elem_nb_nodes);
+          RealVector row_sum(row_size);
           for(Uint elem_idx = 0; elem_idx != nb_elements; ++elem_idx)
           {
             if(entities.is_ghost(elem_idx) && !m_include_ghost_cells)

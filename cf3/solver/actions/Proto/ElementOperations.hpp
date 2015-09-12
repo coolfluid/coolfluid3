@@ -73,6 +73,29 @@ struct NodesOp : boost::proto::transform< NodesOp >
   };
 };
 
+
+/// Possible types for mapped coords
+struct MappedCoordTerms :
+  boost::proto::or_
+  <
+    boost::proto::terminal< RealVector >,
+    boost::proto::terminal< RealVector1 >,
+    boost::proto::terminal< RealVector2 >,
+    boost::proto::terminal< RealVector3 >
+  >
+{
+};
+
+/// Transform to evalate mapped coordinates
+struct EvalMappedCoords :
+  boost::proto::or_
+  <
+    boost::proto::when<MappedCoordTerms, boost::proto::_value>,
+    GaussGrammar
+  >
+{
+};
+
 /// Base class for the implementation of operations that depend on mapped coordinates (CRTP pattern)
 template<typename ExprT, typename StateT, typename DataT, typename Derived, template<typename> class ResultType>
 struct MappedOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
@@ -98,30 +121,8 @@ struct MappedOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
   /// Mapped coordinates were supplied as an argument
   result_type dispatch(boost::mpl::int_<2>, typename MappedOpBase::expr_param expr, typename MappedOpBase::data_param data)
   {
-    return Derived::apply(data.support(), boost::proto::value(boost::proto::child_c<1>(expr)));
+    return Derived::apply(data.support(), EvalMappedCoords()(boost::proto::child_c<1>(expr), 0, data));
   }
-};
-
-/// Possible types for mapped coords
-struct MappedCoordTerms :
-  boost::proto::or_
-  <
-    boost::proto::terminal< RealVector >,
-    boost::proto::terminal< RealVector1 >,
-    boost::proto::terminal< RealVector2 >,
-    boost::proto::terminal< RealVector3 >
-  >
-{
-};
-
-/// Transform to evalate mapped coordinates
-struct EvalMappedCoords :
-  boost::proto::or_
-  <
-    boost::proto::when<MappedCoordTerms, boost::proto::_value>,
-    GaussGrammar
-  >
-{
 };
 
 /// Base class for the implementation of operations that depend on mapped coordinates (CRTP pattern)

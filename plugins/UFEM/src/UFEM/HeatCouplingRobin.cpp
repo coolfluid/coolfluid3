@@ -201,7 +201,7 @@ void HeatCouplingRobin::trigger_setup()
     second_heat_flux->set_expression(elements_expression
     (
       boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-      group(m_rhs(T) += - integral<2>(transpose(N(T))*GradT*normal*lambda_f),
+      group(m_rhs(T) += integral<2>(transpose(N(T))*GradT*normal*lambda_f),
     //  _cout << "rhs_second:" << transpose(- integral<2>(transpose(N(T))*GradT*normal*lambda_f)) << "\n",
             _cout << " coordinates[0]:" << coordinates[0] << "GradT:" << GradT*normal/(_norm(normal)) << "\n"
 
