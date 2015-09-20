@@ -25,10 +25,10 @@ Create a directory to hold your sources and the build files:
 @verbatim
 $> mkdir coolfluid3
 $> cd coolfluid3
-$> git clone git@github.com:your_name/coolfluid3.git kernel
+$> git clone git@github.com:your_name/coolfluid3.git coolfluid3
 @endverbatim
 
-Lets remember this directory to help the rest of the installation:
+Lets remember this directory (the parent of your git source tree) to help the rest of the installation:
 
 @verbatim
 $> export CF3=$PWD
@@ -37,7 +37,7 @@ $> export CF3=$PWD
 @section _installation_prerequisites Prerequisites
 
 COOLFluiD 3 depends on several third-party libraries, to enable extra functionality. Of all the third-party libraries,
-only 3 are absolutely necessary. These dependencies will allow coolfluid to build with minimum functionality, and several
+only 4 are absolutely necessary. These dependencies will allow coolfluid to build with minimum functionality, and several
 disabled coolfluid libraries.
 
 <ul>
@@ -48,15 +48,12 @@ disabled coolfluid libraries.
   <li> Extra recommended boost build options:  @verbatim --with-python @endverbatim
  </ul>
  <li> <a href=http://www.open-mpi.org> open-mpi </a> or any other <a href=http://www.mcs.anl.gov/research/projects/mpi/>MPI</a> distribution.
+ <li> <a href=http://eigen.tuxfamily.org>The Eigen 3 matrix library</a>
 </ul>
 
-Besides creating C++ applications using the coolfluid libraries, coolfluid libraries can also be used in two additional ways.
-It is therefore highly recommended to make sure following dependencies are also available:
+Besides creating C++ applications using the coolfluid libraries, coolfluid libraries can also be used from Python scripts.
+It is therefore highly recommended to make sure following dependency is also available:
 <ul>
-  <li> coolfluid-client user interface, based on <a href=http://qt.nokia.com>Nokia's Qt Libraries</a>, providing full client-server interaction.
-  <ul>
-    <li> The open source version of the Qt Libraries can be found <a href="http://qt.nokia.com/downloads/downloads#qt-lib">here</a>.
-  </ul>
   <li> <a href=http://www.python.org/>Python</a> scripting.
   <ul>
     <li> Python must be available
@@ -71,7 +68,7 @@ Other recommended third party libraries:
     <li> <a href=http://www.labri.fr/perso/pelegrin/scotch/>PTScotch</a>
     <li> <a href=http://www.cs.sandia.gov/Zoltan/>Zoltan</a> (also sub-package of Trilinos)
   </ul>
-  <li> <a href=http://trilinos.sandia.gov/>Trilinos</a> for solving parallel distributed linear systems
+  <li> <a href=http://trilinos.sandia.gov/>Trilinos</a> for solving parallel distributed linear systems, required for the finite element solver UFEM
   <li> <a href=http://cgns.sourceforge.net/>CGNS</a> to read and write meshes in cgns format
   <li> <a href=http://www.paraview.org/>Paraview</a> libraries compiled with MPI for use with the coolfluid-client user interface, to visualize meshes.
 </ul>
@@ -84,37 +81,81 @@ Other supported third party libraries of little use at the moment:
 </ul>
 
 @subsection _installation_install_deps Installation of dependencies
-To make life easier for you, we provide a script with the coolfluid sources that downloads and installs the
-required dependencies, but without any guarantee of success for your specific architecture!
-It is also recommended to install the dependencies not in the system, but in your home directory where you have
-all the access-privileges (e.g. on high-performance computing clusters).
-
-@note
-Qt must be installed beforehand, (not through the script). Source code as well as pre-compiled binaries
-can be found <a href="http://qt.nokia.com/downloads/downloads#qt-lib">here</a>.
-
-Continuing where we left off:
+Dependencies are most easily installed using the package manager on Linux or <a href="http://brew.sh/">homebrew</a> on Mac OS X
+The following is a list of packages that can be installed on a "fresh" Fedora linux system to provide a working development environment:
 @verbatim
-$> mkdir $CF3/deps
-$> $CF3/kernel/tools/install-deps.pl --no-fortran --install-dir=$CF3/deps --install=recommended --no-fortran
+gcc-c++
+gcc-gfortran
+openmpi-devel
+blas-devel
+lapack-devel
+cmake-gui
+boost-devel
+python-devel
+git
+eigen3-devel
 @endverbatim
-Please check $CF3/kernel/tools/install-deps.pl --help for all available options of this script
-Use the option "--dry-run" to check what the script will do normally, without actually doing anything.\n
-The "--install=recommended" argument is equivalent to "--install=cmake,boost,openmpi,parmetis,zoltan,trilinos,hdf5,cgns".
-It is self-explanatory that you can choose to omit or add extra libraries to install.
-The "--no-fortran" option is there because e.g. Mac OSX does not come with a Fortran compiler.
 
-@subsection _installation_export_dependencies Export dependencies
-
-Since the dependencies were not installed in the system directories but in $CF3/deps, we have to let the system know to look
-for these dependencies there.
-
-You might want to save this in your bash startup script (~/.bash_profile or ~/.bash_rc  -- create it if it doesn't exist)
+On Fedora and certain other linux distributions, the MPI commands need to be made available using a module command:
 @verbatim
-$> export CF3=complete/path/to/coolfluid3    # notice to replace the complete path!
-$> export PATH=$CF3/deps/bin:$PATH
-$> export LD_LIBRARY_PATH=$CF3/deps/lib:$LD_LIBRARY_PATH
-$> export DYLD_LIBRARY_PATH=$CF3/deps/lib:$DYLD_LIBRARY_PATH
+module load mpi/openmpi-x86_64
+@endverbatim
+This can be put into the .bashrc or equivalent file to make it automatic on login.
+
+Trilinos is not available on many systems as a package (Homebrew on OS X and the Arch Linux AUR being exceptions).
+It will therefore need to be installed manually. We recommend using the latest version from the 11 series, currently Trilinos 11.14.3. After
+unpacking the Trilinos source code and creating an empty build directory, the following script allows configuring Trilinos with appropriate settings for Coolfluid:
+@verbatim
+#!/bin/bash
+
+sourcedir=$HOME/coolfluid/dependencies/sources/trilinos-11.12.1-Source
+depsdir=$CF3/deps
+
+CC=mpicc
+CXX=mpic++
+FC=mpif77
+
+ccmake -D CMAKE_INSTALL_PREFIX:PATH=$depsdir -D CMAKE_BUILD_TYPE:STRING=RELEASE \
+-D Trilinos_ENABLE_DEFAULT_PACKAGES:BOOL=OFF \
+-D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=ON \
+-D Trilinos_ENABLE_TESTS:BOOL=OFF \
+-D Trilinos_ENABLE_Amesos:BOOL=ON \
+-D Trilinos_ENABLE_AztecOO:BOOL=ON \
+-D Trilinos_ENABLE_Belos:BOOL=ON \
+-D Trilinos_ENABLE_Didasko:BOOL=OFF \
+-D Didasko_ENABLE_TESTS:BOOL=OFF \
+-D Didasko_ENABLE_EXAMPLES:BOOL=OFF \
+-D Trilinos_ENABLE_Epetra:BOOL=ON \
+-D Trilinos_ENABLE_EpetraExt:BOOL=ON \
+-D Trilinos_ENABLE_ShyLU:BOOL=ON \
+-D Trilinos_ENABLE_Tpetra:BOOL=ON \
+-D Trilinos_ENABLE_Teko:BOOL=ON \
+-D Trilinos_ENABLE_TpetraExt:BOOL=ON \
+-D Trilinos_ENABLE_Ifpack:BOOL=ON \
+-D Trilinos_ENABLE_Meros:BOOL=ON \
+-D Trilinos_ENABLE_ML:BOOL=ON \
+-D Trilinos_ENABLE_RTOp:BOOL=ON \
+-D Trilinos_ENABLE_Teuchos:BOOL=ON \
+-D Trilinos_ENABLE_Thyra:BOOL=ON \
+-D Trilinos_ENABLE_ThyraCore:BOOL=ON \
+-D Trilinos_ENABLE_Triutils:BOOL=ON \
+-D Trilinos_ENABLE_Stratimikos:BOOL=ON \
+-D Trilinos_ENABLE_Zoltan:BOOL=ON \
+-D Zoltan_ENABLE_EXAMPLES:BOOL=ON \
+-D Zoltan_ENABLE_TESTS:BOOL=ON \
+-D Zoltan_ENABLE_ULLONG_IDS:Bool=ON \
+-D TPL_ENABLE_BLAS:BOOL=ON \
+-D TPL_ENABLE_LAPACK:BOOL=ON \
+-D TPL_ENABLE_MPI:BOOL=ON \
+-D BUILD_SHARED_LIBS:BOOL=ON \
+-D Trilinos_VERBOSE_CONFIGURE:BOOL=FALSE \
+  $sourcedir
+@endverbatim
+Here, the sourcedir variable at the top should point to the unpacked source directory, while depsdir is the directory where Trilinos will be installed ($CF3/deps in this tutorial).
+Next, still in the build directory run:
+@verbatim
+make -j <number of CPUs> 
+make install
 @endverbatim
 
 <hr>
@@ -136,16 +177,16 @@ $> mkdir build
 Unlike COOLFluiD 2, there is no prepare.pl script. The developer must now call CMake directly.
 CMake is a cross platform configuration/build system. The developer is advised to read the <a href="http://www.cmake.org/cmake/help/documentation.html">CMake documentation</a> for advanced configuration.
 @verbatim
-$> cd $CF3/build
-$> cmake -DDEPS_ROOT=$CF3/deps    $CF3/kernel
+$> cd $CF3
+$> mkdir build # this can be anywhere, really
+$> cd build
+$> CC=mpicc CXX=mpic++ FC=mpif77 cmake -DDEPS_ROOT:PATH=$CF3/deps -DBOOST_ROOT:PATH=/usr -DCMAKE_BUILD_TYPE:STRING=Debug $CF3/coolfluid3
 @endverbatim
+On OS X, BOOST_ROOT is /usr/local when using Homebrew.
 
 @subsubsection _installation_build_type_options Build type options
 
-By default CF builds with some optimization and with debug symbols. 
-This is equivalent to passing the option "-DCMAKE_BUILD_TYPE=RelWithDebInfo".
-Available build types are:
-
+The above command builds a Debug build. You can select from the following types:
 @verbatim
 -DCMAKE_BUILD_TYPE=RelWithDebInfo
 -DCMAKE_BUILD_TYPE=Release (no debug symbols)
@@ -190,16 +231,6 @@ $> cd $CF3/build
 $> make -j2
 @endverbatim
 with the @c "-j2" assigning 2 processes to the compilation (e.g. for dual core)
-
-@subsection _installation_xcode_builds Xcode builds (MacOS X)
-
-Alternately the CMake argument @c -G"Xcode" can be used:
-@verbatim
-$> cd $CF3/build
-$> cmake -DDEPS_ROOT=$CF3/deps -G"Xcode"  $CF3/kernel
-@endverbatim 
-This will generate an <a href="http://developer.apple.com/xcode/">Xcode</a> project instead of  makefiles. Xcode comes with a debugger and other nice features to help developers.
-@note Xcode version 4 is found to be nearly unusable due to high memory requirements at the "indexing" stage, version 3 is recommended.
 
 <hr>
 
