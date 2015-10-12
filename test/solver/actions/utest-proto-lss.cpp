@@ -16,7 +16,11 @@
 #include <boost/test/unit_test.hpp>
 
 #include <Thyra_describeLinearOp.hpp>
+#include <Thyra_MultiVectorBase.hpp>
 #include <Thyra_MultiVectorStdOps.hpp>
+#include <Thyra_VectorBase.hpp>
+#include <Thyra_VectorSpaceBase.hpp>
+#include <Thyra_VectorStdOps.hpp>
 #include <Teuchos_VerboseObject.hpp>
 
 #include "solver/Model.hpp"

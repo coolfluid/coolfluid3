@@ -147,7 +147,7 @@ scalaradv.pr = 1./physics.dynamic_viscosity
 bc = nstokes.get_child('BoundaryConditions')
 bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().set('value', u_in)
-bc.add_constant_bc(region_name = 'region_bnd_fluid_solid', variable_name = 'Velocity').options().set('value',  u_wall)
+bc.add_constant_bc(region_name = 'fluid_interface_to_solid', variable_name = 'Velocity').options().set('value',  u_wall)
 bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().set('value',  u_wall)
 bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().set('value',  0.)
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().set('value', 1.)
@@ -157,7 +157,7 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().se
 bc = scalaradv.get_child('BoundaryConditions')
 bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Temperature').options().set('value', Tin)
-bc_wall_temp = bc.create_bc_action(region_name = 'region_bnd_fluid_solid', builder_name = 'cf3.UFEM.BCHoldValue')
+bc_wall_temp = bc.create_bc_action(region_name = 'solid_interface_to_fluid', builder_name = 'cf3.UFEM.BCHoldValue')
 bc_wall_temp.set_tags(from_field_tag = 'heat_conduction_solution', to_field_tag = 'scalar_advection_solution', from_variable = 'Temperature', to_variable = 'Temperature')
 bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Temperature').options().set('value',  Tin)
 bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Temperature').options().set('value',  Tin)
@@ -166,7 +166,7 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options()
 # Boundary conditions for HeatConduction
 bc = heatcond.get_child('BoundaryConditions')
 bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
-heat_coupling = bc.create_bc_action(region_name = 'region_bnd_fluid_solid', builder_name = 'cf3.UFEM.HeatCouplingFlux')
+heat_coupling = bc.create_bc_action(region_name = 'fluid_interface_to_solid', builder_name = 'cf3.UFEM.HeatCouplingFlux')
 heat_coupling.options().set('gradient_region', mesh.access_component('topology/fluid'))
 heat_coupling.options().set('temperature_field_tag', 'scalar_advection_solution')
 bc.add_constant_bc(region_name = 'solid_bottom', variable_name = 'Temperature').options().set('value',  Twall)

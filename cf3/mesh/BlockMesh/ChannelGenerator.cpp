@@ -136,7 +136,6 @@ void ChannelGenerator::execute()
     blocks.options().set("overlap", cell_overlap);
   }
 
-  blocks.partition_blocks(nb_parts, XX);
   blocks.create_mesh(mesh); //--> raises mesh_loaded event inside
 }
 

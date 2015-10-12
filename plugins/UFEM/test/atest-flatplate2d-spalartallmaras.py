@@ -95,6 +95,10 @@ top_patch[2] = [4, 11]
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 
+partitioner = domain.create_component('Partitioner', 'cf3.zoltan.PHG')
+partitioner.mesh = mesh
+partitioner.execute()
+
 # Because of multi-region support, solvers do not automatically have a region assigned, so we must manually set the solvers to work on the whole mesh
 nstokes.regions = [mesh.topology.uri()]
 satm.regions = [mesh.topology.uri()]

@@ -18,6 +18,7 @@
 #include <Thyra_DefaultSpmdMultiVector.hpp>
 #include <Thyra_VectorStdOps.hpp>
 #include <Thyra_MultiVectorStdOps.hpp>
+#include <Thyra_VectorBase.hpp>
 
 #include "common/Component.hpp"
 #include "common/Builder.hpp"
@@ -210,8 +211,8 @@ struct InnerLoop : solver::Action
   Handle< math::LSS::Vector > u;
   Handle< math::LSS::Vector > a;
   Handle< math::LSS::Vector > p;
-  Teuchos::RCP<Thyra::MultiVectorBase<Real> > delta_a;
-  Teuchos::RCP<Thyra::MultiVectorBase<Real> > aup_delta_p; // This is actually u_lss->rhs()
+  Teuchos::RCP<Thyra::VectorBase<Real> > delta_a;
+  Teuchos::RCP<Thyra::VectorBase<Real> > aup_delta_p; // This is actually u_lss->rhs()
   Handle< math::LSS::Vector > delta_p_sum;
   
   Handle<solver::Time> m_time;
