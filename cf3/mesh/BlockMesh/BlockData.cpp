@@ -1318,9 +1318,6 @@ void BlockArrays::create_mesh(Mesh& mesh)
   Uint element_offset = rank == 0 ? 0 : nb_elements_accumulated[rank-1];
 
   // Update the element ranks and gids
-
-  boost::filesystem::fstream ofile("element_nodes_for_rank" + common::to_str(rank) + ".txt", std::ios_base::out);
-
   boost_foreach(Elements& elements , find_components_recursively<Elements>(mesh))
   {
     const Uint nb_elems = elements.size();
@@ -1332,40 +1329,9 @@ void BlockArrays::create_mesh(Mesh& mesh)
     {
       elements.rank()[elem] = rank;
       elements.glb_idx()[elem] = elem + element_offset;
-      ofile << "elem" << ":";
-      for(Uint node_idx: conn[elem])
-      {
-        ofile << " " << node_idx;
-      }
-      ofile << "\n";
     }
     element_offset += nb_elems;
   }
-
-  for(Uint node = 0; node != mesh.geometry_fields().coordinates().array().size(); ++node)
-  {
-    ofile << node << ":";
-    for(const Real coord : mesh.geometry_fields().coordinates().array()[node])
-    {
-      ofile << " " << coord;
-    }
-    ofile << " at rank " << ranks[node] << "\n";
-  }
-
-  // Make sure all nodes were added
-  for(Uint block_idx = blocks_begin; block_idx != blocks_end; ++block_idx)
-  {
-    for(Uint node = m_implementation->block_list[block_idx].local_nodes_start; node != m_implementation->block_list[block_idx].local_nodes_end; ++node)
-    {
-      if(m_implementation->needed_nodes_ijk[block_idx].find(node) == m_implementation->needed_nodes_ijk[block_idx].end())
-      {
-        ofile << "missing node: " << node << "\n";
-      }
-      //cf3_assert(m_implementation->needed_nodes_ijk[block_idx].find(node) != m_implementation->needed_nodes_ijk[block_idx].end());
-    }
-  }
-
-  ofile.close();
 
   mesh.update_structures();
 
