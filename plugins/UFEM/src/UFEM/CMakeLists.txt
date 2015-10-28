@@ -47,6 +47,8 @@ list( APPEND coolfluid_ufem_files
   ComputeFluxSolid.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
+  HeatCouplingRobinFluid.hpp
+  HeatCouplingRobinFluid.cpp
   ICNSImplicitToSemi.hpp
   ICNSImplicitToSemi.cpp
   ICNSSemiToImplicit.hpp
