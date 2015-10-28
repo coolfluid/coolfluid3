@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for cf3::mesh::BlockMesh::BlockMeshMPI"
 
 #include <boost/assign.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"

@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for DataComponentWrapper.hpp"
 
 #include <set>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "common/CF.hpp"
 #include "common/CreateComponentDataType.hpp"

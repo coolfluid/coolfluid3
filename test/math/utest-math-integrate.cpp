@@ -9,7 +9,7 @@
 
 #include <iomanip>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 #include "fparser/fparser.hh"

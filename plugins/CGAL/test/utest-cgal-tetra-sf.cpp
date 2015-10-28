@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Tetrahedral mesh testing on CGAL generated meshes"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
@@ -120,7 +120,7 @@ struct VolumeFunctor {
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( GlobalFixture ) // creates a global fixture, and thus all meshes
+BOOST_GLOBAL_FIXTURE( GlobalFixture ); // creates a global fixture, and thus all meshes
 
 //////////////////////////////////////////////////////////////////////////////
 

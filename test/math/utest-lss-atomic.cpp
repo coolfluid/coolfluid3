@@ -12,7 +12,7 @@
 
 #include <fstream>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/lexical_cast.hpp>
 

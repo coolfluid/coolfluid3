@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for cf3::Euler"
 
 #include <iostream>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "math/Defs.hpp"
 

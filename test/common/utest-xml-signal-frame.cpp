@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for XML maps manipulation"
 
 #include "rapidxml/rapidxml.hpp"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "common/Log.hpp"
 #include "common/URI.hpp"

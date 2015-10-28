@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Tests the assembly on a single element"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
@@ -72,7 +72,7 @@ struct NavierStokesAssemblyFixture
     mesh->raise_mesh_loaded();
 
     solver->configure_option_recursively("regions", std::vector<URI>(1, mesh->topology().uri()));
-    math::LSS::System& lss = lss_action->create_lss();
+    cf3::math::LSS::System& lss = lss_action->create_lss();
 
     const std::vector<std::string> disabled_actions = boost::assign::list_of("BoundaryConditions")("SolveLSS")("Update");
     lss_action->options().set("disabled_actions", disabled_actions);

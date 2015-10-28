@@ -9,7 +9,7 @@
 
 #include <iomanip>
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "common/BoostAssign.hpp"
 
@@ -71,7 +71,7 @@ struct CoreInit {
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( CoreInit )
+BOOST_GLOBAL_FIXTURE( CoreInit );
 
 //////////////////////////////////////////////////////////////////////////////
 

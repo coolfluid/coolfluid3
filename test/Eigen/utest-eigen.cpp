@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for Eigen"
-
-#include <boost/test/unit_test.hpp>
-
-#include <iostream>
+#include <boost/assert.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Eigen/Dense>
 

@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10                        //explained in boost doc
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
@@ -179,8 +179,8 @@ BOOST_AUTO_TEST_CASE( NeumannTest )
   hc_bottom->options().set("regions", std::vector<URI>(1, mesh->access_component("topology/solid_bottom")->uri()));
   hc_top->options().set("regions", std::vector<URI>(1, mesh->access_component("topology/solid_top")->uri()));
 
-  math::LSS::System& bot_lss = hc_bottom->create_lss();
-  math::LSS::System& top_lss = hc_top->create_lss();
+  cf3::math::LSS::System& bot_lss = hc_bottom->create_lss();
+  cf3::math::LSS::System& top_lss = hc_top->create_lss();
   
   bc_bot->options().set("regions", std::vector<URI>(1, mesh->topology().uri()));
   bc_bot->add_constant_bc("bottom", "Temperature")->options().set("value", 10.);

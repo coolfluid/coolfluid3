@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for common::EventHandler"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/thread.hpp>
 
 #include <iostream>
@@ -165,15 +165,15 @@ struct DisplayIter : public ConnectionManager {
 //------------------------------------------------------------------------------------------
 // test fixtures
 
-struct global_fixture
+struct event_global_fixture
 {
-  global_fixture()
+  event_global_fixture()
   {
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
   }
 
-  ~global_fixture()
+  ~event_global_fixture()
   {
     Core::instance().terminate();
   }
@@ -188,7 +188,7 @@ struct local_fixture
 
 //------------------------------------------------------------------------------------------
 
-BOOST_GLOBAL_FIXTURE( global_fixture )
+BOOST_GLOBAL_FIXTURE( event_global_fixture );
 
 BOOST_AUTO_TEST_SUITE( event_handler_test_suite )
 

@@ -2,7 +2,7 @@
 #define cf3_test_ui_Application_hpp
 
 #include <boost/assign/list_of.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <iostream>
 

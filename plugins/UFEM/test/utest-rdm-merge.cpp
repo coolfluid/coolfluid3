@@ -8,7 +8,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
         )
       )
       << bc
-      << allocate_component<math::LSS::SolveLSS>("SolveLSS")
+      << allocate_component<cf3::math::LSS::SolveLSS>("SolveLSS")
       << create_proto_action("Increment", nodes_expression(fi += lss_action->solution(fi)));
 
   // Setup physics

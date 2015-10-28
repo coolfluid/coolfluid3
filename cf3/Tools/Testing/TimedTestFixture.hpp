@@ -10,8 +10,7 @@
 #include <iostream>
 
 #include <boost/test/framework.hpp>
-#include <boost/test/test_observer.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/timer.hpp>
 
 #include "common/Timer.hpp"

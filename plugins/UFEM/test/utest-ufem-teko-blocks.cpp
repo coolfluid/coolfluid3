@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Test teko matrix blocking functions"
 
 #include <boost/assign.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include <Teko_EpetraHelpers.hpp>
 #include <Teko_Utilities.hpp>

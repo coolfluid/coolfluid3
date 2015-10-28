@@ -91,6 +91,11 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("Bulk_Temperature")
     .mark_basic();
 
+  options().add("resistance_solid_coefficient", 1.0)
+    .description("Resitance coeffient for the RobinFluid condition")
+    .pretty_name("R Solid")
+    .mark_basic();
+
   //options().add<RealVector>("gravitatonal_acceleration")
   //  .description("Acceleration due to gravitation ()")
   //  .pretty_name("Gravitatonal_acceleration")

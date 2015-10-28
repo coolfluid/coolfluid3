@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for the LagrangeP1 Line3D Element types"
 
 #include "common/BoostAssign.hpp"
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "common/Log.hpp"
 

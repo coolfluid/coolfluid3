@@ -10,7 +10,7 @@
 #include <map>
 
 #include <boost/foreach.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 #include "common/ActionDirector.hpp"
 #include "common/Core.hpp"

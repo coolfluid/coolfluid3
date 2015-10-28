@@ -10,6 +10,7 @@
 #include <boost/accumulators/accumulators_fwd.hpp>
 
 #include <boost/fusion/container/vector/convert.hpp>
+#include <boost/mpl/copy.hpp>
 #include <boost/mpl/max.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/transform.hpp>

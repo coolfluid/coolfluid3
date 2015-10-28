@@ -13,7 +13,7 @@
 #include <boost/accumulators/statistics/max.hpp>
 
 #include <boost/foreach.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include <boost/proto/debug.hpp>
 
 #include "solver/Model.hpp"

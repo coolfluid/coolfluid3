@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Tests cf3::mesh::FaceCellConnectivity"
 
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "common/BoostAssign.hpp"
 
 #include "common/Log.hpp"
