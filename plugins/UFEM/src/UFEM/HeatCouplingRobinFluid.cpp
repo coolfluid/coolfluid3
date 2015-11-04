@@ -156,8 +156,8 @@ void HeatCouplingRobinFluid::trigger_setup()
      group
      (
      _A(Tfluid) = _0,
-     system_matrix +=  (R_solid * (  integral<2>(transpose(N(Tfluid))*N(Tfluid)*_norm(normal)))), // Robin system contribution
-     m_rhs += (R_solid * (integral<2>(transpose(N(T))*(T *_norm(normal))))) - (R_solid * (  integral<2>(transpose(N(Tfluid))*Tfluid*_norm(normal)))) // First part of Tsolid calculation and Robin system contribution added to RHS (since we solve for a delta T)
+     system_matrix +=  (R_solid/(boost::proto::lit(rho)*cp) * (  integral<2>(transpose(N(Tfluid))*N(Tfluid)*_norm(normal)))), // Robin system contribution
+     m_rhs += (R_solid/(boost::proto::lit(rho)*cp) * (integral<2>(transpose(N(T))*(T *_norm(normal))))) - (R_solid/(boost::proto::lit(rho)*cp) * (  integral<2>(transpose(N(Tfluid))*Tfluid*_norm(normal)))) // First part of Tsolid calculation and Robin system contribution added to RHS (since we solve for a delta T)
      )
     ));
 
