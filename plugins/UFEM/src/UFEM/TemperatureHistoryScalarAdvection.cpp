@@ -53,8 +53,7 @@ TemperatureHistoryScalarAdvection::TemperatureHistoryScalarAdvection(const std::
 
     set_expression(nodes_expression(group(
 
-          lit(m_max_error) = _max(_abs(Tsa2 - Tsa1), lit(m_max_error)),
-          _cout << "max_error: " << m_max_error << "\n"
+          lit(m_max_error) = _max(_abs(Tsa2 - Tsa1), lit(m_max_error))
 )));
 
 }

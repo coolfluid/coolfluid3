@@ -193,19 +193,14 @@ void HeatCouplingRobin::trigger_setup()
      //boost::proto::lit(h_dynamic)=flux/T,
      extract_heat_flux(Tsolid, boost::proto::lit(m_heat_flux), h_dynamic, t_bulk),
      system_matrix +=  (h_dynamic * (  integral<2>(transpose(N(Tsolid))*N(Tsolid)*_norm(normal)))), // Robin system contribution
-     m_rhs += (h_dynamic * (integral<2>(transpose(N(T))*(T *_norm(normal))))) - (h_dynamic * (  integral<2>(transpose(N(Tsolid))*Tsolid*_norm(normal)))), // First part of Tfluid calculation and Robin system contribution added to RHS (since we solve for a delta T)
-     _cout << " coordinates[0]:" << coordinates[0] << "h_dynamic" << h_dynamic << "\n"
+     m_rhs += (h_dynamic * (integral<2>(transpose(N(T))*(T *_norm(normal))))) - (h_dynamic * (  integral<2>(transpose(N(Tsolid))*Tsolid*_norm(normal)))) // First part of Tfluid calculation and Robin system contribution added to RHS (since we solve for a delta T)
                                                         )
     ));
 
     second_heat_flux->set_expression(elements_expression
     (
       boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-      group(m_rhs(T) += -integral<2>(transpose(N(T))*GradT*normal*lambda_f),
-    //  _cout << "rhs_second:" << transpose(- integral<2>(transpose(N(T))*GradT*normal*lambda_f)) << "\n",
-            _cout << " coordinates[0]:" << coordinates[0] << "GradT:" << GradT*normal/(_norm(normal)) << "\n"
-
-            )
+      group(m_rhs(T) += -integral<2>(transpose(N(T))*GradT*normal*lambda_f))
     ));
 
   // Raise an event to indicate that we added a variable (GradT)

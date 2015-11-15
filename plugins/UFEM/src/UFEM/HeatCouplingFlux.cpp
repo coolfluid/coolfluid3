@@ -133,10 +133,8 @@ void HeatCouplingFlux::trigger_setup()
   neumann_heat_flux->set_expression(elements_expression
   (
     boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-          group(m_rhs(T) += -integral<1>(transpose(N(T))*GradT*normal*lambda_s/(boost::proto::lit(rho)*cp)), // Classical Neumann condition formulation for finite elements
-          _cout << "rhs" << integral<1>(transpose(N(T))*GradT*normal) << "\n",
-          _cout << "GradT" << GradT << "\n")
-  ));
+          group(m_rhs(T) += -integral<1>(transpose(N(T))*GradT*normal*lambda_s/(boost::proto::lit(rho)*cp)) // Classical Neumann condition formulation for finite elements
+  )));
 
   // Raise an event to indicate that we added a variable (GradT)
   common::XML::SignalOptions options;
@@ -149,10 +147,8 @@ void HeatCouplingFlux::trigger_setup()
     neumann_heat_flux->set_expression(elements_expression
     (
       boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-      group(m_rhs(T) += -integral<1>(transpose(N(T))*GradT*normal*lambda_f), // Classical Neumann condition formulation for finite elements divided by boost::proto::lit(lambda_s) ?
-            _cout << "rhs" << integral<1>(transpose(N(T))*GradT*normal) << "\n",
-            _cout << "GradT" << GradT << "\n")
-    ));
+      group(m_rhs(T) += -integral<1>(transpose(N(T))*GradT*normal*lambda_f) // Classical Neumann condition formulation for finite elements divided by boost::proto::lit(lambda_s) ?
+    )));
   }
 }
 

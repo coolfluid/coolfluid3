@@ -52,9 +52,7 @@ TemperatureHistoryHeatConduction::TemperatureHistoryHeatConduction(const std::st
     convergence_history.open ("convergence_history_temperature_hc.dat");
 
     set_expression(nodes_expression(group(
-
-          lit(m_max_error) = _max(_abs(Thc2 - Thc1), lit(m_max_error)),
-          _cout << "max_error: " << m_max_error << "\n"
+          lit(m_max_error) = _max(_abs(Thc2 - Thc1), lit(m_max_error))
 )));
 
 }
@@ -71,6 +69,11 @@ void TemperatureHistoryHeatConduction::execute()
   ProtoAction::execute();
 
   convergence_history << m_max_error << "\n";
+  if(::fabs(m_max_error) > 1e6)
+  {
+    convergence_history.close();
+    throw common::FailedToConverge(FromHere(), "Temperature exceeded 1 million K");
+  }
 
 }
 
