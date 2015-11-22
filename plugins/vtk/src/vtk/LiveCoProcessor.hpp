@@ -34,12 +34,10 @@ class LiveCoProcessor : public common::Action
 public:
   LiveCoProcessor ( const std::string& name );
   virtual ~LiveCoProcessor();
-  
-  static std::string type_name () { return "LiveCoProcessor"; }
-  
-  virtual void execute();
 
-  void trigger_cf3_to_vtk();
+  static std::string type_name () { return "LiveCoProcessor"; }
+
+  virtual void execute();
 
 private:
   void initialize();
@@ -55,7 +53,7 @@ private:
   /// Clean up the ParaView servermanager (called automatically on delete)
   void finalize();
 };
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } //  vtk

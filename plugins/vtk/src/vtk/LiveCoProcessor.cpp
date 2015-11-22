@@ -52,7 +52,13 @@ LiveCoProcessor::LiveCoProcessor ( const std::string& name ) : common::Action ( 
     .description("Converter to VTK")
     .pretty_name("CF3 To VTK")
     .link_to(&m_cf3_to_vtk)
-    .attach_trigger(boost::bind(&LiveCoProcessor::trigger_cf3_to_vtk, this))
+    .attach_trigger(boost::bind(&LiveCoProcessor::finalize, this))
+    .mark_basic();
+
+  options().add("hostname", "localhost")
+    .pretty_name("Hostname")
+    .description("Hostname of the live vizualisation server")
+    .attach_trigger(boost::bind(&LiveCoProcessor::finalize, this))
     .mark_basic();
 
   options().add(solver::Tags::time(), m_time)
@@ -73,6 +79,8 @@ void LiveCoProcessor::execute()
   {
     throw common::SetupError(FromHere(), "No CF3ToVTK component set for LiveCoProcessor");
   }
+
+  initialize();
 
   if(m_processor == nullptr)
   {
@@ -116,11 +124,6 @@ void LiveCoProcessor::execute()
   }
 }
 
-void LiveCoProcessor::trigger_cf3_to_vtk()
-{
-  initialize();
-}
-
 void LiveCoProcessor::initialize()
 {
   if(m_sm_helper != nullptr)
@@ -130,7 +133,7 @@ void LiveCoProcessor::initialize()
 
   // Initialize the link
   m_link = vtkSmartPointer<vtkLiveInsituLink>::New();
-  m_link->SetHostname("localhost");
+  m_link->SetHostname(options().value<std::string>("hostname").c_str());
   m_link->SetInsituPort(22222);
   m_link->Initialize(vtkSMProxyManager::GetProxyManager()->GetActiveSessionProxyManager());
 
