@@ -87,6 +87,7 @@ int vtk_type(const mesh::ShapeFunction& sf)
       (mesh::LagrangeP1::Line::shape, VTK_LINE)
       (mesh::LagrangeP1::Hexa::shape, VTK_HEXAHEDRON)
       (mesh::LagrangeP1::Quad::shape, VTK_QUAD)
+      (mesh::LagrangeP1::Tetra::shape, VTK_TETRA)
       (mesh::LagrangeP1::Triag::shape, VTK_TRIANGLE)
   )
   (
