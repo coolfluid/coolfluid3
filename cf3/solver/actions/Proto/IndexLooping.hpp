@@ -21,11 +21,12 @@ namespace Proto {
 struct ElementQuadratureTag {};
 
 /// Match quadrature expressions. THese call the grouping separately, so don't trigger on indices there.
-struct ElementQuadratureMatch :
+struct ExcludedExpressionsMatch :
   boost::proto::or_
   <
     boost::proto::function< boost::proto::terminal<ElementQuadratureTag>, boost::proto::_ >,
-    boost::proto::shift_left< boost::proto::terminal<ElementQuadratureTag>, boost::proto::comma<boost::proto::_, boost::proto::_> >
+    boost::proto::shift_left< boost::proto::terminal<ElementQuadratureTag>, boost::proto::comma<boost::proto::_, boost::proto::_> >,
+    boost::proto::function< boost::proto::terminal<PartialTag>, boost::proto::_, boost::proto::_ >
   >
 {
 };
@@ -36,10 +37,13 @@ struct IndexTag
 {
 };
 
+typedef IndexTag<boost::mpl::int_<0>> I_t;
+typedef IndexTag<boost::mpl::int_<1>> J_t;
+
 /// Index looping over the dimensions of a variable
-static boost::proto::terminal< IndexTag<boost::mpl::int_<0> > >::type const _i = {};
+static boost::proto::terminal<I_t>::type const _i = {};
 /// Index looping over the dimensions of a variable
-static boost::proto::terminal< IndexTag<boost::mpl::int_<1> > >::type const _j = {};
+static boost::proto::terminal<J_t>::type const _j = {};
 
 /// Check if index I is used in the expression
 template<Uint I>
@@ -58,7 +62,7 @@ struct HasIdx :
     >,
     boost::proto::when
     <
-      ElementQuadratureMatch,
+      ExcludedExpressionsMatch,
       boost::mpl::false_()
     >,
     boost::proto::when
@@ -77,12 +81,12 @@ struct IndexValues :
   <
     boost::proto::when
     <
-      boost::proto::terminal< IndexTag< boost::mpl::int_<0> > >,
+      boost::proto::terminal<I_t>,
       I()
     >,
     boost::proto::when
     <
-      boost::proto::terminal< IndexTag< boost::mpl::int_<1> > >,
+      boost::proto::terminal<J_t>,
       J()
     >
   >

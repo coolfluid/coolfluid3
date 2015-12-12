@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for proto operators"
 
 #include <boost/accumulators/accumulators.hpp>
@@ -13,7 +13,7 @@
 #include <boost/accumulators/statistics/max.hpp>
 
 #include <boost/foreach.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/proto/debug.hpp>
 
 #include "solver/Model.hpp"
@@ -316,7 +316,7 @@ struct Counter : boost::noncopyable
   Counter() : increment(0.)
   {
   }
-  
+
   /// Dummy result
   typedef void result_type;
 
@@ -324,7 +324,7 @@ struct Counter : boost::noncopyable
   {
     arg += increment;
   }
-  
+
   Real increment;
 };
 
@@ -333,15 +333,15 @@ BOOST_AUTO_TEST_CASE( VoidOp )
 {
   Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("line2");
   Tools::MeshGeneration::create_line(*mesh, 1., 10);
-  
+
   MakeSFOp<Counter>::stored_type counter;
   MakeSFOp<Counter>::reference_type add_count = boost::proto::as_child(counter);
-  
+
   counter.op.increment = 2.;
 
   // Check if the counter really counts
   int count = 0;
-  
+
   elements_expression
   (
     boost::mpl::vector1<LagrangeP1::Line1D>(),
@@ -586,7 +586,7 @@ BOOST_AUTO_TEST_CASE( NodeExprFunctionParsing )
   f.functions(std::vector<std::string>(1, "x+1"));
   f.parse();
   f.predefined_values.resize(1);
-  
+
   RealVector one(1); one.setConstant(1.);
 
   boost::shared_ptr< Expression > test_expr = nodes_expression
@@ -814,70 +814,6 @@ BOOST_AUTO_TEST_CASE( ElementVector )
   BOOST_CHECK_EQUAL(elvec, ref);
 }
 
-
-BOOST_AUTO_TEST_CASE( Grad )
-{
-  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("GradGrid");
-  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
-
-  mesh->geometry_fields().create_field( "solution", "u[scalar]" ).add_tag("solution");
-
-  FieldVariable<0, ScalarField > u("u", "solution");
-
-  for_each_node(mesh->topology(), group(u = 2.*coordinates[0]));
-
-  RealVector2 result1, result2;
-  result1.setZero(); result2.setZero();
-
-  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
-  (
-    mesh->topology(),
-    group
-    (
-      _cout << "u*gradient(u): " << u(result1) * gradient(u, result1) << "\n",
-      element_quadrature(lit(result1) += gradient(u)),
-      lit(result1) = result1 / volume,
-      lit(result2) = gradient(u, result2)
-    )
-  );
-  
-  BOOST_CHECK_EQUAL(result1[0], 2.);
-  BOOST_CHECK_EQUAL(result2[0], 2.);
-  BOOST_CHECK_EQUAL(result1[1], 0.);
-  BOOST_CHECK_EQUAL(result2[1], 0.);
-}
-
-BOOST_AUTO_TEST_CASE( Div )
-{
-  Handle<Mesh> mesh = Core::instance().root().create_component<Mesh>("GradGrid");
-  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
-
-  mesh->geometry_fields().create_field( "solution", "u[vector]" ).add_tag("solution");
-
-  FieldVariable<0, VectorField > u("u", "solution");
-
-  for_each_node(mesh->topology(), group(u[0] = 2.*coordinates[0], u[1] = 1.));
-
-  Real result1 = 0.;
-  Real result2 = 1.;
-  RealVector2 centroid; centroid.setZero();
-
-  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
-  (
-    mesh->topology(),
-    group
-    (
-      element_quadrature(lit(result1) += divergence(u)),
-      lit(result1) = result1 / volume,
-      lit(result2) = divergence(u, centroid)
-    )
-  );
-  
-  BOOST_CHECK_EQUAL(result1, 2.);
-  BOOST_CHECK_EQUAL(result2, 2.);
-}
-
-
 struct MetricTensor
 {
   /// Custom ops must implement the  TR1 result_of protocol
@@ -921,9 +857,9 @@ BOOST_AUTO_TEST_CASE( NodeIdxOutput )
   Tools::MeshGeneration::create_rectangle(*mesh, 0.2, 2., 1, 1);
 
   Uint idx_total = 0;
-  
+
   for_each_node(mesh->topology(), lit(idx_total) += node_index);
-  
+
   BOOST_CHECK_EQUAL(idx_total, 6);
 }
 

@@ -90,6 +90,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp
     Proto/NodeLooper.hpp
+    Proto/Partial.hpp
     Proto/PhysicsConstant.hpp
     Proto/RestrictExpressionToElementType.hpp
     Proto/RHSVector.hpp

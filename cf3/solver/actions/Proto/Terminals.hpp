@@ -247,6 +247,14 @@ static boost::proto::terminal< double(*)(double, double) >::type const _max = {&
 static boost::proto::terminal< double(*)(double, double) >::type const _min = {&min};
 static boost::proto::terminal< double(*)(double, double) >::type const _std_pow = {&std::pow};
 
+// Function for partial derivatives in index notation
+struct PartialTag
+{
+};
+
+static boost::proto::terminal<PartialTag>::type partial = {};
+
+
 } // namespace Proto
 } // namespace actions
 } // namespace solver

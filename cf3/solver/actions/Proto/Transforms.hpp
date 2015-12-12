@@ -130,6 +130,28 @@ private:
   VarsT& m_vars;
 };
 
+/// Returns the data structure associated with a numbered variable
+struct VarData :
+  boost::proto::transform< VarData >
+{
+  template<typename VarT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<VarT, StateT, DataT>
+  {
+
+    typedef typename boost::remove_reference<typename impl::expr_param>::type::index_type var_idx_t;
+    typedef decltype(std::declval<typename impl::data_param>().var_data(var_idx_t())) result_type;
+
+    result_type operator ()(
+                typename impl::expr_param var
+              , typename impl::state_param state
+              , typename impl::data_param data
+    ) const
+    {
+      return data.var_data(var_idx_t());
+    }
+  };
+};
+
 /// Returns the data value of a numbered variable
 struct VarValue :
   boost::proto::transform< VarValue >
@@ -146,6 +168,7 @@ struct VarValue :
               , typename impl::data_param data
     ) const
     {
+      
       return data.var_data(var).value();
     }
   };

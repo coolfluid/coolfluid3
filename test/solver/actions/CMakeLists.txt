@@ -47,20 +47,24 @@ coolfluid_add_test( UTEST     utest-proto-components
 coolfluid_add_test( UTEST     utest-proto-elements
                     CPP       utest-proto-elements.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver coolfluid_mesh_blockmesh)
-                    
+
 coolfluid_add_test( UTEST     utest-proto-nodeloop
                     CPP       utest-proto-nodeloop.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver coolfluid_mesh_blockmesh)
-                    
+
 coolfluid_add_test( UTEST     utest-proto-lss
                     CPP       utest-proto-lss.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver
                     MPI       1)
 
+coolfluid_add_test( UTEST     utest-proto-partial
+                    CPP       utest-proto-partial.cpp
+                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver)
+
 coolfluid_add_test( UTEST     utest-solver-actions-restart
                     PYTHON    utest-solver-actions-restart.py
                     MPI       4)
-                    
+
 coolfluid_add_test( UTEST     utest-solver-actions-timeseries
                     PYTHON    utest-solver-actions-timeseries.py)
 

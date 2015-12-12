@@ -13,6 +13,7 @@
 
 #include "solver/actions/Proto/EigenTransforms.hpp"
 #include "solver/actions/Proto/ElementOperations.hpp"
+#include "Partial.hpp"
 #include "solver/actions/Proto/Terminals.hpp"
 
 /// @file
@@ -74,7 +75,8 @@ struct SFOps :
     <
       boost::proto::terminal< SFOp<boost::proto::_> >,
       RunTerminalOp<GrammarT>
-    >
+    >,
+    PartialGrammar
   >
 {
 };

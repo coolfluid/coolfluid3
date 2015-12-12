@@ -312,24 +312,15 @@ struct ExtractDiag :
 };
 
 /// Primitive transform to access matrix elements using operator()
-struct MatrixElementAccess :
-  boost::proto::transform< MatrixElementAccess >
+struct MatrixElementAccess : boost::proto::callable
 {
-  template<typename ExprT, typename StateT, typename DataT>
-  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
-  {
-    /// We assume our matrices contain Reals.
-    typedef Real result_type;
+  typedef Real result_type;
 
-    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
-    {
-      return state
-      (
-        boost::proto::value( boost::proto::child_c<1>(expr) ),
-        boost::proto::value( boost::proto::child_c<2>(expr) )
-      );
-    }
-  };
+  template<typename MatrixT>
+  result_type operator ()(const MatrixT& mat, const Uint i, const Uint j) const
+  {
+    return mat(i, j);
+  }
 };
 
 /// Primitive transform to access matrix elements using operator[]
@@ -562,7 +553,7 @@ struct EigenIndexing :
     boost::proto::when
     <
       boost::proto::function< GrammarT, IntegersT, IntegersT >,
-      MatrixElementAccess( boost::proto::_expr, GrammarT(boost::proto::_child0) )
+      MatrixElementAccess( GrammarT(boost::proto::_child0), IntegersT(boost::proto::_child1), IntegersT(boost::proto::_child2) )
     >,
     boost::proto::when
     <

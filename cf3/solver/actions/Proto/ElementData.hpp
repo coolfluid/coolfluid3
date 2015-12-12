@@ -49,7 +49,7 @@ namespace actions {
 namespace Proto {
 
 namespace detail
-{  
+{
   /// Helper struct to get the number of element nodes
   template<typename EquationDataT>
   struct GetNbNodes
@@ -58,7 +58,7 @@ namespace detail
     struct apply
     {
     };
-    
+
     template<typename EqDataT>
     struct apply<boost::mpl::false_, EqDataT>
     {
@@ -70,16 +70,16 @@ namespace detail
         >::type
       >::type::EtypeT::nb_nodes;
     };
-    
+
     template<typename EqDataT>
     struct apply<boost::mpl::true_, EqDataT>
     {
       static const Uint value = 0;
     };
-    
+
     static const Uint value = apply<typename boost::fusion::result_of::empty<EquationDataT>::type, EquationDataT>::value;
   };
-  
+
   /// Grammar matching expressions if they have a terminal with the index given in the template parameter
   template<typename MatchingGrammarT>
   struct HasSubGrammar :
@@ -103,19 +103,19 @@ namespace detail
     >
   {
   };
-  
+
   /// Grammar matching expressions if they have a terminal with the index given in the template parameter
   template<Uint I>
   struct UsesVar : HasSubGrammar< boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >
   {
   };
-  
+
   template<typename ExprT, typename MatchingGrammarT>
   struct HasSubExpr
   {
     static const bool value = boost::tr1_result_of<HasSubGrammar<MatchingGrammarT>(ExprT)>::type::value;
   };
-  
+
   /// Returns true if an interpolation op is used
   template<Uint I>
   struct MatchImplicitEval :
@@ -141,7 +141,7 @@ namespace detail
     >
   {
   };
-  
+
   template<Uint I>
   struct HasEvalVar :
     boost::proto::or_
@@ -160,8 +160,8 @@ namespace detail
     >
   {
   };
-  
-  
+
+
 }
 
 /// Functions and operators associated with a geometric support
@@ -339,7 +339,7 @@ private:
 
   /// Connectivity for all elements
   const mesh::Connectivity::ArrayT& m_connectivity_array;
-  
+
   /// Connectivity table for the current element
   boost::array<Uint, EtypeT::nb_nodes> m_connectivity;
 
@@ -437,6 +437,9 @@ public:
   /// Type of the linearized form of the divergence
   typedef Eigen::Matrix<Real, 1, Dim * EtypeT::nb_nodes> DivergenceLinT;
 
+  /// Type of the field gradient matrix
+  typedef Eigen::Matrix<Real, EtypeT::dimensionality, Dim> FieldGradientT;
+
   /// The dimension of the variable
   static const Uint dimension = Dim;
 
@@ -465,7 +468,7 @@ public:
     m_need_sync(false)
   {
   }
-  
+
   ~EtypeTVariableData()
   {
     if(common::PE::Comm::instance().is_active())
@@ -483,8 +486,9 @@ public:
   {
     m_element_idx = element_idx;
     mesh::fill(m_element_values, m_field, m_connectivity_array[element_idx], offset);
+    m_cache_computed = false;
   }
-  
+
   void update_block_connectivity(math::LSS::BlockAccumulator& block_accumulator)
   {
     block_accumulator.neighbour_indices(m_connectivity_array[m_element_idx]);
@@ -510,7 +514,7 @@ public:
     }
     return m_element_vector;
   }
-  
+
   template<typename NodeValsT>
   void add_nodal_values(const NodeValsT& vals)
   {
@@ -521,10 +525,10 @@ public:
       for(Uint j = 0; j != EtypeT::nb_nodes; ++j)
         m_field[row[j]][offset+i] = m_element_values(j,i);
     }
-    
+
     m_need_sync = true;
   }
-  
+
   template<typename NodeValsT>
   void add_nodal_values_component(const NodeValsT& vals, const Uint component_idx)
   {
@@ -534,16 +538,16 @@ public:
       m_element_values(i, component_idx) += vals[i];
       m_field[row[i]][offset+component_idx] = m_element_values(i, component_idx);
     }
-    
+
     m_need_sync = true;
   }
-  
+
   /// Precompute all the cached values for the given geometric support and mapped coordinates.
   void compute_values(const MappedCoordsT& mapped_coords) const
   {
     compute_values_dispatch(boost::mpl::bool_<EtypeT::dimension == EtypeT::dimensionality>(), mapped_coords);
   }
-  
+
   /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords) const
   {
@@ -574,20 +578,39 @@ public:
   const GradientT& nabla(const MappedCoordsT& mapped_coords) const
   {
     EtypeT::SF::compute_gradient(mapped_coords, m_mapped_gradient_matrix);
-    m_gradient.noalias() = m_support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
-    return m_gradient;
+    m_nabla_n.noalias() = m_support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
+    return m_nabla_n;
   }
 
   /// Previously calculated gradient matrix
   const GradientT& nabla() const
   {
-    return m_gradient;
+    return m_nabla_n;
+  }
+
+  /// Apply the shape function gradient to the nodal values
+  const FieldGradientT& field_gradient(const MappedCoordsT& mapped_coords) const
+  {
+    m_field_gradient.noalias() = nabla(mapped_coords) * value();
+    m_cache_computed = true;
+    return m_field_gradient;
+  }
+
+  /// return previously computed value
+  const FieldGradientT& field_gradient() const
+  {
+    if(!m_cache_computed)
+    {
+      return field_gradient(m_current_mapped_coords);
+    }
+    return m_field_gradient;
   }
 
 private:
   /// Precompute for non-volume EtypeT
   void compute_values_dispatch(boost::mpl::false_, const MappedCoordsT& mapped_coords) const
   {
+    m_current_mapped_coords = mapped_coords;
     EtypeT::SF::compute_value(mapped_coords, m_sf);
     m_eval(m_sf, m_element_values);
   }
@@ -597,7 +620,7 @@ private:
   {
     compute_values_dispatch(boost::mpl::false_(), mapped_coords);
     EtypeT::SF::compute_gradient(mapped_coords, m_mapped_gradient_matrix);
-    m_gradient.noalias() = m_support.jacobian_inverse() * m_mapped_gradient_matrix;
+    m_nabla_n.noalias() = m_support.jacobian_inverse() * m_mapped_gradient_matrix;
   }
 
   /// Value of the field in each element node
@@ -617,13 +640,16 @@ private:
   Uint m_element_idx;
 
   /// Cached data
+  mutable MappedCoordsT m_current_mapped_coords;
   mutable typename EtypeT::SF::ValueT m_sf;
   mutable typename EtypeT::SF::GradientT m_mapped_gradient_matrix;
-  mutable GradientT m_gradient;
+  mutable GradientT m_nabla_n; // Gradient matrix of the shape function
+  mutable FieldGradientT m_field_gradient; // Gradient of the field
 
   InterpolationImpl<Dim> m_eval;
-  
+
   bool m_need_sync;
+  mutable bool m_cache_computed = false; // Indicate if cached values were computed
 
 public:
   /// Index of where the variable we need is in the field data row
@@ -690,7 +716,7 @@ public:
     cf3_assert(false); // should not be used
     return m_dummy_result;
   }
-  
+
   void compute_values(const MappedCoordsT& mapped_coords) const
   {
   }
@@ -767,7 +793,7 @@ public:
     cf3_assert(false); // should not be used
     return m_dummy_result;
   }
-  
+
   void compute_values(const MappedCoordsT& mapped_coords) const
   {
   }
@@ -933,7 +959,7 @@ public:
 
   /// A view of only the data used in the element matrix
   typedef boost::fusion::filter_view< VariablesDataT, IsEquationData > EquationDataT;
-  
+
   static const Uint nb_lss_nodes = detail::GetNbNodes<EquationDataT>::value;
 
   ElementData(VariablesT& variables, mesh::Elements& elements) :
@@ -948,10 +974,10 @@ public:
       m_element_matrices[i].setZero();
       m_element_vectors[i].setZero();
     }
-    
+
     init_block_accumulator(typename boost::fusion::result_of::empty<EquationDataT>::type());
   }
-  
+
   // Init LSS block accumulator
   void init_block_accumulator(boost::mpl::false_)
   {
@@ -960,10 +986,10 @@ public:
       typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
       FieldWidth<boost::mpl::_1, SupportEtypeT>
     >::type NbEqsPerVarT;
-    
+
     block_accumulator.resize(nb_lss_nodes, ElementMatrixSize<NbEqsPerVarT, EquationVariablesT>::type::value);
   }
-  
+
   // No LSS, so nothing to be done
   void init_block_accumulator(boost::mpl::true_)
   {
