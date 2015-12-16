@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"

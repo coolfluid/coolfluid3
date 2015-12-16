@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for cf3::Component"
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <boost/foreach.hpp>
 #include <boost/iterator.hpp>
@@ -285,10 +285,10 @@ BOOST_AUTO_TEST_CASE( clear )
   boost::shared_ptr<Component> root = allocate_component<Group> ( "Simulator" );
   Handle<Component> c1 = root->create_component<Component>("c1");
   Handle<Component> c2 = root->create_component<Component>("c2");
-  
+
   BOOST_CHECK(is_not_null(c1));
   BOOST_CHECK(is_not_null(c2));
-  
+
   root->clear();
 
   BOOST_CHECK(is_null(c1));

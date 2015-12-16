@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "rapidxml/rapidxml.hpp"
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include "common/BoostAssign.hpp"
 
 #include "common/OptionArray.hpp"

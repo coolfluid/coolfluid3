@@ -13,6 +13,7 @@
 #include <boost/proto/core.hpp>
 
 #include "IndexLooping.hpp"
+#include "Partial.hpp"
 #include "Terminals.hpp"
 #include "Transforms.hpp"
 
@@ -26,198 +27,150 @@ namespace solver {
 namespace actions {
 namespace Proto {
 
-/// Generalization of Eigen::ProductReturnType that also works for scalars (see specializations below)
-template<typename LeftT, typename RightT>
-struct EigenProductType
-{
-  typedef typename Eigen::ProductReturnType<LeftT, RightT>::Type type;
-};
-
-/// Scalar on the left
-template<typename RightT>
-struct EigenProductType<Real, RightT>
-{
-  typedef Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>, const RightT> type;
-};
-
-/// Scalar on the right
-template<typename LeftT>
-struct EigenProductType<LeftT, Real>
-{
-  typedef Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>, const LeftT> type;
-};
-
-/// Scalar on the left
-template<typename LeftT, typename RightT>
-struct EigenProductType<Real, Eigen::GeneralProduct<LeftT, RightT> >
-{
-  typedef Eigen::ScaledProduct< Eigen::GeneralProduct<LeftT, RightT> > type;
-};
-
-/// Scalar on the right
-template<typename LeftT, typename RightT>
-struct EigenProductType<Eigen::GeneralProduct<LeftT, RightT>, Real>
-{
-  typedef Eigen::ScaledProduct< Eigen::GeneralProduct<LeftT, RightT> > type;
-};
-
-/// Scalar - scalar
-template<>
-struct EigenProductType<Real, Real>
-{
-  typedef Real type;
-};
-
-/// Extract the real value type of a given type, which might be an Eigen expression
-template<typename T>
-struct ValueType
-{
-  typedef typename Eigen::MatrixBase<T>::PlainObject type;
-};
-
-/// Specialize for Eigen matrices
-template<int I, int J>
-struct ValueType< Eigen::Matrix<Real, I, J> >
-{
-  typedef Eigen::Matrix<Real, I, J> type;
-};
-
-/// Specialise for multiplication with a scalar
-template<typename MatrixT>
-struct ValueType< Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>, const MatrixT> >
-{
-  typedef typename ValueType<MatrixT>::type type;
-};
-
-/// Specialise for reals
-template<>
-struct ValueType<Real>
-{
-  typedef Real type;
-};
-
-/// Specialise for transpose of reals
-template<>
-struct ValueType< Eigen::Transpose<const Real> >
-{
-  typedef Real type;
-};
-
 /// Evaluate the product LeftT * RightT
-template<typename GrammarT>
-struct EigenProductEval :
-  boost::proto::transform< EigenProductEval<GrammarT> >
+struct EigenProductEval : boost::proto::callable
 {
-  template<typename ExprT, typename StateT, typename DataT>
-  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  template<typename Signature> using result = generic_result<Signature>;
+
+  template<typename ExprT, typename LeftT, typename RightT>
+  auto operator()(const ExprT& expr, const LeftT& left, const RightT& right) const -> decltype((left*right).eval())&
   {
-    typedef typename boost::proto::result_of::left<ExprT>::type LeftExprT;
-    typedef typename boost::proto::result_of::right<ExprT>::type RightExprT;
+    expr.value.noalias() = left*right;
+    return expr.value;
+  }
 
-    typedef typename boost::tr1_result_of<GrammarT(LeftExprT, StateT, DataT)>::type LeftT;
-    typedef typename boost::tr1_result_of<GrammarT(RightExprT, StateT, DataT)>::type RightT;
+  template<typename ExprT>
+  Real& operator()(const ExprT& expr, const Real left, const Real right) const
+  {
+    expr.value = left*right;
+    return expr.value;
+  }
+};
 
-    typedef typename boost::remove_const<typename boost::remove_reference<LeftT>::type>::type UnRefLeftT;
-    typedef typename boost::remove_const<typename boost::remove_reference<RightT>::type>::type UnRefRightT;
+/// Evaluate the product of partial derivatives in index notation, taking care of the summation rules
+struct PartialProductEval : boost::proto::callable
+{
+  template<typename Signature> using result = generic_result<Signature>;
 
-    typedef const typename ValueType< typename EigenProductType<UnRefLeftT, UnRefRightT>::type >::type& result_type;
-    //typedef typename EigenProductType<UnRefLeftT, UnRefRightT>::type result_type;
+  // Possible repetition counts
+  typedef boost::mpl::int_<0> _0;
+  typedef boost::mpl::int_<1> _1;
+  typedef boost::mpl::int_<2> _2;
 
-    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
-    {
-      store_result(expr.value, GrammarT()(boost::proto::left(expr), state, data) * GrammarT()(boost::proto::right(expr), state, data));
-      return expr.value;
-    }
-
-    template<typename StoredT, typename ResultT>
-    void store_result(StoredT& stored, const ResultT& result) const
-    {
-      stored.noalias() = result;
-    }
-
-    template<typename ResultT>
-    void store_result(Real& stored, const ResultT& result) const
-    {
-      stored = result;
-    }
+  template<typename LeftICountT, typename RightICountT, typename LeftJCountT, typename RightJCountT, typename LeftT, typename RightT>
+  struct result_computer
+  {
+    static_assert(LeftICountT::value != RightICountT::value && LeftICountT::value == RightICountT::value, "Invalid index repetition in product");
   };
+
+  template<typename LeftT, typename RightT>
+  struct result_computer<_1, _1, _1, _1, LeftT, RightT>
+  {
+    typedef Real type;
+  };
+
+  template<typename LeftT, typename RightT>
+  struct result_computer<_1, _1, _0, _0, LeftT, RightT>
+  {
+    typedef Real type;
+  };
+
+  template<typename LeftT, typename RightT>
+  struct result_computer<_0, _0, _1, _1, LeftT, RightT>
+  {
+    typedef Real type;
+  };
+
+  template<typename LeftT, typename RightT>
+  struct result_computer<_2, _0, _0, _2, LeftT, RightT>
+  {
+    typedef Real type;
+  };
+
+  template<typename LeftT, typename RightT>
+  struct result_computer<_0, _2, _2, _0, LeftT, RightT>
+  {
+    typedef Real type;
+  };
+
+  template<typename ExprT, typename LeftT, typename RightT>
+  auto operator()(const ExprT& expr, const LeftT& left, const RightT& right) const ->
+  typename result_computer
+  <
+    decltype(count_repeating_index<0>(boost::proto::left(expr))),
+    decltype(count_repeating_index<0>(boost::proto::right(expr))),
+    decltype(count_repeating_index<1>(boost::proto::left(expr))),
+    decltype(count_repeating_index<1>(boost::proto::right(expr))),
+    LeftT,
+    RightT
+  >::type&
+  {
+    return eval_summation
+    (
+      count_repeating_index<0>(boost::proto::left(expr)),
+      count_repeating_index<0>(boost::proto::right(expr)),
+      count_repeating_index<1>(boost::proto::left(expr)),
+      count_repeating_index<1>(boost::proto::right(expr)),
+      expr.value,
+      left,
+      right
+    );
+  }
+
+  template<typename ExprT>
+  Real& operator()(const ExprT& expr, const Real left, const Real right) const
+  {
+    expr.value = left*right;
+    return expr.value;
+  }
+
+  // Fallback for invalid cases
+  template<typename LeftICountT, typename RightICountT, typename LeftJCountT, typename RightJCountT, typename StoredT, typename LeftT, typename RightT>
+  void eval_summation(LeftICountT, RightICountT, LeftJCountT, RightJCountT, StoredT&, const LeftT&, const RightT&) const
+  {
+    static_assert(LeftICountT::value != RightICountT::value && LeftICountT::value == RightICountT::value, "Invalid index repetition in product");
+  }
+
+  template<typename StoredT, typename LeftT, typename RightT>
+  Real& eval_summation(_1, _1, _1, _1, StoredT& stored, const LeftT& left, const RightT& right) const
+  {
+    stored = (left.array() * right.array()).sum();
+    return stored;
+  }
+
+  template<typename StoredT, typename LeftT, typename RightT>
+  Real& eval_summation(_1, _1, _0, _0, StoredT& stored, const LeftT& left, const RightT& right) const
+  {
+    stored = (left.array() * right.array()).sum();
+    return stored;
+  }
+
+  template<typename StoredT, typename LeftT, typename RightT>
+  Real& eval_summation(_0, _0, _1, _1, StoredT& stored, const LeftT& left, const RightT& right) const
+  {
+    stored = (left.array() * right.array()).sum();
+    return stored;
+  }
+
 };
 
 /// Evaluate A += B*C, which is a special case needed in Gauss integrator. If B or C is a scalar, it's also faster
-template<typename GrammarT>
-struct EigenPlusAssignProductEval :
-  boost::proto::transform< EigenPlusAssignProductEval<GrammarT> >
+struct EigenPlusAssignProductEval : boost::proto::callable
 {
-  template<typename ExprT, typename StateT, typename DataT>
-  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  typedef void result_type;
+
+  template<typename LHST, typename LMatT, typename RMatT>
+  void operator()(LHST& lhs, const LMatT& left_mat, const RMatT& right_mat)
   {
+    typedef typename std::remove_const<LHST>::type non_const_lhs_t;
+    const_cast<non_const_lhs_t&>(lhs).noalias() += left_mat * right_mat;
+  }
 
-
-    typedef void result_type;
-
-    template<typename T>
-    struct LHSHelper
-    {
-      inline T operator()(T arg) const
-      {
-        return arg;
-      }
-    };
-
-    template<typename T>
-    struct LHSHelper<const T&>
-    {
-      inline T& operator()(const T& arg) const
-      {
-        return const_cast<T&>(arg);
-      }
-    };
-
-    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
-    {
-      // Result type for the LHS
-      typedef typename boost::tr1_result_of
-      <
-        GrammarT(typename boost::proto::result_of::left
-        <
-          typename impl::expr_param
-        >::type, typename impl::state_param, typename impl::data_param)
-      >::type LeftT;
-
-      StoreResult<typename boost::remove_reference<LeftT>::type>()(LHSHelper<LeftT>()(GrammarT()(boost::proto::left(expr), state, data)), GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data));
-      //LHSHelper<LeftT>()(GrammarT()(boost::proto::left(expr), state, data)) += GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data);
-    }
-
-    template<typename T, int Dummy=0>
-    struct StoreResult
-    {
-      template<typename ResultT>
-      void operator()(T& stored, const ResultT& result)
-      {
-        stored.noalias() += result;
-      }
-    };
-
-    template<int Dummy>
-    struct StoreResult<Real, Dummy>
-    {
-      template<typename ResultT>
-      void operator()(Real& stored, const ResultT& result)
-      {
-        stored += result;
-      }
-    };
-
-    template<typename MatT, int R, int C, int Dummy>
-    struct StoreResult<Eigen::Block<MatT, R, C>, Dummy>
-    {
-      template<typename ResultT>
-      void operator()(Eigen::Block<MatT, R, C> stored, const ResultT& result)
-      {
-        stored.noalias() += result;
-      }
-    };
-  };
+  template<typename LMatT, typename RMatT>
+  void operator()(Real& lhs, const LMatT& left_mat, const RMatT& right_mat)
+  {
+    lhs += left_mat * right_mat;
+  }
 };
 
 /// Match matrix terms (only matrix products need special treatment)
@@ -238,13 +191,18 @@ struct EigenMultiplication :
   <
     boost::proto::when
     <
+      boost::proto::multiplies<PartialExpressions, PartialExpressions>,
+      PartialProductEval(boost::proto::_expr, PartialExpressions(boost::proto::_left), PartialExpressions(boost::proto::_right))
+    >,
+    boost::proto::when
+    <
       boost::proto::multiplies<GrammarT, GrammarT>,
-      EigenProductEval<GrammarT>
+      EigenProductEval(boost::proto::_expr, GrammarT(boost::proto::_left), GrammarT(boost::proto::_right))
     >,
     boost::proto::when
     <
       boost::proto::plus_assign< GrammarT, boost::proto::multiplies<GrammarT, GrammarT> >,
-      EigenPlusAssignProductEval<GrammarT>
+      EigenPlusAssignProductEval(GrammarT(boost::proto::_left), GrammarT(boost::proto::_left(boost::proto::_right)), GrammarT(boost::proto::_right(boost::proto::_right))) // EigenPlusAssignProductEvalOld<GrammarT>
     >
   >
 {
@@ -591,6 +549,7 @@ struct EigenMath :
   boost::proto::or_
   <
     EigenMultiplication< boost::proto::or_<TransposeGrammar<GrammarT>, GrammarT> >,
+    PartialExpressions,
     // Indexing
     EigenIndexing<GrammarT, IntegersT>,
     // Transpose

@@ -51,16 +51,16 @@ struct StoredMatrixExpression :
   boost::proto::extends< ExprT, StoredMatrixExpression<ExprT, MatrixT> >
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
+
   typedef boost::proto::extends< ExprT, StoredMatrixExpression<ExprT, MatrixT> > base_type;
-  
+
   typedef MatrixT ValueT;
-  
+
   explicit StoredMatrixExpression(ExprT const &expr = ExprT())
     : base_type(expr)
   {
   }
-  
+
   /// Temporary storage for the result of the expression
   mutable ValueT value;
 };
@@ -75,36 +75,36 @@ struct WrapMatrixExpression : boost::proto::transform< WrapMatrixExpression >
     struct WrapperSelector
     {
       typedef typename boost::remove_const<typename boost::remove_reference<ExprT>::type>::type result_type;
-      
+
       result_type operator()(typename impl::expr_param expr, typename impl::state_param , typename impl::data_param)
       {
         return expr;
       }
     };
-    
+
     /// Expression is to be wrapped
     template<typename T>
     struct WrapperSelector<T&, true>
     {
       /// Calculate the type to store
       typedef typename boost::remove_const<T>::type ValueT;
-      
+
       typedef StoredMatrixExpression<typename boost::remove_const<typename boost::remove_reference<ExprT>::type>::type, ValueT> result_type;
-      
+
       result_type operator()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param)
       {
         return result_type(expr);
       }
     };
-    
+
     typedef WrapperSelector
     <
-      typename boost::tr1_result_of<LazyElementGrammar(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type,
+      typename std::result_of<LazyElementGrammar(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type,
       boost::proto::matches<ExprT, WrappableElementExpressions>::value
     > ResultSelectorT;
-    
+
     typedef typename ResultSelectorT::result_type result_type;
-    
+
     result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data)
     {
       return ResultSelectorT()(expr, state, data);

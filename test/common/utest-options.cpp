@@ -9,7 +9,7 @@
 
 #include <boost/assign/std/vector.hpp>
 #include <boost/mpl/if.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
 #include "common/BasicExceptions.hpp"

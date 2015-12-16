@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK                                                          // To build/use dynamic library.
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations" // To generate the test module initialization function, which uses the defined value to name the master
                                                                                      // test suite. For dynamic library variant default function main() implementation is generated as well
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10                                                     // Controls the maximum number of child nodes an expression may have.
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY                                            // Is an overridable configuration macro regulating the maximum supported arity of metafunctions and

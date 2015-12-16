@@ -130,12 +130,3 @@ else()
   set( BUILD_SHARED_LIBS ON )
 
 endif()
-
-# C++ 11
-if(CF3_ENABLE_CPP11)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DCF3_CXX_MANUAL_NATIVE_NULLPTR")
-endif()
-
-
-
-

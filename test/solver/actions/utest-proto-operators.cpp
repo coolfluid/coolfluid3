@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-//#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for proto operators"
 
 #include <boost/accumulators/accumulators.hpp>
@@ -395,7 +395,6 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 
   check_close(result, 2.*exact, 1e-10);
 }
-
 
 BOOST_AUTO_TEST_CASE(GroupArity)
 {

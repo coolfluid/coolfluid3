@@ -8,7 +8,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Tests mesh reading"
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 #include <boost/regex.hpp>
 

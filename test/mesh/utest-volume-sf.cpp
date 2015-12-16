@@ -11,7 +11,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/transform_view.hpp>
 #include "common/BoostAssign.hpp"
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <boost/fusion/adapted/mpl.hpp>
 #include <boost/fusion/support/pair.hpp>

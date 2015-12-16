@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for the SolveLSS action"
 
 #include <boost/assign/std/vector.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
 

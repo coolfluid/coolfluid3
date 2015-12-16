@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for cf3::Component"
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "common/BasicExceptions.hpp"
 #include "common/UUCount.hpp"

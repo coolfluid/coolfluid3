@@ -8,7 +8,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY

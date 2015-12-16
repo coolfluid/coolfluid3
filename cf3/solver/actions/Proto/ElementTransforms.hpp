@@ -75,8 +75,7 @@ struct SFOps :
     <
       boost::proto::terminal< SFOp<boost::proto::_> >,
       RunTerminalOp<GrammarT>
-    >,
-    PartialGrammar
+    >
   >
 {
 };

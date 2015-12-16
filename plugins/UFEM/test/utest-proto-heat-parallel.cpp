@@ -10,7 +10,7 @@
 
 #include <boost/assign.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #define BOOST_PROTO_MAX_ARITY 10
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY

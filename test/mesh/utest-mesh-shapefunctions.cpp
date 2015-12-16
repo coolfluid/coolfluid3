@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Proposition for new element / shapefunction API"
 
 #include <iostream>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include "common/Log.hpp"
 #include "common/OptionList.hpp"
 #include "common/Component.hpp"

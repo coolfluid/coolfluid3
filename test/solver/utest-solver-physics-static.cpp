@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/mpl/void.hpp>
 
 #include "common/CF.hpp"

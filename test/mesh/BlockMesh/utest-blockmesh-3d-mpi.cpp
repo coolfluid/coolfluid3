@@ -9,7 +9,7 @@
 
 #include <boost/assign.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"

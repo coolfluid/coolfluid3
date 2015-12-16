@@ -168,7 +168,7 @@ struct VarValue :
               , typename impl::data_param data
     ) const
     {
-      
+
       return data.var_data(var).value();
     }
   };
@@ -326,6 +326,16 @@ struct DeepCopy : //boost::proto::functional::deep_copy
     boost::proto::nary_expr<boost::proto::_, boost::proto::vararg< boost::proto::when<DeepCopy, boost::proto::_byval(DeepCopy)> > >
   >
 {
+};
+
+/// Generic definition of result, using C++11 features
+template<typename Signature>
+struct generic_result;
+
+template<typename This, typename... ArgsT>
+struct generic_result<This(ArgsT...)>
+{
+  typedef decltype(std::declval<This>()(std::declval<ArgsT>()...)) type;
 };
 
 } // namespace Proto

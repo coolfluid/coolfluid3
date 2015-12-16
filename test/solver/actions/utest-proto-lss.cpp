@@ -13,7 +13,7 @@
 #include <boost/accumulators/statistics/max.hpp>
 
 #include <boost/foreach.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <Thyra_describeLinearOp.hpp>
 #include <Thyra_MultiVectorBase.hpp>
@@ -84,7 +84,7 @@ struct ProtoLSSFixture
     if(is_null(model))
     {
       common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
-      
+
       common::Core::instance().environment().options().set("log_level", 4);
       model = Core::instance().root().create_component<Model>("Model");
       physical_model = Handle<physics::PhysModel>(model->create_physics("cf3.physics.DynamicModel").handle());
@@ -93,10 +93,10 @@ struct ProtoLSSFixture
       //Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
       //Tools::MeshGeneration::create_line(*mesh, 3.,3);
       Tools::MeshGeneration::create_rectangle_tris(*mesh, 1., 1., 1, 1);
-      
+
       field_manager = model->create_component<FieldManager>("FieldManager");
       field_manager->options().set("variable_manager", model->physics().variable_manager().handle<math::VariableManager>());
-      
+
       // Build node connectivity
       const Uint nb_nodes = mesh->geometry_fields().size();
       std::vector< std::set<Uint> > connectivity_sets(nb_nodes);
@@ -125,27 +125,27 @@ struct ProtoLSSFixture
 			{
 				std::cout << "node " << i << ": " << coords[i][0] << ", " << coords[i][1] << std::endl;
 			}
-      
+
       starting_indices.push_back(0);
       BOOST_FOREACH(const std::set<Uint>& nodes, connectivity_sets)
       {
         starting_indices.push_back(starting_indices.back() + nodes.size());
         node_connectivity.insert(node_connectivity.end(), nodes.begin(), nodes.end());
       }
-      
+
       loop_regions.push_back(mesh->topology().uri());
     }
-    
-    
+
+
   }
-  
+
   Component& root;
   static Handle<Model> model;
   static Handle<physics::PhysModel> physical_model;
   static Handle<Mesh> mesh;
   static Handle<FieldManager> field_manager;
   static std::vector<URI> loop_regions;
-  
+
   static std::vector<Uint> node_connectivity;
   static std::vector<Uint> starting_indices;
 };
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( MyTerminal )
   action->options().set(solver::Tags::regions(), loop_regions);
 
   my_term.op.set_constant(2.);
-  
+
   // Run the action
   action->execute();
 }
@@ -304,16 +304,16 @@ BOOST_AUTO_TEST_CASE( ScalarTest )
   Handle<math::LSS::System> lss = root.create_component<math::LSS::System>("scalar_lss");
   lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
   lss->create(mesh->geometry_fields().comm_pattern(), 1, node_connectivity, starting_indices);
-  
+
   Handle<math::LSS::ThyraOperator> op(lss->matrix());
   Handle<math::LSS::ThyraVector> solution(lss->solution());
   Handle<math::LSS::ThyraVector> rhs(lss->rhs());
-  
+
   // Set random solution
   Thyra::randomize(0., 1., solution->thyra_vector().ptr());
-  
+
   Handle<ProtoAction> action = root.create_component<ProtoAction>("ScalarLSSAction");
-  
+
   // Terminals to use
   FieldVariable<0, ScalarField> T("ScalarVar", "scalar");
   SystemMatrix matrix(*lss);
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE( ScalarTest )
   lss->solution()->clone_to(*vec_copy);
   SFOp< CustomSFOp<ScalarLSSVector> > scalar_vector;
   scalar_vector.op.set_vector(vec_copy);
-  
+
   // Run the expression
   action->set_expression(elements_expression(
     group
@@ -333,32 +333,32 @@ BOOST_AUTO_TEST_CASE( ScalarTest )
       element_quadrature
       (
         _A(T,T) += transpose(nabla(T)) * nabla(T)
-      ),      
+      ),
       matrix += _A,
       sys_rhs += _A * scalar_vector
     )
   ));
-  
+
   action->options().set("physical_model", physical_model);
   action->options().set(solver::Tags::regions(), loop_regions);
-  
+
   field_manager->create_field("scalar", mesh->geometry_fields());
-  
+
   // Set the field to random
   for_each_node(mesh->topology(), T = sol_vec(T));
-  
+
   action->execute();
-  
-  
+
+
   Teuchos::RCP< Thyra::MultiVectorBase<Real> > rhs2 = Thyra::createMembers(op->thyra_operator()->range(), 1);
   Thyra::apply(*op->thyra_operator(), Thyra::NOTRANS, *solution->thyra_vector(), rhs2.ptr());
-  
+
   std::vector<Real> diff_norm(1);
-  
+
   Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
   std::cout << "rhs2 norm: " << diff_norm.front() << std::endl;
   BOOST_CHECK(diff_norm.front() > 1e-6);
-  
+
   Thyra::update(-1., *rhs->thyra_vector(), rhs2.ptr());
   Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
   std::cout << "diff norm: " << diff_norm.front() << std::endl;
@@ -369,18 +369,18 @@ BOOST_AUTO_TEST_CASE( VectorTest )
 {
   Handle<math::LSS::System> lss = root.create_component<math::LSS::System>("vector_lss");
   lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
-  
+
   Handle<ProtoAction> action = root.create_component<ProtoAction>("VectorLSSAction");
   // Create this so we have an option for the LSS
   Handle<math::LSS::SolveLSS> solve_action = root.create_component<math::LSS::SolveLSS>("SolveLSS");
-  
+
   // Terminals to use
   FieldVariable<0, VectorField> T("VectorVar", "vector");
   SystemMatrix matrix(solve_action->options().option("lss"));
   SystemRHS sys_rhs(solve_action->options().option("lss"));
   SolutionVector sol_vec(solve_action->options().option("lss"));
   SFOp< CustomSFOp<VectorLSSVector> > vector_vector;
-  
+
   // Run the expression
   action->set_expression(elements_expression(
     group
@@ -389,46 +389,46 @@ BOOST_AUTO_TEST_CASE( VectorTest )
       element_quadrature
       (
         _A(T[_i],T[_i]) += transpose(nabla(T)) * nabla(T)
-      ),      
+      ),
       matrix += _A,
       sys_rhs += _A * vector_vector
     )
   ));
-  
+
   action->options().set("physical_model", physical_model);
   action->options().set(solver::Tags::regions(), loop_regions);
-  
+
   field_manager->create_field("vector", mesh->geometry_fields());
-  
+
   //lss->create(mesh->geometry_fields().comm_pattern(), 2, node_connectivity, starting_indices);
   lss->create_blocked(mesh->geometry_fields().comm_pattern(), *Handle<math::VariablesDescriptor>(physical_model->variable_manager().get_child("vector")), node_connectivity, starting_indices);
   solve_action->options().set("lss", lss);
-  
+
   Handle<math::LSS::ThyraOperator> op(lss->matrix());
   Handle<math::LSS::ThyraVector> solution(lss->solution());
   Handle<math::LSS::ThyraVector> rhs(lss->rhs());
-  
+
   // Set random solution
   Thyra::randomize(0., 1., solution->thyra_vector().ptr());
-  
+
   Handle<math::LSS::Vector> vec_copy(root.create_component("VectorVector", "cf3.math.LSS.TrilinosVector"));
   lss->solution()->clone_to(*vec_copy);
   vector_vector.op.set_vector(vec_copy);
-  
+
   // Set the field to random
   for_each_node(mesh->topology(), T = sol_vec(T));
-  
+
   action->execute();
-  
+
   Teuchos::RCP< Thyra::MultiVectorBase<Real> > rhs2 = Thyra::createMembers(op->thyra_operator()->range(), 1);
   Thyra::apply(*op->thyra_operator(), Thyra::NOTRANS, *solution->thyra_vector(), rhs2.ptr());
-  
+
   std::vector<Real> diff_norm(1);
-  
+
   Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
   std::cout << "rhs2 norm: " << diff_norm.front() << std::endl;
   BOOST_CHECK(diff_norm.front() > 1e-6);
-  
+
   Thyra::update(-1., *rhs->thyra_vector(), rhs2.ptr());
   Thyra::norms(*rhs2, Teuchos::arrayViewFromVector(diff_norm));
   std::cout << "diff norm: " << diff_norm.front() << std::endl;
@@ -461,7 +461,7 @@ BOOST_AUTO_TEST_CASE( NestedCustomOps )
   SFOp< CustomSFOp<ScalarLSSVector> > scalar_vector;
   scalar_vector.op.set_vector(vec_copy);
 
-  boost::mpl::vector1<mesh::LagrangeP1::Line1D> etype;
+  boost::mpl::vector1<mesh::LagrangeP1::Triag2D> etype;
 
   // Run the expression
   action->set_expression(elements_expression(etype,
@@ -473,6 +473,7 @@ BOOST_AUTO_TEST_CASE( NestedCustomOps )
         _A(T,T) += transpose(nabla(T)) * nabla(T)
       ),
       matrix += _A,
+      _cout << "Debug A:\n" << _A << "\n",
       sys_rhs += laplacian_apply(T, _A, lit(scalar_vector))
     )
   ));
@@ -508,12 +509,12 @@ BOOST_AUTO_TEST_CASE( MassMatrix )
   Handle<math::LSS::System> lss = root.create_component<math::LSS::System>("mass_lss");
   lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
   lss->create(mesh->geometry_fields().comm_pattern(), 1, node_connectivity, starting_indices);
-  
+
   Handle<ProtoAction> action = root.create_component<ProtoAction>("MassAssembly");
-  
+
   FieldVariable<0, ScalarField> T("MassVar", "massvar");
   SystemMatrix matrix(*lss);
-  
+
   boost::mpl::vector1<mesh::LagrangeP1::Triag2D> etype;
 
   // Run the expression
@@ -528,14 +529,14 @@ BOOST_AUTO_TEST_CASE( MassMatrix )
       matrix += _A
     )
   ));
-  
+
   action->options().set("physical_model", physical_model);
   action->options().set(solver::Tags::regions(), loop_regions);
 
   field_manager->create_field("massvar", mesh->geometry_fields());
-  
+
   action->execute();
-  
+
   lss->matrix()->print(std::cout);
 }
 

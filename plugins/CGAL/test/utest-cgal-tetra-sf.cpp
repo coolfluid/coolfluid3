@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Tetrahedral mesh testing on CGAL generated meshes"
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>

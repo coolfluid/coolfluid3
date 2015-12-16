@@ -9,6 +9,8 @@
 
 #include <boost/proto/core.hpp>
 
+#include "Terminals.hpp"
+
 /// @file
 /// Loop over indices that range over the dimension of the problem
 

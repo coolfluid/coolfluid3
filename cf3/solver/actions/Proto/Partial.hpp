@@ -18,14 +18,7 @@ namespace Proto {
 
 struct PartialOp : boost::proto::callable
 {
-  template<typename Signature>
-  struct result;
-
-  template<typename This, typename... ArgsT>
-  struct result<This(ArgsT...)>
-  {
-    typedef decltype(std::declval<This>()(std::declval<ArgsT>()...)) type;
-  };
+  template<typename Signature> using result = generic_result<Signature>;
 
   // Repeated index -> return the divergence
   template<typename VarT, typename IdxT>
@@ -109,7 +102,8 @@ struct PartialOp : boost::proto::callable
   }
 };
 
-struct PartialGrammar :
+/// Handles the calling of the partial(..., _j) function
+struct PartialCall :
   boost::proto::or_
   <
     boost::proto::when // Variant without mapped coordinates as last argument
@@ -178,6 +172,62 @@ struct PartialGrammar :
 {
 };
 
+struct PartialExpressions :
+  boost::proto::or_
+  <
+    PartialCall,
+    boost::proto::when
+    <
+      boost::proto::plus<PartialExpressions, PartialExpressions>,
+      boost::proto::_default<PartialExpressions>
+    >,
+    boost::proto::when
+    <
+      boost::proto::minus<PartialExpressions, PartialExpressions>,
+      boost::proto::_default<PartialExpressions>
+    >
+  >
+{
+};
+
+/// Count the number of repeating I and J indices in an expression
+template<Uint I>
+struct CountRepeatingIdx :
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      boost::proto::terminal< IndexTag< boost::mpl::int_<I> > >,
+      boost::mpl::next<boost::proto::_state>()
+    >,
+    boost::proto::when
+    <
+      boost::proto::terminal< boost::proto::_ >,
+      boost::proto::_state
+    >,
+    boost::proto::when
+    <
+      boost::proto::plus< boost::proto::_, boost::proto::_ >,
+      boost::mpl::max<boost::proto::call<CountRepeatingIdx<I>>(boost::proto::_left), boost::proto::call<CountRepeatingIdx<I>>(boost::proto::_right)>()
+    >,
+    boost::proto::when
+    <
+      boost::proto::minus< boost::proto::_, boost::proto::_ >,
+      boost::mpl::max<boost::proto::call<CountRepeatingIdx<I>>(boost::proto::_left), boost::proto::call<CountRepeatingIdx<I>>(boost::proto::_right)>()
+    >,
+    boost::proto::when
+    <
+      boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >,
+      boost::proto::fold<boost::proto::_, boost::mpl::int_<0>(), boost::mpl::max<boost::proto::call<CountRepeatingIdx<I>>, boost::proto::_state>()>
+    >
+  >
+{};
+
+template<Uint I, typename ExprT>
+auto count_repeating_index(const ExprT& e) -> decltype(CountRepeatingIdx<I>()(e, boost::mpl::int_<0>()))
+{
+  return decltype(CountRepeatingIdx<I>()(e, boost::mpl::int_<0>()))();
+}
 
 } // namespace Proto
 } // namespace actions
