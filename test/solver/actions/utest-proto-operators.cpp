@@ -862,6 +862,35 @@ BOOST_AUTO_TEST_CASE( NodeIdxOutput )
   BOOST_CHECK_EQUAL(idx_total, 6);
 }
 
+BOOST_AUTO_TEST_CASE(LambdaFunction)
+{
+  Handle<mesh::Mesh> mesh = common::Core::instance().root().create_component<mesh::Mesh>("QuadGridLambda");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+
+  mesh->geometry_fields().create_field( "scalar", "phi" ).add_tag("scalar");
+
+  FieldVariable<0, ScalarField > phi("phi", "scalar");
+
+  Real captured = 2.;
+  const auto my_lambda = make_lambda([&](const Real r) { std::cout << captured*r << std::endl; return captured*r; });
+
+  for_each_node(mesh->topology(), phi = 1.);
+
+  Real scalar_result = 0.;
+  RealVector2 centroid; centroid.setZero();
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    group
+    (
+      element_quadrature(lit(scalar_result) += my_lambda(phi)),
+      lit(scalar_result) = scalar_result / volume
+    )
+  );
+
+  BOOST_CHECK_EQUAL(scalar_result, 2);
+}
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

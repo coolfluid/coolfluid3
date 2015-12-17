@@ -254,6 +254,43 @@ struct PartialTag
 
 static boost::proto::terminal<PartialTag>::type partial = {};
 
+// Helpers for putting lambdas in terminals
+template<typename T>
+struct LambdaTraits
+{
+};
+
+template<typename R, typename LambdaT, typename... ArgsT>
+struct LambdaTraits<R (LambdaT::*)(ArgsT...) const>
+{
+  typedef R return_type;
+};
+
+template<typename T>
+struct LambdaWrapper
+{
+  typedef typename LambdaTraits<decltype(&T::operator())>::return_type result_type;
+
+  LambdaWrapper(const T& lambda) : m_wrapped(lambda)
+  {
+  }
+
+  template<typename... ArgsT>
+  inline result_type operator()(ArgsT... args) const
+  {
+    return m_wrapped(args...);
+  }
+
+  T m_wrapped;
+};
+
+/// Make a proto expression out of a C++11 lambda function
+template<typename T>
+auto make_lambda(const T& lambda) -> decltype(boost::proto::as_expr(LambdaWrapper<T>(lambda)))
+{
+  return boost::proto::as_expr(LambdaWrapper<T>(lambda));
+}
+
 
 } // namespace Proto
 } // namespace actions
