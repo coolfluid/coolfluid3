@@ -58,6 +58,8 @@ list( APPEND coolfluid_solver_actions_files
   TwoPointCorrelation.cpp
   WriteRestartFile.hpp
   WriteRestartFile.cpp
+  YPlus.hpp
+  YPlus.cpp
 )
 
 list( APPEND coolfluid_solver_actions_proto_files

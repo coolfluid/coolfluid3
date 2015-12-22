@@ -37,11 +37,11 @@ coolfluid_add_test( UTEST utest-mesh-actions-rotate-translate
 
 coolfluid_add_test( UTEST utest-mesh-actions-shortest-edge
                     PYTHON utest-mesh-actions-shortest-edge.py )
-                    
+
 coolfluid_add_test( UTEST utest-mesh-make-boundary-global
                     PYTHON utest-mesh-make-boundary-global.py
                     MPI 4)
-                    
+
 coolfluid_add_test( UTEST utest-mesh-periodic
                     PYTHON utest-mesh-periodic.py
                     MPI 4)
@@ -50,7 +50,7 @@ coolfluid_add_test( UTEST utest-mesh-wall-distance
                     PYTHON utest-mesh-wall-distance.py
                     ARGUMENTS ${CMAKE_SOURCE_DIR}/plugins/UFEM/test/meshes/ring3d-tetras.neu
                     MPI 4)
-                    
+
 coolfluid_add_test( UTEST utest-mesh-actions-meshdiff
                     PYTHON utest-mesh-actions-meshdiff.py
                     MPI 4)

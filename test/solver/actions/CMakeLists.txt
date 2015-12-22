@@ -111,3 +111,8 @@ coolfluid_mark_not_orphan(
   utest-proto-lss.cpp
 )
 endif()
+
+coolfluid_add_test( UTEST utest-solver-actions-yplus
+                    PYTHON utest-solver-actions-yplus.py
+                    ARGUMENTS ${CMAKE_SOURCE_DIR}/plugins/UFEM/test/meshes/ring3d-tetras.neu
+                    MPI 4)
