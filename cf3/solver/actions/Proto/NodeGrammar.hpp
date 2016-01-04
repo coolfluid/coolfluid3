@@ -57,7 +57,7 @@ struct CoordsTerminals :
 struct GetNodeIdx : boost::proto::callable
 {
   typedef Uint result_type;
-  
+
   template<typename DataT>
   Uint operator()(const DataT& data) const
   {
@@ -196,7 +196,6 @@ struct NodeMath :
     NodeMathBase,
     NodeAssignGrammar<NodeMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >,
     EigenMath<NodeMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >
-    
   >
 {
 };
@@ -209,7 +208,7 @@ boost::proto::or_
   NodeMathBase,
   NodeAssignGrammar<boost::proto::call< NodeMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >,
   EigenMath<boost::proto::call< NodeMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >
-  
+
 >
 {
 };

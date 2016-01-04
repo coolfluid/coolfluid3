@@ -217,14 +217,14 @@ struct NodeLooper
   void operator()(const NbDimsT&)
   {
     mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(m_region);
-    
+
     common::Table<Real>& coords = mesh.geometry_fields().coordinates();
     if(NbDimsT::value != coords.row_size())
       return;
 
     // Execute with known dimension
     NodeLooperDim<ExprT, NbDimsT>(m_expr, m_region, m_variables)();
-    
+
     FieldSynchronizer::instance().synchronize();
   }
 
@@ -238,7 +238,7 @@ private:
 template<Uint dim, typename ExprT>
 void for_each_node(mesh::Region& root_region, const ExprT& expr)
 {
-  // IF COMPILATION FAILS HERE: the espression passed is invalid
+  // IF COMPILATION FAILS HERE: the expression passed is invalid
   BOOST_MPL_ASSERT_MSG(
     (boost::proto::matches<ExprT, NodeGrammar>::value),
                        INVALID_NODE_EXPRESSION,

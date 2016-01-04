@@ -273,7 +273,7 @@ public:
 
   void loop(mesh::Region& region)
   {
-    // IF COMPILATION FAILS HERE: the espression passed is invalid
+    // IF COMPILATION FAILS HERE: the expression passed is invalid
     BOOST_MPL_ASSERT_MSG(
       (boost::proto::matches<typename BaseT::CopiedExprT, NodeGrammar>::value),
       INVALID_NODE_EXPRESSION,

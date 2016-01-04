@@ -254,6 +254,11 @@ struct PartialTag
 
 static boost::proto::terminal<PartialTag>::type partial = {};
 
+/// Base class of all functions that can be evaluated using "default" C++ semantics
+struct FunctionBase
+{
+};
+
 // Helpers for putting lambdas in terminals
 template<typename T>
 struct LambdaTraits
@@ -267,7 +272,7 @@ struct LambdaTraits<R (LambdaT::*)(ArgsT...) const>
 };
 
 template<typename T>
-struct LambdaWrapper
+struct LambdaWrapper : FunctionBase
 {
   typedef typename LambdaTraits<decltype(&T::operator())>::return_type result_type;
 
