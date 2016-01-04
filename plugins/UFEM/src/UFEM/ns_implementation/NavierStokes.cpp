@@ -61,7 +61,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("linearized_velocity")("navier_stokes_viscosity");
   properties().add("restart_field_tags", restart_field_tags);
 
-  options().add("use_specializations", true)
+  options().add("use_specializations", false)
     .pretty_name("Use Specializations")
     .description("Activate the use of specialized high performance code")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
@@ -81,6 +81,12 @@ NavierStokes::NavierStokes(const std::string& name) :
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
+
+  options().add("enable_body_force", false)
+    .pretty_name("Enable Body Force")
+    .description("Set to true to enable the body force term")
+    .attach_trigger(boost::bind(&NavierStokes::trigger_enable_body_force, this))
+    .mark_basic();
 
   set_solution_tag("navier_stokes_solution");
 
@@ -158,7 +164,7 @@ void NavierStokes::on_initial_conditions_set(InitialConditions& initial_conditio
   // Initial condition for the viscosity, defaulting to the molecular viscosity
   Handle<ProtoAction> visc_ic(initial_conditions.create_initial_condition("navier_stokes_viscosity", "cf3.solver.ProtoAction"));
   visc_ic->set_expression(nodes_expression(nu_eff = nu));
-  
+
   // Initial condition for the temperature field, defaulting to the reference temperature
   Handle<ProtoAction> temp_ic(initial_conditions.create_initial_condition("boussinesq_init_tref", "cf3.solver.ProtoAction"));
   temp_ic->set_expression(nodes_expression(T = Tref));
@@ -170,6 +176,17 @@ void NavierStokes::on_initial_conditions_set(InitialConditions& initial_conditio
   lin_vel_ic->set_expression(nodes_expression(group(u_adv = u, u1 = u, u2 = u, u3 = u)));
 }
 
+void NavierStokes::trigger_enable_body_force()
+{
+  if(options().value<bool>("enable_body_force"))
+  {
+    m_body_force_enabler = 1.;
+  }
+  else
+  {
+    m_body_force_enabler = 0.;
+  }
+}
 
 } // UFEM
 } // cf3

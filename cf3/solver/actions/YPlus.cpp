@@ -99,7 +99,10 @@ void YPlus::execute()
     }
 
     // Create the y+ field in the geometry dictionary
-    mesh.geometry_fields().create_field("yplus").add_tag("yplus");
+    if(common::find_component_ptr_with_tag(mesh.geometry_fields(), "yplus") == nullptr)
+    {
+      mesh.geometry_fields().create_field("yplus").add_tag("yplus");
+    }
   }
 
   // Compute shear stress

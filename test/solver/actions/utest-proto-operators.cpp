@@ -868,8 +868,10 @@ BOOST_AUTO_TEST_CASE(LambdaFunction)
   Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
 
   mesh->geometry_fields().create_field( "scalar", "phi" ).add_tag("scalar");
+  mesh->geometry_fields().create_field( "scalar2", "phi2" ).add_tag("scalar2");
 
   FieldVariable<0, ScalarField > phi("phi", "scalar");
+  FieldVariable<1, ScalarField > phi2("phi2", "scalar2");
 
   Real captured = 2.;
   const auto my_lambda = make_lambda([&](const Real r) { std::cout << captured*r << std::endl; return captured*r; });
@@ -890,6 +892,13 @@ BOOST_AUTO_TEST_CASE(LambdaFunction)
   );
 
   BOOST_CHECK_EQUAL(scalar_result, 2);
+
+  Real result = 0;
+  const auto result_sum = make_lambda([&](const Real r) { result += r; return result; });
+
+  for_each_node(mesh->topology(), phi2 = result_sum(phi));
+  BOOST_CHECK_EQUAL(result, 4);
+
 }
 BOOST_AUTO_TEST_SUITE_END()
 

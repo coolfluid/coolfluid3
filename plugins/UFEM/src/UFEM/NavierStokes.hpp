@@ -25,9 +25,9 @@
 #include "SUPG.hpp"
 
 namespace cf3 {
-  
+
   namespace solver { class ActionDirector; }
-  
+
 namespace UFEM {
 
 /// solver for the unsteady incompressible Navier-Stokes equations
@@ -38,7 +38,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   NavierStokes ( const std::string& name );
-  
+
   virtual ~NavierStokes();
 
   /// Get the class name
@@ -48,6 +48,9 @@ private:
   /// Create the solver structure, based on the choice of specialized code
   void trigger_assembly();
 
+  /// Trigger on enable_body_force change
+  void trigger_enable_body_force();
+
   /// Called when the initial condition manager is changed
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
 
@@ -55,14 +58,14 @@ private:
   /// Implemented in NavierStokesAssembly.hpp
   template<typename GenericElementsT, typename SpecializedElementsT>
   void set_assembly_expression(const std::string& action_name);
-  
+
   /// Helper functions to split the compilation over multiple units, to save memory. Each one is in a different cpp file.
   void set_triag_assembly(const bool use_specialization);
   void set_quad_assembly();
   void set_tetra_assembly(const bool use_specialization);
   void set_hexa_assembly();
   void set_prism_assembly();
-  
+
 
   /// The velocity solution field
   FieldVariable<0, VectorField> u;
@@ -81,7 +84,7 @@ private:
 
   /// Temperature field
   FieldVariable<7, ScalarField> T;
-  
+
   // Body force
   FieldVariable<8, VectorField> g;
 
@@ -94,7 +97,10 @@ private:
 
   /// Storage of the stabilization coefficients
   Real tau_ps, tau_su, tau_bulk;
-  
+
+  /// 1 if body force term is active
+  Real m_body_force_enabler = 0;
+
   Handle<solver::ActionDirector> m_assembly;
   Handle<solver::ActionDirector> m_update;
   Handle<common::Action> m_initial_conditions;
