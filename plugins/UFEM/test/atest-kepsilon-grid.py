@@ -9,10 +9,12 @@ nu = 1e-10
 u0 = 10.
 k0 = 5.
 epsilon0 = 10.
+k_init = 0.
+eps_init = 0.
 
 y_segs = 2
 x_size = 10.
-x_segs = 32
+x_segs = 64
 
 # Some shortcuts
 root = cf.Core.root()
@@ -93,11 +95,13 @@ ke.regions = [mesh.topology.uri()]
 #initial conditions
 ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_k')
 ic_k.variable_name = 'k'
-ic_k.value = [str(k0)]
+ic_k.value = [str(k_init)]
+ic_k.regions = [mesh.topology.uri()]
 
 ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_epsilon')
 ic_epsilon.variable_name = 'epsilon'
-ic_epsilon.value = [str(epsilon0)]
+ic_epsilon.value = [str(eps_init)]
+ic_epsilon.regions = [mesh.topology.uri()]
 
 #properties for Navier-Stokes
 physics.density = 1.
@@ -114,7 +118,7 @@ bc.add_constant_bc(region_name = 'left', variable_name = 'epsilon').value =  eps
 # Time setup
 time = model.create_time()
 time.time_step = 0.1
-time.end_time = 20.
+time.end_time = 50.
 
 # Run the simulation
 model.simulate()
@@ -128,9 +132,9 @@ epsilon = np.array(eps_fd)[:,0]
 nu_eff = np.array(nu_eff_fd)[:,0]
 xy = np.array(coords)
 
-c_e_2 = 25.
+c_e_2 = 1.8
 x_th = np.linspace(0., 10., 100)
-th_func = 1+epsilon0/k0*(c_e_2-1.)*x_th
+th_func = 1 + epsilon0/k0 * (c_e_2-1.)*x_th/u0
 k_th = k0*th_func**(1./(1.-c_e_2))
 eps_th = epsilon0*th_func**(c_e_2/(1.-c_e_2))
 
@@ -141,6 +145,7 @@ pl.plot(x_th, k_th)
 
 pl.figure()
 pl.plot(xy[center,0], epsilon[center])
+pl.plot(x_th, eps_th)
 
 pl.figure()
 pl.plot(xy[center,0], nu_eff[center])

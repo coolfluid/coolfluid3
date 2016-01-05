@@ -85,6 +85,7 @@ KEpsilon::KEpsilon(const std::string& name) :
 
   auto k_sys = create_component<LSSActionUnsteady>("K");
   k_sys->set_solution_tag("ke_k");
+  k_sys->create_component<ProtoAction>("UpdateNut");
   k_sys->create_component<math::LSS::ZeroLSS>("ZeroLSS");
   k_sys->create_component<ProtoAction>("Assembly");
   k_sys->create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag("ke_k");
@@ -125,33 +126,41 @@ void KEpsilon::trigger_set_expression()
   Real& dt = k_action->dt();
   Real& invdt = k_action->invdt();
 
+  // The length scale helper function
+  const auto nut_update = make_lambda([&](const Real yplus, const Real k_in, const Real epsilon, const Real nu_l)
+  {
+    const Real f_mu = 1. - ::exp(-0.0115*yplus);
+    const Real k = std::max(0., k_in);
+    const Real cmu_k2 = m_c_mu * k*k;
+    const Real result = cmu_k2 <= sqrt(k)*epsilon*m_l_max ? (epsilon <= 0. ? 0. : f_mu * cmu_k2 / epsilon) : m_l_max * sqrt(k);
+
+    if(result < nu_l*m_minimal_viscosity_ratio)
+    {
+      return nu_l*m_minimal_viscosity_ratio;
+    }
+    return result;
+  });
+
+  Handle<ProtoAction>(k_action->get_child("UpdateNut"))->set_expression(nodes_expression(group
+  (
+    nu_eff = nu_lam + nut_update(yplus, k, epsilon, nu_lam)
+  )));
+
   // Helper to get the turbulent viscosity
   const auto nut = make_lambda([&](const Real nu, const Real nu_eff)
   {
-    const Real result = nu_eff - nu;
-    if((result / nu) < m_minimal_viscosity_ratio)
-    {
-      return nu*m_minimal_viscosity_ratio;
-    }
-    return result;
+    return nu_eff - nu;
   });
 
   // Linearization parameter gamma = epsilon / k:
   const auto gamma = make_lambda([&](const Real k, const Real nu_t, const Real epsilon)
   {
-    if (k < 1e-30)
+    if(k>1e-30 && epsilon > 1e-30)
     {
-      return 1.;
+      return epsilon/k;
     }
 
-    return m_c_mu*k/nu_t;
-  });
-
-  // The f2 helper function
-  const auto f2 = make_lambda([](const Real k, const Real e, const Real nu)
-  {
-    const Real Re_t = k*k / (nu*e);
-    return 1.;// - 0.4/1.8*::exp(-(Re_t*Re_t)/36.);
+    return m_c_mu * std::max(k,0.) / nu_t;
   });
 
   Handle<ProtoAction>(k_action->get_child("Assembly"))->set_expression(
@@ -179,7 +188,12 @@ void KEpsilon::trigger_set_expression()
     k += k_action->solution(k)
   )));
 
-
+  // The f2 helper function
+  const auto f2 = make_lambda([](const Real k, const Real e, const Real nu)
+  {
+    const Real Re_t = k*k / (nu*e);
+    return 1. - 0.4/1.8*::exp(-(Re_t*Re_t)/36.);
+  });
 
   auto epsilon_action = Handle<LSSActionUnsteady>(get_child("Epsilon"));
   Handle<ProtoAction>(epsilon_action->get_child("Assembly"))->set_expression(
@@ -202,29 +216,9 @@ void KEpsilon::trigger_set_expression()
     )
   ));
 
-  // The length scale helper function
-  const auto nut_update = make_lambda([&](const Real yplus, const Real k_in, const Real epsilon, const Real nu_l)
-  {
-    const Real f_mu = 1.;// - ::exp(-0.0115*yplus);
-
-    const Real k = std::max(0., k_in);
-
-    const Real cmu_k2 = m_c_mu * k*k;
-    const Real result = cmu_k2 <= sqrt(k)*epsilon*m_l_max ? (epsilon <= 0. ? 0. : f_mu * cmu_k2 / epsilon) : m_l_max * sqrt(k);
-
-    //const Real result = epsilon < 1e-14 ? m_l_max * sqrt(k) : m_c_mu * k*k/epsilon;
-
-    if(result < nu_l*m_minimal_viscosity_ratio)
-    {
-      return nu_l*m_minimal_viscosity_ratio;
-    }
-    return result;
-  });
-
   Handle<ProtoAction>(epsilon_action->get_child("Update"))->set_expression(nodes_expression(group
   (
-    epsilon += epsilon_action->solution(epsilon),//_max(epsilon_action->solution(epsilon), -epsilon),
-    nu_eff = nu_lam + nut_update(yplus, k, epsilon_action->solution(epsilon), nu_lam)
+    epsilon += epsilon_action->solution(epsilon)
   )));
 }
 
