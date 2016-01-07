@@ -57,6 +57,11 @@ coolfluid_add_test( UTEST     utest-proto-lss
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver
                     MPI       1)
 
+coolfluid_add_test( UTEST     utest-proto-lss-nodes
+                    CPP       utest-proto-lss-nodes.cpp
+                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver
+                    MPI       1)
+
 coolfluid_add_test( UTEST     utest-proto-partial
                     CPP       utest-proto-partial.cpp
                     LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver)

@@ -101,6 +101,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/SolutionVector.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp
+    Proto/ZeroLSSRow.hpp
 
     # Actions using Proto
     CopyScalar.hpp

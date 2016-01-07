@@ -18,6 +18,7 @@
 #include "RHSVector.hpp"
 #include "SolutionVector.hpp"
 #include "Transforms.hpp"
+#include "ZeroLSSRow.hpp"
 
 /// @file
 /// Grammar for node-based expressions
@@ -224,6 +225,7 @@ struct SingleExprNodeGrammar :
   <
     DirichletBCGrammar<NodeMath>,
     SetRHSGrammar<NodeMath>,
+    ZeroLSSRowGrammar,
     SetSolutionGrammar<NodeMath>,
     boost::proto::when
     <
