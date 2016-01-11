@@ -94,7 +94,7 @@ void FieldManager::create_field(const std::string& tag, Dictionary& dict)
     const Handle< Field > existing_field = find_component_ptr_with_tag<Field>(dict, tag);
     if(is_not_null(existing_field))
     {
-      if(descriptor.description() != existing_field->descriptor().description() || descriptor.options().option(common::Tags::dimension()).value<Uint>() != existing_field->descriptor().options().option(common::Tags::dimension()).value<Uint>())
+      if(descriptor.description() != existing_field->descriptor().description())
       {
         throw SetupError(FromHere(), "Existing field with tag " + tag + " at " + existing_field->uri().string() + " is incompatible with descriptor " + descriptor.uri().string()
               + ": existing " + existing_field->descriptor().description() + " != required " + descriptor.description());
@@ -105,7 +105,7 @@ void FieldManager::create_field(const std::string& tag, Dictionary& dict)
     }
 
     dict.create_field(tag, descriptor).add_tag(tag);
-    
+
     CFdebug << "Creating field with tag " << tag << ": " << descriptor.description() << CFendl;
   }
 }

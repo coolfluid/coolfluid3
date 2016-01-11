@@ -26,6 +26,8 @@ list( APPEND coolfluid_ufem_files
   BCHoldValue.cpp
   BCNeumannConstant.cpp
   BCNeumannConstant.hpp
+  BCWallFunctionNSImplicit.hpp
+  BCWallFunctionNSImplicit.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
   BulkVelocity.hpp
@@ -117,16 +119,16 @@ list( APPEND coolfluid_ufem_files
 
 set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation> $<TARGET_OBJECTS:cf3_ufem_ns_semi_implicit_implementation>)
 
-coolfluid3_add_library( TARGET     coolfluid_ufem 
-            SOURCES    
-              ${coolfluid_ufem_files} 
-            RCC 
+coolfluid3_add_library( TARGET     coolfluid_ufem
+            SOURCES
+              ${coolfluid_ufem_files}
+            RCC
               ${coolfluid_ufem_RCC}
-            LIBS     
-              coolfluid_mesh_lagrangep1 
-              coolfluid_mesh_lagrangep2 
-              coolfluid_solver_actions 
-              coolfluid_physics 
+            LIBS
+              coolfluid_mesh_lagrangep1
+              coolfluid_mesh_lagrangep2
+              coolfluid_solver_actions
+              coolfluid_physics
               coolfluid_mesh
               CONDITION  CF3_ENABLE_PROTO )
 

@@ -132,13 +132,13 @@ void KEpsilon::trigger_set_expression()
     const Real f_mu = 1. - ::exp(-0.0115*yplus);
     const Real k = std::max(0., k_in);
     const Real cmu_k2 = m_c_mu * k*k;
-    const Real result = cmu_k2 <= sqrt(k)*epsilon*m_l_max ? (epsilon <= 0. ? 0. : f_mu * cmu_k2 / epsilon) : m_l_max * sqrt(k);
+    const Real result = cmu_k2 <= sqrt(k)*epsilon*m_l_max ? (epsilon <= 0. ? 0. : cmu_k2 / epsilon) : m_l_max * sqrt(k);
 
     if(result < nu_l*m_minimal_viscosity_ratio)
     {
-      return nu_l*m_minimal_viscosity_ratio;
+      return f_mu*nu_l*m_minimal_viscosity_ratio;
     }
-    return result;
+    return f_mu*result;
   });
 
   Handle<ProtoAction>(k_action->get_child("UpdateNut"))->set_expression(nodes_expression(group
@@ -189,8 +189,13 @@ void KEpsilon::trigger_set_expression()
   )));
 
   // The f2 helper function
-  const auto f2 = make_lambda([](const Real k, const Real e, const Real nu)
+  const auto f2 = make_lambda([](const Real k_in, const Real e, const Real nu)
   {
+    if(e < 1e-30)
+    {
+      return 1.;
+    }
+    const Real k = std::max(0., k_in);
     const Real Re_t = k*k / (nu*e);
     return 1. - 0.4/1.8*::exp(-(Re_t*Re_t)/36.);
   });
@@ -224,8 +229,14 @@ void KEpsilon::trigger_set_expression()
 
 void KEpsilon::execute()
 {
-  Handle<LSSActionUnsteady>(get_child("K"))->execute();
-  Handle<LSSActionUnsteady>(get_child("Epsilon"))->execute();
+  auto k_action = Handle<LSSActionUnsteady>(get_child("K"));
+  auto epsilon_action = Handle<LSSActionUnsteady>(get_child("Epsilon"));
+  for(Uint i = 0; i != 2; ++i)
+  {
+    k_action->execute();
+    epsilon_action->execute();
+  }
+  Handle<ProtoAction>(k_action->get_child("UpdateNut"))->execute();
 }
 
 void KEpsilon::on_regions_set()
