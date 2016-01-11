@@ -141,7 +141,7 @@ void add_field_arrays(const mesh::Dictionary& dict, const bool include_coords_fi
       if(idx != 1)
         CFwarn << "Duplicate field name " << descriptor.user_variable_name(var_idx) << " was replaced with " << field_name << " for conversion to VTK" << CFendl;
       field_name_map[field_name] = vtk_array;
-      vtk_array->SetNumberOfComponents(descriptor.var_length(var_idx));
+      vtk_array->SetNumberOfComponents(descriptor.dimensionality(descriptor.internal_variable_name(var_idx)) == math::VariablesDescriptor::Dimensionalities::VECTOR ? 3 : descriptor.var_length(var_idx));
       vtk_array->SetNumberOfTuples(nb_entries);
       vtk_array->SetName(field_name.c_str());
       if(cell_data)
@@ -306,12 +306,18 @@ struct CF3ToVTK::node_mapping
         std::vector< vtkSmartPointer<vtkDoubleArray> >& arrays = field_vars.second;
         const Uint nb_arrays = arrays.size();
         const math::VariablesDescriptor& descriptor = field_vars.first->descriptor();
+        std::vector<std::vector<Real>> temp_rows;
+        for(const auto& arr : arrays)
+        {
+          temp_rows.push_back(std::vector<Real>(arr->GetNumberOfComponents(), 0.));
+        }
         for(const auto& node_link : node_map)
         {
           const mesh::Field::ConstRow row = source_array[node_link.first];
           for(Uint array_idx = 0; array_idx != nb_arrays; ++array_idx)
           {
-            arrays[array_idx]->SetTupleValue(node_link.second, &row[descriptor.offset(array_idx)]);
+            std::copy(row.begin() + descriptor.offset(array_idx), row.begin() + descriptor.offset(array_idx) + descriptor.var_length(array_idx), temp_rows[array_idx].begin());
+            arrays[array_idx]->SetTupleValue(node_link.second, &temp_rows[array_idx][0]);
           }
         }
       }
