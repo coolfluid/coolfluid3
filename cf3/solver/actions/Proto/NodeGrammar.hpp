@@ -14,6 +14,7 @@
 #include "Functions.hpp"
 #include "SetRHS.hpp"
 #include "SetSolution.hpp"
+#include "NodalMatrixManipulation.hpp"
 #include "NodeData.hpp"
 #include "RHSVector.hpp"
 #include "SolutionVector.hpp"
@@ -223,6 +224,7 @@ struct NodeStreamOutputIndexed : StreamOutput< NodeMathIndexed<I, J> >
 struct SingleExprNodeGrammar :
   boost::proto::or_
   <
+    NodalMatrixGrammar<NodeMath>,
     DirichletBCGrammar<NodeMath>,
     SetRHSGrammar<NodeMath>,
     ZeroLSSRowGrammar,

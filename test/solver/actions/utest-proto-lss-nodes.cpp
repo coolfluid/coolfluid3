@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE( ZeroRowTest )
 {
   Handle<math::LSS::System> lss = root.create_component<math::LSS::System>("zero_lss");
   lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
-  lss->create(mesh->geometry_fields().comm_pattern(), 1, node_connectivity, starting_indices);
+  lss->create(mesh->geometry_fields().comm_pattern(), 3, node_connectivity, starting_indices);
 
   lss->rhs()->reset();
 
@@ -224,6 +224,7 @@ BOOST_AUTO_TEST_CASE( ZeroRowTest )
 
   // Terminals to use
   FieldVariable<0, ScalarField> T("ScalarVar", "scalar");
+  FieldVariable<1, VectorField> u("VectorVar", "scalar");
   SystemMatrix matrix(*lss);
   SystemRHS sys_rhs(*lss);
   SolutionVector sol_vec(*lss);
@@ -236,6 +237,7 @@ BOOST_AUTO_TEST_CASE( ZeroRowTest )
       element_quadrature
       (
         _A(T,T) += transpose(nabla(T)) * nabla(T),
+        _A(u[_i],u[_i]) += transpose(nabla(T)) * nabla(T),
         _a[T] += transpose(N(T))
       ),
       matrix += _A,
@@ -247,14 +249,20 @@ BOOST_AUTO_TEST_CASE( ZeroRowTest )
   mat_action->options().set(solver::Tags::regions(), std::vector<common::URI>(1, mesh->topology().uri()));
 
   field_manager->create_field("scalar", mesh->geometry_fields());
+  field_manager->create_field("vector[v]", mesh->geometry_fields());
 
   mat_action->execute();
+
+  RealVector u_init(2);
+  u_init[0] = 1.;
+  u_init[1] = 2.;
 
   Handle<ProtoAction> zero_action = root.create_component<ProtoAction>("ZeroRowAction");
   zero_action->set_expression(nodes_expression(
     group
     (
-      zero_row(matrix, T)
+      zero_row(matrix, T),
+      u = u_init
     )
   ));
 
@@ -267,26 +275,42 @@ BOOST_AUTO_TEST_CASE( ZeroRowTest )
   for(Uint i = 0; i != 4; ++i)
   {
     Real result = 0;
-    lss->rhs()->get_value(i, result);
+    lss->rhs()->get_value(i, 0, result);
     std::vector<Real> diag(4);
     lss->matrix()->get_diagonal(diag);
     if(i == 0 || i == 2)
     {
       BOOST_CHECK_EQUAL(result, 0);
-      BOOST_CHECK_EQUAL(diag[i], 0);
+      BOOST_CHECK_EQUAL(diag[i*3], 0);
     }
     else
     {
       BOOST_CHECK(result != 0);
-      BOOST_CHECK_EQUAL(diag[i], 1);
+      BOOST_CHECK_EQUAL(diag[i*3], 1);
     }
   }
+
+  // Replace the zeroed row with a no-penetration condition on the boundary
+  Handle<ProtoAction> no_penetration = root.create_component<ProtoAction>("NoPenetration");
+  no_penetration->set_expression(nodes_expression
+  (
+    matrix(T,u) = transpose(u)
+  ));
+
+  no_penetration->options().set("physical_model", physical_model);
+  no_penetration->options().set(solver::Tags::regions(), loop_regions);
+  no_penetration->execute();
+
+  lss->matrix()->print_native(std::cout);
+  lss->rhs()->print_native(std::cout);
 }
 
 BOOST_AUTO_TEST_CASE( CleanUp )
 {
   root.remove_component("rhs_lss");
   root.remove_component("zero_lss");
+  common::PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

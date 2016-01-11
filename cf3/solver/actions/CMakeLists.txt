@@ -89,6 +89,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/GaussPoints.hpp
     Proto/IndexLooping.hpp
     Proto/LSSWrapper.hpp
+    Proto/NodalMatrixManipulation.hpp
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp
     Proto/NodeLooper.hpp

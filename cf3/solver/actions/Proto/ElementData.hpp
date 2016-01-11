@@ -243,13 +243,19 @@ public:
   Real jacobian_determinant(const typename EtypeT::MappedCoordsT& mapped_coords) const
   {
     m_jacobian_determinant = EtypeT::jacobian_determinant(mapped_coords, m_nodes);
-    return m_jacobian_determinant;
+    return jacobian_determinant();
   }
 
   /// Precomputed jacobian determinant
   Real jacobian_determinant() const
   {
-    return m_jacobian_determinant;
+    if(EtypeT::dimension == EtypeT::dimensionality)
+    {
+      return m_jacobian_determinant;
+    }
+
+    // Return 1 as Jacobian determinant for surface element types, to avoid conflict with explicit use of the normal vector in surface integrals
+    return 1.;
   }
 
   const typename EtypeT::CoordsT& normal(const typename EtypeT::MappedCoordsT& mapped_coords) const

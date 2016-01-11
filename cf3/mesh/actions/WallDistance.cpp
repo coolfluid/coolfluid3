@@ -242,6 +242,9 @@ void WallDistance::execute()
   Field& d = mesh.geometry_fields().create_field("wall_distance");
   d.add_tag("wall_distance");
 
+  // Field& nodal_normals = mesh.geometry_fields().create_field("nodal_normals", "nodal_normals[vector]");
+  // nodal_normals.add_tag("nodal_normals");
+
   // Wall normal field
   if(mesh.get_child("wall_P0") != nullptr)
   {
@@ -274,6 +277,11 @@ void WallDistance::execute()
       RealVector normal(dim);
       etype.compute_normal(elem_coords, normal);
       Eigen::Map<RealVector>(&face_normals[normal_fd_idx][0], dim) = normal / normal.norm();
+      // for(const Uint node_idx : conn_row)
+      // {
+      //   Eigen::Map<RealVector> node_normal(&nodal_normals[node_idx][0], dim);
+      //   node_normal += normal;
+      // }
     }
   }
 
@@ -316,6 +324,8 @@ void WallDistance::execute()
     if(is_surface_node)
     {
       d[inner_node_idx][0] = 0.;
+      // Eigen::Map<RealVector> node_normal(&nodal_normals[inner_node_idx][0], dim);
+      // node_normal /= node_normal.norm();
     }
     else
     {
