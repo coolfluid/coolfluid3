@@ -123,8 +123,11 @@ coolfluid_add_test( ATEST atest-flatplate2d-spalartallmaras
 coolfluid_add_test( ATEST atest-flatplate2d-kepsilon
                     PYTHON atest-flatplate2d-kepsilon.py)
 
-coolfluid_add_test( ATEST atest-channel-kepsilon
-                    PYTHON atest-channel-kepsilon.py)
+coolfluid_add_test( ATEST atest-channel-chienkepsilon
+                    PYTHON atest-channel-chienkepsilon.py)
+
+coolfluid_add_test( ATEST atest-channel-standardkepsilon
+                    PYTHON atest-channel-standardkepsilon.py)
 
 coolfluid_add_test( ATEST atest-kepsilon-grid
                     PYTHON atest-kepsilon-grid.py)

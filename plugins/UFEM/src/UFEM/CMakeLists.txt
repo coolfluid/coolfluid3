@@ -43,6 +43,8 @@ list( APPEND coolfluid_ufem_files
   HeatConductionSteady.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
+  ChienKEpsilon.hpp
+  ChienKEpsilon.cpp
   ComputeFluxFluid.hpp
   ComputeFluxFluid.cpp
   ComputeFluxSolid.hpp
@@ -61,8 +63,6 @@ list( APPEND coolfluid_ufem_files
   InitialConditionFunction.cpp
   InitialConditions.hpp
   InitialConditions.cpp
-  KEpsilon.hpp
-  KEpsilon.cpp
   KineticEnergyIntegral.hpp
   KineticEnergyIntegral.cpp
   LibUFEM.cpp
@@ -90,6 +90,8 @@ list( APPEND coolfluid_ufem_files
   SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
+  StandardKEpsilon.hpp
+  StandardKEpsilon.cpp
   StokesSteady.hpp
   StokesSteady.cpp
   SurfaceIntegral.hpp

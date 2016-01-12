@@ -55,8 +55,13 @@ BCWallFunctionNSImplicit::BCWallFunctionNSImplicit(const std::string& name) :
     .description("The linear system for which the boundary condition is applied")),
   system_matrix(options().option("lss"))
 {
-  //create_static_component<ProtoAction>("ZeroBoudaryRows")->options().option("regions").add_tag("norecurse");
-  create_static_component<ProtoAction>("NoPenetration")->options().option("regions").add_tag("norecurse");
+  options().add("tau_wall", m_tau_wall)
+    .pretty_name("Tau Wall")
+    .description("Wall shear stress")
+    .link_to(&m_tau_wall)
+    .mark_basic();
+
+  create_static_component<ProtoAction>("WallLaw")->options().option("regions").add_tag("norecurse");
 
   trigger_setup();
 }
@@ -68,25 +73,29 @@ BCWallFunctionNSImplicit::~BCWallFunctionNSImplicit()
 
 void BCWallFunctionNSImplicit::on_regions_set()
 {
-  //get_child("ZeroBoudaryRows")->options().set("regions", options()["regions"].value());
-  get_child("NoPenetration")->options().set("regions", options()["regions"].value());
+  get_child("WallLaw")->options().set("regions", options()["regions"].value());
 }
 
 void BCWallFunctionNSImplicit::trigger_setup()
 {
-
-  //Handle<ProtoAction> zero_boundary_rows(get_child("ZeroBoudaryRows"));
-  Handle<ProtoAction> no_penetration(get_child("NoPenetration"));
+  Handle<ProtoAction> wall_law(get_child("WallLaw"));
 
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
   FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
-  // Zero the rows for the continuity equation
-  //zero_boundary_rows->set_expression(nodes_expression(zero_row(system_matrix, p)));
+  const auto u_norm = make_lambda([&](const Real u_norm_in)
+  {
+    if(u_norm_in < 1e-10)
+    {
+      return 1.;
+    }
+
+    return u_norm_in;
+  });
 
   // Set normal component to zero
-  no_penetration->set_expression(elements_expression
+  wall_law->set_expression(elements_expression
   (
     boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
     group
@@ -94,7 +103,8 @@ void BCWallFunctionNSImplicit::trigger_setup()
       _A(u) = _0, _A(p) = _0,
       element_quadrature
       (
-        _A(p, u[_i]) += -transpose(N(p)) * N(u) * normal[_i]
+        _A(p, u[_i]) += -transpose(N(p)) * N(u) * normal[_i], // no-penetration condition
+        _A(u[_i], u[_i]) += transpose(N(u)) * lit(m_tau_wall) * N(u) / u_norm(_norm(u))
       ),
       system_matrix +=  _A,
       rhs += -_A * _x
@@ -104,11 +114,9 @@ void BCWallFunctionNSImplicit::trigger_setup()
 
 void BCWallFunctionNSImplicit::execute()
 {
-  //Handle<ProtoAction> zero_boundary_rows(get_child("ZeroBoudaryRows"));
-  Handle<ProtoAction> no_penetration(get_child("NoPenetration"));
+  Handle<ProtoAction> wall_law(get_child("WallLaw"));
 
-  //zero_boundary_rows->execute();
-  no_penetration->execute();
+  wall_law->execute();
 }
 
 } // namespace UFEM

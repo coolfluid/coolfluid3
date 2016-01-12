@@ -53,8 +53,8 @@ private:
   cf3::solver::actions::Proto::SystemMatrix system_matrix;
 
 
-  Real m_area;
-  Real m_heat_flux;
+  Real m_tau_wall = 0.;
+
 
 };
 

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "KEpsilon.hpp"
+#include "StandardKEpsilon.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -38,9 +38,9 @@ namespace UFEM {
 using namespace solver::actions::Proto;
 using namespace boost::proto;
 
-common::ComponentBuilder < KEpsilon, common::Action, LibUFEM > KEpsilon_builder;
+common::ComponentBuilder < StandardKEpsilon, common::Action, LibUFEM > StandardKEpsilon_builder;
 
-KEpsilon::KEpsilon(const std::string& name) :
+StandardKEpsilon::StandardKEpsilon(const std::string& name) :
   solver::Action(name),
   diffusion_coeff(boost::proto::as_child(m_diff_data))
 {
@@ -54,7 +54,7 @@ KEpsilon::KEpsilon(const std::string& name) :
   options().add("velocity_tag", "navier_stokes_solution")
     .pretty_name("Velocity Tag")
     .description("Tag for the velocity field")
-    .attach_trigger(boost::bind(&KEpsilon::trigger_set_expression, this));
+    .attach_trigger(boost::bind(&StandardKEpsilon::trigger_set_expression, this));
 
   options().add("theta", m_theta)
     .pretty_name("Theta")
@@ -107,7 +107,7 @@ KEpsilon::KEpsilon(const std::string& name) :
   trigger_set_expression();
 }
 
-void KEpsilon::trigger_set_expression()
+void StandardKEpsilon::trigger_set_expression()
 {
   // The code will only be active for these element types
   boost::mpl::vector2<mesh::LagrangeP1::Quad2D, mesh::LagrangeP1::Triag2D> allowed_elements;
@@ -227,7 +227,7 @@ void KEpsilon::trigger_set_expression()
   )));
 }
 
-void KEpsilon::execute()
+void StandardKEpsilon::execute()
 {
   auto k_action = Handle<LSSActionUnsteady>(get_child("K"));
   auto epsilon_action = Handle<LSSActionUnsteady>(get_child("Epsilon"));
@@ -239,7 +239,7 @@ void KEpsilon::execute()
   Handle<ProtoAction>(k_action->get_child("UpdateNut"))->execute();
 }
 
-void KEpsilon::on_regions_set()
+void StandardKEpsilon::on_regions_set()
 {
   get_child("K")->options().set("regions", options()["regions"].value());
   get_child("Epsilon")->options().set("regions", options()["regions"].value());
