@@ -503,6 +503,26 @@ struct Lump :
   };
 };
 
+struct ApplyWeightTag
+{
+};
+
+/// Apply a weight coefficient-wise: apply_weight(matrix_to_modify, weights)
+static boost::proto::terminal<ApplyWeightTag>::type const apply_weight = {};
+
+/// Lump the matrix
+struct ApplyWeight : boost::proto::callable
+{
+  typedef void result_type;
+
+  template<typename MatrixT, typename WeightsT>
+  void operator()(MatrixT& mat, const WeightsT& weights)
+  {
+    mat.array() *= weights.array();
+  }
+};
+
+
 /// Indexing into Eigen expressions
 template<typename GrammarT, typename IntegersT>
 struct EigenIndexing :
@@ -584,6 +604,12 @@ struct EigenMath :
         <
           boost::proto::function<boost::proto::terminal<ExtractDiagTag>, boost::proto::_>,
           ExtractDiag(GrammarT(boost::proto::_right))
+        >,
+        // Coefficient-wise weighing
+        boost::proto::when
+        <
+          boost::proto::function<boost::proto::terminal<ApplyWeightTag>, boost::proto::_, boost::proto::_>,
+          ApplyWeight(GrammarT(boost::proto::_child1), GrammarT(boost::proto::_child2))
         >
     >,
     MathOpDefault<GrammarT>

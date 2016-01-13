@@ -305,6 +305,67 @@ BOOST_AUTO_TEST_CASE( ZeroRowTest )
   lss->rhs()->print_native(std::cout);
 }
 
+BOOST_AUTO_TEST_CASE( WeightTest )
+{
+  Handle<math::LSS::System> lss = root.create_component<math::LSS::System>("weights_lss");
+  lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+  lss->create(mesh->geometry_fields().comm_pattern(), 1, node_connectivity, starting_indices);
+  lss->rhs()->reset();
+
+  // Terminals to use
+  FieldVariable<0, ScalarField> T("ScalarVar", "scalar");
+  SystemMatrix matrix(*lss);
+  SystemRHS sys_rhs(*lss);
+  SolutionVector sol_vec(*lss);
+
+  Handle<ProtoAction> init_scalar = root.create_component<ProtoAction>("InitScalar");
+  init_scalar->set_expression(nodes_expression(T = lit(1.)));
+  init_scalar->options().set("physical_model", physical_model);
+  init_scalar->options().set(solver::Tags::regions(), std::vector<common::URI>(1, mesh->topology().uri()));
+  init_scalar->execute();
+
+  Handle<ProtoAction> init_bnd = root.create_component<ProtoAction>("InitBnd");
+  init_bnd->set_expression(nodes_expression(T = lit(0.)));
+  init_bnd->options().set("physical_model", physical_model);
+  init_bnd->options().set(solver::Tags::regions(), loop_regions);
+  init_bnd->execute();
+
+  Handle<ProtoAction> mat_action = root.create_component<ProtoAction>("MassMatrixAction");
+  mat_action->set_expression(elements_expression(
+    boost::mpl::vector1<mesh::LagrangeP1::Triag2D>(),
+    group
+    (
+      _A(T) = _0, _a[T] = _0,
+      element_quadrature
+      (
+        _A(T,T) += transpose(nabla(T)) * nabla(T),
+        _a[T] += transpose(N(T))
+      ),
+      _cout << "_a before weight:" << transpose(_a) << "\n",
+      apply_weight(_a, nodal_values(T)),
+      _cout << "_a after weight:" << transpose(_a) << "\n",
+      matrix += _A,
+      sys_rhs += _a
+    )
+  ));
+
+  mat_action->options().set("physical_model", physical_model);
+  mat_action->options().set(solver::Tags::regions(), std::vector<common::URI>(1, mesh->topology().uri()));
+  mat_action->execute();
+
+  lss->rhs()->print_native(std::cout);
+
+  for(Uint i = 0; i != 4; ++i)
+  {
+    Real result = 0;
+    lss->rhs()->get_value(i, result);
+    if(i == 0 || i == 2)
+    {
+      BOOST_CHECK_EQUAL(result, 0.);
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE( CleanUp )
 {
   root.remove_component("rhs_lss");
