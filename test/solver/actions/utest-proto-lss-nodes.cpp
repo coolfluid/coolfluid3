@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE( WeightTest )
   SolutionVector sol_vec(*lss);
 
   Handle<ProtoAction> init_scalar = root.create_component<ProtoAction>("InitScalar");
-  init_scalar->set_expression(nodes_expression(T = lit(1.)));
+  init_scalar->set_expression(nodes_expression(T = lit(6.)));
   init_scalar->options().set("physical_model", physical_model);
   init_scalar->options().set(solver::Tags::regions(), std::vector<common::URI>(1, mesh->topology().uri()));
   init_scalar->execute();
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE( WeightTest )
   init_bnd->options().set(solver::Tags::regions(), loop_regions);
   init_bnd->execute();
 
-  Handle<ProtoAction> mat_action = root.create_component<ProtoAction>("MassMatrixAction");
+  Handle<ProtoAction> mat_action = root.create_component<ProtoAction>("MassMatrixAction2");
   mat_action->set_expression(elements_expression(
     boost::mpl::vector1<mesh::LagrangeP1::Triag2D>(),
     group
@@ -341,9 +341,7 @@ BOOST_AUTO_TEST_CASE( WeightTest )
         _A(T,T) += transpose(nabla(T)) * nabla(T),
         _a[T] += transpose(N(T))
       ),
-      _cout << "_a before weight:" << transpose(_a) << "\n",
       apply_weight(_a, nodal_values(T)),
-      _cout << "_a after weight:" << transpose(_a) << "\n",
       matrix += _A,
       sys_rhs += _a
     )
@@ -363,15 +361,66 @@ BOOST_AUTO_TEST_CASE( WeightTest )
     {
       BOOST_CHECK_EQUAL(result, 0.);
     }
+    if(i == 1)
+    {
+      BOOST_CHECK_EQUAL(result, 1.);
+    }
+    if(i == 3)
+    {
+      BOOST_CHECK_EQUAL(result, 2.);
+    }
   }
+
+  lss->rhs()->reset();
+
+  Handle<ProtoAction> mat_action2 = root.create_component<ProtoAction>("MassMatrixAction3");
+  mat_action2->set_expression(elements_expression(
+    boost::mpl::vector1<mesh::LagrangeP1::Triag2D>(),
+    group
+    (
+      _A(T) = _0, _a[T] = _0,
+      element_quadrature
+      (
+        _A(T,T) += transpose(nabla(T)) * nabla(T),
+        _a[T] += transpose(N(T))
+      ),
+      apply_weight(_a, nodal_values(T), 0.),
+      matrix += _A,
+      sys_rhs += _a
+    )
+  ));
+
+  mat_action2->options().set("physical_model", physical_model);
+  mat_action2->options().set(solver::Tags::regions(), std::vector<common::URI>(1, mesh->topology().uri()));
+  mat_action2->execute();
+
+  for(Uint i = 0; i != 4; ++i)
+  {
+    Real result = 0;
+    lss->rhs()->get_value(i, result);
+    if(i == 0 || i == 2)
+    {
+      BOOST_CHECK_EQUAL(result, 0.);
+    }
+    if(i == 1)
+    {
+      BOOST_CHECK_EQUAL(result, 1./6.);
+    }
+    if(i == 3)
+    {
+      BOOST_CHECK_EQUAL(result, 2./6.);
+    }
+  }
+
+  lss->rhs()->print_native(std::cout);
 }
 
 BOOST_AUTO_TEST_CASE( CleanUp )
 {
   root.remove_component("rhs_lss");
   root.remove_component("zero_lss");
+  root.remove_component("weights_lss");
   common::PE::Comm::instance().finalize();
-  BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

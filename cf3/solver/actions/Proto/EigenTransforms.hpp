@@ -520,6 +520,12 @@ struct ApplyWeight : boost::proto::callable
   {
     mat.array() *= weights.array();
   }
+
+  template<typename MatrixT, typename WeightsT>
+  void operator()(MatrixT& mat, const WeightsT& weights, const Real threshold)
+  {
+    mat.array() *= (weights.array() > threshold).template cast<Real>();
+  }
 };
 
 
@@ -610,6 +616,11 @@ struct EigenMath :
         <
           boost::proto::function<boost::proto::terminal<ApplyWeightTag>, boost::proto::_, boost::proto::_>,
           ApplyWeight(GrammarT(boost::proto::_child1), GrammarT(boost::proto::_child2))
+        >,
+        boost::proto::when
+        <
+          boost::proto::function<boost::proto::terminal<ApplyWeightTag>, boost::proto::_, boost::proto::_, boost::proto::_>,
+          ApplyWeight(GrammarT(boost::proto::_child1), GrammarT(boost::proto::_child2), GrammarT(boost::proto::_child3))
         >
     >,
     MathOpDefault<GrammarT>
