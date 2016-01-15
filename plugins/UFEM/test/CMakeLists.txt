@@ -129,6 +129,9 @@ coolfluid_add_test( ATEST atest-channel-chienkepsilon
 coolfluid_add_test( ATEST atest-channel-standardkepsilon
                     PYTHON atest-channel-standardkepsilon.py)
 
+coolfluid_add_test( ATEST atest-comte-bellot
+                    PYTHON atest-comte-bellot.py)
+
 coolfluid_add_test( ATEST atest-kepsilon-grid
                     PYTHON atest-kepsilon-grid.py)
 

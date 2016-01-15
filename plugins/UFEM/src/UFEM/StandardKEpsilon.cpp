@@ -41,16 +41,8 @@ using namespace boost::proto;
 common::ComponentBuilder < StandardKEpsilon, common::Action, LibUFEM > StandardKEpsilon_builder;
 
 StandardKEpsilon::StandardKEpsilon(const std::string& name) :
-  solver::Action(name),
-  diffusion_coeff(boost::proto::as_child(m_diff_data))
+  solver::Action(name)
 {
-  m_diff_data.op.d0 = 1.;
-
-  options().add("d0", m_diff_data.op.d0)
-    .pretty_name("d0")
-    .description("Multiplication factor for the artificial diffusion term")
-    .link_to(&(m_diff_data.op.d0));
-
   options().add("velocity_tag", "navier_stokes_solution")
     .pretty_name("Velocity Tag")
     .description("Tag for the velocity field")
@@ -118,7 +110,6 @@ void StandardKEpsilon::trigger_set_expression()
   FieldVariable<2, VectorField> u("Velocity", velocity_tag);
   FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
   FieldVariable<4, ScalarField> d("wall_distance", "wall_distance");
-  FieldVariable<5, ScalarField> yplus("yplus", "yplus");
 
   PhysicsConstant nu_lam("kinematic_viscosity");
 
@@ -127,23 +118,26 @@ void StandardKEpsilon::trigger_set_expression()
   Real& invdt = k_action->invdt();
 
   // The length scale helper function
-  const auto nut_update = make_lambda([&](const Real yplus, const Real k_in, const Real epsilon, const Real nu_l)
+  const auto nut_update = make_lambda([&](const Real k_in, const Real epsilon, const Real nu_l, const Real d)
   {
-    const Real f_mu = 1. - ::exp(-0.0115*yplus);
+    if(d < 1e-30)
+    {
+      return nu_l*(1. + m_kappa*m_yplus);
+    }
     const Real k = std::max(0., k_in);
     const Real cmu_k2 = m_c_mu * k*k;
     const Real result = cmu_k2 <= sqrt(k)*epsilon*m_l_max ? (epsilon <= 0. ? 0. : cmu_k2 / epsilon) : m_l_max * sqrt(k);
 
     if(result < nu_l*m_minimal_viscosity_ratio)
     {
-      return f_mu*nu_l*m_minimal_viscosity_ratio;
+      return nu_l*m_minimal_viscosity_ratio;
     }
-    return f_mu*result;
+    return result;
   });
 
   Handle<ProtoAction>(k_action->get_child("UpdateNut"))->set_expression(nodes_expression(group
   (
-    nu_eff = nu_lam + nut_update(yplus, k, epsilon, nu_lam)
+    nu_eff = nu_lam + nut_update(k, epsilon, nu_lam, d)
   )));
 
   // Helper to get the turbulent viscosity
@@ -163,6 +157,26 @@ void StandardKEpsilon::trigger_set_expression()
     return m_c_mu * std::max(k,0.) / nu_t;
   });
 
+  const auto wall_weight = make_lambda([&](const Real d)
+  {
+    if (d < -1.)
+      return 0.;
+
+    return 1.;
+  });
+
+  const auto u_tau = make_lambda([&](const Real k, const Real u)
+  {
+    const Real u_k = k >= 0. ? ::pow(m_c_mu, 0.25)*::sqrt(k) : 0.;
+    const Real u_tau = std::max(u_k, u/m_yplus);
+    return u_tau;
+  });
+
+  const auto pow4 = make_lambda([](const Real x)
+  {
+    return x*x*x*x;
+  });
+
   Handle<ProtoAction>(k_action->get_child("Assembly"))->set_expression(
   elements_expression
   (
@@ -173,11 +187,12 @@ void StandardKEpsilon::trigger_set_expression()
       compute_tau.apply( u, nu_eff, lit(dt), lit(tau_su)),
       element_quadrature
       (
-        _A(k) += transpose(N(k) + tau_su*u*nabla(k)) * u * nabla(k) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_k + diffusion_coeff(u,k)) * transpose(nabla(k)) * nabla(k) // Advection and diffusion
-                 + transpose(N(k)) * (gamma(k, nut(nu_lam, nu_eff), epsilon) + lit(2.)*nu_lam/(d*d)) * N(k), // wall distance term
+        _A(k) += transpose(N(k) + tau_su*u*nabla(k)) * u * nabla(k) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_k) * transpose(nabla(k)) * nabla(k) // Advection and diffusion
+                 + transpose(N(k)) * gamma(k, nut(nu_lam, nu_eff), epsilon) * N(k), // sink term
         _T(k) +=  transpose(N(k) + tau_su * u*nabla(k)) * N(k),
-        _a[k] += transpose(N(k)) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))) // Production
+        _a[k] += transpose(N(k)) * (wall_weight(d) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))) + (lit(1.) - wall_weight(d)) * (pow4(u_tau(k, _norm(u)))/(lit(m_kappa)*lit(m_yplus)*nu_lam))) // Production
       ),
+      //apply_weight(_a, nodal_values(d), 0.), // Suppress production on the wall, it will be set equal to epsilon in BC
       k_action->system_matrix += invdt * _T + m_theta * _A,
       k_action->system_rhs += -_A * _x + _a
     )
@@ -187,18 +202,6 @@ void StandardKEpsilon::trigger_set_expression()
   (
     k += k_action->solution(k)
   )));
-
-  // The f2 helper function
-  const auto f2 = make_lambda([](const Real k_in, const Real e, const Real nu)
-  {
-    if(e < 1e-30)
-    {
-      return 1.;
-    }
-    const Real k = std::max(0., k_in);
-    const Real Re_t = k*k / (nu*e);
-    return 1. - 0.4/1.8*::exp(-(Re_t*Re_t)/36.);
-  });
 
   auto epsilon_action = Handle<LSSActionUnsteady>(get_child("Epsilon"));
   Handle<ProtoAction>(epsilon_action->get_child("Assembly"))->set_expression(
@@ -212,11 +215,12 @@ void StandardKEpsilon::trigger_set_expression()
       element_quadrature
       (
         _A(epsilon) += transpose(N(epsilon) + tau_su*u*nabla(epsilon)) * u * nabla(epsilon) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_epsilon) * transpose(nabla(epsilon)) * nabla(epsilon) // Advection and diffusion
-                       + transpose(N(epsilon))*N(epsilon)*(m_c_epsilon_2 * f2(k, epsilon, nu_lam) * gamma(k, nut(nu_lam, nu_eff), epsilon) + lit(2.)*nu_lam / (d*d)*_exp(-yplus/2.)), // wall distance term
+                       + transpose(N(epsilon))*N(epsilon)*(m_c_epsilon_2 * gamma(k, nut(nu_lam, nu_eff), epsilon)), // sink term
         _T(epsilon) +=  transpose(N(epsilon) + tau_su * u*nabla(epsilon)) * N(epsilon),
-        _a[epsilon] += transpose(N(epsilon)) * gamma(k, nut(nu_lam, nu_eff), epsilon) * lit(m_c_epsilon_1) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
+        _a[epsilon] += transpose(N(epsilon)) * gamma(k, nut(nu_lam, nu_eff), epsilon) * lit(m_c_epsilon_1) * (wall_weight(d) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))) + (lit(1.) - wall_weight(d)) * (pow4(u_tau(k, _norm(u)))/(lit(m_kappa)*lit(m_yplus)*nu_lam)))
       ),
       epsilon_action->system_matrix += invdt * _T + m_theta * _A,
+      //apply_weight(_a, nodal_values(d), 0.), // Suppress production on the wall, it will be set equal to epsilon in BC
       epsilon_action->system_rhs += -_A * _x + _a
     )
   ));

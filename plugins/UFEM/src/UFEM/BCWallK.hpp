@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_BCWallFunctionNSImplicit_hpp
-#define cf3_UFEM_BCWallFunctionNSImplicit_hpp
+#ifndef cf3_UFEM_BCWallK_hpp
+#define cf3_UFEM_BCWallK_hpp
 
 
 #include "solver/Action.hpp"
@@ -26,18 +26,18 @@ namespace UFEM {
 /// The "gradient_region" option determines the region in which the temperature gradient is calculated
 /// The "lss" option determines the linear system to which the boundary condition is applied
 /// The "temperature_field_tag" option determines the tag to use when looking for the temperature field
-class UFEM_API BCWallFunctionNSImplicit : public solver::Action
+class UFEM_API BCWallK : public solver::Action
 {
 public:
 
   /// Contructor
   /// @param name of the component
-  BCWallFunctionNSImplicit ( const std::string& name );
+  BCWallK ( const std::string& name );
 
-  virtual ~BCWallFunctionNSImplicit();
+  virtual ~BCWallK();
 
   /// Get the class name
-  static std::string type_name () { return "BCWallFunctionNSImplicit"; }
+  static std::string type_name () { return "BCWallK"; }
 
   /// Execute the control of heat transfer coefficient usage (dynamic or static)
   virtual void execute();
@@ -51,10 +51,14 @@ private:
 
   cf3::solver::actions::Proto::SystemRHS rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;
+
+  Real m_c_mu = 0.09;
+  Real m_kappa = 0.41;
+  Real m_yplus = 11.06;
 };
 
 } // UFEM
 } // cf3
 
 
-#endif // cf3_UFEM_BCWallFunctionNSImplicit_hpp
+#endif // cf3_UFEM_BCWallK_hpp

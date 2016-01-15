@@ -55,12 +55,6 @@ BCWallFunctionNSImplicit::BCWallFunctionNSImplicit(const std::string& name) :
     .description("The linear system for which the boundary condition is applied")),
   system_matrix(options().option("lss"))
 {
-  options().add("tau_wall", m_tau_wall)
-    .pretty_name("Tau Wall")
-    .description("Wall shear stress")
-    .link_to(&m_tau_wall)
-    .mark_basic();
-
   create_static_component<ProtoAction>("WallLaw")->options().option("regions").add_tag("norecurse");
 
   trigger_setup();
@@ -82,16 +76,19 @@ void BCWallFunctionNSImplicit::trigger_setup()
 
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
-  FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  FieldVariable<2, ScalarField> k("k", "ke_k");
 
-  const auto u_norm = make_lambda([&](const Real u_norm_in)
+  const auto tau_w = make_lambda([&](const Real k, const Real u)
   {
-    if(u_norm_in < 1e-10)
+    const Real c_mu = 0.09;
+    const Real yplus = 11.06;
+    if(k <= 0.)
     {
-      return 1.;
+      return u / (yplus*yplus);
     }
 
-    return u_norm_in;
+    //std::cout << "tau_w: " << ::pow(c_mu, 0.25)*::sqrt(::fabs(k))/yplus << std::endl;
+    return std::max(::pow(c_mu, 0.25)*::sqrt(::fabs(k))/yplus, u / (yplus*yplus));
   });
 
   // Set normal component to zero
@@ -104,7 +101,7 @@ void BCWallFunctionNSImplicit::trigger_setup()
       element_quadrature
       (
         _A(p, u[_i]) += -transpose(N(p)) * N(u) * normal[_i], // no-penetration condition
-        _A(u[_i], u[_i]) += transpose(N(u)) * lit(m_tau_wall) * N(u) / u_norm(_norm(u))
+        _A(u[_i], u[_i]) += transpose(N(u)) * tau_w(k, _norm(u)) * N(u)
       ),
       system_matrix +=  _A,
       rhs += -_A * _x

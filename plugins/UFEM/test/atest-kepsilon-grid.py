@@ -34,10 +34,7 @@ physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the k-epsilon turbulence model solver(ke)
-ke = solver.add_unsteady_solver('cf3.UFEM.KEpsilon')
-ke.options.d0 = 0.
-ke.options.l_max = 2.*h
-ke.options.minimal_viscosity_ratio = 1e-4
+ke = solver.add_unsteady_solver('cf3.UFEM.StandardKEpsilon')
 
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
