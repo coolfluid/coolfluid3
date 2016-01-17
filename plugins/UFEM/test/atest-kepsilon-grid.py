@@ -14,7 +14,7 @@ eps_init = 0.
 
 y_segs = 2
 x_size = 10.
-x_segs = 64
+x_segs = 32
 
 # Some shortcuts
 root = cf.Core.root()

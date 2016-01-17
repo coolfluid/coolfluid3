@@ -41,16 +41,8 @@ using namespace boost::proto;
 common::ComponentBuilder < ChienKEpsilon, common::Action, LibUFEM > ChienKEpsilon_builder;
 
 ChienKEpsilon::ChienKEpsilon(const std::string& name) :
-  solver::Action(name),
-  diffusion_coeff(boost::proto::as_child(m_diff_data))
+  solver::Action(name)
 {
-  m_diff_data.op.d0 = 1.;
-
-  options().add("d0", m_diff_data.op.d0)
-    .pretty_name("d0")
-    .description("Multiplication factor for the artificial diffusion term")
-    .link_to(&(m_diff_data.op.d0));
-
   options().add("velocity_tag", "navier_stokes_solution")
     .pretty_name("Velocity Tag")
     .description("Tag for the velocity field")
@@ -83,26 +75,17 @@ ChienKEpsilon::ChienKEpsilon(const std::string& name) :
     .description("Reference velocity for the CF2 SUPG method")
     .link_to(&(compute_tau.data.op.u_ref));
 
-  auto k_sys = create_component<LSSActionUnsteady>("K");
-  k_sys->set_solution_tag("ke_k");
-  k_sys->create_component<ProtoAction>("UpdateNut");
-  k_sys->create_component<math::LSS::ZeroLSS>("ZeroLSS");
-  k_sys->create_component<ProtoAction>("Assembly");
-  k_sys->create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag("ke_k");
-  k_sys->get_child("BoundaryConditions")->mark_basic();
-  k_sys->create_component<math::LSS::SolveLSS>("SolveLSS");
-  k_sys->create_component<ProtoAction>("Update");
-  k_sys->mark_basic();
+  create_component<ProtoAction>("UpdateNut");
 
-  auto epsilon_sys = create_component<LSSActionUnsteady>("Epsilon");
-  epsilon_sys->set_solution_tag("ke_epsilon");
-  epsilon_sys->create_component<math::LSS::ZeroLSS>("ZeroLSS");
-  epsilon_sys->create_component<ProtoAction>("Assembly");
-  epsilon_sys->create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag("ke_epsilon");
-  epsilon_sys->get_child("BoundaryConditions")->mark_basic();
-  epsilon_sys->create_component<math::LSS::SolveLSS>("SolveLSS");
-  epsilon_sys->create_component<ProtoAction>("Update");
-  epsilon_sys->mark_basic();
+  auto lss = create_component<LSSActionUnsteady>("LSS");
+  lss->set_solution_tag("ke_solution");
+  lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
+  lss->create_component<ProtoAction>("Assembly");
+  lss->create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag("ke_solution");
+  lss->get_child("BoundaryConditions")->mark_basic();
+  lss->create_component<math::LSS::SolveLSS>("SolveLSS");
+  lss->create_component<ProtoAction>("Update");
+  lss->mark_basic();
 
   trigger_set_expression();
 }
@@ -113,8 +96,8 @@ void ChienKEpsilon::trigger_set_expression()
   boost::mpl::vector2<mesh::LagrangeP1::Quad2D, mesh::LagrangeP1::Triag2D> allowed_elements;
   const std::string velocity_tag = options().value<std::string>("velocity_tag");
 
-  FieldVariable<0, ScalarField> k("k", "ke_k");
-  FieldVariable<1, ScalarField> epsilon("epsilon", "ke_epsilon");
+  FieldVariable<0, ScalarField> k("k", "ke_solution");
+  FieldVariable<1, ScalarField> epsilon("epsilon", "ke_solution");
   FieldVariable<2, VectorField> u("Velocity", velocity_tag);
   FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
   FieldVariable<4, ScalarField> d("wall_distance", "wall_distance");
@@ -122,9 +105,9 @@ void ChienKEpsilon::trigger_set_expression()
 
   PhysicsConstant nu_lam("kinematic_viscosity");
 
-  auto k_action = Handle<LSSActionUnsteady>(get_child("K"));
-  Real& dt = k_action->dt();
-  Real& invdt = k_action->invdt();
+  auto lss_action = Handle<LSSActionUnsteady>(get_child("LSS"));
+  Real& dt = lss_action->dt();
+  Real& invdt = lss_action->invdt();
 
   // The length scale helper function
   const auto nut_update = make_lambda([&](const Real yplus, const Real k_in, const Real epsilon, const Real nu_l)
@@ -141,7 +124,7 @@ void ChienKEpsilon::trigger_set_expression()
     return f_mu*result;
   });
 
-  Handle<ProtoAction>(k_action->get_child("UpdateNut"))->set_expression(nodes_expression(group
+  Handle<ProtoAction>(get_child("UpdateNut"))->set_expression(nodes_expression(group
   (
     nu_eff = nu_lam + nut_update(yplus, k, epsilon, nu_lam)
   )));
@@ -153,40 +136,17 @@ void ChienKEpsilon::trigger_set_expression()
   });
 
   // Linearization parameter gamma = epsilon / k:
-  const auto gamma = make_lambda([&](const Real k, const Real nu_t, const Real epsilon)
+  const auto gamma = make_lambda([&](const Real k, const Real nu_t, const Real epsilon, const Real yplus)
   {
-    if(k>1e-30 && epsilon > 1e-30)
+    const Real f_mu = 1. - ::exp(-0.0115*yplus);
+    const Real gamma_mu = f_mu * m_c_mu * std::max(k,0.) / nu_t;
+    if(k > 0. && epsilon > 0.)
     {
-      return epsilon/k;
+      return std::min(epsilon/k, gamma_mu);
     }
 
-    return m_c_mu * std::max(k,0.) / nu_t;
+    return gamma_mu;
   });
-
-  Handle<ProtoAction>(k_action->get_child("Assembly"))->set_expression(
-  elements_expression
-  (
-    allowed_elements,
-    group
-    (
-      _A = _0, _T = _0, _a = _0,
-      compute_tau.apply( u, nu_eff, lit(dt), lit(tau_su)),
-      element_quadrature
-      (
-        _A(k) += transpose(N(k) + tau_su*u*nabla(k)) * u * nabla(k) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_k + diffusion_coeff(u,k)) * transpose(nabla(k)) * nabla(k) // Advection and diffusion
-                 + transpose(N(k)) * (gamma(k, nut(nu_lam, nu_eff), epsilon) + lit(2.)*nu_lam/(d*d)) * N(k), // wall distance term
-        _T(k) +=  transpose(N(k) + tau_su * u*nabla(k)) * N(k),
-        _a[k] += transpose(N(k)) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))) // Production
-      ),
-      k_action->system_matrix += invdt * _T + m_theta * _A,
-      k_action->system_rhs += -_A * _x + _a
-    )
-  ));
-
-  Handle<ProtoAction>(k_action->get_child("Update"))->set_expression(nodes_expression(group
-  (
-    k += k_action->solution(k)
-  )));
 
   // The f2 helper function
   const auto f2 = make_lambda([](const Real k_in, const Real e, const Real nu)
@@ -200,8 +160,7 @@ void ChienKEpsilon::trigger_set_expression()
     return 1. - 0.4/1.8*::exp(-(Re_t*Re_t)/36.);
   });
 
-  auto epsilon_action = Handle<LSSActionUnsteady>(get_child("Epsilon"));
-  Handle<ProtoAction>(epsilon_action->get_child("Assembly"))->set_expression(
+  Handle<ProtoAction>(lss_action->get_child("Assembly"))->set_expression(
   elements_expression
   (
     allowed_elements,
@@ -211,40 +170,44 @@ void ChienKEpsilon::trigger_set_expression()
       compute_tau.apply( u, nu_eff, lit(dt), lit(tau_su)),
       element_quadrature
       (
-        _A(epsilon) += transpose(N(epsilon) + tau_su*u*nabla(epsilon)) * u * nabla(epsilon) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_epsilon) * transpose(nabla(epsilon)) * nabla(epsilon) // Advection and diffusion
-                       + transpose(N(epsilon))*N(epsilon)*(m_c_epsilon_2 * f2(k, epsilon, nu_lam) * gamma(k, nut(nu_lam, nu_eff), epsilon) + lit(2.)*nu_lam / (d*d)*_exp(-yplus/2.)), // wall distance term
-        _T(epsilon) +=  transpose(N(epsilon) + tau_su * u*nabla(epsilon)) * N(epsilon),
-        _a[epsilon] += transpose(N(epsilon)) * gamma(k, nut(nu_lam, nu_eff), epsilon) * lit(m_c_epsilon_1) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
+        _A(k,k) += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * u * nabla(k) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_k) * transpose(nabla(k)) * nabla(k) // Advection and diffusion
+                 + transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (gamma(k, nut(nu_lam, nu_eff), epsilon, yplus) + lit(2.)*nu_lam/(d*d)) * N(k), // wall distance term
+        _T(k,k) +=  transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * N(k),
+        _a[k] += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))), // Production
+        _A(epsilon,epsilon) += transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * u * nabla(epsilon) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_epsilon) * transpose(nabla(epsilon)) * nabla(epsilon) // Advection and diffusion
+                       + transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon))*N(epsilon)*(m_c_epsilon_2 * f2(k, epsilon, nu_lam) * gamma(k, nut(nu_lam, nu_eff), epsilon, yplus) + lit(2.)*nu_lam / (d*d)*_exp(-yplus/2.)), // wall distance term
+        _T(epsilon,epsilon) +=  transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * N(epsilon),
+        _a[epsilon] += transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * gamma(k, nut(nu_lam, nu_eff), epsilon, yplus) * lit(m_c_epsilon_1) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
       ),
-      epsilon_action->system_matrix += invdt * _T + m_theta * _A,
-      epsilon_action->system_rhs += -_A * _x + _a
+      lss_action->system_matrix += invdt * _T + m_theta * _A,
+      lss_action->system_rhs += -_A * _x + _a
     )
   ));
 
-  Handle<ProtoAction>(epsilon_action->get_child("Update"))->set_expression(nodes_expression(group
+  Handle<ProtoAction>(lss_action->get_child("Update"))->set_expression(nodes_expression(group
   (
-    epsilon += epsilon_action->solution(epsilon)
+    k += lss_action->solution(k),
+    epsilon += lss_action->solution(epsilon)
   )));
 }
 
 void ChienKEpsilon::execute()
 {
-  auto k_action = Handle<LSSActionUnsteady>(get_child("K"));
-  auto epsilon_action = Handle<LSSActionUnsteady>(get_child("Epsilon"));
+  auto lss_action = Handle<LSSActionUnsteady>(get_child("LSS"));
+  Handle<ProtoAction> update_nut(get_child("UpdateNut"));
+  update_nut->execute();
   for(Uint i = 0; i != 2; ++i)
   {
-    k_action->execute();
-    epsilon_action->execute();
+    lss_action->execute();
   }
-  Handle<ProtoAction>(k_action->get_child("UpdateNut"))->execute();
+  update_nut->execute();
 }
 
 void ChienKEpsilon::on_regions_set()
 {
-  get_child("K")->options().set("regions", options()["regions"].value());
-  get_child("Epsilon")->options().set("regions", options()["regions"].value());
-  access_component("K/BoundaryConditions")->options().set("regions", options()["regions"].value());
-  access_component("Epsilon/BoundaryConditions")->options().set("regions", options()["regions"].value());
+  get_child("UpdateNut")->options().set("regions", options()["regions"].value());
+  get_child("LSS")->options().set("regions", options()["regions"].value());
+  access_component("LSS/BoundaryConditions")->options().set("regions", options()["regions"].value());
 }
 
 } // UFEM

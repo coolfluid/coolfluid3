@@ -33,7 +33,7 @@ namespace cf3 {
 namespace UFEM {
 
 static boost::proto::terminal< double(*)(double, double) >::type const _fv1 = {&fv1};
-  
+
 using namespace common;
 using namespace solver;
 using namespace solver::actions;
@@ -44,16 +44,8 @@ ComponentBuilder < SpalartAllmaras, LSSActionUnsteady, LibUFEM > SpalartAllmaras
 
 SpalartAllmaras::SpalartAllmaras(const std::string& name) :
   LSSActionUnsteady(name),
-  comp_sa(boost::proto::as_child(m_sa_coeff)),
-  diffusion_coeff(boost::proto::as_child(m_diff_data))
+  comp_sa(boost::proto::as_child(m_sa_coeff))
 {
-  m_diff_data.op.d0 = 0.;
-
-  options().add("d0", m_diff_data.op.d0)
-    .pretty_name("d0")
-    .description("Multiplication factor for the artificial diffusion term")
-    .link_to(&(m_diff_data.op.d0));
-
   options().add("velocity_tag", "navier_stokes_solution")
     .pretty_name("Velocity Tag")
     .description("Tag for the velocity field")
@@ -94,12 +86,12 @@ void SpalartAllmaras::trigger_set_expression()
       comp_sa( u, nu_sa, d, nu_lam),
       element_quadrature
       (
-        _A(nu_sa) += transpose(N(nu_sa) + tau_su*u*nabla(nu_sa)) * u * nabla(nu_sa)   // advection terms
+        _A(nu_sa) += transpose(N(nu_sa) + (tau_su*u + cw.apply(u, nu_sa))*nabla(nu_sa)) * u * nabla(nu_sa)   // advection terms
                    - lit(m_sa_coeff.op.cb1) * lit(m_sa_coeff.op.Stilde) * transpose(N(nu_sa)) * N(nu_sa) // production
                    + lit(m_sa_coeff.op.fw) * lit(m_sa_coeff.op.cw1) * nu_sa / (d*d) * transpose(N(nu_sa)) * N(nu_sa) // destruction
-                   + (lit(1.)/lit(m_sa_coeff.op.sigma) * (nu_sa + nu_lam) + diffusion_coeff(u,nu_sa)) * transpose(nabla(nu_sa)) * nabla(nu_sa) // diffusion
+                   + (lit(1.)/lit(m_sa_coeff.op.sigma) * (nu_sa + nu_lam)) * transpose(nabla(nu_sa)) * nabla(nu_sa) // diffusion
                    + lit(m_sa_coeff.op.cb2) / lit(m_sa_coeff.op.sigma) * transpose(N(nu_sa)) * transpose(gradient(nu_sa))*nabla(nu_sa), // diffusion added term
-        _T(nu_sa,nu_sa) +=  transpose(N(nu_sa) + tau_su*u*nabla(nu_sa)) * N(nu_sa) // Time, standard and SUPG
+        _T(nu_sa,nu_sa) +=  transpose(N(nu_sa) + (tau_su*u + cw.apply(u, nu_sa))*nabla(nu_sa)) * N(nu_sa) // Time, standard and SUPG
       ),
       system_matrix += invdt() * _T + 1.0 * _A,
       system_rhs += -_A * _x

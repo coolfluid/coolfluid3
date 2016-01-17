@@ -44,7 +44,8 @@ common::ComponentBuilder < BCWallEpsilon, common::Action, LibUFEM > BCWallEpsilo
 
 BCWallEpsilon::BCWallEpsilon(const std::string& name) :
   ProtoAction(name),
-  m_rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
+  rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied")),
+  system_matrix(options().option("lss"))
 {
   FieldVariable<0, ScalarField> k("k", "ke_k");
   FieldVariable<1, ScalarField> epsilon("epsilon", "ke_epsilon");
@@ -80,15 +81,29 @@ BCWallEpsilon::BCWallEpsilon(const std::string& name) :
     return m_c_mu * std::max(k,0.) / (m_kappa*m_yplus*nu);
   });
 
+  // set_expression(elements_expression
+  // (
+  //   boost::mpl::vector1<mesh::LagrangeP1::Line2D>(),
+  //   rhs(epsilon) += integral<2>(transpose(N(epsilon))*
+  //   (
+  //     pow5(u_tau(k, _norm(u))) / (lit(m_sigma_epsilon) * nu * lit(m_yplus)) // Epsilon Neumann BC
+  //   )*_norm(normal)
+  // )));
+
   set_expression(elements_expression
   (
-    boost::mpl::vector1<mesh::LagrangeP1::Line2D>(),
-    m_rhs(epsilon) += integral<4>(transpose(N(epsilon))*
+    boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+    group
     (
-      pow5(u_tau(k, _norm(u))) / (lit(m_sigma_epsilon) * nu * lit(m_yplus)) // Epsilon Neumann BC
-      //+ lit(m_c_epsilon_1)*gamma(k, nu, epsilon) * pow4(u_tau(k, _norm(u)))/(lit(m_kappa)*lit(m_yplus)*nu) // Wall production term
-    )*_norm(normal)
-  )));
+      _A(epsilon) = _0,
+      element_quadrature
+      (
+        _A(epsilon) += -transpose(N(epsilon))*N(epsilon)*m_kappa*u_tau(k, _norm(u))/lit(m_sigma_epsilon) * _norm(normal)
+      ),
+      system_matrix +=  _A,
+      rhs += -_A * _x
+    )
+  ));
 }
 
 BCWallEpsilon::~BCWallEpsilon()

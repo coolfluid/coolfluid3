@@ -45,7 +45,7 @@ private:
   Real tau_su;
 
   // Parameter for the theta scheme
-  Real m_theta = 0.5;
+  Real m_theta = 1.;
   Real m_sigma_k = 1.;
   Real m_sigma_epsilon = 1.3;
   Real m_c_epsilon_1 = 1.44;

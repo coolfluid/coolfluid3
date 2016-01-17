@@ -53,11 +53,10 @@ private:
   Real m_c_epsilon_1 = 1.35;
   Real m_c_epsilon_2 = 1.8;
   Real m_c_mu = 0.09;
-  Real m_minimal_viscosity_ratio = 0.1;
-  Real m_l_max = 1.; // Maximum mixing length
+  Real m_minimal_viscosity_ratio = 1e-4;
+  Real m_l_max = 1e6; // Maximum mixing length
 
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::stored_type m_diff_data;
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::reference_type diffusion_coeff;
+  CrosswindDiffusion cw;
 };
 
 } // UFEM

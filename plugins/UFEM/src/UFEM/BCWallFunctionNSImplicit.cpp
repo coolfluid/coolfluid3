@@ -87,8 +87,8 @@ void BCWallFunctionNSImplicit::trigger_setup()
       return u / (yplus*yplus);
     }
 
-    //std::cout << "tau_w: " << ::pow(c_mu, 0.25)*::sqrt(::fabs(k))/yplus << std::endl;
-    return std::max(::pow(c_mu, 0.25)*::sqrt(::fabs(k))/yplus, u / (yplus*yplus));
+    //return std::max(::pow(c_mu, 0.25)*::sqrt(::fabs(k))/yplus, u / (yplus*yplus));
+    return ::pow(c_mu, 0.25)*::sqrt(::fabs(k))/yplus;
   });
 
   // Set normal component to zero

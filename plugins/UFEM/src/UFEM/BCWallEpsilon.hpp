@@ -36,7 +36,8 @@ public:
 private:
 
   /// Placeholder for the dirichlet BC
-  cf3::solver::actions::Proto::SystemRHS m_rhs;
+  cf3::solver::actions::Proto::SystemRHS rhs;
+  cf3::solver::actions::Proto::SystemMatrix system_matrix;
   Real m_c_mu = 0.09;
   Real m_c_epsilon_1 = 1.44;
   Real m_kappa = 0.41;

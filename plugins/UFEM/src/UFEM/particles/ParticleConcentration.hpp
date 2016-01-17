@@ -22,11 +22,11 @@ namespace particles {
 struct DiscontinuityCapture
 {
   typedef Real result_type;
-  
+
   DiscontinuityCapture() : c0(1.)
   {
   }
-  
+
   template<typename UT, typename CT>
   Real operator()(const UT& u, const CT& c)
   {
@@ -34,13 +34,13 @@ struct DiscontinuityCapture
     static const Uint dim = ElementT::dimension;
     typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
     typedef Eigen::Matrix<Real, dim, 1> ColVecT;
-    
+
     const Real tol = 1e-8;
 
 //    u.compute_values(GaussT::instance().coords.col(0));
 //    c.compute_values(GaussT::instance().coords.col(0));
 //    u.support().compute_jacobian(GaussT::instance().coords.col(0));
-    
+
     ColVecT g = c.nabla() * c.value();
     const Real grad_norm = g.norm();
     if(grad_norm < tol)
@@ -52,10 +52,10 @@ struct DiscontinuityCapture
     const Real eta = 2.*alpha*(1-alpha);
     return 0.5*hg*hg/c0*eta;
   }
-  
+
   Real c0;
 };
-  
+
 /// Particle concentration transport, following
 /// Ferry, J. & Balachandarb, S. A fast Eulerian method for disperse two-phase flow International Journal of Multiphase Flow, {2001}, {27}, 1199-1226
 class ParticleConcentration : public LSSActionUnsteady
@@ -83,8 +83,7 @@ private:
   solver::actions::Proto::MakeSFOp<DiscontinuityCapture>::stored_type m_capt_data;
   solver::actions::Proto::MakeSFOp<DiscontinuityCapture>::reference_type discontinuity_capture;
 
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::stored_type m_diff_data;
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::reference_type diffusion_coeff;
+  CrosswindDiffusion cw;
 };
 
 } // particles

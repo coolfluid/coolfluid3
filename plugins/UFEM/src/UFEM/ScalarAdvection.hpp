@@ -34,7 +34,7 @@
 namespace cf3 {
 
 namespace UFEM {
-  
+
 /// solver for scalar transport
 class UFEM_API ScalarAdvection : public LSSActionUnsteady
 {
@@ -68,9 +68,8 @@ private:
   Real tau_su;
 
   ComputeTau compute_tau;
-  
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::stored_type m_diff_data;
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::reference_type diffusion_coeff;
+
+  CrosswindDiffusion cw;
 };
 
 } // UFEM
@@ -78,4 +77,3 @@ private:
 
 
 #endif // cf3_UFEM_ScalarAdvection_hpp
-

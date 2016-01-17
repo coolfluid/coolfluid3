@@ -38,7 +38,7 @@ inline Real fv1(const Real chi, const Real cv1)
 {
   return chi*chi*chi / (chi*chi*chi + cv1*cv1*cv1);
 }
-  
+
 struct ComputeSACoeffs
 {
   typedef void result_type;
@@ -57,7 +57,7 @@ struct ComputeSACoeffs
   {
     cw1 = cb1 / (kappa*kappa) + (1. + cb2)/sigma;
   }
-  
+
   template<typename UT, typename NUT, typename DT>
   void operator()(const UT& u, const NUT& nu_t, const DT& wall_dist, const Real& nu_lam)
   {
@@ -66,7 +66,7 @@ struct ComputeSACoeffs
     u.support().compute_jacobian(GaussT::instance().coords.col(0));
     u.compute_values(GaussT::instance().coords.col(0));
     nu_t.compute_values(GaussT::instance().coords.col(0));
-    
+
 
     // nu_t.value() is a column vector with the nodal values of the viscosity for the element.
     // mean comes from the Eigen library
@@ -76,7 +76,7 @@ struct ComputeSACoeffs
       nu_t_cell = 0.;
     }
     const Real chi = nu_t_cell / nu_lam;
-    
+
     ft2 = ct3 * ::exp(-ct4*chi*chi);
 
     // Computing S needs the gradient, which is calculated at a mapped coordinate.
@@ -87,7 +87,7 @@ struct ComputeSACoeffs
     // wall distance
     const Real d = wall_dist.value().mean(); // Mean cell wall distance
     const Real omega = sqrt(0.5)*(nabla_u - nabla_u.transpose()).norm();
-    
+
     const Real fv2    = 1. - chi/(1. + chi*fv1(chi, cv1));
     const Real Sbar = nu_t_cell / (kappa*kappa*d*d)*fv2;
     const Real c2 = 0.7;
@@ -97,7 +97,7 @@ struct ComputeSACoeffs
       Stilde = omega + Sbar;
     else
       Stilde = omega + omega*(c2*c2*omega + c3*Sbar) / ((c3 - 2*c2)*omega - Sbar);
-    
+
     Real r = nu_t_cell/(Stilde*kappa*kappa*d*d);
     if (!std::isfinite(r) || r > 10)
       r = 10;
@@ -108,7 +108,7 @@ struct ComputeSACoeffs
 
     //std::cout << "sa_params: " << ft2 << ", " << Stilde << ", " << fw << ", " << diag_diff << std::endl;
   }
-  
+
   // Model constants
   Real cb1;
   Real cb2;
@@ -120,9 +120,9 @@ struct ComputeSACoeffs
   Real cw3;
   Real kappa;
   Real sigma;
-  
+
   Real cw1;
-  
+
   // Output coefficients
   Real ft2;
   Real Stilde;
@@ -154,8 +154,7 @@ private:
   solver::actions::Proto::MakeSFOp<ComputeSACoeffs>::stored_type m_sa_coeff;
   solver::actions::Proto::MakeSFOp<ComputeSACoeffs>::reference_type comp_sa;
 
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::stored_type m_diff_data;
-  solver::actions::Proto::MakeSFOp<CrosswindDiffusion>::reference_type diffusion_coeff;
+  CrosswindDiffusion cw;
 };
 
 } // UFEM

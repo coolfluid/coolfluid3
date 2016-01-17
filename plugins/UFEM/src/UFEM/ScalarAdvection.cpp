@@ -47,7 +47,6 @@ ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection
 ScalarAdvection::ScalarAdvection(const std::string& name) :
   LSSActionUnsteady(name),
   m_theta(0.5),
-  diffusion_coeff(boost::proto::as_child(m_diff_data)),
   m_pr(1.),
   m_pr_t(1.)
 {
@@ -77,11 +76,6 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
     .pretty_name("Velocity Tag")
     .description("Tag for the velocity field")
     .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
-    
-  options().add("d0", m_diff_data.op.d0)
-    .pretty_name("d0")
-    .description("Multiplication factor for the artificial diffusion term")
-    .link_to(&(m_diff_data.op.d0));
 
   set_solution_tag("scalar_advection_solution");
 
@@ -138,8 +132,8 @@ void ScalarAdvection::trigger_scalar_name()
         compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_su)),
         element_quadrature
         (
-          _A(phi) += transpose(N(phi) + tau_su * u*nabla(phi)) * u * nabla(phi) +  (nu_lam / lit(m_pr) + (nu_eff - nu_lam) / lit(m_pr_t) + diffusion_coeff(u,phi)) * transpose(nabla(phi)) * nabla(phi),
-          _T(phi,phi) +=  transpose(N(phi) + tau_su * u*nabla(phi)) * N(phi)
+          _A(phi) += transpose(N(phi) + (tau_su*u + cw.apply(u, phi))*nabla(phi)) * u * nabla(phi) +  (nu_lam / lit(m_pr) + (nu_eff - nu_lam) / lit(m_pr_t)) * transpose(nabla(phi)) * nabla(phi),
+          _T(phi,phi) +=  transpose(N(phi) + (tau_su*u + cw.apply(u, phi))*nabla(phi)) * N(phi)
         ),
         system_matrix += invdt() * _T + m_theta * _A,
         system_rhs += -_A * _x
@@ -153,4 +147,3 @@ void ScalarAdvection::trigger_scalar_name()
 
 } // UFEM
 } // cf3
-

@@ -8,8 +8,8 @@ h = 1.
 nu = 0.0001
 re_tau = 395.
 u_tau = re_tau * nu / h
-a_tau = re_tau**2*nu**2/h**3
-Uc = a_tau/nu*(h**2/2.)
+a_tau = u_tau**2 / (2.*h)
+Uc = u_tau**2*h/(2.*nu)
 
 # Boundary and initial conditions
 u_wall = [0., 0.]
@@ -48,13 +48,9 @@ nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 nstokes.enable_body_force = True
 
 # Add the k-epsilon turbulence model solver(ke)
-ke = solver.add_unsteady_solver('cf3.UFEM.KEpsilon')
-ke.options.d0 = 0.
-ke.options.l_max = 200000.*h
-ke.options.minimal_viscosity_ratio = 1e-4
+ke = solver.add_unsteady_solver('cf3.UFEM.ChienKEpsilon')
 ke.options.theta = 1.
-#ke.options.supg_type = 'cf2'
-#ke.options.u_ref = 0.3
+ke.options.l_max = 500.*h
 
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -143,12 +139,12 @@ solver.InitialConditions.navier_stokes_solution.Velocity = u_wall
 # ic_u.regions = [mesh.topology.uri()]
 # ic_u.value = ['{Uc}/({h}*{h})*({h} - y)*({h} + y)'.format(h = h, Uc = Uc), '0']
 
-ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_k')
+ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_k.variable_name = 'k'
 ic_k.value = [str(k_init)]
 ic_k.regions = [mesh.topology.uri()]
 
-ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_epsilon')
+ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_epsilon.variable_name = 'epsilon'
 ic_epsilon.value = [str(e_init)]
 ic_epsilon.regions = [mesh.topology.uri()]
@@ -176,26 +172,26 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value =  u_w
 bc.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 0.
 
 # Boundary conditions for k
-bc = ke.K.BoundaryConditions
+bc = ke.LSS.BoundaryConditions
 bc.add_constant_bc(region_name = 'bottom', variable_name = 'k').value =  k_wall
 bc.add_constant_bc(region_name = 'top', variable_name = 'k').value =  k_wall
 
 # Boundary conditions for epsilon
-bc = ke.Epsilon.BoundaryConditions
+bc = ke.LSS.BoundaryConditions
 bc.add_constant_bc(region_name = 'bottom', variable_name = 'epsilon').value =  e_wall
 bc.add_constant_bc(region_name = 'top', variable_name = 'epsilon').value =  e_wall
 
 # Setup a time series write
-write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
-write_manager.interval = 1000
-writer = write_manager.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
-writer.mesh = mesh
-writer.file = cf.URI('atest-channel-kepsilon-{iteration}.vtm')
+# write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
+# write_manager.interval = 1
+# writer = write_manager.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
+# writer.mesh = mesh
+# writer.file = cf.URI('atest-channel-kepsilon-{iteration}.vtm')
 
 # Time setup
 time = model.create_time()
-time.time_step = 1.
-time.end_time = 500.
+time.time_step = 10.
+time.end_time = 3000.
 
 probe0 = solver.add_probe(name = 'Probe', parent = nstokes, dict = mesh.geometry)
 probe0.Log.variables = ['Velocity[0]', 'EffectiveViscosity']
