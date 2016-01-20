@@ -45,65 +45,54 @@ common::ComponentBuilder < BCWallEpsilon, common::Action, LibUFEM > BCWallEpsilo
 BCWallEpsilon::BCWallEpsilon(const std::string& name) :
   ProtoAction(name),
   rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied")),
-  system_matrix(options().option("lss"))
+  system_matrix(options().option("lss")),
+  dirichlet(options().option("lss"))
 {
-  FieldVariable<0, ScalarField> k("k", "ke_k");
-  FieldVariable<1, ScalarField> epsilon("epsilon", "ke_epsilon");
+  options().add("theta", m_theta)
+    .pretty_name("Theta")
+    .description("Theta coefficient for the theta-method.")
+    .link_to(&m_theta);
+
+  FieldVariable<0, ScalarField> k("k", "ke_solution");
+  FieldVariable<1, ScalarField> epsilon("epsilon", "ke_solution");
   FieldVariable<2, VectorField> u("Velocity", "navier_stokes_solution");
 
   PhysicsConstant nu("kinematic_viscosity");
 
   const auto u_tau = make_lambda([&](const Real k, const Real u)
   {
-    const Real u_k = k >= 0. ? ::pow(m_c_mu, 0.25)*::sqrt(k) : 0.;
-    const Real u_tau = std::max(u_k, u/m_yplus);
-    return u_tau;
-  });
+    // const Real u_k = k > 0. ? ::pow(m_c_mu, 0.25)*::sqrt(k) : 0.;
+    // const Real u_tau = std::max(u_k, u/m_yplus);
+    // return u_tau;
 
-  const auto pow4 = make_lambda([](const Real x)
-  {
-    return x*x*x*x;
-  });
-
-  const auto pow5 = make_lambda([](const Real x)
-  {
-    return x*x*x*x*x;
-  });
-
-  // Linearization parameter gamma = epsilon / k:
-  const auto gamma = make_lambda([&](const Real k, const Real nu, const Real epsilon)
-  {
-    if(k>1e-30 && epsilon > 1e-30)
+    if(k <= 0.)
     {
-      return epsilon/k;
+      return u / (m_yplus);
     }
 
-    return m_c_mu * std::max(k,0.) / (m_kappa*m_yplus*nu);
+    return ::pow(m_c_mu, 0.25)*::sqrt(k);
   });
 
-  // set_expression(elements_expression
-  // (
-  //   boost::mpl::vector1<mesh::LagrangeP1::Line2D>(),
-  //   rhs(epsilon) += integral<2>(transpose(N(epsilon))*
-  //   (
-  //     pow5(u_tau(k, _norm(u))) / (lit(m_sigma_epsilon) * nu * lit(m_yplus)) // Epsilon Neumann BC
-  //   )*_norm(normal)
-  // )));
+  const auto pow4 = make_lambda([](const Real x) { return x*x*x*x; });
 
   set_expression(elements_expression
   (
     boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
     group
     (
-      _A(epsilon) = _0,
+      _A(k) = _0, _A(epsilon) = _0,
       element_quadrature
       (
-        _A(epsilon) += -transpose(N(epsilon))*N(epsilon)*m_kappa*u_tau(k, _norm(u))/lit(m_sigma_epsilon) * _norm(normal)
+        _A(epsilon,epsilon) += -transpose(N(epsilon))*N(epsilon)*m_kappa*u_tau(k, _norm(u))/lit(m_sigma_epsilon) * _norm(normal)
       ),
-      system_matrix +=  _A,
+      system_matrix +=  m_theta * _A,
       rhs += -_A * _x
     )
   ));
+
+  // set_expression(nodes_expression(
+  //   dirichlet(epsilon) = pow4(u_tau(k, _norm(u))) / (lit(m_kappa) * nu * lit(m_yplus))
+  // ));
 }
 
 BCWallEpsilon::~BCWallEpsilon()

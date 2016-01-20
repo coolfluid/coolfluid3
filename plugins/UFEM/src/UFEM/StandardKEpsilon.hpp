@@ -16,14 +16,14 @@
 #include <solver/Action.hpp>
 
 #include "LibUFEM.hpp"
-#include "SUPG.hpp"
+#include "KEpsilonBase.hpp"
 
 namespace cf3 {
 
 namespace UFEM {
 
 /// solver for StandardKEpsilon turbulence model
-class UFEM_API StandardKEpsilon : public solver::Action
+class UFEM_API StandardKEpsilon : public KEpsilonBase
 {
 public: // functions
 
@@ -34,25 +34,10 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "StandardKEpsilon"; }
 
-  virtual void execute();
+protected:
+  virtual void do_set_expressions(LSSActionUnsteady& lss_action, solver::actions::Proto::ProtoAction& update_nut, FieldVariable<2, VectorField>& u);
 
 private:
-  void trigger_set_expression();
-  virtual void on_regions_set();
-
-  // SUPG helpers
-  ComputeTau compute_tau;
-  Real tau_su;
-
-  // Parameter for the theta scheme
-  Real m_theta = 1.;
-  Real m_sigma_k = 1.;
-  Real m_sigma_epsilon = 1.3;
-  Real m_c_epsilon_1 = 1.44;
-  Real m_c_epsilon_2 = 1.92;
-  Real m_c_mu = 0.09;
-  Real m_minimal_viscosity_ratio = 1e-4;
-  Real m_l_max = 1000.; // Maximum mixing length
   Real m_kappa = 0.41;
   Real m_yplus = 11.06;
 };

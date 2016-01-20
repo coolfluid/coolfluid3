@@ -1,7 +1,5 @@
 import coolfluid as cf
 from math import pi
-import numpy as np
-import pylab as pl
 
 # Flow properties
 h = 1.
@@ -90,12 +88,12 @@ for (i,(x,y)) in enumerate(coords):
 ke.regions = [mesh.topology.uri()]
 
 #initial conditions
-ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_k')
+ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_k.variable_name = 'k'
 ic_k.value = [str(k_init)]
 ic_k.regions = [mesh.topology.uri()]
 
-ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_epsilon')
+ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_epsilon.variable_name = 'epsilon'
 ic_epsilon.value = [str(eps_init)]
 ic_epsilon.regions = [mesh.topology.uri()]
@@ -105,11 +103,10 @@ physics.density = 1.
 physics.dynamic_viscosity = nu
 
 # Boundary conditions for k
-bc = ke.K.BoundaryConditions
+bc = ke.LSS.BoundaryConditions
 bc.add_constant_bc(region_name = 'left', variable_name = 'k').value =  k0
 
 # Boundary conditions for epsilon
-bc = ke.Epsilon.BoundaryConditions
 bc.add_constant_bc(region_name = 'left', variable_name = 'epsilon').value =  epsilon0
 
 # Time setup
@@ -119,34 +116,37 @@ time.end_time = 50.
 
 # Run the simulation
 model.simulate()
-
-k_fd = mesh.geometry.ke_k
-eps_fd = mesh.geometry.ke_epsilon
-nu_eff_fd = mesh.geometry.navier_stokes_viscosity
-
-k = np.array(k_fd)[:,0]
-epsilon = np.array(eps_fd)[:,0]
-nu_eff = np.array(nu_eff_fd)[:,0]
-xy = np.array(coords)
-
-c_e_2 = 1.8
-x_th = np.linspace(0., 10., 100)
-th_func = 1 + epsilon0/k0 * (c_e_2-1.)*x_th/u0
-k_th = k0*th_func**(1./(1.-c_e_2))
-eps_th = epsilon0*th_func**(c_e_2/(1.-c_e_2))
-
-center = np.abs(xy[:,1])<1e-3
-pl.figure()
-pl.plot(xy[center,0], k[center])
-pl.plot(x_th, k_th)
-
-pl.figure()
-pl.plot(xy[center,0], epsilon[center])
-pl.plot(x_th, eps_th)
-
-pl.figure()
-pl.plot(xy[center,0], nu_eff[center])
-
-pl.show()
-
 model.print_timing_tree()
+
+try:
+    import numpy as np
+    import pylab as pl
+    ke_fd = mesh.geometry.ke_solution
+    nu_eff_fd = mesh.geometry.navier_stokes_viscosity
+
+    k = np.array(ke_fd)[:,0]
+    epsilon = np.array(ke_fd)[:,1]
+    nu_eff = np.array(nu_eff_fd)[:,0]
+    xy = np.array(coords)
+
+    c_e_2 = 1.8
+    x_th = np.linspace(0., 10., 100)
+    th_func = 1 + epsilon0/k0 * (c_e_2-1.)*x_th/u0
+    k_th = k0*th_func**(1./(1.-c_e_2))
+    eps_th = epsilon0*th_func**(c_e_2/(1.-c_e_2))
+
+    center = np.abs(xy[:,1])<1e-3
+    pl.figure()
+    pl.plot(xy[center,0], k[center])
+    pl.plot(x_th, k_th)
+
+    pl.figure()
+    pl.plot(xy[center,0], epsilon[center])
+    pl.plot(x_th, eps_th)
+
+    pl.figure()
+    pl.plot(xy[center,0], nu_eff[center])
+
+    pl.show()
+except:
+    print('Not plotting due to Python exception')

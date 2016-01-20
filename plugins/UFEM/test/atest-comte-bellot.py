@@ -1,7 +1,5 @@
 import coolfluid as cf
 from math import pi,sqrt
-import numpy as np
-import pylab as pl
 
 # Flow properties
 h = 0.09
@@ -17,7 +15,7 @@ e0 = 242.5
 velocity_profile_string = '{U0}-3*({U0}-{Uavg})*(y/({H}-{delta}))^2'.format(U0=u0, Uavg=u_avg, H=h, delta = delta)
 
 # Mesh properties
-y_segs = 16
+y_segs = 64
 x_size = 60.*h
 x_segs = 8
 
@@ -65,7 +63,7 @@ block_subdivs = blocks.create_block_subdivisions()
 block_subdivs[0] = [x_segs, y_segs]
 # block_subdivs[1] = [x_segs, y_segs]
 
-gr = 0.25
+gr = 0.1
 gradings = blocks.create_block_gradings()
 gradings[0] = [1., 1., gr, gr]
 # gradings[1] = [1., 1., 1./gr, 1./gr]
@@ -112,12 +110,12 @@ ic_u.variable_name = 'Velocity'
 ic_u.regions = [mesh.topology.uri()]
 ic_u.value = [velocity_profile_string, '0']
 
-ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_k')
+ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_k.variable_name = 'k'
 ic_k.value = [str(k0)]
 ic_k.regions = [mesh.topology.uri()]
 
-ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_epsilon')
+ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_epsilon.variable_name = 'epsilon'
 ic_epsilon.value = [str(e0)]
 ic_epsilon.regions = [mesh.topology.uri()]
@@ -130,20 +128,20 @@ physics.dynamic_viscosity = nu*rho
 bc = nstokes.get_child('BoundaryConditions')
 bc.add_function_bc(region_name = 'left', variable_name = 'Velocity').value = [velocity_profile_string, '0']
 bc.add_constant_component_bc(region_name = 'bottom', variable_name = 'Velocity', component = 1).options().set('value',  0.)
-bc.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.BCWallFunctionNSImplicit')
+bc.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.BCWallFunctionNSImplicit').options.theta = nstokes.options.theta
 bc.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
 
-bc = ke.K.BoundaryConditions
+bc = ke.LSS.BoundaryConditions
 bc.add_constant_bc(region_name = 'left', variable_name = 'k').value = k0
 
-bc = ke.Epsilon.BoundaryConditions
+bc = ke.LSS.BoundaryConditions
 bc.add_constant_bc(region_name = 'left', variable_name = 'epsilon').value = e0
-bc.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.BCWallEpsilon')
+bc.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.BCWallEpsilon').options.theta = ke.options.theta
 
 # Time setup
 time = model.create_time()
 time.time_step = 0.001
-time.end_time = 1.5
+time.end_time = 1.
 
 probe0 = solver.add_probe(name = 'Probe', parent = nstokes, dict = mesh.geometry)
 probe0.Log.variables = ['Velocity[0]', 'EffectiveViscosity']
@@ -159,30 +157,51 @@ model.simulate()
 # writer.execute()
 
 # Plot simulation velocity
-coords = np.array(mesh.geometry.coordinates)
-ns_sol = np.array(mesh.geometry.navier_stokes_solution)
-line = np.abs(coords[:,0])>(60*h-1e-6)
-u = ns_sol[line, 0]
-y = coords[line, 1]
-k = np.array(mesh.geometry.ke_k)[line, 0]
-epsilon = np.array(mesh.geometry.ke_epsilon)[line, 0]
-eff_visc = np.array(mesh.geometry.navier_stokes_viscosity)[line, 0]
 
-pl.figure()
-pl.plot(y, u)
-pl.title('u')
+try:
+    import numpy as np
+    import pylab as pl
 
-pl.figure()
-pl.plot(y, k)
-pl.plot(y, k, 'ko')
-pl.title('k')
+    coords = np.array(mesh.geometry.coordinates)
+    ns_sol = np.array(mesh.geometry.navier_stokes_solution)
+    line = np.abs(coords[:,0])>(60*h-1e-6)
+    u = ns_sol[line, 0]
+    y = coords[line, 1]
+    k = np.array(mesh.geometry.ke_solution)[line, 0]
+    epsilon = np.array(mesh.geometry.ke_solution)[line, 1]
+    eff_visc = np.array(mesh.geometry.navier_stokes_viscosity)[line, 0]
+    #Reference for the plots: Stabilized finite element method for heat transfer and turbulent flows inside industrial furnaces, PhD thesis, Elie Hachem: https://tel.archives-ouvertes.fr/tel-00443532/en/
+    pl.figure()
+    pl.plot(y, u, label='cf3')
+    y_ref = [0., 0.010377, 0.020851, 0.028998, 0.037144, 0.043448, 0.049849, 0.054698, 0.059644, 0.063427, 0.067209, 0.070119, 0.073125, 0.075453, 0.07778, 0.079526, 0.081175, 0.082629, 0.083987, 0.085054, 0.086121]
+    u_ref = [10.2904, 10.2569, 10.1567, 10.0443, 9.8828, 9.7423, 9.5809, 9.4306, 9.2565, 9.1007, 8.9266, 8.7764, 8.5927, 8.4352, 8.2404, 8.0662, 7.8825, 7.6934, 7.4631, 7.2572, 7.0013]
+    pl.plot(y_ref, u_ref, label = 'ref')
+    pl.legend(loc='lower left')
+    pl.grid()
+    pl.xlabel('y (m)')
+    pl.ylabel('u (m/s)')
 
-pl.figure()
-pl.plot(y, epsilon)
-pl.title('epsilon')
+    pl.figure()
+    pl.plot(y, k, label='cf3')
+    y_ref = [0., 0.010451, 0.020916, 0.029044, 0.037126, 0.043385, 0.049785, 0.054643, 0.059548, 0.063331, 0.067115, 0.070011, 0.073047, 0.075243, 0.077578, 0.0794, 0.081128, 0.082576, 0.08393, 0.08491, 0.086031]
+    k_ref = [0.20025, 0.21055, 0.23838, 0.2695, 0.30462, 0.33345, 0.36322, 0.38641, 0.40948, 0.42703, 0.44526, 0.45933, 0.47391, 0.48562, 0.49788, 0.50859, 0.51886, 0.52879, 0.5405, 0.5511, 0.566]
+    pl.plot(y_ref, k_ref, label = 'ref')
+    pl.legend(loc='upper left')
+    pl.grid()
+    pl.xlabel('y (m)')
+    pl.ylabel('k (m^2/s^2)')
 
-pl.figure()
-pl.plot(y, eff_visc-nu)
-pl.title('nu_t')
 
-pl.show()
+    pl.figure()
+    pl.plot(y, epsilon, label='cf3')
+    y_ref = [0.0, 0.010447, 0.020895, 0.029042, 0.037188, 0.043514, 0.04984, 0.054728, 0.059425, 0.06345, 0.067188, 0.07016, 0.073035, 0.075335, 0.077636, 0.079457, 0.081182, 0.08262, 0.083866, 0.085016]
+    e_ref = [0.747, 0.839, 1.195, 1.551, 2.083, 2.566, 3.184, 3.803, 4.685, 5.523, 6.615, 7.716, 9.301, 10.974, 13.351, 15.704, 19.398, 23.359, 29.521, 36.278]
+    pl.plot(y_ref, e_ref, label = 'ref')
+    pl.legend(loc='upper left')
+    pl.grid()
+    pl.xlabel('y (m)')
+    pl.ylabel('epsilon (m^2/s^3)')
+
+    pl.show()
+except:
+    print('Skipping plot due to python errors')

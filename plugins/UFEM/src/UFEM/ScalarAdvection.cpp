@@ -67,7 +67,7 @@ ScalarAdvection::ScalarAdvection(const std::string& name) :
     .description("Theta coefficient for the theta-method.")
     .link_to(&m_theta);
 
-  options().add("scalar_name", "Scalar")
+  options().add("scalar_name", "Temperature")
     .pretty_name("Scalar Name")
     .description("Internal (and default visible) name to use for the scalar")
     .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
@@ -128,7 +128,7 @@ void ScalarAdvection::trigger_scalar_name()
       AllowedElementTypesT(),
       group
       (
-        _A = _0, _T = _0,
+        _A(phi) = _0, _T(phi) = _0,
         compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_su)),
         element_quadrature
         (

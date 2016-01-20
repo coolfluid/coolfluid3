@@ -41,73 +41,15 @@ using namespace boost::proto;
 common::ComponentBuilder < ChienKEpsilon, common::Action, LibUFEM > ChienKEpsilon_builder;
 
 ChienKEpsilon::ChienKEpsilon(const std::string& name) :
-  solver::Action(name)
+  KEpsilonBase(name)
 {
-  options().add("velocity_tag", "navier_stokes_solution")
-    .pretty_name("Velocity Tag")
-    .description("Tag for the velocity field")
-    .attach_trigger(boost::bind(&ChienKEpsilon::trigger_set_expression, this));
-
-  options().add("theta", m_theta)
-    .pretty_name("Theta")
-    .description("Theta coefficient for the theta-method.")
-    .link_to(&m_theta);
-
-  options().add("minimal_viscosity_ratio", m_minimal_viscosity_ratio)
-    .pretty_name("Minimal Viscosity Ratio")
-    .description("Minimum valua allowed for the ratio nu_t / nu_lam used in the calculations")
-    .link_to(&m_minimal_viscosity_ratio);
-
-  options().add("l_max", m_l_max)
-    .pretty_name("L Max")
-    .description("Maximum value of the mixing length, used to calculate an upper bound on nu_t")
-    .link_to(&m_l_max)
-    .mark_basic();
-
-  options().add("supg_type", compute_tau.data.op.supg_type_str)
-    .pretty_name("SUPG Type")
-    .description("Type of computation for the stabilization coefficients.")
-    .link_to(&(compute_tau.data.op.supg_type_str))
-    .attach_trigger(boost::bind(&ComputeTauImpl::trigger_supg_type, &compute_tau.data.op));
-
-  options().add("u_ref", compute_tau.data.op.u_ref)
-    .pretty_name("Reference velocity")
-    .description("Reference velocity for the CF2 SUPG method")
-    .link_to(&(compute_tau.data.op.u_ref));
-
-  create_component<ProtoAction>("UpdateNut");
-
-  auto lss = create_component<LSSActionUnsteady>("LSS");
-  lss->set_solution_tag("ke_solution");
-  lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
-  lss->create_component<ProtoAction>("Assembly");
-  lss->create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag("ke_solution");
-  lss->get_child("BoundaryConditions")->mark_basic();
-  lss->create_component<math::LSS::SolveLSS>("SolveLSS");
-  lss->create_component<ProtoAction>("Update");
-  lss->mark_basic();
-
   trigger_set_expression();
 }
 
-void ChienKEpsilon::trigger_set_expression()
+void ChienKEpsilon::do_set_expressions(LSSActionUnsteady& lss_action, solver::actions::Proto::ProtoAction& update_nut, FieldVariable<2, VectorField>& u)
 {
-  // The code will only be active for these element types
-  boost::mpl::vector2<mesh::LagrangeP1::Quad2D, mesh::LagrangeP1::Triag2D> allowed_elements;
-  const std::string velocity_tag = options().value<std::string>("velocity_tag");
-
-  FieldVariable<0, ScalarField> k("k", "ke_solution");
-  FieldVariable<1, ScalarField> epsilon("epsilon", "ke_solution");
-  FieldVariable<2, VectorField> u("Velocity", velocity_tag);
-  FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity"); // This is the viscosity that needs to be modified to be visible in NavierStokes
-  FieldVariable<4, ScalarField> d("wall_distance", "wall_distance");
-  FieldVariable<5, ScalarField> yplus("yplus", "yplus");
-
-  PhysicsConstant nu_lam("kinematic_viscosity");
-
-  auto lss_action = Handle<LSSActionUnsteady>(get_child("LSS"));
-  Real& dt = lss_action->dt();
-  Real& invdt = lss_action->invdt();
+  Real& dt = lss_action.dt();
+  Real& invdt = lss_action.invdt();
 
   // The length scale helper function
   const auto nut_update = make_lambda([&](const Real yplus, const Real k_in, const Real epsilon, const Real nu_l)
@@ -124,7 +66,7 @@ void ChienKEpsilon::trigger_set_expression()
     return f_mu*result;
   });
 
-  Handle<ProtoAction>(get_child("UpdateNut"))->set_expression(nodes_expression(group
+  update_nut.set_expression(nodes_expression(group
   (
     nu_eff = nu_lam + nut_update(yplus, k, epsilon, nu_lam)
   )));
@@ -160,7 +102,7 @@ void ChienKEpsilon::trigger_set_expression()
     return 1. - 0.4/1.8*::exp(-(Re_t*Re_t)/36.);
   });
 
-  Handle<ProtoAction>(lss_action->get_child("Assembly"))->set_expression(
+  Handle<ProtoAction>(lss_action.get_child("Assembly"))->set_expression(
   elements_expression
   (
     allowed_elements,
@@ -171,43 +113,25 @@ void ChienKEpsilon::trigger_set_expression()
       element_quadrature
       (
         _A(k,k) += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * u * nabla(k) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_k) * transpose(nabla(k)) * nabla(k) // Advection and diffusion
-                 + transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (gamma(k, nut(nu_lam, nu_eff), epsilon, yplus) + lit(2.)*nu_lam/(d*d)) * N(k), // wall distance term
+                 + transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (gamma(k, nut(nu_lam, nu_eff), epsilon, yplus) + lit(2.)*nu_lam/(d*d)) * N(k), // sink and wall distance terms
         _T(k,k) +=  transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * N(k),
         _a[k] += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))), // Production
+
         _A(epsilon,epsilon) += transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * u * nabla(epsilon) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_epsilon) * transpose(nabla(epsilon)) * nabla(epsilon) // Advection and diffusion
-                       + transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon))*N(epsilon)*(m_c_epsilon_2 * f2(k, epsilon, nu_lam) * gamma(k, nut(nu_lam, nu_eff), epsilon, yplus) + lit(2.)*nu_lam / (d*d)*_exp(-yplus/2.)), // wall distance term
+                       + transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon))*N(epsilon)*(m_c_epsilon_2 * f2(k, epsilon, nu_lam) * gamma(k, nut(nu_lam, nu_eff), epsilon, yplus) + lit(2.)*nu_lam / (d*d)*_exp(-yplus/2.)), // sink and wall distance terms
         _T(epsilon,epsilon) +=  transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * N(epsilon),
         _a[epsilon] += transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * gamma(k, nut(nu_lam, nu_eff), epsilon, yplus) * lit(m_c_epsilon_1) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
       ),
-      lss_action->system_matrix += invdt * _T + m_theta * _A,
-      lss_action->system_rhs += -_A * _x + _a
+      lss_action.system_matrix += invdt * _T + m_theta * _A,
+      lss_action.system_rhs += -_A * _x + _a
     )
   ));
 
-  Handle<ProtoAction>(lss_action->get_child("Update"))->set_expression(nodes_expression(group
+  Handle<ProtoAction>(lss_action.get_child("Update"))->set_expression(nodes_expression(group
   (
-    k += lss_action->solution(k),
-    epsilon += lss_action->solution(epsilon)
+    k += lss_action.solution(k),
+    epsilon += lss_action.solution(epsilon)
   )));
-}
-
-void ChienKEpsilon::execute()
-{
-  auto lss_action = Handle<LSSActionUnsteady>(get_child("LSS"));
-  Handle<ProtoAction> update_nut(get_child("UpdateNut"));
-  update_nut->execute();
-  for(Uint i = 0; i != 2; ++i)
-  {
-    lss_action->execute();
-  }
-  update_nut->execute();
-}
-
-void ChienKEpsilon::on_regions_set()
-{
-  get_child("UpdateNut")->options().set("regions", options()["regions"].value());
-  get_child("LSS")->options().set("regions", options()["regions"].value());
-  access_component("LSS/BoundaryConditions")->options().set("regions", options()["regions"].value());
 }
 
 } // UFEM

@@ -105,7 +105,11 @@ phi_wall = 200
 
 #initial conditions
 ic.navier_stokes_solution.Velocity = u_in
-ic.scalar_advection_solution.Scalar = phi_in
+
+ic_scalar = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'scalar_advection_solution')
+ic_scalar.variable_name = 'Temperature'
+ic_scalar.value = [str(phi_in)]
+ic_scalar.regions = [mesh.topology.uri()]
 
 #properties for Navier-Stokes
 physics.options().set('density', 1.2)
@@ -124,12 +128,12 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().se
 # Boundary conditions for ScalarAdvection
 bc = scalaradv.get_child('BoundaryConditions')
 bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Scalar').options().set('value',  phi_in)
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Scalar').options().set('value',  phi_in)
-bc.add_constant_bc(region_name = 'top', variable_name = 'Scalar').options().set('value', phi_in)
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'Scalar').options().set('value', phi_in)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Temperature').options().set('value',  phi_in)
+bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Temperature').options().set('value',  phi_in)
+bc.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().set('value', phi_in)
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'Temperature').options().set('value', phi_in)
 bc_wall_flux = bc.create_bc_action(region_name = 'bottom1', builder_name = 'cf3.UFEM.BCNeumannConstant')
-bc_wall_flux.set_tags(neumann_field = 'scalar_advection_solution', neumann_variable = 'Scalar')
+bc_wall_flux.set_tags(neumann_field = 'scalar_advection_solution', neumann_variable = 'Temperature')
 
 # Time setup
 time = model.create_time()

@@ -139,23 +139,18 @@ bc.add_constant_bc(region_name = 'bottom2', variable_name = 'SAViscosity').optio
 bc.add_constant_bc(region_name = 'bottom3', variable_name = 'SAViscosity').options().set('value',  NU_in)
 bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').options().set('value', NU_in)
 
+write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
+write_manager.interval = 1
+writer = write_manager.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
+writer.mesh = mesh
+writer.file = cf.URI('atest-flatplate2d-spalartallmaras-{iteration}.vtm')
+
 # Time setup
 time = model.create_time()
 time.time_step = 0.1
-time.end_time = 0.
+time.end_time = 0.5
 
-# Setup a time series write
-final_end_time = 0.5
-save_interval = 0.1
-iteration = 0
-
-while time.end_time < final_end_time:
-  time.end_time += save_interval
-  model.simulate()
-  domain.write_mesh(cf.URI('atest-flatplate2d-spalartallmaras-' +str(iteration) + '.pvtu'))
-  iteration += 1
-  if iteration == 1:
-    solver.options().set('disabled_actions', ['InitialConditions'])
+model.simulate()
 
 # print timings
 model.print_timing_tree()

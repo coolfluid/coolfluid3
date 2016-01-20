@@ -24,9 +24,11 @@ solver = model.create_solver('cf3.UFEM.Solver')
 yplus = solver.add_unsteady_solver('cf3.solver.actions.YPlus')
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
+nstokes.options.theta = 1.
 
 # Add the k-epsilon turbulence model solver(ke)
-ke = solver.add_unsteady_solver('cf3.UFEM.KEpsilon')
+ke = solver.add_unsteady_solver('cf3.UFEM.StandardKEpsilon')
+ke.options.theta = 1.
 
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -115,19 +117,19 @@ ke.regions = [mesh.topology.uri()]
 
 u_in = [1., 0.]
 u_wall = [0., 0.]
-k_in = 0.001
+k_in = 1.
 k_wall = 0.
-e_in = 0.0001
+e_in = 50.
 e_wall = 0.
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
 
-ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke-k')
+ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_k.variable_name = 'k'
 ic_k.value = [str(k_in)]
 
-ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke-epsilon')
+ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_epsilon.variable_name = 'epsilon'
 ic_epsilon.value = [str(e_in)]
 
@@ -144,26 +146,21 @@ wall_distance.execute()
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').value = u_in
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'Velocity').value =  u_wall
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').value =  u_wall
+bc.create_bc_action(region_name = 'bottom1', builder_name = 'cf3.UFEM.BCWallFunctionNSImplicit')
+bc.create_bc_action(region_name = 'bottom2', builder_name = 'cf3.UFEM.BCWallFunctionNSImplicit')
 bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).value =  0.
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').value = 1.
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = u_in
 
 # Boundary conditions for k
-bc = ke.K.BoundaryConditions
+bc = ke.LSS.BoundaryConditions
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'k').value = k_in
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'k').value =  k_wall
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'k').value =  k_wall
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'k').value =  k_in
 bc.add_constant_bc(region_name = 'top', variable_name = 'k').value = k_in
 
 # Boundary conditions for epsilon
-bc = ke.Epsilon.BoundaryConditions
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'epsilon').value = e_in
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'epsilon').value =  e_wall
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'epsilon').value =  e_wall
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'epsilon').value =  e_in
+bc.create_bc_action(region_name = 'bottom1', builder_name = 'cf3.UFEM.BCWallEpsilon')
+bc.create_bc_action(region_name = 'bottom2', builder_name = 'cf3.UFEM.BCWallEpsilon')
 bc.add_constant_bc(region_name = 'top', variable_name = 'epsilon').value = e_in
 
 # Setup a time series write
@@ -175,8 +172,8 @@ writer.file = cf.URI('atest-flatplate2d-kepsilon-{iteration}.vtm')
 
 # Time setup
 time = model.create_time()
-time.time_step = 0.1
-time.end_time = 1.
+time.time_step = 0.01
+time.end_time = 0.05
 
 # Run the simulation
 model.simulate()

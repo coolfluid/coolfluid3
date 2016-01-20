@@ -135,11 +135,6 @@ coolfluid_add_test( ATEST atest-comte-bellot
 coolfluid_add_test( ATEST atest-kepsilon-grid
                     PYTHON atest-kepsilon-grid.py)
 
-coolfluid_add_test( ATEST atest-kepsilon-wallfunctions
-                    PYTHON atest-kepsilon-wallfunctions.py
-                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu
-                    MPI 4)
-
 coolfluid_add_test( ATEST atest-channel-spalart-allmaras
                     PYTHON atest-channel-spalart-allmaras.py)
 

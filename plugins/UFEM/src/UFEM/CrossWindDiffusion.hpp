@@ -56,8 +56,6 @@ struct CrosswindDiffusionImpl
     const Real x = a_par_norm / (2.*u_norm);
     const Real tau_c = h/(a_par_norm)*x*(1.-x);
 
-
-    //std::cout << "crosswind velocity: " << result << ", tau: " << tau_c << " for element at " << u.support().nodes().colwise().mean() << " with h " << h << std::endl;
     result *= tau_c;
     return result;
   }
