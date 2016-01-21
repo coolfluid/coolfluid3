@@ -54,7 +54,8 @@ ActuatorDisk::ActuatorDisk(const std::string& name) :
   rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
     .description("The linear system for which the boundary condition is applied")),
-  system_matrix(options().option("lss"))
+  system_matrix(options().option("lss")),
+  u_mean_in(3)
 {
   options().add("constant", m_constant)
     .pretty_name("Constant")
@@ -64,6 +65,7 @@ ActuatorDisk::ActuatorDisk(const std::string& name) :
 
   // The component that  will set the force
   create_static_component<ProtoAction>("SetForce")->options().option("regions").add_tag("norecurse");
+  create_static_component<ProtoAction>("Upstream")->options().option("regions").add_tag("norecurse");
 
   // Initialize the expression
   trigger_setup();
@@ -76,25 +78,44 @@ ActuatorDisk::~ActuatorDisk()
 
 void ActuatorDisk::on_regions_set()
 {
+  auto regions = options()["regions"].value<std::vector<common::URI>>();
+  if(regions.size() != 2)
+  {
+    CFwarn << "Need two regions for actuator disk" << CFendl;
+    return;
+  }
   // Set the regions when the option is set
-  get_child("SetForce")->options().set("regions", options()["regions"].value());
+  get_child("SetForce")->options().set("regions", std::vector<common::URI>({regions[0]}));
+  get_child("Upstream")->options().set("regions", std::vector<common::URI>({regions[1]}));
 }
 
 void ActuatorDisk::trigger_setup()
 {
   Handle<ProtoAction> set_force(get_child("SetForce"));
+  Handle<ProtoAction> upstream(get_child("Upstream"));
 
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
   FieldVariable<2, VectorField> f("Force", "body_force");
+
+  upstream->set_expression(nodes_expression
+  (
+    group
+    (
+      lit(u_mean_in) += u,
+      lit(nb_nodes_in) += lit(1.),
+      _cout << "added velocity " << transpose(u) << " for inlet" << "\n"
+    )
+  ));
 
   // Set normal component to zero and tangential component to the wall-law value
   set_force->set_expression(nodes_expression
   (
     group
     (
-      f[_i] = lit(0.), // First set all components to zero
-      f[0] = lit(m_constant) // Then only the first to a constant
+      f = lit(u_mean_in), // First set all components to zero
+      //f[0] = lit(m_constant), // Then only the first to a constant
+      _cout << "force set to " << transpose(f) << "\n"
     )
   ));
 }
@@ -102,6 +123,12 @@ void ActuatorDisk::trigger_setup()
 void ActuatorDisk::execute()
 {
   Handle<ProtoAction> set_force(get_child("SetForce"));
+  Handle<ProtoAction> upstream(get_child("Upstream"));
+
+  u_mean_in.setZero();
+  nb_nodes_in = 0.;
+  upstream->execute();
+  u_mean_in /= nb_nodes_in;
 
   set_force->execute();
 }

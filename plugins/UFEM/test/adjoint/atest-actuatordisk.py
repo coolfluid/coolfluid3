@@ -12,7 +12,10 @@ rho = 1.225
 mu = 0.00001
 
 tstep = 5.
-num_steps = 10.
+num_steps = 2.
+
+env = cf.Core.environment()
+env.log_level = 3
 
 # Basic model setup (container of all the sumilation setup)
 model = cf.root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
@@ -27,12 +30,16 @@ physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add a concrete Navier-Stokes finite element solver
+disk = solver.add_unsteady_solver('cf3.UFEM.adjoint.ActuatorDisk')
+disk.constant = 30.
+
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 ns_solver.enable_body_force = True
 
 mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
 # actve region
+disk.regions = [mesh.topology.actuator.uri(), mesh.topology.left.uri()]
 ns_solver.regions = [mesh.topology.uri()]
 
 # initial conditions
@@ -44,16 +51,12 @@ physics.dynamic_viscosity = mu
 
 # Boundary conditions
 bc = ns_solver.BoundaryConditions
-bc.add_constant_bc(region_name = 'left', variable_name = 'Velocity').value = u_in
 bc.add_constant_bc(region_name = 'front', variable_name = 'Velocity').value = [0., 0., 0.]
 bc.add_constant_bc(region_name = 'back', variable_name = 'Velocity').value = [0., 0., 0.]
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0., 0.]
 bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [0., 0., 0.]
 bc.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
-
-# Actuator disk
-disk_bc = bc.create_bc_action(region_name = 'actuator', builder_name = 'cf3.UFEM.adjoint.ActuatorDisk')
-disk_bc.constant = 30.
+bc.add_constant_bc(region_name = 'left', variable_name = 'Velocity').value = u_in
 
 # Solver setup
 
@@ -84,3 +87,5 @@ writer = domain.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
 writer.mesh = mesh
 writer.file = cf.URI('output.vtm')
 writer.execute()
+
+model.print_timing_tree()

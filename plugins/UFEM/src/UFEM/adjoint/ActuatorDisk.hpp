@@ -49,6 +49,8 @@ private:
 
   // Example parameter
   Real m_constant = 0.;
+  RealVector u_mean_in;
+  Real nb_nodes_in = 0.;
 
   cf3::solver::actions::Proto::SystemRHS rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;
