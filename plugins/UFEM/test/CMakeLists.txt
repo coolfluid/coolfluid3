@@ -170,3 +170,4 @@ coolfluid_add_test( ATEST atest-ufem-velocitygradient
 add_subdirectory(demo)
 add_subdirectory(les)
 add_subdirectory(particles)
+add_subdirectory(adjoint)
