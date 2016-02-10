@@ -113,7 +113,7 @@ void ActuatorDisk::trigger_setup()
   (
     group
     (
-      f = lit(u_mean_in), // First set all components to zero
+      f[0] = -0.5*lit(m_constant)*lit(u_mean_in[0])*lit(u_mean_in[0]), // First set all components to zero
       //f[0] = lit(m_constant), // Then only the first to a constant
       _cout << "force set to " << transpose(f) << "\n"
     )
@@ -129,7 +129,6 @@ void ActuatorDisk::execute()
   nb_nodes_in = 0.;
   upstream->execute();
   u_mean_in /= nb_nodes_in;
-
   set_force->execute();
 }
 

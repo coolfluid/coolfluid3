@@ -5,7 +5,7 @@ import coolfluid as cf
 # export PYTHONPATH=$HOME/coolfluid/build/cf3-barche/dso
 
 # inlet velocity
-u_in = [1., 0., 0.]
+u_in = [15., 0., 0.]
 u_act = [10., 0., 0.]
 initial_velocity = [0., 0., 0.]
 rho = 1.225
@@ -15,7 +15,7 @@ tstep = 5.
 num_steps = 2.
 
 env = cf.Core.environment()
-env.log_level = 3
+env.log_level = 4
 
 # Basic model setup (container of all the sumilation setup)
 model = cf.root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
@@ -31,12 +31,12 @@ solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add a concrete Navier-Stokes finite element solver
 disk = solver.add_unsteady_solver('cf3.UFEM.adjoint.ActuatorDisk')
-disk.constant = 30.
+disk.constant = 0.7
 
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 ns_solver.enable_body_force = True
 
-mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
+mesh = domain.load_mesh(file = cf.URI('Actuator.msh'), name = 'Mesh')
 
 # actve region
 disk.regions = [mesh.topology.actuator.uri(), mesh.topology.left.uri()]
@@ -51,8 +51,8 @@ physics.dynamic_viscosity = mu
 
 # Boundary conditions
 bc = ns_solver.BoundaryConditions
-bc.add_constant_bc(region_name = 'front', variable_name = 'Velocity').value = [0., 0., 0.]
-bc.add_constant_bc(region_name = 'back', variable_name = 'Velocity').value = [0., 0., 0.]
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').value = [0., 0., 0.]
+bc.add_constant_bc(region_name = 'outlet', variable_name = 'Velocity').value = [0., 0., 0.]
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0., 0.]
 bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [0., 0., 0.]
 bc.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
@@ -83,9 +83,9 @@ time.end_time = num_steps*tstep
 model.simulate()
 
 # run paraview output.pvtu to see the result
-writer = domain.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
-writer.mesh = mesh
-writer.file = cf.URI('output.vtm')
-writer.execute()
-
-model.print_timing_tree()
+#writer = domain.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
+#writer.mesh = mesh
+#writer.file = cf.URI('output.vtm')
+#writer.execute()
+domain.write_mesh(cf.URI('outputactutest.pvtu'))
+#model.print_timing_tree()
