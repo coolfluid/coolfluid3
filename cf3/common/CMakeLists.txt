@@ -64,8 +64,6 @@ list( APPEND coolfluid_common_files
     Factories.hpp
     Factories.cpp
     FindComponents.hpp
-    FindComponentsNew.hpp
-    FindComponentsOld.hpp
     Foreach.hpp
     Group.hpp
     Group.cpp
@@ -294,4 +292,3 @@ coolfluid3_add_library( TARGET   coolfluid_common
 add_subdirectory( MacOSX )   # support for Mac OSX
 add_subdirectory( Linux  )   # support for Linux
 add_subdirectory( Win32  )   # support for Win32
-

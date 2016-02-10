@@ -9,8 +9,6 @@
 
 #include <coolfluid-config.hpp>
 
-#ifdef CF3_ENABLE_CPP11
-
 #include <iostream>
 #include <iterator>
 #include <algorithm>
@@ -91,10 +89,5 @@ map_list_of(Key&& k, T&& t)
 } // namespace assign
 
 } // namespace boost
-
-#else
-#include <boost/assign/list_of.hpp>
-#endif
-
 
 #endif // cf3_common_Assign_hpp

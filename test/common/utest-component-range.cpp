@@ -63,12 +63,10 @@ BOOST_AUTO_TEST_CASE( test_vector )
     BOOST_CHECK_EQUAL(vector[i].name(), "Root");
   }
 
-#ifdef CF3_ENABLE_CPP11
   for(common::Component& comp : vector)
   {
     BOOST_CHECK_EQUAL(comp.name(), "Root");
   }
-#endif
 
   common::ComponentVector<common::Component const> const_vector;
 
@@ -78,13 +76,10 @@ BOOST_AUTO_TEST_CASE( test_vector )
   }
   BOOST_CHECK_EQUAL(const_vector.size(), nb_components);
 
-#ifdef CF3_ENABLE_CPP11
   for(const common::Component& comp : const_vector)
   {
     BOOST_CHECK_EQUAL(comp.name(), "Root");
   }
-#endif
-
 }
 
 BOOST_AUTO_TEST_CASE( test_range )
@@ -247,4 +242,3 @@ BOOST_AUTO_TEST_CASE( test_range )
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
-
