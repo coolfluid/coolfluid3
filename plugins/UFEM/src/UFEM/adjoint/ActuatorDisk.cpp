@@ -125,8 +125,8 @@ void ActuatorDisk::trigger_setup()
   (
     group
     (
-      //  f[0] = -1*lit(m_constant1)*10*10*(1-lit(m_constant1)),
-      lit(u_mean_in) += u,
+       f[0] = -1*lit(m_constant1)*10*10*(1-lit(m_constant1)),
+      //lit(u_mean_in) += u,
       //lit(nb_nodes_in) += lit(1.),
       _cout << "added velocity " << nb_nodes_in << " for inlet" << "\n"
     )
@@ -149,17 +149,15 @@ void ActuatorDisk::execute()
   Handle<ProtoAction> set_force1(get_child("SetForce1"));
   Handle<ProtoAction> set_force2(get_child("SetForce2"));
 
-  //u_mean_in.setZero();
+  u_mean_in.setZero();
   nb_nodes_in = 0.;
-<<<<<<< HEAD
   set_force1->execute();
-  u_mean_in /= nb_nodes_in;
+  //u_mean_in /= nb_nodes_in;
   set_force2->execute();
-=======
+
   // upstream->execute();
   // u_mean_in /= nb_nodes_in;
-  set_force->execute();
->>>>>>> fcd4d347ecc5c8ed61ea52460707dd671e4ba242
+
 }
 
 } // namespace adjoint
