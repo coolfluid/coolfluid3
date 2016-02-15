@@ -62,10 +62,15 @@ ActuatorDisk::ActuatorDisk(const std::string& name) :
     .description("Example constant for use as parameter.")
     .link_to(&m_constant)
     .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
+  options().add("constant", m_constant1)
+    .pretty_name("Constant")
+    .description("Example constant for use as parameter.")
+    .link_to(&m_constant1)
+    .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
 
   // The component that  will set the force
-  create_static_component<ProtoAction>("SetForce")->options().option("regions").add_tag("norecurse");
-  create_static_component<ProtoAction>("Upstream")->options().option("regions").add_tag("norecurse");
+  create_static_component<ProtoAction>("SetForce1")->options().option("regions").add_tag("norecurse");
+  create_static_component<ProtoAction>("SetForce2")->options().option("regions").add_tag("norecurse");
 
   // Initialize the expression
   trigger_setup();
@@ -85,51 +90,52 @@ void ActuatorDisk::on_regions_set()
     return;
   }
   // Set the regions when the option is set
-  get_child("SetForce")->options().set("regions", std::vector<common::URI>({regions[0]}));
-  get_child("Upstream")->options().set("regions", std::vector<common::URI>({regions[1]}));
+  get_child("SetForce1")->options().set("regions", std::vector<common::URI>({regions[0]}));
+  get_child("SetForce2")->options().set("regions", std::vector<common::URI>({regions[1]}));
 }
 
 void ActuatorDisk::trigger_setup()
 {
-  Handle<ProtoAction> set_force(get_child("SetForce"));
-  Handle<ProtoAction> upstream(get_child("Upstream"));
+  Handle<ProtoAction> set_force1(get_child("SetForce1"));
+  Handle<ProtoAction> set_force2(get_child("SetForce2"));
 
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
   FieldVariable<2, VectorField> f("Force", "body_force");
 
-  upstream->set_expression(nodes_expression
+  set_force1->set_expression(nodes_expression
   (
     group
     (
+      //  f[0] = -1*lit(m_constant1)*10*10*(1-lit(m_constant1)),
       lit(u_mean_in) += u,
-      lit(nb_nodes_in) += lit(1.),
-      _cout << "added velocity " << transpose(u) << " for inlet" << "\n"
+      //lit(nb_nodes_in) += lit(1.),
+      _cout << "added velocity " << nb_nodes_in << " for inlet" << "\n"
     )
   ));
 
   // Set normal component to zero and tangential component to the wall-law value
-  set_force->set_expression(nodes_expression
+  set_force2->set_expression(nodes_expression
   (
     group
     (
-      f[0] = -0.5*lit(m_constant)*lit(u_mean_in[0])*lit(u_mean_in[0]), // First set all components to zero
+      f[0] = -1*lit(m_constant1)*15*15*(1-lit(m_constant)), // First set all components to zero
       //f[0] = lit(m_constant), // Then only the first to a constant
-      _cout << "force set to " << transpose(f) << "\n"
+      _cout << "force set to " << nb_nodes_in << "\n"
     )
   ));
 }
 
 void ActuatorDisk::execute()
 {
-  Handle<ProtoAction> set_force(get_child("SetForce"));
-  Handle<ProtoAction> upstream(get_child("Upstream"));
+  Handle<ProtoAction> set_force1(get_child("SetForce1"));
+  Handle<ProtoAction> set_force2(get_child("SetForce2"));
 
   u_mean_in.setZero();
   nb_nodes_in = 0.;
-  upstream->execute();
+  set_force1->execute();
   u_mean_in /= nb_nodes_in;
-  set_force->execute();
+  set_force2->execute();
 }
 
 } // namespace adjoint

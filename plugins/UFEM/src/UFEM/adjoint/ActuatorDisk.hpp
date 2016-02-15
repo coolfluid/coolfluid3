@@ -49,6 +49,7 @@ private:
 
   // Example parameter
   Real m_constant = 0.;
+  Real m_constant1 = 0.;
   RealVector u_mean_in;
   Real nb_nodes_in = 0.;
 
