@@ -47,6 +47,9 @@ private:
   /// Called when an option that requires a rebuild of the expression is changed
   void trigger_setup();
 
+  /// Called when the mean velocity option is changed
+  void trigger_u_mean();
+
   // Example parameter
   Real m_constant = 0.;
   Real m_constant1 = 0.;
