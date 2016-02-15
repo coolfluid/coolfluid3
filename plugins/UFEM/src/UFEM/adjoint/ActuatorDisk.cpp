@@ -63,18 +63,25 @@ ActuatorDisk::ActuatorDisk(const std::string& name) :
     .link_to(&m_constant)
     .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
 
+  options().add("u_mean_in", std::vector<Real>(3,0.))
+    .pretty_name("u_mean_in")
+    .description("Mean upstream velocity.")
+    .attach_trigger(boost::bind(&ActuatorDisk::trigger_u_mean, this))
+    .mark_basic();
+
   // The component that  will set the force
   create_static_component<ProtoAction>("SetForce")->options().option("regions").add_tag("norecurse");
   create_static_component<ProtoAction>("Upstream")->options().option("regions").add_tag("norecurse");
 
   // Initialize the expression
   trigger_setup();
+  // Initialize mean velocity
+  trigger_u_mean();
 }
 
 ActuatorDisk::~ActuatorDisk()
 {
 }
-
 
 void ActuatorDisk::on_regions_set()
 {
@@ -87,6 +94,17 @@ void ActuatorDisk::on_regions_set()
   // Set the regions when the option is set
   get_child("SetForce")->options().set("regions", std::vector<common::URI>({regions[0]}));
   get_child("Upstream")->options().set("regions", std::vector<common::URI>({regions[1]}));
+}
+
+void ActuatorDisk::trigger_u_mean()
+{
+  auto u_mean_vec = options().value<std::vector<Real>>("u_mean_in");
+  if(u_mean_vec.size() != 3)
+  {
+    throw common::SetupError(FromHere(), "Expected 3 components for u_mean_in");
+  }
+
+  u_mean_in = Eigen::Map<RealVector>(&u_mean_vec[0], 3);
 }
 
 void ActuatorDisk::trigger_setup()
@@ -125,10 +143,10 @@ void ActuatorDisk::execute()
   Handle<ProtoAction> set_force(get_child("SetForce"));
   Handle<ProtoAction> upstream(get_child("Upstream"));
 
-  u_mean_in.setZero();
+  //u_mean_in.setZero();
   nb_nodes_in = 0.;
-  upstream->execute();
-  u_mean_in /= nb_nodes_in;
+  // upstream->execute();
+  // u_mean_in /= nb_nodes_in;
   set_force->execute();
 }
 
