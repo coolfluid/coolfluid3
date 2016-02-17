@@ -65,7 +65,7 @@ struct GetOrder
 };
 
 /// Get the maximum order of the shape functions used in Expr
-template<typename ExprT, typename DataT>
+template<typename ExprT, typename DataT, Uint SupportOrder>
 struct MaxOrder
 {
   typedef typename boost::tr1_result_of<ExprVarArity(ExprT)>::type NbVarsT;
@@ -78,6 +78,8 @@ struct MaxOrder
       GetOrder<boost::mpl::_1, DataT, ExprT>
     >::type
   >::type>::type type;
+
+  static constexpr Uint value = boost::mpl::if_<boost::mpl::is_void_<type>, boost::mpl::int_<SupportOrder>, type>::type::value;
 };
 
 /// Determine integration order based on the order of the shape function
@@ -254,7 +256,7 @@ struct ElementQuadratureEval :
       typedef typename UnrefDataT::SupportT::EtypeT SupportShapeFunctionT;
       typedef typename SupportShapeFunctionT::MappedCoordsT MappedCoordsT;
 
-      static const Uint max_order = MaxOrder<ExprT, UnrefDataT>::type::value;
+      static const Uint max_order = MaxOrder<ExprT, UnrefDataT, SupportShapeFunctionT::order>::value;
       typedef mesh::Integrators::GaussMappedCoords<IntegrationOrder<max_order>::value, SupportShapeFunctionT::shape> GaussT;
 
       for(Uint i = 0; i != GaussT::nb_points; ++i)

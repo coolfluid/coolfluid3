@@ -315,6 +315,11 @@ public:
     return m_element_idx;
   }
 
+  Real is_local_element() const
+  {
+    return static_cast<Real>(!m_elements.is_ghost(m_element_idx));
+  }
+
 private:
   void compute_normal_dispatch(boost::mpl::false_, const typename EtypeT::MappedCoordsT&) const
   {

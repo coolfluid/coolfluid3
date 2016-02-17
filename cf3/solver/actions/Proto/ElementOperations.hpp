@@ -327,6 +327,24 @@ struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
   };
 };
 
+struct IsLocalOp : boost::proto::transform< IsLocalOp >
+{
+  template<typename SupportT>
+  struct ResultType
+  {
+    typedef Real type;
+  };
+
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : MappedOpBase<ExprT, StateT, DataT, impl<ExprT, StateT, DataT>, ResultType>
+  {
+    static Real apply(const typename impl::SupportT& support)
+    {
+      return support.is_local_element();
+    }
+  };
+};
+
 /// Operation with a custom implementation
 template<typename OpImpl, typename GrammarT>
 struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl, GrammarT> >
@@ -471,7 +489,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
     {
       typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type, typename ChildType<8>::type)>::type type;
     };
-    
+
     /// Specialization for a function with 9 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 10, Dummy>
@@ -671,7 +689,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data));
       }
-      
+
       result_type operator()(boost::proto::tag::function,
                              boost::mpl::int_<5>,
                              typename impl::expr_param expr,
@@ -684,7 +702,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data),
           GetChild<typename EvaluatedChild<4>::type>()(ChildGrammar()(boost::proto::child_c<4>(expr), state, data), data));
       }
-      
+
       result_type operator()(boost::proto::tag::function,
                              boost::mpl::int_<7>,
                              typename impl::expr_param expr,
@@ -732,7 +750,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
           GetChild<typename EvaluatedChild<7>::type>()(ChildGrammar()(boost::proto::child_c<7>(expr), state, data), data),
           GetChild<typename EvaluatedChild<8>::type>()(ChildGrammar()(boost::proto::child_c<8>(expr), state, data), data));
       }
-      
+
       result_type operator()(boost::proto::tag::function,
                              boost::mpl::int_<10>,
                              typename impl::expr_param expr,
@@ -780,7 +798,7 @@ template<typename OpT>
 struct SFOp< CustomSFOp<OpT> >
 {
   OpT op;
-  
+
   template<typename Signature>
   struct result;
 
@@ -811,6 +829,7 @@ boost::proto::terminal< SFOp<CoordinatesOp> >::type const coordinates = {};
 boost::proto::terminal< SFOp<JacobianOp> >::type const jacobian = {};
 boost::proto::terminal< SFOp<JacobianDeterminantOp> >::type const jacobian_determinant = {};
 boost::proto::terminal< SFOp<NormalOp> >::type const normal = {};
+boost::proto::terminal< SFOp<IsLocalOp> >::type const is_local_element = {};
 boost::proto::terminal< SFOp<NablaOp> >::type const nabla = {};
 
 boost::proto::terminal< SFOp<ShapeFunctionOp> >::type const N = {};

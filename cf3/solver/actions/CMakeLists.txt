@@ -100,6 +100,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/SetRHS.hpp
     Proto/SetSolution.hpp
     Proto/SolutionVector.hpp
+    Proto/SurfaceIntegration.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp
     Proto/ZeroLSSRow.hpp

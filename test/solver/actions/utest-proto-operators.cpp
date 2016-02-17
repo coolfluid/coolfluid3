@@ -24,6 +24,7 @@
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Proto/Functions.hpp"
 #include "solver/actions/Proto/NodeLooper.hpp"
+#include "solver/actions/Proto/SurfaceIntegration.hpp"
 #include "solver/actions/Proto/Terminals.hpp"
 
 #include "common/Core.hpp"
@@ -898,7 +899,38 @@ BOOST_AUTO_TEST_CASE(LambdaFunction)
 
   for_each_node(mesh->topology(), phi2 = result_sum(phi));
   BOOST_CHECK_EQUAL(result, 4);
+}
 
+BOOST_AUTO_TEST_CASE(ComputeArea)
+{
+  Handle<mesh::Mesh> mesh = common::Core::instance().root().create_component<mesh::Mesh>("QuadGridArea");
+  Tools::MeshGeneration::create_rectangle(*mesh, 2., 2., 2, 2);
+
+  if(mesh->elements().size() < 2)
+    throw common::SetupError(FromHere(), "Unexpected number of mesh entities, should be at least 2");
+
+  // Pretend this is parallel
+  mesh->elements()[0]->rank()[0] = 1;
+  mesh->elements()[1]->rank()[0] = 1;
+
+  Real nb_local = 0;
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    lit(nb_local) += is_local_element
+  );
+
+  BOOST_CHECK_EQUAL(nb_local, 3);
+
+  std::vector<Handle<mesh::Region>> regions = {Handle<mesh::Region>(mesh->topology().get_child("left")), Handle<mesh::Region>(mesh->topology().get_child("right")),
+                                                  Handle<mesh::Region>(mesh->topology().get_child("bottom")), Handle<mesh::Region>(mesh->topology().get_child("top"))};
+
+  BOOST_CHECK_EQUAL(compute_area(regions), 7);
+
+  RealVector vec_result(2); vec_result.setZero();
+  surface_integral(vec_result, regions, normal);
+  BOOST_CHECK(vec_result[0] == -1.);
+  BOOST_CHECK(vec_result[1] == 0.);
 }
 BOOST_AUTO_TEST_SUITE_END()
 
