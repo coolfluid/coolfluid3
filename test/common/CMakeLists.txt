@@ -122,6 +122,10 @@ coolfluid_add_test( UTEST utest-action-director
                     CPP   utest-action-director.cpp
                     LIBS  coolfluid_common )
 
+coolfluid_add_test( UTEST utest-common-dereference
+                    CPP   utest-common-dereference.cpp
+                    LIBS  coolfluid_common )
+
 
 ################################################################################
 # Test PE - environment
@@ -208,6 +212,6 @@ coolfluid_add_test( UTEST utest-common-arraydiff
                     CPP   utest-common-arraydiff.cpp
                     LIBS  coolfluid_common
                     MPI 2 )
-                    
+
 coolfluid_add_test (UTEST utest-common-print-timing-tree
                     PYTHON utest-common-print-timing-tree.py)

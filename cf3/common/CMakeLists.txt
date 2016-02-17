@@ -49,6 +49,7 @@ list( APPEND coolfluid_common_files
     Core.hpp
     Core.cpp
     CreateComponentDataType.hpp
+    DereferenceComponent.hpp
     DynTable.hpp
     DynTable.cpp
     EigenAssertions.hpp
