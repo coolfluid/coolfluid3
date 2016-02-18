@@ -9,8 +9,9 @@ u_in = [15., 0., 0.]
 initial_velocity = [0., 0., 0.]
 rho = 1.225
 mu = 0.00001
+D=50.
 
-tstep = 2.
+tstep = 1.
 num_steps = 3.
 
 env = cf.Core.environment()
@@ -30,8 +31,9 @@ solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add a concrete Navier-Stokes finite element solver
 disk = solver.add_unsteady_solver('cf3.UFEM.adjoint.ActuatorDisk')
-disk.constant = 0.25
-
+disk.Timestep = tstep
+disk.Area = (50/2)**2*3.1415
+disk.Uin = u_in[0]
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 ns_solver.enable_body_force = True
 
