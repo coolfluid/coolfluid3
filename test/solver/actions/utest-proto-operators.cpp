@@ -931,6 +931,13 @@ BOOST_AUTO_TEST_CASE(ComputeArea)
   surface_integral(vec_result, regions, normal);
   BOOST_CHECK(vec_result[0] == -1.);
   BOOST_CHECK(vec_result[1] == 0.);
+
+  mesh->geometry_fields().create_field( "solution", "u[vector]" ).add_tag("solution");
+  FieldVariable<0, VectorField > u("u", "solution");
+  for_each_node(mesh->topology(), group(u[0] = 0., u[1] = 1.));
+  Real vector_int_result = 0;
+  surface_integral(vector_int_result, regions, u*normal);
+  BOOST_CHECK(vector_int_result == 0.);
 }
 BOOST_AUTO_TEST_SUITE_END()
 

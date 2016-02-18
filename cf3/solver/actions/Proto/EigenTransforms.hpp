@@ -169,6 +169,12 @@ struct EigenPlusAssignProductEval : boost::proto::callable
   template<typename LMatT, typename RMatT>
   void operator()(Real& lhs, const LMatT& left_mat, const RMatT& right_mat)
   {
+    static_assert(decltype(left_mat * right_mat)::RowsAtCompileTime == 1 && decltype(left_mat * right_mat)::ColsAtCompileTime == 1, "Only a 1x1 matrix can be assigned to a Real");
+    lhs += (left_mat * right_mat)[0];
+  }
+
+  void operator()(Real& lhs, const Real left_mat, const Real right_mat)
+  {
     lhs += left_mat * right_mat;
   }
 };
