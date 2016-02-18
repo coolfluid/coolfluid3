@@ -984,7 +984,7 @@ Handle< Mesh > BlockArrays::create_block_mesh()
     patch_elems.resize(patch_connectivity_table.size());
     patch_elems.geometry_space().connectivity().array() = patch_connectivity_table.array();
   }
-  
+
   m_implementation->block_mesh->update_structures();
 
   // Create connectivity data
@@ -1336,6 +1336,28 @@ void BlockArrays::create_mesh(Mesh& mesh)
   mesh.update_structures();
 
   mesh.raise_mesh_loaded();
+
+  mesh.check_sanity();
+
+  if(nb_procs == 1)
+    return;
+
+  try
+  {
+    auto partitioner = common::build_component_abstract_type<mesh::MeshTransformer>("cf3.zoltan.PHG", "load_balancer");
+    partitioner->transform(mesh);
+
+    SignalOptions options;
+    options.add("mesh_uri", mesh.uri());
+    options.add("mesh_rebalanced", true);
+    SignalArgs args = options.create_frame();
+    Core::instance().event_handler().raise_event( "mesh_changed", args);
+    mesh.check_sanity();
+  }
+  catch(const std::exception& e)
+  {
+    throw common::SetupError(FromHere(), std::string("BlockMesher could not partition mesh: cf3.zoltan.PHG failed to load with error:\n") + e.what());
+  }
 }
 
 void BlockArrays::signature_create_points(SignalArgs& args)
