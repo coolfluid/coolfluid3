@@ -18,12 +18,6 @@ namespace cf3 {
 namespace UFEM {
 namespace adjoint {
 
-/// Calculate the heat flux from the one domain using the wall heat transfer equation
-/// and apply it as a Robin boundary condition to the problem on the adjacent domain
-/// The "regions" option determines the boundary on which to set the condition
-/// The "gradient_region" option determines the region in which the temperature gradient is calculated
-/// The "lss" option determines the linear system to which the boundary condition is applied
-/// The "temperature_field_tag" option determines the tag to use when looking for the temperature field
 class UFEM_API ActuatorDisk : public solver::Action
 {
 public:
@@ -51,10 +45,11 @@ private:
   void trigger_u_mean();
 
   // Example parameter
-  Real m_constant = 0.;
-  Real m_constant1 = 0.;
+  Real U_in = 0.;
+  Real A = 0.;
+  Real CT = 0.;
   RealVector u_mean_in;
-  Real nb_nodes_in = 0.;
+  Real Timestep = 0.;
 
   cf3::solver::actions::Proto::SystemRHS rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;
