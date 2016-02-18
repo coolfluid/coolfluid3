@@ -8,7 +8,7 @@
 #define cf3_UFEM_ActuatorDisk_hpp
 
 
-#include "solver/Action.hpp"
+#include "../UnsteadyAction.hpp"
 #include "solver/actions/Proto/BlockAccumulator.hpp"
 
 #include "LibUFEMAdjoint.hpp"
@@ -18,7 +18,7 @@ namespace cf3 {
 namespace UFEM {
 namespace adjoint {
 
-class UFEM_API ActuatorDisk : public solver::Action
+class UFEM_API ActuatorDisk : public UnsteadyAction
 {
 public:
 
@@ -41,15 +41,10 @@ private:
   /// Called when an option that requires a rebuild of the expression is changed
   void trigger_setup();
 
-  /// Called when the mean velocity option is changed
-  void trigger_u_mean();
-
-  // Example parameter
-  Real U_in = 0.;
-  Real A = 0.;
-  Real CT = 0.;
-  RealVector u_mean_in;
-  Real Timestep = 0.;
+  Real m_u_in = 0.;
+  Real m_area = 0.;
+  Real m_f = 0.;
+  Real m_u_mean_disk = 0.;
 
   cf3::solver::actions::Proto::SystemRHS rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;

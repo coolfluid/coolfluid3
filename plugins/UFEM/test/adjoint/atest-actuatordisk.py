@@ -31,9 +31,8 @@ solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add a concrete Navier-Stokes finite element solver
 disk = solver.add_unsteady_solver('cf3.UFEM.adjoint.ActuatorDisk')
-disk.Timestep = tstep
-disk.Area = (50/2)**2*3.1415
-disk.Uin = u_in[0]
+disk.area = (50/2)**2*3.1415
+disk.u_in = u_in[0]
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 ns_solver.enable_body_force = True
 

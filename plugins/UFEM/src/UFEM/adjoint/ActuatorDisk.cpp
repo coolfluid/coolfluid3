@@ -51,45 +51,29 @@ common::ComponentBuilder < ActuatorDisk, common::Action, LibUFEMAdjoint > Actuat
 using boost::proto::lit;
 
 ActuatorDisk::ActuatorDisk(const std::string& name) :
-  Action(name),
+  UnsteadyAction(name),
   rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
     .description("The linear system for which the boundary condition is applied")),
-  system_matrix(options().option("lss")),
-  u_mean_in(3)
+  system_matrix(options().option("lss"))
 {
-  options().add("Uin", U_in)
+  options().add("u_in", m_u_in)
     .pretty_name("Velocityin")
     .description("Inlet velocity")
-    .link_to(&U_in)
+    .link_to(&m_u_in)
     .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
 
-  options().add("Area", A)
+  options().add("area", m_area)
     .pretty_name("Area")
     .description("Area of the disk")
-    .link_to(&A)
+    .link_to(&m_area)
     .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
-
-  options().add("Timestep", Timestep)
-    .pretty_name("Timestep")
-    .description("Timestep")
-    .link_to(&Timestep)
-    .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
-
-  options().add("u_mean_in", std::vector<Real>(3,0.))
-    .pretty_name("u_mean_in")
-    .description("Mean upstream velocity.")
-    .attach_trigger(boost::bind(&ActuatorDisk::trigger_u_mean, this))
-    .mark_basic();
 
   // The component that  will set the force
   create_static_component<ProtoAction>("SetForce")->options().option("regions").add_tag("norecurse");
 
-
   // Initialize the expression
   trigger_setup();
-  // Initialize mean velocity
-  trigger_u_mean();
 }
 
 ActuatorDisk::~ActuatorDisk()
@@ -102,50 +86,36 @@ void ActuatorDisk::on_regions_set()
 
   // Set the regions when the option is set
   get_child("SetForce")->options().set("regions", std::vector<common::URI>({regions[0]}));
-
-}
-
-void ActuatorDisk::trigger_u_mean()
-{
-  auto u_mean_vec = options().value<std::vector<Real>>("u_mean_in");
-  if(u_mean_vec.size() != 3)
-  {
-    throw common::SetupError(FromHere(), "Expected 3 components for u_mean_in");
-  }
-
-  u_mean_in = Eigen::Map<RealVector>(&u_mean_vec[0], 3);
 }
 
 void ActuatorDisk::trigger_setup()
 {
   Handle<ProtoAction> set_force(get_child("SetForce"));
-  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
-  FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
-  FieldVariable<2, VectorField> f("Force", "body_force");
 
-
+  FieldVariable<0, VectorField> f("Force", "body_force");
   set_force->set_expression(nodes_expression
   (
     group
     (
-        CT = ((-0.0000000000011324*U_in*U_in*U_in*U_in*U_in*U_in*U_in*U_in*U_in)+(0.00000000015357*U_in*U_in*U_in*U_in*U_in*U_in*U_in*U_in)+(-0.000000009002*U_in*U_in*U_in*U_in*U_in*U_in*U_in)+(0.00000029882*U_in*U_in*U_in*U_in*U_in*U_in)+(-0.0000061814*U_in*U_in*U_in*U_in*U_in)+(0.000082595*U_in*U_in*U_in*U_in)+(-0.00071366*U_in*U_in*U_in)+(0.0038637*U_in*U_in)+(-0.012101*U_in)+0.017983),
-        f[0] = -0.5*CT*U_in*U_in*A/Timestep/u_mean_in[0],
-
-      _cout << "force set to " << transpose(f) << "CT" << CT << "\n"
+      f[0] = lit(m_f)
     )
   ));
 }
 
 void ActuatorDisk::execute()
 {
-  Handle<ProtoAction> set_force(get_child("SetForce"));
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
-  CT = 0.;
-  u_mean_in.setZero();
-  surface_integral(u_mean_in, m_loop_regions, u*normal);
+  m_u_mean_disk = 0;
+  surface_integral(m_u_mean_disk, m_loop_regions, u*normal);
+
+  const Real ct = (-0.0000000000011324*std::pow(m_u_in, 9))+(0.00000000015357*std::pow(m_u_in, 8))+(-0.000000009002*std::pow(m_u_in, 7))
+   + (0.00000029882*std::pow(m_u_in, 6))+(-0.0000061814*std::pow(m_u_in, 5))+(0.000082595*std::pow(m_u_in, 4))+(-0.00071366*m_u_in*m_u_in*m_u_in)+(0.0038637*m_u_in*m_u_in)+(-0.012101*m_u_in)+0.017983;
+
+  m_f = -0.5 * ct * m_u_in*m_u_in / (m_dt * m_u_mean_disk);
+  CFinfo << "force set to " << m_f << ", CT: " << ct << CFendl;
+
+  Handle<ProtoAction> set_force(get_child("SetForce"));
   set_force->execute();
-
-
 }
 
 } // namespace adjoint
