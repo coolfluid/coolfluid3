@@ -18,13 +18,12 @@ namespace solver {
 namespace actions {
 namespace Proto {
 
-/// Compute a surface integral, taking care of the parallel details. Note that result must be zero-initialized
-template<typename ResultT, typename ExprT, typename ElementTypesT=mesh::LagrangeP1::FaceTypes>
-void surface_integral(ResultT& result, mesh::Region& root_region, const ExprT& expr, ElementTypesT etypes=mesh::LagrangeP1::FaceTypes())
+namespace detail
 {
-  ResultT local_result = result; // should be 0
-  for_each_element<ElementTypesT>(root_region, element_quadrature(boost::proto::lit(local_result) += is_local_element * (expr)));
 
+// Scalar case
+void reduce_result(Real& result, const Real local_result)
+{
   if(common::PE::Comm::instance().is_active())
   {
     common::PE::Comm::instance().all_reduce(common::PE::plus(), &local_result, 1, &result);
@@ -33,6 +32,39 @@ void surface_integral(ResultT& result, mesh::Region& root_region, const ExprT& e
   {
     result = local_result;
   }
+}
+
+// Vector case
+template<typename ResultT>
+void reduce_result(ResultT& result, const ResultT& local_result)
+{
+  if(common::PE::Comm::instance().is_active())
+  {
+    const Uint size = local_result.size();
+    std::vector<Real> local_vec(&local_result[0], &local_result[0]+size);
+    std::vector<Real> result_vec(size);
+    common::PE::Comm::instance().all_reduce(common::PE::plus(), local_vec, result_vec);
+    for(Uint i = 0; i != size; ++i)
+    {
+      result[i] = result_vec[i];
+    }
+  }
+  else
+  {
+    result = local_result;
+  }
+}
+
+}
+
+/// Compute a surface integral, taking care of the parallel details. Note that result must be zero-initialized
+template<typename ResultT, typename ExprT, typename ElementTypesT=mesh::LagrangeP1::FaceTypes>
+void surface_integral(ResultT& result, mesh::Region& root_region, const ExprT& expr, ElementTypesT etypes=mesh::LagrangeP1::FaceTypes())
+{
+  ResultT local_result = result; // should be 0
+  for_each_element<ElementTypesT>(root_region, element_quadrature(boost::proto::lit(local_result) += is_local_element * (expr)));
+  detail::reduce_result(result, local_result);
+
 }
 template<typename ResultT, typename RegionsT, typename ExprT, typename ElementTypesT=mesh::LagrangeP1::FaceTypes>
 void surface_integral(ResultT& result, RegionsT&& regions, const ExprT& expr, ElementTypesT etypes=mesh::LagrangeP1::FaceTypes())
