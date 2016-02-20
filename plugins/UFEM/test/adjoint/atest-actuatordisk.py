@@ -12,7 +12,7 @@ mu = 0.00001
 D=50.
 
 tstep = 1.
-num_steps = 3.
+num_steps = 5.
 
 env = cf.Core.environment()
 env.log_level = 4
