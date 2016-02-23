@@ -108,13 +108,13 @@ void ActuatorDisk::execute()
 {
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   m_u_mean_disk = 0;
-  surface_integral(m_u_mean_disk, m_loop_regions, u*normal);
+  surface_integral(m_u_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs((u*normal)[0]));
   m_u_mean_disk /= m_area;
 
   const Real ct = (-0.0000000011324*std::pow(m_u_in, 9))+(0.00000015357*std::pow(m_u_in, 8))+(-0.000009002*std::pow(m_u_in, 7))
    + (0.00029882*std::pow(m_u_in, 6))+(-0.0061814*std::pow(m_u_in, 5))+(0.082595*std::pow(m_u_in, 4))+(-0.71366*m_u_in*m_u_in*m_u_in)+(3.8637*m_u_in*m_u_in)+(-12.101*m_u_in)+17.983;
 
-  m_f = -0.5 * ct * m_u_in*m_u_in / (m_dt * m_u_mean_disk);
+  m_f = -0.5 * ct * m_u_in*m_u_in / 0.1;//(m_dt * m_u_mean_disk);
   CFinfo << "force set to " << m_f << ", CT: " << ct << "m_u_mean_disk :" << m_u_mean_disk << CFendl;
 
   Handle<ProtoAction> set_force(get_child("SetForce"));

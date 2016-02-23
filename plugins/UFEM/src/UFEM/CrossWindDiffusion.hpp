@@ -42,7 +42,7 @@ struct CrosswindDiffusionImpl
 
     const Real grad_norm = g.norm();
     const Real u_norm = u.eval().norm();
-    if(grad_norm == 0. || u_norm == 0.)
+    if(grad_norm < 1e-12 || u_norm == 0.)
     {
       result.setZero();
       return result;
@@ -52,11 +52,17 @@ struct CrosswindDiffusionImpl
     result.noalias() = ((u.eval().transpose().dot(g))*g).transpose();
     const Real a_par_norm = result.norm();
 
+    if(a_par_norm == 0.)
+    {
+      result.setZero();
+      return result;
+    }
+
     const Real h = 2./(g.transpose()*c.nabla()).cwiseAbs().sum();
     const Real x = a_par_norm / (2.*u_norm);
     const Real tau_c = h/(a_par_norm)*x*(1.-x);
 
-    result *= tau_c;
+    result *= tau_c;    
     return result;
   }
 
