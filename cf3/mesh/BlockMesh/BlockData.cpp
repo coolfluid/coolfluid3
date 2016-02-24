@@ -864,7 +864,28 @@ BlockArrays::BlockArrays(const std::string& name) :
     .pretty_name("Block Regions")
     .description("For each block, the region it belongs to. Leave empty to assign each block to the region \"interior\"")
     .link_to(&m_implementation->block_regions)
-    .attach_trigger(boost::bind(&Implementation::trigger_block_regions, m_implementation.get()));
+    .attach_trigger(boost::bind(&Implementation::trigger_block_regions, m_implementation.get()))
+    .mark_basic();
+
+  options().add("periodic_x", std::vector<std::string>())
+    .pretty_name("Periodic X")
+    .description("Make the mesh periodic in the X direction?")
+    .mark_basic();
+
+  options().add("periodic_y", std::vector<std::string>())
+    .pretty_name("Periodic Y")
+    .description("Make the mesh periodic in the Y direction?")
+    .mark_basic();
+
+  options().add("periodic_z", std::vector<std::string>())
+    .pretty_name("Periodic Z")
+    .description("Make the mesh periodic in the Z direction?")
+    .mark_basic();
+
+  options().add("autopartition", true)
+    .pretty_name("Autopartition")
+    .description("Autopartition the mesh using the PHG partitioner")
+    .mark_basic();
 }
 
 BlockArrays::~BlockArrays()
@@ -1336,10 +1357,49 @@ void BlockArrays::create_mesh(Mesh& mesh)
   mesh.update_structures();
 
   mesh.raise_mesh_loaded();
-
   mesh.check_sanity();
 
-  if(nb_procs == 1)
+  auto periodic_x = options().value<std::vector<std::string>>("periodic_x");
+  auto periodic_y = options().value<std::vector<std::string>>("periodic_y");
+  auto periodic_z = options().value<std::vector<std::string>>("periodic_z");
+
+  const std::vector<std::vector<std::string>> periodic = {periodic_x, periodic_y, periodic_z};
+  if(!periodic_x.empty() || !periodic_y.empty() || !periodic_z.empty())
+  {
+    common::build_component_abstract_type<mesh::MeshTransformer>("cf3.mesh.actions.MakeBoundaryGlobal", "globalbnd")->transform(mesh);
+  }
+  for(Uint i = 0; i != 3; ++i)
+  {
+    if(!periodic[i].empty())
+    {
+      auto average_pos = [&](const Table<Uint>& conn)
+      {
+        RealVector result(dimensions); result.setZero();
+        Real count = 0.;
+        for(auto&& row : conn.array())
+        {
+          for(const Uint idx : row)
+          {
+            result += Eigen::Map<RealVector const>(&points[idx][0], dimensions);
+            count += 1.;
+          }
+        }
+        result /= count;
+        return result;
+      };
+
+      const RealVector translation = average_pos(*Handle<Table<Uint> const>(m_implementation->patches->get_child(periodic[i][0]))) - average_pos(*Handle<Table<Uint> const>(m_implementation->patches->get_child(periodic[i][1])));
+
+      CFdebug << "computed translation vector: " << translation.transpose() << CFendl;
+      auto periodic_linker = common::build_component_abstract_type<mesh::MeshTransformer>("cf3.mesh.actions.LinkPeriodicNodes", "link");
+      periodic_linker->options().set("destination_region", Handle<Region>(mesh.topology().get_child(periodic[i][0])));
+      periodic_linker->options().set("source_region", Handle<Region>(mesh.topology().get_child(periodic[i][1])));
+      periodic_linker->options().set("translation_vector", std::vector<Real>(translation.data(), translation.data() + dimensions));
+      periodic_linker->transform(mesh);
+    }
+  }
+
+  if(nb_procs == 1 || !options().value<bool>("autopartition"))
     return;
 
   try
