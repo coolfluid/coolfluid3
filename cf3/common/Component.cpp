@@ -297,6 +297,7 @@ Component& Component::add_component ( const boost::shared_ptr<Component>& subcom
     subcomp->m_name = unique_name; // change name to unique
     CFinfo << "Name conflict - component renamed from \'" << name
            << "\' to unique name \'" << unique_name << "\'"
+           << " at parent " << uri().path()
            << CFendl;
   }
 
