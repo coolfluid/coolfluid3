@@ -22,7 +22,7 @@ namespace detail
 {
 
 // Scalar case
-void reduce_result(Real& result, const Real local_result)
+inline void reduce_result(Real& result, const Real local_result)
 {
   if(common::PE::Comm::instance().is_active())
   {
@@ -36,7 +36,7 @@ void reduce_result(Real& result, const Real local_result)
 
 // Vector case
 template<typename ResultT>
-void reduce_result(ResultT& result, const ResultT& local_result)
+inline void reduce_result(ResultT& result, const ResultT& local_result)
 {
   if(common::PE::Comm::instance().is_active())
   {
