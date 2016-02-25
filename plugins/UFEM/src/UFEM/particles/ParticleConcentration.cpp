@@ -165,7 +165,8 @@ void ParticleConcentration::trigger_set_expression()
   ));
 
   // Set the proto expression for the update step
-  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(c = _max(c + solution(c), 0.)) );
+  //Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(c = _max(c + solution(c), 0.)) );
+  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(c += solution(c) ) );
 }
 
 } // particles
