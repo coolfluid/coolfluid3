@@ -124,7 +124,8 @@ coolfluid_add_test( ATEST atest-flatplate2d-kepsilon
                     PYTHON atest-flatplate2d-kepsilon.py)
 
 coolfluid_add_test( ATEST atest-channel-chienkepsilon
-                    PYTHON atest-channel-chienkepsilon.py)
+                    PYTHON atest-channel-chienkepsilon.py
+                    MPI 4)
 
 coolfluid_add_test( ATEST atest-channel-standardkepsilon
                     PYTHON atest-channel-standardkepsilon.py)

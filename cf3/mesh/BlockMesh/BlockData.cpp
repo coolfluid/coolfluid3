@@ -1396,6 +1396,7 @@ void BlockArrays::create_mesh(Mesh& mesh)
       periodic_linker->options().set("source_region", Handle<Region>(mesh.topology().get_child(periodic[i][1])));
       periodic_linker->options().set("translation_vector", std::vector<Real>(translation.data(), translation.data() + dimensions));
       periodic_linker->transform(mesh);
+      mesh.add_component(periodic_linker);
     }
   }
 

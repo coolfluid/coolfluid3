@@ -57,6 +57,13 @@ void MakeBoundaryGlobal::execute()
   MeshAdaptor adaptor(mesh);
   adaptor.prepare();
 
+  // We add these again at the end, with proper size
+  if(is_not_null(mesh.geometry_fields().get_child("periodic_links_nodes")))
+  {
+    mesh.geometry_fields().remove_component("periodic_links_nodes");
+    mesh.geometry_fields().remove_component("periodic_links_active");
+  }
+
   std::vector< std::vector< std::vector<Uint> > > elements_to_send(nb_procs, std::vector< std::vector<Uint> > (m_mesh->elements().size()));
   boost_foreach(mesh::Elements& elements, common::find_components_recursively_with_filter<mesh::Elements>(mesh.topology(), IsElementsSurface()))
   {
@@ -93,6 +100,11 @@ void MakeBoundaryGlobal::execute()
   adaptor.flush_nodes();
 
   adaptor.finish();
+
+  for(auto&& comp : common::find_components_with_filter<MeshTransformer>(mesh, [](const Component& c) { return c.derived_type_name() == "cf3.mesh.actions.LinkPeriodicNodes"; }))
+  {
+    comp.transform(mesh);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

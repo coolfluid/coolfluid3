@@ -50,13 +50,13 @@ std::vector<Uint> used_nodes(const mesh::Region& region, const mesh::Dictionary&
   boost::shared_ptr< common::List< Uint > > own_used_node_list = build_used_nodes_list(region, dict, false, false);
   std::vector<Uint> used_node_vec;
   common::PE::Comm& comm = common::PE::Comm::instance();
-  
+
   if(!comm.is_active())
   {
     used_node_vec.assign(own_used_node_list->array().begin(), own_used_node_list->array().end());
     return used_node_vec;
   }
-  
+
   std::vector<Uint> own_gids; own_gids.reserve(own_used_node_list->size());
   const Uint nb_nodes = dict.size();
   std::vector<bool> is_added(nb_nodes, false);
@@ -65,36 +65,36 @@ std::vector<Uint> used_nodes(const mesh::Region& region, const mesh::Dictionary&
     own_gids.push_back(dict.glb_idx()[own_idx]);
     is_added[own_idx] = true; // All local nodes are in the list automatically
   }
-  
+
   std::vector< std::vector<Uint> > recv_gids;
   comm.all_gather(own_gids, recv_gids);
-  
+
   std::set<Uint> global_boundary_gids; // GIDs that reside on other CPUs
   const Uint nb_procs = comm.size();
   for(Uint i = 0; i != nb_procs; ++i)
   {
     if(i == comm.rank())
       continue;
-    
+
     BOOST_FOREACH(const Uint gid, recv_gids[i])
     {
       global_boundary_gids.insert(gid);
     }
   }
-  
+
   std::list<Uint> extra_nodes;
   for(Uint i = 0; i != nb_nodes; ++i)
   {
     if(is_added[i])
       continue;
-    
+
     if(global_boundary_gids.count(dict.glb_idx()[i]))
     {
       is_added[i] = true;
       extra_nodes.push_back(i);
     }
   }
-  
+
   used_node_vec.reserve(own_used_node_list->size()+ extra_nodes.size());
   used_node_vec.insert(used_node_vec.end(), own_used_node_list->array().begin(), own_used_node_list->array().end());
   used_node_vec.insert(used_node_vec.end(), extra_nodes.begin(), extra_nodes.end());
@@ -151,6 +151,22 @@ void LinkPeriodicNodes::execute()
 
   common::List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
   common::List<bool>& periodic_links_active = *periodic_links_active_h;
+
+  if(periodic_links_nodes.size() != mesh.geometry_fields().size())
+  {
+    periodic_links_nodes.resize(mesh.geometry_fields().size());
+    periodic_links_active.resize(mesh.geometry_fields().size());
+  }
+
+  for(bool& b : periodic_links_active.array())
+  {
+    b = false;
+  }
+  for(Uint& n : periodic_links_nodes.array())
+  {
+    n = 0;
+  }
+
   cf3_assert(periodic_links_nodes.size() == mesh.geometry_fields().size());
   cf3_assert(periodic_links_active.size() == mesh.geometry_fields().size());
 
