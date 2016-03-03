@@ -174,7 +174,7 @@ public:
 
 
 
-    typedef const decltype(detail::do_eval(std::declval<EigenExprT>()))& result_type;
+    typedef const typename std::remove_const<typename std::remove_reference<decltype(detail::do_eval(std::declval<EigenExprT>()))>::type>::type& result_type;
 
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
