@@ -34,12 +34,12 @@ env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
 env.regist_signal_handlers = False
-env.log_level = 4
+env.log_level = 3
 
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
 domain = model.create_domain()
-physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
+physics = model.create_physics('cf3.UFEM.KEpsilonPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the yplus computation

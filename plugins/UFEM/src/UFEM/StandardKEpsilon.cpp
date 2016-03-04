@@ -54,32 +54,32 @@ void StandardKEpsilon::do_set_expressions(LSSActionUnsteady& lss_action, solver:
   Real& invdt = lss_action.invdt();
 
   // The length scale helper function
-  const auto nut_update = make_lambda([&](const Real k_in, const Real epsilon, const Real nu_l, const Real d)
+  const auto nut_update = make_lambda([&](const Real k_in, const Real epsilon, const Real d, const Real nu_eff)
   {
-    if(d == 0.)
+    if(d == 0.) // Boundary value is set in BC
     {
-      return nu_l*m_kappa*m_yplus;
+      return nu_eff - m_nu_lam;
     }
     const Real k = std::max(0., k_in);
     const Real cmu_k2 = m_c_mu * k*k;
     const Real result = cmu_k2 <= sqrt(k)*epsilon*m_l_max ? (epsilon <= 0. ? 0. : cmu_k2 / epsilon) : m_l_max * sqrt(k);
 
-    if(result < nu_l*m_minimal_viscosity_ratio)
+    if(result < m_nu_lam*m_minimal_viscosity_ratio)
     {
-      return nu_l*m_minimal_viscosity_ratio;
+      return m_nu_lam*m_minimal_viscosity_ratio;
     }
     return result;
   });
 
   update_nut.set_expression(nodes_expression(group
   (
-    nu_eff = nu_lam + nut_update(k, epsilon, nu_lam, d)
+    nu_eff = m_nu_lam + nut_update(k, epsilon, d, nu_eff)
   )));
 
   // Helper to get the turbulent viscosity
-  const auto nut = make_lambda([&](const Real nu, const Real nu_eff)
+  const auto nut = make_lambda([&](const Real nu_eff)
   {
-    return nu_eff - nu;
+    return nu_eff - m_nu_lam;
   });
 
   // Linearization parameter gamma = epsilon / k:
@@ -104,15 +104,15 @@ void StandardKEpsilon::do_set_expressions(LSSActionUnsteady& lss_action, solver:
       compute_tau.apply( u, nu_eff, lit(dt), lit(tau_su)),
       element_quadrature
       (
-        _A(k,k) += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * u * nabla(k) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_k) * transpose(nabla(k)) * nabla(k) // Advection and diffusion
-                 + transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (gamma(k, nut(nu_lam, nu_eff), epsilon)) * N(k), // sink term
+        _A(k,k) += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * u * nabla(k) + (m_nu_lam + nut(nu_eff) / m_sigma_k) * transpose(nabla(k)) * nabla(k) // Advection and diffusion
+                 + transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (gamma(k, nut(nu_eff), epsilon)) * N(k), // sink term
         _T(k,k) +=  transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * N(k),
-        _a[k] += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))), // Production
+        _a[k] += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (0.5*nut(nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))), // Production
 
-        _A(epsilon,epsilon) += transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * u * nabla(epsilon) + (nu_lam + nut(nu_lam, nu_eff) / m_sigma_epsilon) * transpose(nabla(epsilon)) * nabla(epsilon) // Advection and diffusion
-                       + transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon))*N(epsilon)*(m_c_epsilon_2 * gamma(k, nut(nu_lam, nu_eff), epsilon)), // sink term
+        _A(epsilon,epsilon) += transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * u * nabla(epsilon) + (m_nu_lam + nut(nu_eff) / m_sigma_epsilon) * transpose(nabla(epsilon)) * nabla(epsilon) // Advection and diffusion
+                       + transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon))*N(epsilon)*(m_c_epsilon_2 * gamma(k, nut(nu_eff), epsilon)), // sink term
         _T(epsilon,epsilon) +=  transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * N(epsilon),
-        _a[epsilon] += transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * gamma(k, nut(nu_lam, nu_eff), epsilon) * lit(m_c_epsilon_1) * (0.5*nut(nu_lam, nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
+        _a[epsilon] += transpose(N(epsilon) + (tau_su*u + cw.apply(u, epsilon))*nabla(epsilon)) * gamma(k, nut(nu_eff), epsilon) * lit(m_c_epsilon_1) * (0.5*nut(nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
       ),
       lss_action.system_matrix += invdt * _T + m_theta * _A,
       lss_action.system_rhs += -_A * _x + _a

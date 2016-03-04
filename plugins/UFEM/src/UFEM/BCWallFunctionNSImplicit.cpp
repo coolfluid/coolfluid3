@@ -60,7 +60,12 @@ BCWallFunctionNSImplicit::BCWallFunctionNSImplicit(const std::string& name) :
     .description("Theta coefficient for the theta-method.")
     .link_to(&m_theta);
 
+
+  create_static_component<ProtoAction>("SetWallViscosity")->options().option("regions").add_tag("norecurse");
   create_static_component<ProtoAction>("WallLaw")->options().option("regions").add_tag("norecurse");
+
+  link_physics_constant("c_mu", m_c_mu);
+  link_physics_constant("yplus", m_yplus);
 
   trigger_setup();
 }
@@ -73,37 +78,36 @@ BCWallFunctionNSImplicit::~BCWallFunctionNSImplicit()
 void BCWallFunctionNSImplicit::on_regions_set()
 {
   get_child("WallLaw")->options().set("regions", options()["regions"].value());
+  get_child("SetWallViscosity")->options().set("regions", options()["regions"].value());
 }
 
 void BCWallFunctionNSImplicit::trigger_setup()
 {
   Handle<ProtoAction> wall_law(get_child("WallLaw"));
+  Handle<ProtoAction> set_wall_viscosity(get_child("SetWallViscosity"));
 
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
   FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
   FieldVariable<2, ScalarField> k("k", "ke_solution");
+  FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+
+  PhysicsConstant nu_lam("kinematic_viscosity");
+  PhysicsConstant kappa("kappa");
 
   const auto tau_w = make_lambda([&](const Real k, const Real u)
   {
-    const Real c_mu = 0.09;
-    const Real yplus = 11.06;
     if(k <= 0.)
     {
-      return u / (yplus*yplus);
+      return u / (m_yplus*m_yplus);
     }
 
-    return ::pow(c_mu, 0.25)*::sqrt(k)/yplus;
-
-    //return std::min(::pow(c_mu, 0.25)*::sqrt(::fabs(k))/yplus, u / (yplus*yplus));
-
-    // const Real c_mu = 0.09;
-    // const Real yplus = 11.06;
-    // if(k > 0.)
-    // {
-    //   return ::pow(c_mu, 0.25)*::sqrt(::fabs(k))/yplus;
-    // }
-    // return u / (yplus*yplus);
+    return ::pow(m_c_mu, 0.25)*::sqrt(k)/m_yplus;
   });
+
+  set_wall_viscosity->set_expression(nodes_expression
+  (
+    nu_eff = lit(nu_lam) + lit(nu_lam)*lit(kappa)*lit(m_yplus)
+  ));
 
   // Set normal component to zero and tangential component to the wall-law value
   wall_law->set_expression(elements_expression
@@ -121,12 +125,16 @@ void BCWallFunctionNSImplicit::trigger_setup()
       rhs += -_A * _x
     )
   ));
+
+
 }
 
 void BCWallFunctionNSImplicit::execute()
 {
+  Handle<ProtoAction> set_wall_viscosity(get_child("SetWallViscosity"));
   Handle<ProtoAction> wall_law(get_child("WallLaw"));
 
+  set_wall_viscosity->execute();
   wall_law->execute();
 }
 

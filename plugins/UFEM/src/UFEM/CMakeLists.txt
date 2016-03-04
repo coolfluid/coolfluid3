@@ -67,6 +67,8 @@ list( APPEND coolfluid_ufem_files
   InitialConditions.cpp
   KEpsilonBase.hpp
   KEpsilonBase.cpp
+  KEpsilonPhysics.hpp
+  KEpsilonPhysics.cpp
   KineticEnergyIntegral.hpp
   KineticEnergyIntegral.cpp
   LibUFEM.cpp

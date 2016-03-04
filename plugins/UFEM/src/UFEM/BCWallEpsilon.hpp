@@ -12,7 +12,6 @@
 #include "solver/actions/Proto/BlockAccumulator.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 
-
 #include "LibUFEM.hpp"
 
 namespace cf3 {
@@ -39,10 +38,10 @@ private:
   cf3::solver::actions::Proto::SystemMatrix system_matrix;
   cf3::solver::actions::Proto::DirichletBC dirichlet;
 
-  Real m_c_mu = 0.09;
+  Real m_c_mu = 0;
   Real m_c_epsilon_1 = 1.44;
-  Real m_kappa = 0.41;
-  Real m_yplus = 11.06;
+  Real m_kappa = 0.;
+  Real m_yplus = 0;
   Real m_sigma_epsilon = 1.3;
 
   Real m_theta = 0.5;

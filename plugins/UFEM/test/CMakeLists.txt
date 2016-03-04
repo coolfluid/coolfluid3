@@ -168,6 +168,9 @@ coolfluid_add_test( ATEST atest-ufem-velocitygradient
                     PYTHON atest-ufem-velocitygradient.py
                     MPI 4 )
 
+coolfluid_add_test( ATEST utest-kepsilonphysics
+                    PYTHON utest-kepsilonphysics.py)
+
 add_subdirectory(demo)
 add_subdirectory(les)
 add_subdirectory(particles)

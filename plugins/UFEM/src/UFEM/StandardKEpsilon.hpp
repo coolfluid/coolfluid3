@@ -36,10 +36,6 @@ public: // functions
 
 protected:
   virtual void do_set_expressions(LSSActionUnsteady& lss_action, solver::actions::Proto::ProtoAction& update_nut, FieldVariable<2, VectorField>& u);
-
-private:
-  Real m_kappa = 0.41;
-  Real m_yplus = 11.06;
 };
 
 } // UFEM

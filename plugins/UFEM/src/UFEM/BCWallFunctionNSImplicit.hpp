@@ -53,6 +53,9 @@ private:
   cf3::solver::actions::Proto::SystemMatrix system_matrix;
 
   Real m_theta = 0.5;
+
+  Real m_c_mu = 0;
+  Real m_yplus = 0;
 };
 
 } // UFEM

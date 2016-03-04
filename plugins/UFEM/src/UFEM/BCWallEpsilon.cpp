@@ -53,6 +53,10 @@ BCWallEpsilon::BCWallEpsilon(const std::string& name) :
     .description("Theta coefficient for the theta-method.")
     .link_to(&m_theta);
 
+  link_physics_constant("kappa", m_kappa);
+  link_physics_constant("c_mu", m_c_mu);
+  link_physics_constant("yplus", m_yplus);
+
   FieldVariable<0, ScalarField> k("k", "ke_solution");
   FieldVariable<1, ScalarField> epsilon("epsilon", "ke_solution");
   FieldVariable<2, VectorField> u("Velocity", "navier_stokes_solution");
@@ -61,10 +65,6 @@ BCWallEpsilon::BCWallEpsilon(const std::string& name) :
 
   const auto u_tau = make_lambda([&](const Real k, const Real u)
   {
-    // const Real u_k = k > 0. ? ::pow(m_c_mu, 0.25)*::sqrt(k) : 0.;
-    // const Real u_tau = std::max(u_k, u/m_yplus);
-    // return u_tau;
-
     if(k <= 0.)
     {
       return u / (m_yplus);
@@ -89,10 +89,6 @@ BCWallEpsilon::BCWallEpsilon(const std::string& name) :
       rhs += -_A * _x
     )
   ));
-
-  // set_expression(nodes_expression(
-  //   dirichlet(epsilon) = pow4(u_tau(k, _norm(u))) / (lit(m_kappa) * nu * lit(m_yplus))
-  // ));
 }
 
 BCWallEpsilon::~BCWallEpsilon()

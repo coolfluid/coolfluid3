@@ -77,6 +77,9 @@ KEpsilonBase::KEpsilonBase(const std::string& name) :
     .description("Reference velocity for the CF2 SUPG method")
     .link_to(&(compute_tau.data.op.u_ref));
 
+  link_physics_constant("c_mu", m_c_mu);
+  link_physics_constant("kinematic_viscosity", m_nu_lam);
+
   create_component<ProtoAction>("UpdateNut");
 
   auto lss = create_component<LSSActionUnsteady>("LSS");
