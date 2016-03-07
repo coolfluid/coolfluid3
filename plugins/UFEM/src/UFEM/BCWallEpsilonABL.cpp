@@ -24,7 +24,7 @@
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/Line.hpp"
 
-#include "BCWallEpsilon.hpp"
+#include "BCWallEpsilonABL.hpp"
 #include "AdjacentCellToFace.hpp"
 #include "Tags.hpp"
 
@@ -40,9 +40,9 @@ namespace UFEM
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-common::ComponentBuilder < BCWallEpsilon, common::Action, LibUFEM > BCWallEpsilon_Builder;
+common::ComponentBuilder < BCWallEpsilonABL, common::Action, LibUFEM > BCWallEpsilonABL_Builder;
 
-BCWallEpsilon::BCWallEpsilon(const std::string& name) :
+BCWallEpsilonABL::BCWallEpsilonABL(const std::string& name) :
   ProtoAction(name),
   rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied")),
   system_matrix(options().option("lss")),
@@ -53,28 +53,13 @@ BCWallEpsilon::BCWallEpsilon(const std::string& name) :
     .description("Theta coefficient for the theta-method.")
     .link_to(&m_theta);
 
-  link_physics_constant("kappa", m_kappa);
-  link_physics_constant("c_mu", m_c_mu);
-  link_physics_constant("yplus", m_yplus);
-
   FieldVariable<0, ScalarField> k("k", "ke_solution");
   FieldVariable<1, ScalarField> epsilon("epsilon", "ke_solution");
-  FieldVariable<2, VectorField> u("Velocity", "navier_stokes_solution");
+  FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
-  PhysicsConstant nu("kinematic_viscosity");
-
-  const auto u_tau = make_lambda([&](const Real k, const Real u)
-  {
-    const Real ut1 = u / m_yplus;
-    if(k <= 0.)
-    {
-      return ut1;
-    }
-
-    return std::max(::pow(m_c_mu, 0.25)*::sqrt(k), ut1);
-  });
-
-  const auto pow4 = make_lambda([](const Real x) { return x*x*x*x; });
+  PhysicsConstant zwall("zwall");
+  PhysicsConstant z0("z0");
+  PhysicsConstant nu_lam("kinematic_viscosity");
 
   set_expression(elements_expression
   (
@@ -84,7 +69,7 @@ BCWallEpsilon::BCWallEpsilon(const std::string& name) :
       _A(k) = _0, _A(epsilon) = _0,
       element_quadrature
       (
-        _A(epsilon,epsilon) += -transpose(N(epsilon))*N(epsilon)*m_kappa*u_tau(k, _norm(u))/lit(m_sigma_epsilon) * _norm(normal)
+        _A(epsilon,epsilon) += -(nu_eff-nu_lam) / lit(m_sigma_epsilon) * transpose(N(epsilon)) * N(epsilon) * _norm(normal) / (lit(zwall) + lit(z0))
       ),
       system_matrix +=  m_theta * _A,
       rhs += -_A * _x
@@ -92,7 +77,7 @@ BCWallEpsilon::BCWallEpsilon(const std::string& name) :
   ));
 }
 
-BCWallEpsilon::~BCWallEpsilon()
+BCWallEpsilonABL::~BCWallEpsilonABL()
 {
 }
 

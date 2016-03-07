@@ -28,6 +28,10 @@ list( APPEND coolfluid_ufem_files
   BCNeumannConstant.hpp
   BCWallEpsilon.hpp
   BCWallEpsilon.cpp
+  BCWallEpsilonABL.hpp
+  BCWallEpsilonABL.cpp
+  BCWallFunctionABL.hpp
+  BCWallFunctionABL.cpp
   BCWallFunctionNSImplicit.hpp
   BCWallFunctionNSImplicit.cpp
   BoundaryConditions.hpp

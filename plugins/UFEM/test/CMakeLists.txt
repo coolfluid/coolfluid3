@@ -171,6 +171,11 @@ coolfluid_add_test( ATEST atest-ufem-velocitygradient
 coolfluid_add_test( ATEST utest-kepsilonphysics
                     PYTHON utest-kepsilonphysics.py)
 
+coolfluid_add_test( ATEST atest-ufem-abl
+                    PYTHON atest-ufem-abl.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/abl.msh
+                    MPI 4)
+
 add_subdirectory(demo)
 add_subdirectory(les)
 add_subdirectory(particles)

@@ -24,7 +24,7 @@
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/Line.hpp"
 
-#include "BCWallFunctionNSImplicit.hpp"
+#include "BCWallFunctionABL.hpp"
 #include "AdjacentCellToFace.hpp"
 #include "Tags.hpp"
 
@@ -42,13 +42,13 @@ using namespace solver::actions::Proto;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < BCWallFunctionNSImplicit, common::Action, LibUFEM > BCWallFunctionNSImplicit_Builder;
+common::ComponentBuilder < BCWallFunctionABL, common::Action, LibUFEM > BCWallFunctionABL_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 using boost::proto::lit;
 
-BCWallFunctionNSImplicit::BCWallFunctionNSImplicit(const std::string& name) :
+BCWallFunctionABL::BCWallFunctionABL(const std::string& name) :
   Action(name),
   rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
@@ -65,23 +65,25 @@ BCWallFunctionNSImplicit::BCWallFunctionNSImplicit(const std::string& name) :
   create_static_component<ProtoAction>("WallLaw")->options().option("regions").add_tag("norecurse");
 
   link_physics_constant("c_mu", m_c_mu);
-  link_physics_constant("yplus", m_yplus);
+  link_physics_constant("kappa", m_kappa);
+  link_physics_constant("zwall", m_zwall);
+  link_physics_constant("z0", m_z0);
 
   trigger_setup();
 }
 
-BCWallFunctionNSImplicit::~BCWallFunctionNSImplicit()
+BCWallFunctionABL::~BCWallFunctionABL()
 {
 }
 
 
-void BCWallFunctionNSImplicit::on_regions_set()
+void BCWallFunctionABL::on_regions_set()
 {
   get_child("WallLaw")->options().set("regions", options()["regions"].value());
   get_child("SetWallViscosity")->options().set("regions", options()["regions"].value());
 }
 
-void BCWallFunctionNSImplicit::trigger_setup()
+void BCWallFunctionABL::trigger_setup()
 {
   Handle<ProtoAction> wall_law(get_child("WallLaw"));
   Handle<ProtoAction> set_wall_viscosity(get_child("SetWallViscosity"));
@@ -92,11 +94,10 @@ void BCWallFunctionNSImplicit::trigger_setup()
   FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
 
   PhysicsConstant nu_lam("kinematic_viscosity");
-  PhysicsConstant kappa("kappa");
 
   const auto u_tau = make_lambda([&](const Real k, const Real u)
   {
-    const Real ut1 = u / m_yplus;
+    const Real ut1 = u / m_uplus;
     if(k <= 0.)
     {
       return ut1;
@@ -107,7 +108,7 @@ void BCWallFunctionNSImplicit::trigger_setup()
 
   set_wall_viscosity->set_expression(nodes_expression
   (
-    nu_eff = lit(nu_lam) + lit(nu_lam)*lit(kappa)*lit(m_yplus)
+    nu_eff = lit(nu_lam) + lit(m_kappa)*u_tau(k, _norm(u))*lit(m_zwall)
   ));
 
   // Set normal component to zero and tangential component to the wall-law value
@@ -120,18 +121,18 @@ void BCWallFunctionNSImplicit::trigger_setup()
       element_quadrature
       (
         _A(p, u[_i]) += -transpose(N(p)) * N(u) * normal[_i], // no-penetration condition
-        _A(u[_i], u[_i]) += transpose(N(u)) * u_tau(k, _norm(u))/lit(m_yplus) * N(u) * _norm(normal)
+        _A(u[_i], u[_i]) += transpose(N(u)) * u_tau(k, _norm(u))/lit(m_uplus) * N(u) * _norm(normal)
       ),
       system_matrix += m_theta * _A,
       rhs += -_A * _x
     )
   ));
-
-
 }
 
-void BCWallFunctionNSImplicit::execute()
+void BCWallFunctionABL::execute()
 {
+  m_uplus = 1./m_kappa * std::log((m_zwall + m_z0)/m_z0);
+
   Handle<ProtoAction> set_wall_viscosity(get_child("SetWallViscosity"));
   Handle<ProtoAction> wall_law(get_child("WallLaw"));
 
