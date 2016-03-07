@@ -78,7 +78,7 @@ BCWallEpsilon::BCWallEpsilon(const std::string& name) :
 
   set_expression(elements_expression
   (
-    boost::mpl::vector1<mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+    boost::mpl::vector3<mesh::LagrangeP1::Line2D, mesh::LagrangeP1::Triag3D, mesh::LagrangeP1::Quad3D>(), // Valid for surface element types
     group
     (
       _A(k) = _0, _A(epsilon) = _0,
