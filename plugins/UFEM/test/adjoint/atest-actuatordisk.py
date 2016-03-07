@@ -8,11 +8,11 @@ import coolfluid as cf
 u_in = [15., 0., 0.]
 initial_velocity = [0., 0., 0.]
 rho = 1.225
-mu = 0.00001
-D=50.
+mu = 0.0000178
+D=50
 
 tstep = 1.
-num_steps = 5.
+num_steps = 3.
 
 env = cf.Core.environment()
 env.log_level = 4
@@ -30,16 +30,19 @@ physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add a concrete Navier-Stokes finite element solver
-disk = solver.add_unsteady_solver('cf3.UFEM.adjoint.ActuatorDisk')
+disk = solver.add_unsteady_solver('cf3.UFEM.adjoint.ActuatorDisk3D')
 disk.area = (50/2)**2*3.1415
 disk.u_in = u_in[0]
+disk.th = 1.
+disk.zh = 0.
+disk.yh = 0.
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 ns_solver.enable_body_force = True
 
 mesh = domain.load_mesh(file = cf.URI('Actuator.msh'), name = 'Mesh')
 
 # actve region
-disk.regions = [mesh.topology.actuator.uri(), mesh.topology.inlet.uri()]
+disk.regions = [mesh.topology.actuator.uri(), mesh.topology.actuator.uri()]
 ns_solver.regions = [mesh.topology.uri()]
 
 # initial conditions
@@ -53,10 +56,6 @@ physics.dynamic_viscosity = mu
 bc = ns_solver.BoundaryConditions
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').value = u_in
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').value = 0.
-bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = u_in
-bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = u_in
-bc.add_constant_bc(region_name = 'right', variable_name = 'Velocity').value = u_in
-bc.add_constant_bc(region_name = 'left', variable_name = 'Velocity').value = u_in
 
 # Solver setup
 

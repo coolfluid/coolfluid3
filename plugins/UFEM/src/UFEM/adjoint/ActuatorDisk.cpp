@@ -6,6 +6,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <cmath>
 
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
@@ -68,7 +69,18 @@ ActuatorDisk::ActuatorDisk(const std::string& name) :
     .description("Area of the disk")
     .link_to(&m_area)
     .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
+  options().add("ct", m_ct)
+    .pretty_name("Ct")
+    .description("Trust coefficient of the disk")
+    .link_to(&m_ct)
+    .mark_basic(); // if ct < 0 --> a in function of u_mean_disk
 
+
+  options().add("th", m_th)
+    .pretty_name("Thickness")
+    .description("Thickness of the disk")
+    .link_to(&m_th)
+    .mark_basic();
   // The component that  will set the force
   create_static_component<ProtoAction>("SetForce")->options().option("regions").add_tag("norecurse");
 
@@ -98,9 +110,8 @@ void ActuatorDisk::trigger_setup()
   (
     group
     (
-      f[0] = lit(m_f),
-      _cout << "disk X velocity: " << u[0] << "\n"
-    )
+      f[0] = lit(m_f)
+     )
   ));
 }
 
@@ -110,12 +121,17 @@ void ActuatorDisk::execute()
   m_u_mean_disk = 0;
   surface_integral(m_u_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs((u*normal)[0]));
   m_u_mean_disk /= m_area;
-
-  const Real ct = (-0.0000000011324*std::pow(m_u_in, 9))+(0.00000015357*std::pow(m_u_in, 8))+(-0.000009002*std::pow(m_u_in, 7))
-   + (0.00029882*std::pow(m_u_in, 6))+(-0.0061814*std::pow(m_u_in, 5))+(0.082595*std::pow(m_u_in, 4))+(-0.71366*m_u_in*m_u_in*m_u_in)+(3.8637*m_u_in*m_u_in)+(-12.101*m_u_in)+17.983;
-
-  m_f = -0.5 * ct * m_u_in*m_u_in / 0.1;//(m_dt * m_u_mean_disk);
-  CFinfo << "force set to " << m_f << ", CT: " << ct << "m_u_mean_disk :" << m_u_mean_disk << CFendl;
+    if(m_ct<0){
+		 m_a = (0.0000000001445*std::pow(m_u_mean_disk, 9))-(0.000000019961*std::pow(m_u_mean_disk, 8))+(0.000001186*std::pow(m_u_mean_disk, 7))
+   - (0.000039578*std::pow(m_u_mean_disk, 6))+(0.0008127*std::pow(m_u_mean_disk, 5))-(0.010591*std::pow(m_u_mean_disk, 4))+(0.08739*m_u_mean_disk*m_u_mean_disk*m_u_mean_disk)+(-0.44331*m_u_mean_disk*m_u_mean_disk)+(1.2751*m_u_mean_disk)-1.4627;
+        } 
+		else{
+		 m_a = (1-std::sqrt(1-m_ct))/2;	
+		}
+  //const Real a = (-0.00000000012263*std::pow(m_u_in, 9))+(0.000000013959*std::pow(m_u_in, 8))+(-0.00000064771*std::pow(m_u_in, 7))
+   //+ (0.000015459*std::pow(m_u_in, 6))+(-0.00019067*std::pow(m_u_in, 5))+(0.00084845*std::pow(m_u_in, 4))+(0.0062973*m_u_in*m_u_in*m_u_in)+(-0.099681*m_u_in*m_u_in)+(0.49009*m_u_in)-0.74874;
+  m_f = -2 * m_a * m_u_mean_disk*m_u_mean_disk / m_th/(1-m_a);//(m_dt * m_u_mean_disk);
+  CFinfo << "force set to " << m_f << ", a: " << m_a << "m_u_mean_disk :" << m_u_mean_disk << CFendl;
 
   Handle<ProtoAction> set_force(get_child("SetForce"));
   set_force->execute();
