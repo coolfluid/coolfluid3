@@ -62,7 +62,7 @@ void NavierStokes::set_assembly_expression(const std::string& action_name)
                                 + 0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
             _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
             _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u), // Time, standard and SUPG
-            _a[u[_i]] += transpose(N(u) + tau_su*u_adv*nabla(u)) * g[_i] * Tref / T + lit(m_body_force_enabler) * transpose(N(u))*g[_i]
+            _a[u[_i]] += transpose(N(u) + tau_su*u_adv*nabla(u)) * g[_i] * density_ratio
           )
         ),
         for_specialized_elements
@@ -70,7 +70,7 @@ void NavierStokes::set_assembly_expression(const std::string& action_name)
           supg_specialized(p, u, u_adv, nu_eff, lit(dt()), _A, _T),
           element_quadrature
           (
-            _a[u[_i]] += transpose(N(u) + tau_su*u_adv*nabla(u)) * g[_i] * Tref / T + lit(m_body_force_enabler) * transpose(N(u))*g[_i]
+            _a[u[_i]] += transpose(N(u) + tau_su*u_adv*nabla(u)) * g[_i] * density_ratio
           )
         ),
         system_rhs += -_A * _x + _a,

@@ -47,7 +47,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   LSSActionUnsteady(name),
   u("Velocity", "navier_stokes_solution"),
   p("Pressure", "navier_stokes_solution"),
-  T("Temperature", "scalar_advection_solution"),
+  density_ratio("density_ratio", "density_ratio"), // (rho - rho_ref) / rho
   u_adv("AdvectionVelocity", "linearized_velocity"),
   u1("AdvectionVelocity1", "linearized_velocity"),
   u2("AdvectionVelocity2", "linearized_velocity"),
@@ -55,8 +55,7 @@ NavierStokes::NavierStokes(const std::string& name) :
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   g("Force", "body_force"),
   rho("density"),
-  nu("kinematic_viscosity"),
-  Tref("reference_temperature")
+  nu("kinematic_viscosity")
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("linearized_velocity")("navier_stokes_viscosity");
   properties().add("restart_field_tags", restart_field_tags);
@@ -81,12 +80,6 @@ NavierStokes::NavierStokes(const std::string& name) :
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
-
-  options().add("enable_body_force", false)
-    .pretty_name("Enable Body Force")
-    .description("Set to true to enable the body force term")
-    .attach_trigger(boost::bind(&NavierStokes::trigger_enable_body_force, this))
-    .mark_basic();
 
   set_solution_tag("navier_stokes_solution");
 
@@ -165,27 +158,13 @@ void NavierStokes::on_initial_conditions_set(InitialConditions& initial_conditio
   Handle<ProtoAction> visc_ic(initial_conditions.create_initial_condition("navier_stokes_viscosity", "cf3.solver.ProtoAction"));
   visc_ic->set_expression(nodes_expression(nu_eff = nu));
 
-  // Initial condition for the temperature field, defaulting to the reference temperature
-  Handle<ProtoAction> temp_ic(initial_conditions.create_initial_condition("boussinesq_init_tref", "cf3.solver.ProtoAction"));
-  temp_ic->set_expression(nodes_expression(T = Tref));
-
   m_initial_conditions = initial_conditions.create_initial_condition(solution_tag());
 
   // Use a proto action to set the linearized_velocity easily
   Handle<ProtoAction> lin_vel_ic (initial_conditions.create_initial_condition("linearized_velocity", "cf3.solver.ProtoAction"));
   lin_vel_ic->set_expression(nodes_expression(group(u_adv = u, u1 = u, u2 = u, u3 = u)));
-}
 
-void NavierStokes::trigger_enable_body_force()
-{
-  if(options().value<bool>("enable_body_force"))
-  {
-    m_body_force_enabler = 1.;
-  }
-  else
-  {
-    m_body_force_enabler = 0.;
-  }
+  initial_conditions.create_initial_condition("density_ratio")->options().set("density_ratio", 0.);
 }
 
 } // UFEM

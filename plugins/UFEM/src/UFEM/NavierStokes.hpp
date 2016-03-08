@@ -48,9 +48,6 @@ private:
   /// Create the solver structure, based on the choice of specialized code
   void trigger_assembly();
 
-  /// Trigger on enable_body_force change
-  void trigger_enable_body_force();
-
   /// Called when the initial condition manager is changed
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
 
@@ -83,23 +80,17 @@ private:
   FieldVariable<6, ScalarField> nu_eff;
 
   /// Temperature field
-  FieldVariable<7, ScalarField> T;
+  FieldVariable<7, ScalarField> density_ratio;
 
   // Body force
   FieldVariable<8, VectorField> g;
-
 
   /// Access to the physics
   PhysicsConstant rho;
   PhysicsConstant nu;
 
-  PhysicsConstant Tref;
-
   /// Storage of the stabilization coefficients
   Real tau_ps, tau_su, tau_bulk;
-
-  /// 1 if body force term is active
-  Real m_body_force_enabler = 0;
 
   Handle<solver::ActionDirector> m_assembly;
   Handle<solver::ActionDirector> m_update;

@@ -37,7 +37,6 @@ disk.th = 1.
 disk.zh = 0.
 disk.yh = 0.
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-ns_solver.enable_body_force = True
 
 mesh = domain.load_mesh(file = cf.URI('Actuator.msh'), name = 'Mesh')
 
@@ -47,6 +46,7 @@ ns_solver.regions = [mesh.topology.uri()]
 
 # initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = initial_velocity
+solver.InitialConditions.density_ratio.density_ratio = 1. # This enables the body force
 
 # set physical constants
 physics.density = rho

@@ -9,8 +9,8 @@ h = 1.
 nu = 0.0001
 re_tau = 395.
 u_tau = re_tau * nu / h
-a_tau = u_tau**2 / (2.*h)
-Uc = u_tau**2*h/(2.*nu)
+a_tau = u_tau**2 / h
+Uc = u_tau**2*h/nu
 
 # Boundary and initial conditions
 u_wall = [0., 0.]
@@ -46,7 +46,6 @@ solver = model.create_solver('cf3.UFEM.Solver')
 yplus = solver.add_unsteady_solver('cf3.solver.actions.YPlus')
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-nstokes.enable_body_force = True
 
 # Add the k-epsilon turbulence model solver(ke)
 ke = solver.add_unsteady_solver('cf3.UFEM.ChienKEpsilon')
@@ -122,8 +121,23 @@ yplus.regions = [mesh.topology.bottom.uri(), mesh.topology.top.uri()]
 nstokes.regions = [mesh.topology.uri()]
 ke.regions = [mesh.topology.uri()]
 
+for lss in [nstokes.LSS, ke.LSS.LSS]:
+    lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'
+    lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.add_parameter(name = 'ML output', value = 0)
+    lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.default_values = 'NSSA'
+    lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.aggregation_type = 'Uncoupled'
+    lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_type = 'symmetric block Gauss-Seidel'#'Chebyshev'
+    lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_sweeps = 2
+    lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_pre_or_post = 'post'
+
+    lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block GMRES'
+    lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-5
+    lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 2000
+    lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.num_blocks = 1000
+
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_wall
+solver.InitialConditions.density_ratio.density_ratio = 1.
 # ic_u = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_solution')
 # ic_u.variable_name = 'Velocity'
 # ic_u.regions = [mesh.topology.uri()]

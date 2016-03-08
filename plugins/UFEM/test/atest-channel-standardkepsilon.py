@@ -7,8 +7,8 @@ h = 1.
 nu = 0.0001
 re_tau = 395.
 u_tau = re_tau * nu / h
-a_tau = u_tau**2 / (2.*h)
-Uc = u_tau**2*h/(2.*nu)
+a_tau = u_tau**2 / h
+Uc = u_tau**2*h/nu
 
 # Boundary and initial conditions
 u_wall = [0., 0.]
@@ -42,7 +42,6 @@ solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-nstokes.enable_body_force = True
 
 # Add the k-epsilon turbulence model solver(ke)
 ke = solver.add_unsteady_solver('cf3.UFEM.StandardKEpsilon')
@@ -128,6 +127,7 @@ ke.regions = [mesh.topology.uri()]
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_wall
+solver.InitialConditions.density_ratio.density_ratio = 1.
 # ic_u = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_solution')
 # ic_u.variable_name = 'Velocity'
 # ic_u.regions = [mesh.topology.uri()]

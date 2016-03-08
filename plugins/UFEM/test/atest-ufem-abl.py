@@ -31,7 +31,6 @@ solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-nstokes.enable_body_force = True
 
 # Add the k-epsilon turbulence model solver(ke)
 ke = solver.add_unsteady_solver('cf3.UFEM.StandardKEpsilon')
@@ -134,7 +133,7 @@ writer.file = cf.URI('atest-ufem-abl-{iteration}.vtm')
 # Time setup
 time = model.create_time()
 time.time_step = 25.
-time.end_time = 2000.
+time.end_time = 200.
 
 probe0 = solver.add_probe(name = 'Probe', parent = nstokes, dict = mesh.geometry)
 probe0.Log.variables = ['Velocity[0]', 'EffectiveViscosity']

@@ -9,7 +9,6 @@ nu = 0.0001
 re_tau = 180.
 u_tau = re_tau * nu / h
 a_tau = re_tau**2*nu**2/h**3
-Uc = a_tau/nu*(h**2/2.)
 
 y_segs = 32
 x_size = 4.*pi*h
@@ -37,7 +36,6 @@ solver = model.create_solver('cf3.UFEM.Solver')
 yplus = solver.add_unsteady_solver('cf3.solver.actions.YPlus')
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-nstokes.enable_body_force = True
 
 # Add the Spalat-Allmaras turbulence model
 satm = solver.add_unsteady_solver('cf3.UFEM.SpalartAllmaras')
@@ -121,6 +119,7 @@ u_wall = [0., 0.]
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_wall
 solver.InitialConditions.spalart_allmaras_solution.SAViscosity = 0.1
+solver.InitialConditions.density_ratio.density_ratio = 1.
 
 ic_g = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'body_force')
 ic_g.variable_name = 'Force'
@@ -157,7 +156,7 @@ writer.file = cf.URI('atest-channel-spalart-allmaras-{iteration}.vtm')
 # Time setup
 time = model.create_time()
 time.time_step = 10.
-time.end_time = 500.
+time.end_time = 3000.
 
 # Run the simulation
 model.simulate()

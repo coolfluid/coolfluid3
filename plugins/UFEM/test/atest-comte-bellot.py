@@ -33,12 +33,11 @@ env.log_level = 3
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
 domain = model.create_domain()
-physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
+physics = model.create_physics('cf3.UFEM.KEpsilonPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-nstokes.enable_body_force = False
 nstokes.options.theta = 1.
 
 # Add the k-epsilon turbulence model solver(ke)
