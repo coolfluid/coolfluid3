@@ -51,9 +51,6 @@ private:
   ///On region set
   virtual void on_regions_set();
 
-  /// Trigger on enable_body_force change
-  void trigger_enable_body_force();
-
   /// Called when the initial condition manager is changed
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
 
@@ -85,31 +82,30 @@ private:
   /// Velocity at time n-2
   FieldVariable<6, VectorField> U2;
   /// Velocity at time n-3
-  //FieldVariable<7, VectorField> U3;
+  FieldVariable<7, VectorField> U3;
   /// Effective viscosity field
   FieldVariable<8, ScalarField> nu_eff;
   // Body force
   FieldVariable<9, VectorField> g;
   /// Temperature field
-  FieldVariable<7, ScalarField> T;
+  FieldVariable<7, ScalarField> density_ratio;
 
   /// Access to the physics
   PhysicsConstant rho;
   PhysicsConstant nu;
 
-  PhysicsConstant Tref;
-
   /// Storage of the stabilization coefficients
-  Real tau_ps, tau_su, tau_bulk, theta;
-
-  /// 1 if body force term is active
-  Real m_body_force_enabler = 0;
+  Real tau_ps, tau_su, tau_bulk, theta = 0.5;
+  std::vector<Real> ct;
 
   Handle<solver::ActionDirector> m_assembly;
   Handle<solver::ActionDirector> m_update;
   Handle<common::Action> m_initial_conditions;
 
   ComputeTau compute_tau;
+
+  // Actuator disk regions
+  std::vector<Handle<mesh::Region>> m_actuator_regions;
 };
 } // Adjoint
 } // UFEM
