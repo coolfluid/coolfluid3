@@ -119,9 +119,9 @@ void Adjoint::trigger_assembly()
     "AdjointAssembly",
     elements_expression
     (
-      boost::mpl::vector<
-          mesh::LagrangeP1::Triag2D
-          //mesh::LagrangeP1::Tetra3D
+      boost::mpl::vector2<
+          mesh::LagrangeP1::Triag2D,
+          mesh::LagrangeP1::Tetra3D
           >(),
       group
       (
@@ -137,7 +137,7 @@ void Adjoint::trigger_assembly()
                                       + 0.5*u[_i]*(N(U) - tau_su*u*nabla(U))) * nabla(U)[_j],  // skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * g[_i] * density_ratio
+                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
@@ -148,9 +148,8 @@ void Adjoint::trigger_assembly()
   for(auto&& region : m_actuator_regions)
   {
       auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D>(), group(
-                                                      _a[U] = _0, // set element vector to zero
-                                                      element_quadrature(_a[U[0]] +=  transpose(N(U) - tau_su*u*nabla(U)) * u[0] * u[0]* density_ratio * 6 * 0.071 * (1-0.071)/0.5,
-                                                                         _A(U[0], U[0]) += transpose(N(U))*N(u)*4 * 0.071/(1-0.071)/0.5
+                                                       // set element vector to zero
+                                                      element_quadrature(_A(U[0], U[0]) += transpose(N(U))*N(u)*4 * 0.0719/(1-0.0719)/0.4
                                                                                        ), // integrate
                                                       system_rhs +=-_A * _x + _a // update global system RHS with element vector
                                                    )));

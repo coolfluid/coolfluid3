@@ -12,7 +12,7 @@ mu = 0.0000178
 D=0.5
 
 tstep = 1.
-num_steps = 3.
+num_steps = 6.
 
 env = cf.Core.environment()
 env.log_level = 4
@@ -41,7 +41,7 @@ mesh = domain.load_mesh(file = cf.URI('actuator2d.msh'), name = 'Mesh')
 # actve region
 disk.regions = [mesh.topology.actuator.uri(), mesh.topology.actuator.uri()]
 ns_solver.regions = [mesh.topology.uri()]
-ad_solver.regions = [mesh.topology.uri()]#, mesh.topology.actuator.uri()]
+ad_solver.regions = [mesh.topology.uri(), mesh.topology.actuator.uri()]
 # initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = initial_velocity
 solver.InitialConditions.density_ratio.density_ratio = 1. # This enables the body force
