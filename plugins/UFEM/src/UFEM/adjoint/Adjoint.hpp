@@ -95,7 +95,8 @@ private:
   PhysicsConstant nu;
 
   /// Storage of the stabilization coefficients
-  Real tau_ps, tau_su, tau_bulk, theta = 0.5;
+  Real tau_ps, tau_su, tau_bulk;
+  Real theta = 1.0;
   std::vector<Real> ct;
 
   Handle<solver::ActionDirector> m_assembly;

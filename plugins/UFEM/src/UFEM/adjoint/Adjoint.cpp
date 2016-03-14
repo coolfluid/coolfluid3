@@ -122,35 +122,37 @@ void Adjoint::trigger_assembly()
   m_assembly->clear();
   m_update->clear();
   m_assembly->add_component(create_proto_action
-                            (
-                              "AdjointAssembly",
-                              elements_expression
-                              (
-                                boost::mpl::vector2<
-                                    mesh::LagrangeP1::Triag2D,
-                                    mesh::LagrangeP1::Tetra3D
-                                    >(),
-                                group
-                                (
-                                  _A = _0, _T = _0, _a = _0,
-                                    compute_tau.apply(U_adv, nu_eff, lit(dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
-                                    element_quadrature
-                                    (
-                                            _A(q    , U[_i]) += transpose(N(q) + tau_ps*U_adv*nabla(q)*0.5) * nabla(U)[_i] + tau_ps * transpose(nabla(q)[_i]) * U_adv*nabla(U), // Standard continuity + PSPG for advection
-                                            _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
-                                            _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U) - transpose(transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U)), // Diffusion + advection
-                                            _A(U[_i], q)     += transpose(N(U) + tau_su*U_adv*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
-                                            _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i] // Bulk viscosity
-                                                                + 0.5*U_adv[_i]*(N(U) + tau_su*U_adv*nabla(U))) * nabla(U)[_j],  // skew symmetric part of advection (standard +SUPG)
-                                            _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
-                                            _T(U[_i], U[_i]) += -transpose(N(U) + tau_su*U_adv*nabla(U)) * N(U) // Time, standard and SUPG
-                                    ),
-                                  system_rhs += -_A * _x,
-                                  _A(q) = _A(q) / theta,
-                                  system_matrix += invdt() * _T + theta * _A
-                                )
-                              )
-                            ));
+  (
+    "AdjointAssembly",
+    elements_expression
+    (
+      boost::mpl::vector<
+          mesh::LagrangeP1::Triag2D
+          //mesh::LagrangeP1::Tetra3D
+          >(),
+      group
+      (
+        _A = _0, _T = _0, _a = _0,
+          compute_tau.apply(U_adv, nu_eff, lit(dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+          element_quadrature
+          (
+                  _A(q    , U[_i]) += transpose(N(q) + tau_ps*U_adv*nabla(q)*0.5) * nabla(U)[_i] + tau_ps * transpose(nabla(q)[_i]) * U_adv*nabla(U), // Standard continuity + PSPG for advection
+                  _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
+                  _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) + transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U),// - transpose(transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U)), // Diffusion + advection
+                  _A(U[_i], q)     += transpose(N(U) + tau_su*U_adv*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
+                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i] // Bulk viscosity
+                                      + 0.5*U_adv[_i]*(N(U) + tau_su*U_adv*nabla(U))) * nabla(U)[_j],  // skew symmetric part of advection (standard +SUPG)
+                  _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
+                  _T(U[_i], U[_i]) += transpose(N(U) + tau_su*U_adv*nabla(U)) * N(U), // Time, standard and SUPG
+                  _a[U[_i]] += transpose(N(U) + tau_su*U_adv*nabla(U)) * g[_i] * density_ratio
+          ),
+          _cout << transpose(_a) << "\n",
+        system_rhs += -_A * _x + _a,
+        _A(q) = _A(q) / theta,
+        system_matrix += invdt() * _T + theta * _A
+      )
+    )
+  ));
   for(auto&& region : m_actuator_regions)
   {
       auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D>(), group(

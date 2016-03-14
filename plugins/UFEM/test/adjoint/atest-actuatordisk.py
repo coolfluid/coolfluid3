@@ -99,7 +99,7 @@ time.end_time = num_steps*tstep
 # solver.create_fields()
 # solver.InitialConditions.execute()
 
-
+# solver.TimeLoop.options.disabled_actions = ['NavierStokes']
 # run the simulation
 model.simulate()
 
