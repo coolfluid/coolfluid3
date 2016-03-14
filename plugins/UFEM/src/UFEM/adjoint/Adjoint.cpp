@@ -138,13 +138,13 @@ void Adjoint::trigger_assembly()
           (
                   _A(q    , U[_i]) += transpose(N(q) + tau_ps*U_adv*nabla(q)*0.5) * nabla(U)[_i] + tau_ps * transpose(nabla(q)[_i]) * U_adv*nabla(U), // Standard continuity + PSPG for advection
                   _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
-                  _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) + transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U),// - transpose(transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U)), // Diffusion + advection
+                  _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U) - transpose(transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U)), // Diffusion + advection
                   _A(U[_i], q)     += transpose(N(U) + tau_su*U_adv*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
                   _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i] // Bulk viscosity
                                       + 0.5*U_adv[_i]*(N(U) + tau_su*U_adv*nabla(U))) * nabla(U)[_j],  // skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
-                  _T(U[_i], U[_i]) += transpose(N(U) + tau_su*U_adv*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += transpose(N(U) + tau_su*U_adv*nabla(U)) * g[_i] * density_ratio
+                  _T(U[_i], U[_i]) += transpose(N(U) + tau_su*U_adv*nabla(U)) * N(U) // Time, standard and SUPG
+                  //_a[U[_i]] += transpose(N(U) + tau_su*U_adv*nabla(U)) * g[_i] * density_ratio
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,

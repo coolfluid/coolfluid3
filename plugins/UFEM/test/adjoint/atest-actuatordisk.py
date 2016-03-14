@@ -29,7 +29,7 @@ physics = model.create_physics('cf3.UFEM.KEpsilonPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add a concrete Navier-Stokes finite element solver
-disk = solver.add_unsteady_solver('cf3.UFEM.adjoint.ActuatorDisk3D')
+disk = solver.add_unsteady_solver('cf3.UFEM.adjoint.ActuatorDisk')
 disk.area = D
 disk.u_in = u_in[0]
 disk.th = 0.05
@@ -41,11 +41,11 @@ mesh = domain.load_mesh(file = cf.URI('actuator2d.msh'), name = 'Mesh')
 # actve region
 disk.regions = [mesh.topology.actuator.uri(), mesh.topology.actuator.uri()]
 ns_solver.regions = [mesh.topology.uri()]
-ad_solver.regions = [mesh.topology.uri()]#, mesh.topology.actuator.uri()]
+ad_solver.regions = [mesh.topology.uri(), mesh.topology.actuator.uri()]
 # initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = initial_velocity
 solver.InitialConditions.density_ratio.density_ratio = 1. # This enables the body force
-solver.InitialConditions.adjoint_solution.AdjVelocity = initial_velocity
+solver.InitialConditions.adjoint_solution.AdjVelocity = [0., 0.]
 # set physical constants
 physics.density = rho
 physics.dynamic_viscosity = mu
@@ -55,7 +55,7 @@ bc = ns_solver.BoundaryConditions
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').value = u_in
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').value = 0.
 bca = ad_solver.BoundaryConditions
-bca.add_constant_bc(region_name = 'inlet', variable_name = 'AdjVelocity').value = u_in
+bca.add_constant_bc(region_name = 'inlet', variable_name = 'AdjVelocity').value = [0., 0.]
 bca.add_constant_bc(region_name = 'outlet', variable_name = 'AdjPressure').value = 0.
 
 # Solver setup
@@ -96,10 +96,10 @@ time = model.create_time()
 time.time_step = tstep
 time.end_time = num_steps*tstep
 
-# solver.create_fields()
-# solver.InitialConditions.execute()
+solver.create_fields()
+solver.InitialConditions.execute()
 
-# solver.TimeLoop.options.disabled_actions = ['NavierStokes']
+solver.TimeLoop.options.disabled_actions = ['NavierStokes']
 # run the simulation
 model.simulate()
 
