@@ -146,7 +146,6 @@ void Adjoint::trigger_assembly()
                   _T(U[_i], U[_i]) += transpose(N(U) + tau_su*U_adv*nabla(U)) * N(U), // Time, standard and SUPG
                   _a[U[_i]] += transpose(N(U) + tau_su*U_adv*nabla(U)) * g[_i] * density_ratio
           ),
-          _cout << transpose(_a) << "\n",
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
         system_matrix += invdt() * _T + theta * _A
