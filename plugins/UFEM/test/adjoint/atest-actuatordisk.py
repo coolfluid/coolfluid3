@@ -41,7 +41,7 @@ mesh = domain.load_mesh(file = cf.URI('actuator2d.msh'), name = 'Mesh')
 # actve region
 disk.regions = [mesh.topology.actuator.uri(), mesh.topology.actuator.uri()]
 ns_solver.regions = [mesh.topology.uri()]
-ad_solver.regions = [mesh.topology.uri(), mesh.topology.actuator.uri()]
+ad_solver.regions = [mesh.topology.uri()]#, mesh.topology.actuator.uri()]
 # initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = initial_velocity
 solver.InitialConditions.density_ratio.density_ratio = 1. # This enables the body force
@@ -96,11 +96,17 @@ time = model.create_time()
 time.time_step = tstep
 time.end_time = num_steps*tstep
 
-solver.create_fields()
-solver.InitialConditions.execute()
+# solver.create_fields()
+# solver.InitialConditions.execute()
 
-solver.TimeLoop.options.disabled_actions = ['NavierStokes']
-# run the simulation
+# run the simulation (forward, NS only)
+solver.TimeLoop.options.disabled_actions = ['Adjoint']
+model.simulate()
+
+# run adjoint, starting from converged NS solution
+solver.TimeLoop.options.disabled_actions = ['NavierStokes'] # NS disabled, adjoint enabled
+solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
+time.end_time += num_steps*tstep # add again the same number of steps as in the forward solution
 model.simulate()
 
 # lss.print_system("adjlss.tec")

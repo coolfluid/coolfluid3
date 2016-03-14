@@ -50,10 +50,6 @@ Adjoint::Adjoint(const std::string& name) :
   p("Pressure", "navier_stokes_solution"),
   U("AdjVelocity", "adjoint_solution"),
   q("AdjPressure", "adjoint_solution"),
-  U_adv("AdjAdvectionVelocity", "adj_linearized_velocity"),
-  U1("AdjAdvectionVelocity1", "adj_linearized_velocity"),
-  U2("AdjAdvectionVelocity2", "adj_linearized_velocity"),
-  U3("AdjAdvectionVelocity3", "adj_linearized_velocity"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   density_ratio("density_ratio", "density_ratio"),
   g("Force", "body_force"),
@@ -90,9 +86,6 @@ Adjoint::Adjoint(const std::string& name) :
 
   // This ensures that the linear system matrix is reset to zero each timestep
   create_component<math::LSS::ZeroLSS>("ZeroLSS")->options().set("reset_solution", false);
-  // Extrapolate the velocity
-  add_component(create_proto_action("LinearizeU", nodes_expression(U_adv = 2.1875*U - 2.1875*U1 + 1.3125*U2 - 0.3125*U3)));
-  //add_component(create_proto_action("LinearizeU", nodes_expression(U_adv = U)));
 
   // Container for the assembly actions. Will be filled depending on the value of options, such as using specializations or not
   m_assembly = create_component<solver::ActionDirector>("Assembly");
@@ -133,18 +126,18 @@ void Adjoint::trigger_assembly()
       group
       (
         _A = _0, _T = _0, _a = _0,
-          compute_tau.apply(U_adv, nu_eff, lit(dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+          compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
           element_quadrature
           (
-                  _A(q    , U[_i]) += transpose(N(q) + tau_ps*U_adv*nabla(q)*0.5) * nabla(U)[_i] + tau_ps * transpose(nabla(q)[_i]) * U_adv*nabla(U), // Standard continuity + PSPG for advection
+                  _A(q    , U[_i]) += transpose(N(q) - tau_ps*u*nabla(q)*0.5) * nabla(U)[_i] + tau_ps * transpose(nabla(q)[_i]) * u*nabla(U), // Standard continuity + PSPG for advection
                   _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
-                  _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U) - transpose(transpose(N(u) + tau_su*U_adv*nabla(U)) * U_adv*nabla(U)), // Diffusion + advection
-                  _A(U[_i], q)     += transpose(N(U) + tau_su*U_adv*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
+                  _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U) - transpose(transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U)), // Diffusion + advection
+                  _A(U[_i], q)     += transpose(N(U) - tau_su*u*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
                   _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i] // Bulk viscosity
-                                      + 0.5*U_adv[_i]*(N(U) + tau_su*U_adv*nabla(U))) * nabla(U)[_j],  // skew symmetric part of advection (standard +SUPG)
+                                      + 0.5*u[_i]*(N(U) - tau_su*u*nabla(U))) * nabla(U)[_j],  // skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
-                  _T(U[_i], U[_i]) += transpose(N(U) + tau_su*U_adv*nabla(U)) * N(U) // Time, standard and SUPG
-                  //_a[U[_i]] += transpose(N(U) + tau_su*U_adv*nabla(U)) * g[_i] * density_ratio
+                  _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
+                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * g[_i] * density_ratio
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
@@ -156,7 +149,7 @@ void Adjoint::trigger_assembly()
   {
       auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D>(), group(
                                                       _a[U] = _0, // set element vector to zero
-                                                      element_quadrature(_a[U[0]] +=  transpose(N(U) + tau_su*U_adv*nabla(U)) * u[0] * u[0]* density_ratio * 6 * 0.071 * (1-0.071)/0.5,
+                                                      element_quadrature(_a[U[0]] +=  transpose(N(U) - tau_su*u*nabla(U)) * u[0] * u[0]* density_ratio * 6 * 0.071 * (1-0.071)/0.5,
                                                                          _A(U[0], U[0]) += transpose(N(U))*N(u)*4 * 0.071/(1-0.071)/0.5
                                                                                        ), // integrate
                                                       system_rhs +=-_A * _x + _a // update global system RHS with element vector
@@ -168,9 +161,6 @@ void Adjoint::trigger_assembly()
 
   m_update->add_component(create_proto_action("Update", nodes_expression(group
   (
-    U3 = U2,
-    U2 = U1,
-    U1 = U,
     U += solution(U),
     q += solution(q)
   ))));
@@ -207,11 +197,8 @@ void Adjoint::on_regions_set()
 void Adjoint::on_initial_conditions_set(InitialConditions& initial_conditions)
 {
   m_initial_conditions = initial_conditions.create_initial_condition(solution_tag());
-
-  // Use a proto action to set the linearized_velocity easily
-  Handle<ProtoAction> lin_vel_ic (initial_conditions.create_initial_condition("adj_linearized_velocity", "cf3.solver.ProtoAction"));
-  lin_vel_ic->set_expression(nodes_expression(group(U_adv = U, U1 = U, U2 = U, U3 = U)));
 }
+
 } // adjoint
 } // UFEM
 } // cf3

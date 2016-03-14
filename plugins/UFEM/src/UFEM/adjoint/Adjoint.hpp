@@ -75,20 +75,12 @@ private:
   FieldVariable<2, ScalarField> q;
   /// Velocity adjoint
   FieldVariable<3, VectorField> U;
-  /// The linearized advection velocity
-  FieldVariable<4, VectorField> U_adv;
-  /// Velocity at time n-1
-  FieldVariable<5, VectorField> U1;
-  /// Velocity at time n-2
-  FieldVariable<6, VectorField> U2;
-  /// Velocity at time n-3
-  FieldVariable<7, VectorField> U3;
   /// Effective viscosity field
-  FieldVariable<8, ScalarField> nu_eff;
+  FieldVariable<4, ScalarField> nu_eff;
   // Body force
-  FieldVariable<9, VectorField> g;
+  FieldVariable<5, VectorField> g;
   /// Temperature field
-  FieldVariable<7, ScalarField> density_ratio;
+  FieldVariable<6, ScalarField> density_ratio;
 
   /// Access to the physics
   PhysicsConstant rho;
