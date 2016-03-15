@@ -129,12 +129,12 @@ void Adjoint::trigger_assembly()
           compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
           element_quadrature
           (
-                  _A(q    , U[_i]) += transpose(N(q) - tau_ps*u*nabla(q)*0.5) * nabla(U)[_i] + tau_ps * transpose(nabla(q)[_i]) * u*nabla(U), // Standard continuity + PSPG for advection
+                  _A(q    , U[_i]) += transpose(N(q) /*- tau_ps*u*nabla(q)*0.5*/) * nabla(U)[_i] + tau_ps * transpose(nabla(q)[_i]) * u*nabla(U), // Standard continuity + PSPG for advection
                   _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
-                  _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U) - transpose(transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U)), // Diffusion + advection
+                  _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U), // Diffusion + advection
                   _A(U[_i], q)     += transpose(N(U) - tau_su*u*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
-                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i] // Bulk viscosity
-                                      + 0.5*u[_i]*(N(U) - tau_su*u*nabla(U))) * nabla(U)[_j],  // skew symmetric part of advection (standard +SUPG)
+                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i])* nabla(U)[_j]-transpose(N(U) - tau_su*u*nabla(U)) * u[_j] * nabla(U)[_i], // Bulk viscosity + additional adjoint advection term
+                                    //  + 0.5*u[_i]*(N(U) - tau_su*u*nabla(U))) * nabla(U)[_j],   skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
                   _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
@@ -149,7 +149,7 @@ void Adjoint::trigger_assembly()
   {
       auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D>(), group(
                                                        // set element vector to zero
-                                                      element_quadrature(_A(U[0], U[0]) += transpose(N(U))*N(u)*4 * 0.0719/(1-0.0719)/0.4
+                                                      element_quadrature(_A(U[0], U[0]) += transpose(N(U) - tau_su*u*nabla(U))*N(u)*4 * 0.0719/(1-0.0719)/0.4
                                                                                        ), // integrate
                                                       system_rhs +=-_A * _x + _a // update global system RHS with element vector
                                                    )));
