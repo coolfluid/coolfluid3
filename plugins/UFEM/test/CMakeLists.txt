@@ -176,6 +176,11 @@ coolfluid_add_test( ATEST atest-ufem-abl
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/abl.msh
                     MPI 4)
 
+coolfluid_add_test( ATEST atest-ufem-abl-boussinesqconcentration
+                    PYTHON atest-ufem-abl-boussinesqconcentration.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/abl.msh
+                    MPI 4)
+
 add_subdirectory(demo)
 add_subdirectory(les)
 add_subdirectory(particles)

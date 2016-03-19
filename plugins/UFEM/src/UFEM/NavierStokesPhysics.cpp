@@ -96,6 +96,17 @@ NavierStokesPhysics::NavierStokesPhysics(const std::string& name): DynamicModel(
     .pretty_name("R Solid")
     .mark_basic();
 
+  options().add("D", 0.176e-4)
+    .description("Mass diffusivity (m^2/s)")
+    .pretty_name("D")
+    .mark_basic();
+
+  options().add("Sc_t", 0.7)
+    .description("Turbulent Schmidt number")
+    .pretty_name("Sc_t")
+    .mark_basic();
+
+
   //options().add<RealVector>("gravitatonal_acceleration")
   //  .description("Acceleration due to gravitation ()")
   //  .pretty_name("Gravitatonal_acceleration")

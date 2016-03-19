@@ -36,6 +36,8 @@ list( APPEND coolfluid_ufem_files
   BCWallFunctionNSImplicit.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
+  BoussinesqConcentration.hpp
+  BoussinesqConcentration.cpp
   BulkVelocity.hpp
   BulkVelocity.cpp
   ComputeCFL.hpp
