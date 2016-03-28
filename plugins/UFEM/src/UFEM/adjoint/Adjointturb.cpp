@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Adjoint.hpp"
+#include "Adjointturb.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -35,7 +35,7 @@
 
 namespace cf3 {
 namespace UFEM {
-namespace adjoint{
+namespace Adjointturb{
 
 using namespace common;
 using namespace solver;
@@ -43,21 +43,21 @@ using namespace solver::actions;
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-ComponentBuilder < Adjoint, LSSActionUnsteady, LibUFEMAdjoint > Adjoint_Builder;
+ComponentBuilder < Adjointturb, LSSActionUnsteady, LibUFEMAdjointturb > Adjointturb_Builder;
 
-Adjoint::Adjoint(const std::string& name) :
+Adjointturb::Adjointturb(const std::string& name) :
   LSSActionUnsteady(name),
   u("Velocity", "navier_stokes_solution"),
-  p("Pressure", "navier_stokes_solution"),
-  U("AdjVelocity", "adjoint_solution"),
-  q("AdjPressure", "adjoint_solution"),
+  U("AdjVelocity", "Adjointturb_solution"),
+  q("AdjPressure", "Adjointturb_solution"),
+  ka("Adjk", "Adjointke_solution"),
+  epsilona("Adjepsilon", "Adjointke_solution"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   density_ratio("density_ratio", "density_ratio"),
   g("Force", "body_force"),
-  rho("density"),
   nu("kinematic_viscosity")
 {
-  const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("adjoint_solution")("adj_linearized_velocity")("navier_stokes_viscosity");
+  const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("Adjointturb_solution")("adj_linearized_velocity")("navier_stokes_viscosity");
   properties().add("restart_field_tags", restart_field_tags);
 
   options().add("supg_type", compute_tau.data.op.supg_type_str)
@@ -74,7 +74,7 @@ Adjoint::Adjoint(const std::string& name) :
   options().add("ct", m_ct)
     .pretty_name("trust coefficient")
     .description("trust coefficient")
-    .attach_trigger(boost::bind(&Adjoint::trigger_ct, this)) // the function trigger_ct is called whenever the ct option is changed
+    .link_to(&m_ct)
     .mark_basic();
 
   options().add("area", m_area)
@@ -93,7 +93,7 @@ Adjoint::Adjoint(const std::string& name) :
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
     .link_to(&theta);
-
+   
    options().add("result", Real())
       .pretty_name("Result")
       .description("Result of the integration (read-only)")
@@ -101,7 +101,7 @@ Adjoint::Adjoint(const std::string& name) :
 
   options().option("regions").add_tag("norecurse");
 
-  set_solution_tag("adjoint_solution");
+  set_solution_tag("Adjointturb_solution");
 
   // This ensures that the linear system matrix is reset to zero each timestep
   create_component<math::LSS::ZeroLSS>("ZeroLSS")->options().set("reset_solution", false);
@@ -124,18 +124,18 @@ Adjoint::Adjoint(const std::string& name) :
   trigger_assembly();
 }
 
-Adjoint::~Adjoint()
+Adjointturb::~Adjointturb()
 {
 }
 
 
-void Adjoint::trigger_assembly()
+void Adjointturb::trigger_assembly()
 {
   m_assembly->clear();
   m_update->clear();
   m_assembly->add_component(create_proto_action
   (
-    "AdjointAssembly",
+    "AdjointturbAssembly",
     elements_expression
     (
       boost::mpl::vector2<
@@ -152,11 +152,11 @@ void Adjoint::trigger_assembly()
                   _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
                   _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U), // Diffusion + advection
                   _A(U[_i], q)     += transpose(N(U) - tau_su*u*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
-                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i])* nabla(U)[_j]-transpose(N(U) - tau_su*u*nabla(U)) * u[_j] * nabla(U)[_i], // Bulk viscosity + additional adjoint advection term
+                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i])* nabla(U)[_j]-transpose(N(U) - tau_su*u*nabla(U)) * u[_j] * nabla(U)[_i], // Bulk viscosity + additional Adjointturb advection term
                                     //  + 0.5*u[_i]*(N(U) - tau_su*u*nabla(U))) * nabla(U)[_j],   skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
+                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio + transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio + transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
@@ -164,14 +164,14 @@ void Adjoint::trigger_assembly()
       )
     )
   ));
-  Uint Nt = 0.;
+  Real Nt = 0.;
   for(auto&& region : m_actuator_regions)
   {
-      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<      mesh::LagrangeP1::Line2D,
-          mesh::LagrangeP1::Triag3D>(), group(
-                                                       // set element vector to zero Line2D Triag3D
+      m_a = (1-std::sqrt(1-m_ct[Nt]))/2;
+      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Line2D, mesh::LagrangeP1::Triag3D>(), group(
+                                                       // set element vector to zero
 													   _A(q) = _0, _A(U) = _0,
-                                                      element_quadrature(_A(U[_i], U[_i]) += transpose(N(U))*N(u)* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i]
+                                                      element_quadrature(_A(U[_i], U[_i]) += transpose(N(U))*N(u)* lit(4) * lit(m_a)/(lit(1)-lit(m_a))/lit(m_th) * density_ratio * normal[_i]
                                                                                        ), // integrate
                                                       system_rhs +=-_A * _x, // update global system RHS with element vector
 													  system_matrix += theta * _A
@@ -199,7 +199,7 @@ void Adjoint::trigger_assembly()
 }
 
 //On region set actuator disk components
-void Adjoint::on_regions_set()
+void Adjointturb::on_regions_set()
 {
 	if(m_updating == true){
 		return;
@@ -221,46 +221,22 @@ void Adjoint::on_regions_set()
   m_updating = false;
 }
 
-void Adjoint::on_initial_conditions_set(InitialConditions& initial_conditions)
+void Adjointturb::on_initial_conditions_set(InitialConditions& initial_conditions)
 {
   m_initial_conditions = initial_conditions.create_initial_condition(solution_tag());
 }
-void Adjoint::execute(){
+void Adjointturb::execute(){
 	LSSActionUnsteady::execute();
-	Uint Nt1 = 0.;
 	  for(auto&& region : m_actuator_regions)
   {
-	 FieldVariable<0, VectorField> U("AdjVelocity", "adjoint_solution");
+         FieldVariable<0, VectorField> U("AdjVelocity", "Adjointturb_solution");
      m_U_mean_disk = 0;
      surface_integral(m_U_mean_disk, std::vector<Handle<mesh::Region>>({region}), _abs((U*normal)[0]));
      m_U_mean_disk /= m_area;
 	 options().set("result",m_U_mean_disk);
-     CFinfo << "Mean adjoint Velocity " << m_U_mean_disk << ", a: " << m_a[Nt1] << CFendl;
-	 Nt1 +=1;
+     CFinfo << "Mean Adjointturb Velocity " << m_U_mean_disk << ", a: " << m_a << CFendl;
   }
-}
-
-void Adjoint::trigger_ct()
-{
-  auto new_ct = options().value<std::vector<Real>>("ct");
-  bool size_changed = new_ct.size() != m_ct.size(); // If the size changed, assembly needs to be ran again
-
-  // Resize if needed
-  m_ct.resize(new_ct.size());
-  m_a.resize(new_ct.size());
-
-  // Copy ct values
-  std::copy(new_ct.begin(), new_ct.end(), m_ct.begin());
-
-  // Update a values
-  std::transform(new_ct.begin(), new_ct.end(), m_a.begin(), [](Real ct) { return (1.-std::sqrt(1-ct))/2.; });
-
-  if(size_changed)
-  {
-    trigger_assembly();
-  }
-}
-
-} // adjoint
+	}
+} // Adjointturb
 } // UFEM
 } // cf3

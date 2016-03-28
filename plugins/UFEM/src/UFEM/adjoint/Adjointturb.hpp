@@ -44,15 +44,12 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Adjoint"; }
   virtual void execute();
-
-
+  
+ 
 private:
   /// Create the solver structure, based on the choice of specialized code
   void trigger_assembly();
-
-  // Update Ct list
-  void trigger_ct();
-
+  
   ///On region set
   virtual void on_regions_set();
 
@@ -95,10 +92,10 @@ private:
   Real tau_ps, tau_su, tau_bulk;
   Real theta = 1.0;
   std::vector<Real> m_ct;
-  std::vector<Real> m_a; // per-disk a
+  Real m_a = 0.;
   Real m_th = 0.;
   Real m_U_mean_disk = 0.;
-  Real m_area = 0.;
+  Real m_area = 0.;  
   bool m_updating = false;
 
   Handle<solver::ActionDirector> m_assembly;
