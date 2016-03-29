@@ -22,6 +22,8 @@ list( APPEND coolfluid_ufem_files
   AdjustForceTerm.cpp
   BCDirichletFunction.hpp
   BCDirichletFunction.cpp
+  BCAdjointpressure.hpp
+  BCAdjointpressure.cpp
   BCHoldValue.hpp
   BCHoldValue.cpp
   BCNeumannConstant.cpp

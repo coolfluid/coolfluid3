@@ -35,7 +35,7 @@
 
 namespace cf3 {
 namespace UFEM {
-namespace Adjointturb{
+namespace Adjoint{
 
 using namespace common;
 using namespace solver;
@@ -43,18 +43,18 @@ using namespace solver::actions;
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-ComponentBuilder < Adjointturb, LSSActionUnsteady, LibUFEMAdjointturb > Adjointturb_Builder;
+ComponentBuilder < Adjointturb, LSSActionUnsteady, LibUFEMAdjoint > Adjointturb_Builder;
 
 Adjointturb::Adjointturb(const std::string& name) :
   LSSActionUnsteady(name),
   u("Velocity", "navier_stokes_solution"),
+  p("Pressure", "navier_stokes_solution"),
   U("AdjVelocity", "Adjointturb_solution"),
   q("AdjPressure", "Adjointturb_solution"),
-  ka("Adjk", "Adjointke_solution"),
-  epsilona("Adjepsilon", "Adjointke_solution"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   density_ratio("density_ratio", "density_ratio"),
   g("Force", "body_force"),
+  rho("density"),
   nu("kinematic_viscosity")
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("Adjointturb_solution")("adj_linearized_velocity")("navier_stokes_viscosity");
@@ -74,7 +74,7 @@ Adjointturb::Adjointturb(const std::string& name) :
   options().add("ct", m_ct)
     .pretty_name("trust coefficient")
     .description("trust coefficient")
-    .link_to(&m_ct)
+    .attach_trigger(boost::bind(&Adjointturb::trigger_ct, this)) // the function trigger_ct is called whenever the ct option is changed
     .mark_basic();
 
   options().add("area", m_area)
@@ -93,7 +93,7 @@ Adjointturb::Adjointturb(const std::string& name) :
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
     .link_to(&theta);
-   
+
    options().add("result", Real())
       .pretty_name("Result")
       .description("Result of the integration (read-only)")
@@ -156,7 +156,7 @@ void Adjointturb::trigger_assembly()
                                     //  + 0.5*u[_i]*(N(U) - tau_su*u*nabla(U))) * nabla(U)[_j],   skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio + transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio + transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
+                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
@@ -164,14 +164,14 @@ void Adjointturb::trigger_assembly()
       )
     )
   ));
-  Real Nt = 0.;
+  Uint Nt = 0.;
   for(auto&& region : m_actuator_regions)
   {
-      m_a = (1-std::sqrt(1-m_ct[Nt]))/2;
-      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Line2D, mesh::LagrangeP1::Triag3D>(), group(
-                                                       // set element vector to zero
+      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<      mesh::LagrangeP1::Line2D,
+          mesh::LagrangeP1::Triag3D>(), group(
+                                                       // set element vector to zero Line2D Triag3D
 													   _A(q) = _0, _A(U) = _0,
-                                                      element_quadrature(_A(U[_i], U[_i]) += transpose(N(U))*N(u)* lit(4) * lit(m_a)/(lit(1)-lit(m_a))/lit(m_th) * density_ratio * normal[_i]
+                                                      element_quadrature(_A(U[_i], U[_i]) += transpose(N(U))*N(u)* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i]
                                                                                        ), // integrate
                                                       system_rhs +=-_A * _x, // update global system RHS with element vector
 													  system_matrix += theta * _A
@@ -227,6 +227,7 @@ void Adjointturb::on_initial_conditions_set(InitialConditions& initial_condition
 }
 void Adjointturb::execute(){
 	LSSActionUnsteady::execute();
+	Uint Nt1 = 0.;
 	  for(auto&& region : m_actuator_regions)
   {
          FieldVariable<0, VectorField> U("AdjVelocity", "Adjointturb_solution");
@@ -234,9 +235,32 @@ void Adjointturb::execute(){
      surface_integral(m_U_mean_disk, std::vector<Handle<mesh::Region>>({region}), _abs((U*normal)[0]));
      m_U_mean_disk /= m_area;
 	 options().set("result",m_U_mean_disk);
-     CFinfo << "Mean Adjointturb Velocity " << m_U_mean_disk << ", a: " << m_a << CFendl;
+     CFinfo << "Mean Adjointturb Velocity " << m_U_mean_disk << ", a: " << m_a[Nt1] << CFendl;
+	 Nt1 +=1;
   }
-	}
+}
+
+void Adjointturb::trigger_ct()
+{
+  auto new_ct = options().value<std::vector<Real>>("ct");
+  bool size_changed = new_ct.size() != m_ct.size(); // If the size changed, assembly needs to be ran again
+
+  // Resize if needed
+  m_ct.resize(new_ct.size());
+  m_a.resize(new_ct.size());
+
+  // Copy ct values
+  std::copy(new_ct.begin(), new_ct.end(), m_ct.begin());
+
+  // Update a values
+  std::transform(new_ct.begin(), new_ct.end(), m_a.begin(), [](Real ct) { return (1.-std::sqrt(1-ct))/2.; });
+
+  if(size_changed)
+  {
+    trigger_assembly();
+  }
+}
+
 } // Adjointturb
 } // UFEM
 } // cf3
