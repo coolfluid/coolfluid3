@@ -10,9 +10,16 @@ initial_velocity = [0., 0.]
 rho = 1.225
 mu = 0.0000178
 D=0.5
+l0 = 230.60
+I=0.06
+
+k_init = 1.5*(u_in[0]*I)**2
+k_wall = 1.5*(u_in[0]*I)**2
+e_init = 0.09**(3/4)*k_init**1.5/l0
+e_wall = 0.09**(3/4)*k_init**1.5/l0
 
 tstep = 1.
-num_steps = 3.
+num_steps = 6.
 
 env = cf.Core.environment()
 env.log_level = 4
@@ -36,16 +43,38 @@ disk.th = 0.05
 disk.ct = 0.267
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
 ad_solver = solver.add_unsteady_solver('cf3.UFEM.adjoint.Adjoint')
+#k-epsilon
+ke = solver.add_unsteady_solver('cf3.UFEM.StandardKEpsilon')
+ke.options.theta = 1.
+ke.options.l_max = 1000.
+
+
+
 mesh = domain.load_mesh(file = cf.URI('actuator2d.msh'), name = 'Mesh')
 
 # actve region
 disk.regions = [mesh.topology.actuator.uri(), mesh.topology.actuator.uri()]
 ns_solver.regions = [mesh.topology.uri()]
-ad_solver.regions = [mesh.topology.uri()]#, mesh.topology.actuator.uri()]
+ke.regions = [mesh.topology.uri()]
+ad_solver.regions = [mesh.topology.uri(), mesh.topology.actuator.uri()]
 # initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = initial_velocity
 solver.InitialConditions.density_ratio.density_ratio = 1. # This enables the body force
 solver.InitialConditions.adjoint_solution.AdjVelocity = [0., 0.]
+ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
+ic_k.variable_name = 'k'
+ic_k.value = [str(k_init)]
+ic_k.regions = [mesh.topology.uri()]
+
+ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
+ic_epsilon.variable_name = 'epsilon'
+ic_epsilon.value = [str(e_init)]
+ic_epsilon.regions = [mesh.topology.uri()]
+
+ic_wall_distance = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'wall_distance')
+ic_wall_distance.variable_name = 'wall_distance'
+ic_wall_distance.value = ['100']
+ic_wall_distance.regions = [mesh.topology.uri()]
 # set physical constants
 physics.density = rho
 physics.dynamic_viscosity = mu
@@ -58,6 +87,9 @@ bca = ad_solver.BoundaryConditions
 bca.add_constant_bc(region_name = 'inlet', variable_name = 'AdjVelocity').value = [0., 0.]
 bca.add_constant_bc(region_name = 'outlet', variable_name = 'AdjPressure').value = 0.
 
+bc = ke.LSS.BoundaryConditions
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'k').value = k_wall
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'epsilon').value = e_wall
 # Solver setup
 lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosFEVbrMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
 lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'
@@ -66,6 +98,22 @@ lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.default_values
 lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.aggregation_type = 'Uncoupled'
 lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_type = 'symmetric block Gauss-Seidel'#'Chebyshev'
 lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_sweeps = 2
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_pre_or_post = 'post'
+
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block GMRES'
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.convergence_tolerance = 1e-5
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 2000
+lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.num_blocks = 1000
+
+lss = ke.LSS.LSS
+lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.add_parameter(name = 'ML output', value = 0)
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.default_values = 'NSSA'
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.aggregation_type = 'Uncoupled'
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_type = 'symmetric block Gauss-Seidel'#'Chebyshev'
+
+
+lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_sweeps = 4
 lss.SolutionStrategy.Parameters.PreconditionerTypes.ML.MLSettings.smoother_pre_or_post = 'post'
 
 lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block GMRES'
@@ -104,7 +152,7 @@ solver.TimeLoop.options.disabled_actions = ['Adjoint']
 model.simulate()
 
 # run adjoint, starting from converged NS solution
-solver.TimeLoop.options.disabled_actions = ['NavierStokes'] # NS disabled, adjoint enabled
+solver.TimeLoop.options.disabled_actions = ['NavierStokes','StandardKEpsilon'] # NS disabled, adjoint enabled
 solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
 time.end_time += num_steps*tstep # add again the same number of steps as in the forward solution
 model.simulate()

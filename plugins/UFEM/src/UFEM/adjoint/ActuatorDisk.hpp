@@ -48,6 +48,9 @@ private:
   Real m_ct = 0.;
   Real m_th = 0.;
   Real m_u_mean_disk = 0.;
+  Real m_u_mean_disk2 = 0.;
+  Real m_u_mean_disk3 = 0.;
+
 
   cf3::solver::actions::Proto::SystemRHS rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;

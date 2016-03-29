@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_Adjoint_hpp
-#define cf3_UFEM_Adjoint_hpp
+#ifndef cf3_UFEM_Adjointturb_hpp
+#define cf3_UFEM_Adjointturb_hpp
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
@@ -29,20 +29,20 @@ namespace cf3 {
   namespace solver { class ActionDirector; }
 
 namespace UFEM {
-namespace adjoint {
-/// solver for the unsteady incompressible Adjoint equations
-class UFEM_API Adjoint : public LSSActionUnsteady
+namespace Adjoint {
+/// solver for the unsteady incompressible Adjointturb equations
+class UFEM_API Adjointturb : public LSSActionUnsteady
 {
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  Adjoint ( const std::string& name );
+  Adjointturb ( const std::string& name );
 
-  virtual ~Adjoint();
+  virtual ~Adjointturb();
 
   /// Get the class name
-  static std::string type_name () { return "Adjoint"; }
+  static std::string type_name () { return "Adjointturb"; }
   virtual void execute();
 
 
@@ -76,9 +76,9 @@ private:
   FieldVariable<0, VectorField> u;
   /// The pressure solution field
   FieldVariable<1, ScalarField> p;
-  /// Pressure adjoint
+  /// Pressure Adjointturb
   FieldVariable<2, ScalarField> q;
-  /// Velocity adjoint
+  /// Velocity Adjointturb
   FieldVariable<3, VectorField> U;
   /// Effective viscosity field
   FieldVariable<4, ScalarField> nu_eff;
@@ -110,9 +110,9 @@ private:
   // Actuator disk regions
   std::vector<Handle<mesh::Region>> m_actuator_regions;
 };
-} // Adjoint
+} // Adjointturb
 } // UFEM
 } // cf3
 
 
-#endif // cf3_UFEM_Adjoint_hpp
+#endif // cf3_UFEM_Adjointturb_hpp
