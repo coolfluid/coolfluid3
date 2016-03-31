@@ -23,6 +23,7 @@
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+#include "solver/actions/Proto/ElementGradDiv.hpp"
 #include "solver/actions/Iterate.hpp"
 #include "solver/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
@@ -35,7 +36,7 @@
 
 namespace cf3 {
 namespace UFEM {
-namespace Adjoint{
+namespace adjoint{
 
 using namespace common;
 using namespace solver;
@@ -48,7 +49,10 @@ ComponentBuilder < Adjointturb, LSSActionUnsteady, LibUFEMAdjoint > Adjointturb_
 Adjointturb::Adjointturb(const std::string& name) :
   LSSActionUnsteady(name),
   u("Velocity", "navier_stokes_solution"),
-  p("Pressure", "navier_stokes_solution"),
+  ka("ka", "Adjointke_solution"),
+  epsilona("epsilona", "Adjointke_solution"),
+  k("k", "ke_solution"),
+  epsilon("epsilon", "ke_solution"),
   U("AdjVelocity", "Adjointturb_solution"),
   q("AdjPressure", "Adjointturb_solution"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
@@ -57,7 +61,7 @@ Adjointturb::Adjointturb(const std::string& name) :
   rho("density"),
   nu("kinematic_viscosity")
 {
-  const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("Adjointturb_solution")("adj_linearized_velocity")("navier_stokes_viscosity");
+  const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("Adjointturb_solution")("adj_linearized_velocity")("navier_stokes_viscosity")("ke_solution")("keAdjoint_solution");
   properties().add("restart_field_tags", restart_field_tags);
 
   options().add("supg_type", compute_tau.data.op.supg_type_str)
@@ -156,7 +160,11 @@ void Adjointturb::trigger_assembly()
                                     //  + 0.5*u[_i]*(N(U) - tau_su*u*nabla(U))) * nabla(U)[_j],   skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
+                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio - (transpose(N(U) - tau_su*u*nabla(U))*ka*k) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*epsilon)
+                             +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu*transpose(nabla(U)[_i]))
+
+                // _a[U[_i]] -= transpose(N(U) - tau_su*u*nabla(U))
+                //_a[U[_i]] += 2*((ka*k/epsilon)+(epsilona))*k*(partial(u[_i], _j) + partial(u[_j], _i))*transpose(nabla(U))
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
@@ -167,10 +175,10 @@ void Adjointturb::trigger_assembly()
   Uint Nt = 0.;
   for(auto&& region : m_actuator_regions)
   {
-      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<      mesh::LagrangeP1::Line2D,
-          mesh::LagrangeP1::Triag3D>(), group(
+      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Line2D,
+                                                                                           mesh::LagrangeP1::Triag3D>(), group(
                                                        // set element vector to zero Line2D Triag3D
-													   _A(q) = _0, _A(U) = _0,
+                                                                                                           _A(q) = _0, _A(U) = _0,
                                                       element_quadrature(_A(U[_i], U[_i]) += transpose(N(U))*N(u)* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i]
                                                                                        ), // integrate
                                                       system_rhs +=-_A * _x, // update global system RHS with element vector
