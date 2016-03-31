@@ -10,7 +10,7 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/max.hpp>
-
+#include <solver/Action.hpp>
 #define BOOST_PROTO_MAX_ARITY 11
 #ifdef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
   #undef BOOST_MPL_LIMIT_METAFUNCTION_ARITY
@@ -23,13 +23,14 @@
 #include "../LSSActionUnsteady.hpp"
 #include "../NavierStokesPhysics.hpp"
 #include "../SUPG.hpp"
+#include "keAdjointbase.hpp"
 
 namespace cf3 {
 
   namespace solver { class ActionDirector; }
 
 namespace UFEM {
-namespace Adjoint {
+namespace adjoint {
 /// solver for the unsteady incompressible Adjointturb equations
 class UFEM_API Adjointturb : public LSSActionUnsteady
 {
@@ -75,7 +76,7 @@ private:
   /// The velocity solution field
   FieldVariable<0, VectorField> u;
   /// The pressure solution field
-  FieldVariable<1, ScalarField> p;
+  FieldVariable<1, ScalarField> epsilon;
   /// Pressure Adjointturb
   FieldVariable<2, ScalarField> q;
   /// Velocity Adjointturb
@@ -86,6 +87,12 @@ private:
   FieldVariable<5, VectorField> g;
   /// Temperature field
   FieldVariable<6, ScalarField> density_ratio;
+  /// Adjoint turbulent kinetic energy
+  FieldVariable<7, ScalarField> ka;
+  /// Adjoint turbulence dissipation
+  FieldVariable<8, ScalarField> epsilona;
+  /// turbulent kinetic energy
+  FieldVariable<9, ScalarField> k;
 
   /// Access to the physics
   PhysicsConstant rho;
@@ -98,6 +105,8 @@ private:
   std::vector<Real> m_a; // per-disk a
   Real m_th = 0.;
   Real m_U_mean_disk = 0.;
+  Real m_c_epsilon_1 = 1.44;
+  Real m_c_mu = 0.09;
   Real m_area = 0.;
   bool m_updating = false;
 
