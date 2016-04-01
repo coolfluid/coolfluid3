@@ -105,15 +105,17 @@ void keAdjoint::do_set_expressions(LSSActionUnsteady& lss_action)//, solver::act
       compute_tau.apply( u, nu_eff, lit(dt), lit(tau_su)),
       element_quadrature
       (
-        _A(ka,ka) += transpose(N(ka) + (tau_su*u + cw.apply(u, ka))*nabla(ka)) * u * nabla(ka) + (m_nu_lam + nu_eff / m_sigma_k) * transpose(nabla(ka)) * nabla(ka) // Advection and diffusion
-                 + transpose(N(ka) + (tau_su*u + cw.apply(u, ka))*nabla(ka)) * (gamma(ka, nu_eff, epsilona)) * N(ka), // sink term
-        _T(ka,ka) +=  transpose(N(ka) + (tau_su*u + cw.apply(u, ka))*nabla(ka)) * N(ka),
-        _a[ka] += transpose(N(ka) + (tau_su*u + cw.apply(u, ka))*nabla(ka)) * (0.5*nu_eff) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))), // Production
+        _A(ka,ka) +=  (m_nu_lam + nu_eff / m_sigma_k) * transpose(nabla(ka)) * nabla(ka) // Advection and diffusion
+          //transpose(N(ka) - (tau_su*u)*nabla(ka)) * transpose(nabla(ka))*nabla(epsilon)*m_c_mu*2*k/epsilon/m_sigma_epsilon
+                 // + transpose(N(ka) - (tau_su*u)*nabla(ka)) * N(ka)*gamma(ka, nu_eff, epsilona)*m_c_mu*m_c_epsilon_1/2*((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
+                  + transpose(N(ka) - (tau_su*u)*nabla(ka)) * (gamma(ka, nu_eff, epsilona)) * N(ka), // sink term
+        _T(ka,ka) +=  transpose(N(ka) - (tau_su*u)*nabla(ka)) * N(ka),
+        _a[ka] += transpose(N(ka) - (tau_su*u)*nabla(ka)) * (0.5*nu_eff) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))), // Production
 
-        _A(epsilona,epsilona) += transpose(N(epsilona) + (tau_su*u + cw.apply(u, epsilona))*nabla(epsilona)) * u * nabla(epsilona) + (m_nu_lam + nu_eff / m_sigma_epsilon) * transpose(nabla(epsilona)) * nabla(epsilona) // Advection and diffusion
-                       + transpose(N(epsilona) + (tau_su*u + cw.apply(u, epsilona))*nabla(epsilona))*N(epsilona)*(m_c_epsilon_2 * gamma(ka, nu_eff, epsilona)), // sink term
-        _T(epsilona,epsilona) +=  transpose(N(epsilona) + (tau_su*u + cw.apply(u, epsilona))*nabla(epsilona)) * N(epsilona),
-        _a[epsilona] += transpose(N(epsilona) + (tau_su*u + cw.apply(u, epsilona))*nabla(epsilona)) * gamma(ka, nu_eff, epsilona) * lit(m_c_epsilon_1) * (0.5*nu_eff) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
+        _A(epsilona,epsilona) += transpose(N(epsilona) - (tau_su*u)*nabla(epsilona)) * u * nabla(epsilona) + (m_nu_lam + nu_eff / m_sigma_epsilon) * transpose(nabla(epsilona)) * nabla(epsilona) // Advection and diffusion
+                       + transpose(N(epsilona) - (tau_su*u)*nabla(epsilona))*N(epsilona)*(m_c_epsilon_2 * gamma(ka, nu_eff, epsilona)), // sink term
+        _T(epsilona,epsilona) +=  transpose(N(epsilona) - (tau_su*u)*nabla(epsilona)) * N(epsilona),
+        _a[epsilona] += transpose(N(epsilona) - (tau_su*u)*nabla(epsilona)) * gamma(ka, nu_eff, epsilona) * lit(m_c_epsilon_1) * (0.5*nu_eff) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
       ),
       lss_action.system_matrix += invdt * _T + m_theta * _A,
       lss_action.system_rhs += -_A * _x + _a

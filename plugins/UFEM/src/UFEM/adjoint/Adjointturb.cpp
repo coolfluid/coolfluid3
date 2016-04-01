@@ -160,10 +160,9 @@ void Adjointturb::trigger_assembly()
                                     //  + 0.5*u[_i]*(N(U) - tau_su*u*nabla(U))) * nabla(U)[_j],   skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio - (transpose(N(U) - tau_su*u*nabla(U))*ka*k) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*epsilon)
-                             +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu*transpose(nabla(U)[_i]))
+                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio - (transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
+                             +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu*(partial(u[_i], _j) + partial(u[_j], _i))*transpose(nabla(U)[_j]))
 
-                // _a[U[_i]] -= transpose(N(U) - tau_su*u*nabla(U))
                 //_a[U[_i]] += 2*((ka*k/epsilon)+(epsilona))*k*(partial(u[_i], _j) + partial(u[_j], _i))*transpose(nabla(U))
           ),
         system_rhs += -_A * _x + _a,

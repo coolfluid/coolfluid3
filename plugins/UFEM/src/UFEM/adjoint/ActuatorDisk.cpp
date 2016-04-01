@@ -133,8 +133,8 @@ void ActuatorDisk::execute()
   });
     
   surface_integral(m_u_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs((u*normal)[0]));
-  surface_integral(m_u_mean_disk2, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), pow2((u*normal)[0]));
-  surface_integral(m_u_mean_disk3, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs(pow3((u*normal)[0])));
+  surface_integral(m_u_mean_disk2, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), pow2((u*normal/_norm(normal))[0]*_norm(normal)));
+  surface_integral(m_u_mean_disk3, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs(pow3((u*normal/_norm(normal))[0]*_norm(normal))));
  
 
   m_u_mean_disk /= m_area;

@@ -45,7 +45,7 @@ keAdjointbase::keAdjointbase(const std::string& name) :
   epsilona("epsilona", "keAdjoint_solution"),
   k("k", "ke_solution"),
   epsilon("epsilon", "ke_solution"),
-  nu_eff("EffectiveViscosity", "navier_stokes_viscosity"), // This is the viscosity that needs to be modified to be visible in NavierStokes
+  nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   d("wall_distance", "wall_distance"),
   yplus("yplus", "yplus")
 {
