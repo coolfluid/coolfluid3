@@ -25,7 +25,6 @@
 
 #include "../LSSActionUnsteady.hpp"
 
-#include "../CrossWindDiffusion.hpp"
 
 namespace cf3 {
 
@@ -86,7 +85,6 @@ protected:
   Real m_minimal_viscosity_ratio = 1e-4;
   Real m_l_max = 1e6; // Maximum mixing length
 
-  CrosswindDiffusion cw;
 };
 } // adjoint
 } // UFEM
