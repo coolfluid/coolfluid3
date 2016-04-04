@@ -19,8 +19,8 @@ k_wall = 1.5*(u_in[0]*I)**2
 e_init = 0.09**(3/4)*k_init**1.5/l0
 e_wall = 0.09**(3/4)*k_init**1.5/l0
 
-tstep = 0.1
-num_steps = 2.
+tstep = 1.
+num_steps = 10.
 
 env = cf.Core.environment()
 env.log_level = 4
@@ -76,7 +76,7 @@ ic_k.regions = [mesh.topology.uri()]
 
 ic_ka = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'keAdjoint_solution')
 ic_ka.variable_name = 'ka'
-ic_ka.value = [str(0.001)]
+ic_ka.value = [str(0.1)]
 ic_ka.regions = [mesh.topology.uri()]
 
 ic_epsilon = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
@@ -86,7 +86,7 @@ ic_epsilon.regions = [mesh.topology.uri()]
 
 ic_epsilona = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'keAdjoint_solution')
 ic_epsilona.variable_name = 'epsilona'
-ic_epsilona.value = [str(0.001)]
+ic_epsilona.value = [str(5.)]
 ic_epsilona.regions = [mesh.topology.uri()]
 
 ic_wall_distance = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'wall_distance')
@@ -111,14 +111,14 @@ bc.add_constant_bc(region_name = 'inlet', variable_name = 'k').value = k_wall
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'epsilon').value = e_wall
 
 bca = kaea.LSS.BoundaryConditions
-bca.add_constant_bc(region_name = 'inlet', variable_name = 'ka').value = 0.001
-bca.add_constant_bc(region_name = 'inlet', variable_name = 'epsilona').value = 0.001
-bca.add_constant_bc(region_name = 'outlet', variable_name = 'ka').value = 0.001
-bca.add_constant_bc(region_name = 'outlet', variable_name = 'epsilona').value = 0.001
-bca.add_constant_bc(region_name = 'top', variable_name = 'ka').value = 0.001
-bca.add_constant_bc(region_name = 'top', variable_name = 'epsilona').value = 0.001
-bca.add_constant_bc(region_name = 'bottom', variable_name = 'ka').value = 0.001
-bca.add_constant_bc(region_name = 'bottom', variable_name = 'epsilona').value = 0.001
+bca.add_constant_bc(region_name = 'inlet', variable_name = 'ka').value = 0.1
+bca.add_constant_bc(region_name = 'inlet', variable_name = 'epsilona').value = 5.
+bca.add_constant_bc(region_name = 'outlet', variable_name = 'ka').value = 0.1
+bca.add_constant_bc(region_name = 'outlet', variable_name = 'epsilona').value = 5.
+bca.add_constant_bc(region_name = 'top', variable_name = 'ka').value = 0.1
+bca.add_constant_bc(region_name = 'top', variable_name = 'epsilona').value = 5.
+bca.add_constant_bc(region_name = 'bottom', variable_name = 'ka').value = 0.1
+bca.add_constant_bc(region_name = 'bottom', variable_name = 'epsilona').value = 5.
 
 
 # Solver setup

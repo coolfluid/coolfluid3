@@ -21,8 +21,10 @@
 #include <cmath>
 #include "mesh/Region.hpp"
 #include "mesh/LagrangeP0/LibLagrangeP0.hpp"
+#include "solver/actions/Proto/ElementGradDiv.hpp"
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/Line.hpp"
+#include "solver/actions/Proto/Partial.hpp"
 
 #include "BCAdjointpressure.hpp"
 #include "AdjacentCellToFace.hpp"
@@ -59,36 +61,20 @@ BCAdjointpressure::BCAdjointpressure(const std::string& name) :
     //.pretty_name("Space")
     //.description("Name of the space to use, for example: cf3.mesh.LagrangeP2. Defaults to whatever geometry space is used.")
     //.mark_basic();
+    FieldVariable<0, ScalarField> q("AdjPressure", "adjoint_solution");
+    FieldVariable<1, VectorField> U("AdjVelocity", "adjoint_solution");
+    FieldVariable<2, VectorField> u("Velocity", "navier_stokes_solution");
+    FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  set_expression(nodes_expression(m_dirichlet(q)  = (U[0]*u[0])+(U[1]*u[1])+(u[2]*U[2])));
+
+
 }
 
 BCAdjointpressure::~BCAdjointpressure()
 {
 }
 
-void BCAdjointpressure::execute()
-{
-  if(m_loop_regions.empty())
-  {
-    CFwarn << "No regions set for " << uri().path() << CFendl;
-    return;
-  }
-  
-  cf3_assert(is_not_null(options().value< Handle<math::LSS::System> >("lss")));
-  
-  if(!expression_is_set())
-  {
-    //const Uint dim = common::find_parent_component<mesh::Mesh>(*regions().front()).dimension();
 
-      //FieldVariable<0, ScalarField> var(options().value<std::string>("variable_name"), options().value<std::string>("field_tag"), options().value<std::string>("space"));
-	  FieldVariable<0, ScalarField> q("AdjPressure", "adjoint_solution");
-	  FieldVariable<1, VectorField> U("AdjVelocity", "adjoint_solution");
-	  FieldVariable<2, VectorField> u("Velocity", "navier_stokes_solution");
-        set_expression(nodes_expression(q  = (U[0]*u[0])+(U[1]*u[1])+(u[2]*U[2])));
-    
-  }
-  
-  cf3::solver::actions::Proto::ProtoAction::execute();
-}
 
 } // namespace UFEM
 } // namespace cf3
