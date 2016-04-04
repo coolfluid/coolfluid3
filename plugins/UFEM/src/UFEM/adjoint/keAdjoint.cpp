@@ -105,22 +105,22 @@ void keAdjoint::do_set_expressions(LSSActionUnsteady& lss_action)//, solver::act
       compute_tau.apply( u, nu_eff, lit(dt), lit(tau_su)),
       element_quadrature
       (
-        _A(ka,ka) +=  transpose(N(ka) - (tau_su*u)*nabla(ka)) * transpose(partial(epsilon,_i))*nabla(ka)*m_c_mu*2*k/epsilon/m_sigma_epsilon//term 1
+        _A(ka,ka) +=  transpose(N(ka) - (tau_su*u)*nabla(ka)) * transpose(partial(epsilon,_i))*nabla(ka)*m_c_mu*2*k/epsilon/m_sigma_epsilon*gamma(ka, nu_eff, epsilona)//term 1
                   - transpose(N(ka) - (tau_su*u)*nabla(ka)) * N(ka)*gamma(ka, nu_eff, epsilona)*m_c_mu*m_c_epsilon_1/2*((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))//term 2
                   + transpose(N(ka) - (tau_su*u)*nabla(ka)) * N(ka)*gamma(ka, nu_eff, epsilona)*m_c_epsilon_2*epsilon*epsilon/k/k //term 3
                   + transpose(N(ka) - (tau_su*u)*nabla(ka)) * transpose(partial(k,_i)) *gamma(ka, nu_eff, epsilona)*m_c_mu*2*k/m_sigma_k/epsilon*nabla(ka)// term 4
                   - transpose(N(ka) - (tau_su*u)*nabla(ka)) * N(ka)*m_c_mu*k/epsilon*((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))//term 5
                   - transpose(N(ka) - (tau_su*u)*nabla(ka)) * ((partial(u[_j], _j)*N(ka) + (u*nabla(ka))))//term 6
-                  - transpose(nabla(ka))*nabla(ka)*m_c_mu*k*k/m_sigma_k/epsilon,//term 7
+                  + transpose(nabla(ka))*nabla(ka)*m_c_mu*k*k/m_sigma_k/epsilon,//term 7
         _T(ka,ka) +=  transpose(N(ka) - (tau_su*u)*nabla(ka)) * N(ka), // Time
-        _a[ka] += transpose(N(ka) - (tau_su*u)*nabla(ka))*(2*m_c_mu*k/epsilon*(partial(U[_i],_j)*(partial(u[_i],_j)+partial(u[_j],_i)))), // Production
+        _a[ka] += -transpose(N(ka) - (tau_su*u)*nabla(ka))*(2*m_c_mu*k/epsilon*(partial(U[_i],_j)*(partial(u[_i],_j)+partial(u[_j],_i)))), // Production
 
         _A(epsilona,epsilona) += -transpose(N(epsilona) - (tau_su*u)*nabla(epsilona))/gamma(ka, nu_eff, epsilona)*transpose(partial(k,_i))*nabla(epsilona)*m_c_mu*k*k/epsilon/epsilon/m_sigma_k // term1
-                              + transpose(N(epsilona) - (tau_su*u)*nabla(epsilona))*N(epsilona)/gamma(ka, nu_eff, epsilona)*m_c_mu*k*k/2/epsilon/epsilon/m_sigma_k*((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))// term 2
+                              - transpose(N(epsilona) - (tau_su*u)*nabla(epsilona))*N(epsilona)/gamma(ka, nu_eff, epsilona)*m_c_mu*k*k/2/epsilon/epsilon/m_sigma_k*((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))// term 2
                               - transpose(N(epsilona) - (tau_su*u)*nabla(epsilona)) * transpose(partial(epsilon,_i)) *m_c_mu*k*k/m_sigma_epsilon/epsilon/epsilon*nabla(epsilona)// term 3
                               - transpose(N(epsilona) - (tau_su*u)*nabla(epsilona)) * ((partial(u[_j], _j)*N(epsilona) + (u*nabla(epsilona)))) //term 4
                               - transpose(N(epsilona) - (tau_su*u)*nabla(epsilona)) *N(epsilona)*m_c_epsilon_2*2*epsilon/k //term5
-                              - transpose(nabla(epsilona))*(nabla(epsilona))*m_c_mu*k*k/epsilon/m_sigma_epsilon,//term6
+                              + transpose(nabla(epsilona))*(nabla(epsilona))*m_c_mu*k*k/epsilon/m_sigma_epsilon,//term6
         _T(epsilona,epsilona) += transpose(N(epsilona) - (tau_su*u)*nabla(epsilona)) * N(epsilona),  //time
                  _a[epsilona] += transpose(N(epsilona) - (tau_su*u)*nabla(epsilona))*(m_c_mu*k*k/epsilon/epsilon*(partial(U[_i],_j)*(partial(u[_i],_j)+partial(u[_j],_i)))) //dissipation
       ),
