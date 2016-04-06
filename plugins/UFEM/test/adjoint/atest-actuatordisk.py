@@ -20,7 +20,7 @@ e_init = 0.09**(3/4)*k_init**1.5/l0
 e_wall = 0.09**(3/4)*k_init**1.5/l0
 
 tstep = 1.
-num_steps = 10.
+num_steps = 2.
 
 env = cf.Core.environment()
 env.log_level = 4
@@ -43,7 +43,7 @@ disk.u_in = u_in[0]
 disk.th = 0.05
 disk.ct = Ct0
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-ad_solver = solver.add_unsteady_solver('cf3.UFEM.adjoint.Adjoint')
+ad_solver = solver.add_unsteady_solver('cf3.UFEM.adjoint.Adjointturb')
 ad_solver.ct = [Ct0]
 ad_solver.th = 0.05
 ad_solver.area = area
@@ -68,7 +68,7 @@ kaea.regions = [mesh.topology.uri()]
 # initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = initial_velocity
 solver.InitialConditions.density_ratio.density_ratio = 1. # This enables the body force
-solver.InitialConditions.adjoint_solution.AdjVelocity = [0., 0.]
+solver.InitialConditions.Adjointturb_solution.AdjVelocity = [0., 0.]
 ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_k.variable_name = 'k'
 ic_k.value = [str(k_init)]
@@ -97,30 +97,28 @@ ic_wall_distance.regions = [mesh.topology.uri()]
 # set physical constants
 physics.density = rho
 physics.dynamic_viscosity = mu
+#boundary condition
 
-# Boundary conditions
 bc = ns_solver.BoundaryConditions
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').value = u_in
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').value = 0.
+
 bca = ad_solver.BoundaryConditions
-bca.add_constant_bc(region_name = 'inlet', variable_name = 'AdjVelocity').value = [0., 0.]
-bca.add_constant_bc(region_name = 'outlet', variable_name = 'AdjPressure').value = 0.
+#bc_adj_p = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.BCAdjointpressure')
+#bc_adj_p = bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.BCAdjointpressure')
+#bc_adj_p = bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.BCAdjointpressure')
+bca.add_constant_component_bc(region_name = 'inlet', variable_name = 'AdjVelocity', component =1).value = 0.
+bca.add_constant_component_bc(region_name = 'bottom', variable_name = 'AdjVelocity', component =1).value = 0.
+bca.add_constant_component_bc(region_name = 'top', variable_name = 'AdjVelocity', component =1).value = 0.
 
 bc = ke.LSS.BoundaryConditions
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'k').value = k_wall
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'epsilon').value = e_wall
 
 bca = kaea.LSS.BoundaryConditions
-bca.add_constant_bc(region_name = 'inlet', variable_name = 'ka').value = 0.1
-bca.add_constant_bc(region_name = 'inlet', variable_name = 'epsilona').value = 5.
-bca.add_constant_bc(region_name = 'outlet', variable_name = 'ka').value = 0.1
-bca.add_constant_bc(region_name = 'outlet', variable_name = 'epsilona').value = 5.
-bca.add_constant_bc(region_name = 'top', variable_name = 'ka').value = 0.1
-bca.add_constant_bc(region_name = 'top', variable_name = 'epsilona').value = 5.
-bca.add_constant_bc(region_name = 'bottom', variable_name = 'ka').value = 0.1
-bca.add_constant_bc(region_name = 'bottom', variable_name = 'epsilona').value = 5.
-
-
+bca.add_constant_bc(region_name = 'inlet', variable_name = 'epsilona').value = 0.
+bca.add_constant_bc(region_name = 'inlet', variable_name = 'ka').value = 0.
+bca_ks=bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjoint.kaRobinke')
 # Solver setup
 lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosFEVbrMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
 lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'
@@ -194,7 +192,7 @@ time.end_time = num_steps*tstep
 # solver.InitialConditions.execute()
 
 # run the simulation (forward, NS only)
-solver.TimeLoop.options.disabled_actions = ['Adjoint','keAdjoint']
+solver.TimeLoop.options.disabled_actions = ['Adjointturb','keAdjoint']
 model.simulate()
 
 # run adjoint, starting from converged NS solution
