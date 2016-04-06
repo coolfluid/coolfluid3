@@ -10,6 +10,7 @@
 #include "solver/actions/Proto/DirichletBC.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 
+
 #include "LibUFEM.hpp"
 
 namespace cf3 {
@@ -31,7 +32,7 @@ public:
   /// Get the class name
   static std::string type_name () { return "BCAdjointpressure"; }
   
-  virtual void execute();
+
 private:
   cf3::solver::actions::Proto::DirichletBC m_dirichlet;
 };

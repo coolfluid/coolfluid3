@@ -52,9 +52,9 @@ protected:
   virtual void on_regions_set();
 
   boost::mpl::vector2<
-    mesh::LagrangeP1::Triag2D,
-    mesh::LagrangeP1::Tetra3D
-  > allowed_elements;
+  mesh::LagrangeP1::Triag2D,
+  mesh::LagrangeP1::Tetra3D
+     > allowed_elements;
 
   FieldVariable<0, ScalarField> k;
   FieldVariable<1, ScalarField> epsilon;

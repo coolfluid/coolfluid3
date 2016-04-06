@@ -161,7 +161,7 @@ void Adjointturb::trigger_assembly()
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
                   _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio - (transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
-                             +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu*(partial(u[_i], _j) + partial(u[_j], _i))*transpose(nabla(U)[_j]))
+                             +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu*transpose(nabla(U))*_col(partial(u[_i],_j)+partial(u[_j],_i),_i))
 
                 //_a[U[_i]] += 2*((ka*k/epsilon)+(epsilona))*k*(partial(u[_i], _j) + partial(u[_j], _i))*transpose(nabla(U))
           ),
