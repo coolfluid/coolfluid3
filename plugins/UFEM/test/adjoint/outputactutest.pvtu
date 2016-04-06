@@ -16,6 +16,8 @@
 			<PDataArray type="Float64" NumberOfComponents="1" Name="epsilona"/>
 			<PDataArray type="Float64" NumberOfComponents="1" Name="AdjPressure"/>
 			<PDataArray type="Float64" NumberOfComponents="3" Name="AdjVelocity"/>
+			<PDataArray type="Float64" NumberOfComponents="1" Name="AdjPressure"/>
+			<PDataArray type="Float64" NumberOfComponents="3" Name="AdjVelocity"/>
 			<PDataArray type="Float64" NumberOfComponents="3" Name="Force"/>
 			<PDataArray type="Float64" NumberOfComponents="1" Name="density_ratio"/>
 			<PDataArray type="Float64" NumberOfComponents="1" Name="ka"/>

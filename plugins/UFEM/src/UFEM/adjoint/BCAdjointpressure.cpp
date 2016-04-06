@@ -16,7 +16,8 @@
 #include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include <common/EventHandler.hpp>
-
+#include <vector>
+#include <iostream>
 #include "math/LSS/System.hpp"
 #include <cmath>
 #include "mesh/Region.hpp"
@@ -27,8 +28,8 @@
 #include "solver/actions/Proto/Partial.hpp"
 
 #include "BCAdjointpressure.hpp"
-#include "AdjacentCellToFace.hpp"
-#include "Tags.hpp"
+#include "../AdjacentCellToFace.hpp"
+#include "../Tags.hpp"
 
 #include "solver/actions/Proto/Expression.hpp"
 
@@ -37,11 +38,12 @@ namespace cf3
 
 namespace UFEM
 {
-
+namespace adjoint
+{
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-common::ComponentBuilder < BCAdjointpressure, common::Action, LibUFEM > BCAdjointpressure_Builder;
+common::ComponentBuilder < BCAdjointpressure, common::Action, LibUFEMAdjoint > BCAdjointpressure_Builder;
 
 BCAdjointpressure::BCAdjointpressure(const std::string& name) :
   ProtoAction(name),
@@ -61,11 +63,23 @@ BCAdjointpressure::BCAdjointpressure(const std::string& name) :
     //.pretty_name("Space")
     //.description("Name of the space to use, for example: cf3.mesh.LagrangeP2. Defaults to whatever geometry space is used.")
     //.mark_basic();
+
+    const auto function = make_lambda([](const RealVector& u, const RealVector& U)
+    {
+     if(u.size() == 3)
+     {
+      return ((u[0]+u[1]+u[2])*(U[0]+U[1]+U[2]));
+      }
+       return ((u[0]+u[1])*(U[0]+U[1]));
+
+     });
+
     FieldVariable<0, ScalarField> q("AdjPressure", "adjoint_solution");
     FieldVariable<1, VectorField> U("AdjVelocity", "adjoint_solution");
     FieldVariable<2, VectorField> u("Velocity", "navier_stokes_solution");
     FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-  set_expression(nodes_expression(m_dirichlet(q)  = (U[0]*u[0])+(U[1]*u[1])+(u[2]*U[2])));
+
+  set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + function(u, U)));
 
 
 }
@@ -75,6 +89,6 @@ BCAdjointpressure::~BCAdjointpressure()
 }
 
 
-
+} // namespace adjoint
 } // namespace UFEM
 } // namespace cf3

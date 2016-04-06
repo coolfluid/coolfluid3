@@ -20,7 +20,7 @@ e_init = 0.09**(3/4)*k_init**1.5/l0
 e_wall = 0.09**(3/4)*k_init**1.5/l0
 
 tstep = 1.
-num_steps = 2.
+num_steps = 10.
 
 env = cf.Core.environment()
 env.log_level = 4
@@ -86,7 +86,7 @@ ic_epsilon.regions = [mesh.topology.uri()]
 
 ic_epsilona = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'keAdjoint_solution')
 ic_epsilona.variable_name = 'epsilona'
-ic_epsilona.value = [str(5.)]
+ic_epsilona.value = [str(0.1)]
 ic_epsilona.regions = [mesh.topology.uri()]
 
 ic_wall_distance = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'wall_distance')
@@ -104,9 +104,13 @@ bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').value = u_
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').value = 0.
 
 bca = ad_solver.BoundaryConditions
-#bc_adj_p = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.BCAdjointpressure')
-#bc_adj_p = bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.BCAdjointpressure')
-#bc_adj_p = bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.BCAdjointpressure')
+bc_adj_p = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjoint.BCAdjointpressure')
+bc_adj_p = bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjoint.BCAdjointpressure')
+bc_adj_p = bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.adjoint.BCAdjointpressure')
+bc_adj_u = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjoint.RobinUt')
+bc_adj_u = bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjoint.RobinUt')
+bc_adj_u = bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.adjoint.RobinUt')
+
 bca.add_constant_component_bc(region_name = 'inlet', variable_name = 'AdjVelocity', component =1).value = 0.
 bca.add_constant_component_bc(region_name = 'bottom', variable_name = 'AdjVelocity', component =1).value = 0.
 bca.add_constant_component_bc(region_name = 'top', variable_name = 'AdjVelocity', component =1).value = 0.
@@ -119,6 +123,11 @@ bca = kaea.LSS.BoundaryConditions
 bca.add_constant_bc(region_name = 'inlet', variable_name = 'epsilona').value = 0.
 bca.add_constant_bc(region_name = 'inlet', variable_name = 'ka').value = 0.
 bca_ks=bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjoint.kaRobinke')
+bca_ks=bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.adjoint.kaRobinke')
+bca_ks=bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjoint.kaRobinke')
+bca_es=bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjoint.BCAdjointke')
+bca_es=bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.adjoint.BCAdjointke')
+bca_es=bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjoint.BCAdjointke')
 # Solver setup
 lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosFEVbrMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
 lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'

@@ -61,7 +61,15 @@ RobinUt::RobinUt(const std::string& name) :
 {
 
 
+   const auto u_complement_normal = make_lambda([](const RealVector& u, const RealVector& n)
+   {
+    if(u.size() == 3)
+    {
+     return ((u[0]*(1-n[0]))+(u[1]*(1-n[1]))+(u[2]*(1-n[2])));
+     }
+      return ((u[0]*(1-n[0]))+(u[1]*(1-n[1])));
 
+    });
 
     //Handle<AdjacentCellToFace> set_boundary_gradient(get_child("SetBoundaryGradient"));
 
@@ -72,8 +80,7 @@ RobinUt::RobinUt(const std::string& name) :
     FieldVariable<1, VectorField> u("Velocity", "navier_stokes_solution");
     FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity","navier_stokes_viscosity");
     FieldVariable<3, ScalarField> q("AdjPressure","adjoint_solution");
- //   if(std::normal.size() > 2)
-   // {
+
         robincondition->set_expression(elements_expression
         (
          boost::mpl::vector2<mesh::LagrangeP1::Line2D,
@@ -82,28 +89,11 @@ RobinUt::RobinUt(const std::string& name) :
          group
          (
          _A(U) = _0, _A(q) = _0,
-         _A(U[_i],U[_i]) =  integral<2>(transpose(N(U))*N(U)*((u[0]*(1-normal[0]))+(u[1]*(1-normal[1]))+(u[2]*(1-normal[2]))))/nu_eff,
+         _A(U[_i],U[_i]) =  integral<2>(transpose(N(U))*N(U)*u_complement_normal(u, normal)/nu_eff),
 
                 system_matrix+=_A,
                 system_rhs += -_A*_x
         )));
-    //}
-    //else
-    //{
-      //  robincondition->set_expression(elements_expression
-       // (
-        // boost::mpl::vector2<mesh::LagrangeP1::Line2D,
-          //                   mesh::LagrangeP1::Triag3D
-           //                  >(), // Valid for surface element types
-         //group
-         //(
-         //_A(U) = _0, _A(q) = _0,
-         //_A(U[_i],U[_i]) =  integral<2>(transpose(N(U))*N(U)*((u[0]*(1-normal[0]))+(u[1]*(1-normal[1]))))/nu_eff,
-           //     system_matrix+=_A,
-           //     system_rhs += -_A*_x
-       // )));
-    //}
-
 
 
 
