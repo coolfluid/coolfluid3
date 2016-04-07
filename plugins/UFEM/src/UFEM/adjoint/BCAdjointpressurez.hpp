@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_BCAdjointke_hpp
-#define cf3_UFEM_BCAdjointke_hpp
+#ifndef cf3_UFEM_BCAdjointpressurez_hpp
+#define cf3_UFEM_BCAdjointpressurez_hpp
 
 #include "solver/actions/Proto/DirichletBC.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
@@ -17,29 +17,31 @@ namespace cf3 {
   namespace math { namespace LSS { class System; } }
   namespace mesh { class Region; }
 namespace UFEM {
-namespace adjoint{
+namespace adjoint {
 /// Boundary condition to hold the value of a field at a value given by another (or the same) field
-class UFEM_API BCAdjointke : public solver::actions::Proto::ProtoAction
+class UFEM_API BCAdjointpressurez : public solver::actions::Proto::ProtoAction
 {
 public:
 
   /// Contructor
   /// @param name of the component
-  BCAdjointke ( const std::string& name );
+  BCAdjointpressurez ( const std::string& name );
   
-  virtual ~BCAdjointke();
+  virtual ~BCAdjointpressurez();
 
   /// Get the class name
-  static std::string type_name () { return "BCAdjointke"; }
+  static std::string type_name () { return "BCAdjointpressurez"; }
   
 
 private:
   cf3::solver::actions::Proto::DirichletBC m_dirichlet;
-Real m_c_epsilon_1 = 1.44;
+  Uint m_turbulence = 0;
+  Real m_c_epsilon_1 = 1.44;
+  Real m_c_mu = 0.09;
 };
-} // Adjoint
+} // adjoint
 } // UFEM
 } // cf3
 
 
-#endif // cf3_UFEM_BCAdjointke_hpp
+#endif // cf3_UFEM_BCAdjointpressurez_hpp

@@ -48,7 +48,7 @@ common::ComponentBuilder < RobinUt, common::Action, LibUFEMAdjoint > RobinUt_Bui
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-
+using boost::proto::lit;
 
 
 RobinUt::RobinUt(const std::string& name) :
@@ -58,16 +58,27 @@ RobinUt::RobinUt(const std::string& name) :
     .description("The linear system for which the boundary condition is applied")),
   system_matrix(options().option("lss"))
 
+
 {
+    options().add("u_index1", m_u_index1)
+      .pretty_name("first tangential component")
+      .description("first tangential component")
+      .link_to(&m_u_index1)
+      .mark_basic();
+    options().add("u_index2", m_u_index2)
+      .pretty_name("second tangential component")
+      .description("second tangential component")
+      .link_to(&m_u_index2)
+      .mark_basic();
 
 
-   const auto u_complement_normal = make_lambda([](const RealVector& u, const RealVector& n)
+   const auto dimension = make_lambda([](const RealVector& u)
    {
     if(u.size() == 3)
     {
-     return ((u[0]*(1-n[0]))+(u[1]*(1-n[1]))+(u[2]*(1-n[2])));
+     return 1;
      }
-      return ((u[0]*(1-n[0]))+(u[1]*(1-n[1])));
+      return 0;
 
     });
 
@@ -89,7 +100,8 @@ RobinUt::RobinUt(const std::string& name) :
          group
          (
          _A(U) = _0, _A(q) = _0,
-         _A(U[_i],U[_i]) =  integral<2>(transpose(N(U))*N(U)*u_complement_normal(u, normal)/nu_eff),
+         _A(U[lit(m_u_index1)],U[lit(m_u_index1)]) =  integral<2>(transpose(N(U))*N(U)*(transpose(u)*transpose(normal))/nu_eff),
+         _A(U[lit(m_u_index2)],U[lit(m_u_index2)]) =  integral<2>(transpose(N(U))*N(U)*(transpose(u)*transpose(normal))/nu_eff*dimension(u)),
 
                 system_matrix+=_A,
                 system_rhs += -_A*_x

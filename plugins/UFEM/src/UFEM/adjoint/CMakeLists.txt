@@ -10,10 +10,12 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjoint
     Adjointturb.hpp
     keAdjointbase.cpp
     keAdjointbase.hpp
-    BCAdjointpressure.hpp
-    BCAdjointpressure.cpp
-    BCAdjointke.hpp
-    BCAdjointke.cpp   
+    BCAdjointpressurex.hpp
+    BCAdjointpressurex.cpp
+    BCAdjointpressurey.hpp
+    BCAdjointpressurey.cpp
+    BCAdjointpressurez.hpp
+    BCAdjointpressurez.cpp 
     keAdjoint.cpp
     keAdjoint.hpp
     kaRobinke.cpp
