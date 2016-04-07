@@ -50,8 +50,8 @@ private:
   Handle<math::LSS::System> m_lss;
   cf3::solver::actions::Proto::SystemRHS system_rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;
-
-
+  Uint m_u_index1 = 0;
+  Uint m_u_index2 = 0;
 };
 } // adjoint
 } // UFEM

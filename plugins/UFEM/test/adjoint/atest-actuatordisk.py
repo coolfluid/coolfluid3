@@ -20,7 +20,7 @@ e_init = 0.09**(3/4)*k_init**1.5/l0
 e_wall = 0.09**(3/4)*k_init**1.5/l0
 
 tstep = 1.
-num_steps = 2.
+num_steps = 3.
 
 env = cf.Core.environment()
 env.log_level = 4
@@ -54,8 +54,11 @@ ke.options.l_max = 1000.
 kaea = solver.add_unsteady_solver('cf3.UFEM.adjoint.keAdjoint')
 kaea.options.theta = 1.
 kaea.options.l_max = 1000.
-
-
+gradient1 = solver.add_unsteady_solver('cf3.UFEM.VelocityGradient')
+gradient1.options.gradient_tag = 'Adjvelocity_gradient'
+gradient1.options.velocity_variable = 'AdjVelocity'
+gradient1.options.velocity_tag = 'adjoint_solution'
+gradient1.options.gradient_name = 'U'
 
 mesh = domain.load_mesh(file = cf.URI('actuator2d.msh'), name = 'Mesh')
 
@@ -65,6 +68,7 @@ ns_solver.regions = [mesh.topology.uri()]
 ke.regions = [mesh.topology.uri()]
 ad_solver.regions = [mesh.topology.uri(), mesh.topology.actuator.uri()]
 kaea.regions = [mesh.topology.uri()]
+gradient1.regions = [mesh.topology.uri()]
 # initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = initial_velocity
 solver.InitialConditions.density_ratio.density_ratio = 1. # This enables the body force
@@ -86,7 +90,7 @@ ic_epsilon.regions = [mesh.topology.uri()]
 
 ic_epsilona = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'keAdjoint_solution')
 ic_epsilona.variable_name = 'epsilona'
-ic_epsilona.value = [str(5.)]
+ic_epsilona.value = [str(0.1)]
 ic_epsilona.regions = [mesh.topology.uri()]
 
 ic_wall_distance = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'wall_distance')
@@ -104,9 +108,18 @@ bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').value = u_
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').value = 0.
 
 bca = ad_solver.BoundaryConditions
-#bc_adj_p = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.BCAdjointpressure')
-#bc_adj_p = bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.BCAdjointpressure')
-#bc_adj_p = bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.BCAdjointpressure')
+bc_adj_p1 = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjoint.BCAdjointpressurex')
+bc_adj_p1.turbulence = 1
+bc_adj_p2 = bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjoint.BCAdjointpressurey')
+bc_adj_p2.turbulence = 1
+bc_adj_p3 = bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.adjoint.BCAdjointpressurey')
+bc_adj_p3.turbulence = 1
+bc_adj_u0 = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjoint.RobinUt')
+bc_adj_u0.u_index1 = 1
+bc_adj_u1 = bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjoint.RobinUt')
+bc_adj_u1.u_index1 = 0
+bc_adj_u2 = bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.adjoint.RobinUt')
+bc_adj_u2.u_index1 = 0
 bca.add_constant_component_bc(region_name = 'inlet', variable_name = 'AdjVelocity', component =1).value = 0.
 bca.add_constant_component_bc(region_name = 'bottom', variable_name = 'AdjVelocity', component =1).value = 0.
 bca.add_constant_component_bc(region_name = 'top', variable_name = 'AdjVelocity', component =1).value = 0.
@@ -119,6 +132,9 @@ bca = kaea.LSS.BoundaryConditions
 bca.add_constant_bc(region_name = 'inlet', variable_name = 'epsilona').value = 0.
 bca.add_constant_bc(region_name = 'inlet', variable_name = 'ka').value = 0.
 bca_ks=bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjoint.kaRobinke')
+bca_ks=bca.create_bc_action(region_name = 'bottom', builder_name = 'cf3.UFEM.adjoint.kaRobinke')
+bca_ks=bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjoint.kaRobinke')
+
 # Solver setup
 lss = ns_solver.create_lss(matrix_builder = 'cf3.math.LSS.TrilinosFEVbrMatrix', solution_strategy = 'cf3.math.LSS.TrilinosStratimikosStrategy')
 lss.SolutionStrategy.Parameters.preconditioner_type = 'ML'
@@ -182,7 +198,6 @@ lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.c
 lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.maximum_iterations = 2000
 lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.num_blocks = 1000
 
-
 # time setup
 time = model.create_time()
 time.time_step = tstep
@@ -192,13 +207,14 @@ time.end_time = num_steps*tstep
 # solver.InitialConditions.execute()
 
 # run the simulation (forward, NS only)
-solver.TimeLoop.options.disabled_actions = ['Adjointturb','keAdjoint']
+solver.TimeLoop.options.disabled_actions = ['Adjointturb','keAdjoint','gradient1']
 model.simulate()
 
 # run adjoint, starting from converged NS solution
 solver.TimeLoop.options.disabled_actions = ['NavierStokes','StandardKEpsilon'] # NS disabled, adjoint enabled
 solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
 time.end_time += num_steps*tstep # add again the same number of steps as in the forward solution
+
 model.simulate()
 
 # lss.print_system("adjlss.tec")

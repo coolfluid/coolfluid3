@@ -16,6 +16,11 @@
 			<PDataArray type="Float64" NumberOfComponents="1" Name="epsilona"/>
 			<PDataArray type="Float64" NumberOfComponents="1" Name="AdjPressure"/>
 			<PDataArray type="Float64" NumberOfComponents="3" Name="AdjVelocity"/>
+			<PDataArray type="Float64" NumberOfComponents="1" Name="div_U"/>
+			<PDataArray type="Float64" NumberOfComponents="3" Name="grad_Ux"/>
+			<PDataArray type="Float64" NumberOfComponents="3" Name="grad_Uy"/>
+			<PDataArray type="Float64" NumberOfComponents="3" Name="AdjVelocity"/>
+			<PDataArray type="Float64" NumberOfComponents="1" Name="AdjPressure"/>
 			<PDataArray type="Float64" NumberOfComponents="3" Name="Force"/>
 			<PDataArray type="Float64" NumberOfComponents="1" Name="density_ratio"/>
 			<PDataArray type="Float64" NumberOfComponents="1" Name="ka"/>
@@ -29,6 +34,7 @@
 			<PDataArray type="Float64" NumberOfComponents="3" Name="Velocity"/>
 			<PDataArray type="Float64" NumberOfComponents="1" Name="Pressure"/>
 			<PDataArray type="Float64" NumberOfComponents="1" Name="EffectiveViscosity"/>
+			<PDataArray type="Float64" NumberOfComponents="1" Name="Valence"/>
 			<PDataArray type="Float64" NumberOfComponents="1" Name="wall_distance"/>
 		</PPointData>
 		<Piece Source="outputactutest_P0.vtu"/>

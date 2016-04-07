@@ -48,7 +48,7 @@ common::ComponentBuilder < RobinUt, common::Action, LibUFEMAdjoint > RobinUt_Bui
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-
+using boost::proto::lit;
 
 
 RobinUt::RobinUt(const std::string& name) :
@@ -58,10 +58,29 @@ RobinUt::RobinUt(const std::string& name) :
     .description("The linear system for which the boundary condition is applied")),
   system_matrix(options().option("lss"))
 
+
 {
+    options().add("u_index1", m_u_index1)
+      .pretty_name("first tangential component")
+      .description("first tangential component")
+      .link_to(&m_u_index1)
+      .mark_basic();
+    options().add("u_index2", m_u_index2)
+      .pretty_name("second tangential component")
+      .description("second tangential component")
+      .link_to(&m_u_index2)
+      .mark_basic();
 
 
+   const auto dimension = make_lambda([](const RealVector& u)
+   {
+    if(u.size() == 3)
+    {
+     return 1;
+     }
+      return 0;
 
+    });
 
     //Handle<AdjacentCellToFace> set_boundary_gradient(get_child("SetBoundaryGradient"));
 
@@ -72,8 +91,7 @@ RobinUt::RobinUt(const std::string& name) :
     FieldVariable<1, VectorField> u("Velocity", "navier_stokes_solution");
     FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity","navier_stokes_viscosity");
     FieldVariable<3, ScalarField> q("AdjPressure","adjoint_solution");
- //   if(std::normal.size() > 2)
-   // {
+
         robincondition->set_expression(elements_expression
         (
          boost::mpl::vector2<mesh::LagrangeP1::Line2D,
@@ -82,28 +100,12 @@ RobinUt::RobinUt(const std::string& name) :
          group
          (
          _A(U) = _0, _A(q) = _0,
-         _A(U[_i],U[_i]) =  integral<2>(transpose(N(U))*N(U)*((u[0]*(1-normal[0]))+(u[1]*(1-normal[1]))+(u[2]*(1-normal[2]))))/nu_eff,
+         _A(U[lit(m_u_index1)],U[lit(m_u_index1)]) =  integral<2>(transpose(N(U))*N(U)*(transpose(u)*transpose(normal))/nu_eff),
+         _A(U[lit(m_u_index2)],U[lit(m_u_index2)]) =  integral<2>(transpose(N(U))*N(U)*(transpose(u)*transpose(normal))/nu_eff*dimension(u)),
 
                 system_matrix+=_A,
                 system_rhs += -_A*_x
         )));
-    //}
-    //else
-    //{
-      //  robincondition->set_expression(elements_expression
-       // (
-        // boost::mpl::vector2<mesh::LagrangeP1::Line2D,
-          //                   mesh::LagrangeP1::Triag3D
-           //                  >(), // Valid for surface element types
-         //group
-         //(
-         //_A(U) = _0, _A(q) = _0,
-         //_A(U[_i],U[_i]) =  integral<2>(transpose(N(U))*N(U)*((u[0]*(1-normal[0]))+(u[1]*(1-normal[1]))))/nu_eff,
-           //     system_matrix+=_A,
-           //     system_rhs += -_A*_x
-       // )));
-    //}
-
 
 
 
