@@ -6,8 +6,6 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjoint
     ActuatorDisk3D.cpp
     Adjoint.hpp
     Adjoint.cpp
-    Adjointturb.cpp
-    Adjointturb.hpp
     keAdjointbase.cpp
     keAdjointbase.hpp
     BCAdjointpressurex.hpp

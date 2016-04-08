@@ -23,6 +23,7 @@
 
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
+#include "solver/actions/Proto/ElementGradDiv.hpp"
 #include "solver/actions/Iterate.hpp"
 #include "solver/CriterionTime.hpp"
 #include "solver/actions/AdvanceTime.hpp"
@@ -48,7 +49,10 @@ ComponentBuilder < Adjoint, LSSActionUnsteady, LibUFEMAdjoint > Adjoint_Builder;
 Adjoint::Adjoint(const std::string& name) :
   LSSActionUnsteady(name),
   u("Velocity", "navier_stokes_solution"),
-  p("Pressure", "navier_stokes_solution"),
+  ka("ka", "Adjointke_solution"),
+  epsilona("epsilona", "Adjointke_solution"),
+  k("k", "ke_solution"),
+  epsilon("epsilon", "ke_solution"),
   U("AdjVelocity", "adjoint_solution"),
   q("AdjPressure", "adjoint_solution"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
@@ -81,6 +85,12 @@ Adjoint::Adjoint(const std::string& name) :
     .pretty_name("area of the disk")
     .description("area of the disk")
     .link_to(&m_area)
+    .mark_basic();
+
+  options().add("turbulence", m_turbulence)
+    .pretty_name("Frozen turbulence parameter")
+    .description("enable of disable forzen turbulence assumption")
+    .link_to(&m_turbulence)
     .mark_basic();
 
  options().add("th", m_th)
@@ -157,6 +167,8 @@ void Adjoint::trigger_assembly()
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
                   _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
+                            + m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
+                                            +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu*transpose(nabla(U))*_col(partial(u[_i],_j)+partial(u[_j],_i),_i)))
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
