@@ -20,7 +20,7 @@ e_init = 0.09**(3/4)*k_init**1.5/l0
 e_wall = 0.09**(3/4)*k_init**1.5/l0
 
 tstep = 1.
-num_steps = 3.
+num_steps = 1.
 
 env = cf.Core.environment()
 env.log_level = 4

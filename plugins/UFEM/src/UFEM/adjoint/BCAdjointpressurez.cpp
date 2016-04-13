@@ -66,8 +66,9 @@ BCAdjointpressurez::BCAdjointpressurez(const std::string& name) :
     FieldVariable<6, ScalarField> ka("ka", "keAdjoint_solution");
     FieldVariable<7, ScalarField> epsilon("epsilon", "ke_solution");
     FieldVariable<8, ScalarField> k("k", "ke_solution");
+    FieldVariable<9, VectorField> grad_uz("grad_uz","velocity_gradient");
 
-    set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (u[2]*U[2]) + (nu_eff*grad_Uz[2])-(m_turbulence*2*((epsilona*m_c_epsilon_1*m_c_mu*k)+(ka*k*k*m_c_mu/epsilon))*grad_Uz[2])));
+    set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (u[2]*U[2]) + (nu_eff*grad_Uz[2])-(m_turbulence*2*((epsilona*m_c_epsilon_1*m_c_mu*k)+(ka*k*k*m_c_mu/epsilon))*grad_uz[2])));
 
 
 
