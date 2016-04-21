@@ -133,7 +133,7 @@ void ChannelGenerator::execute()
   if(PE::Comm::instance().is_active() && nb_parts > 1)
   {
     const Uint cell_overlap = options().value<Uint>("cell_overlap");
-    blocks.options().set("overlap", cell_overlap);
+    //blocks.options().set("overlap", cell_overlap);
   }
 
   blocks.create_mesh(mesh); //--> raises mesh_loaded event inside
