@@ -62,7 +62,7 @@ struct CrosswindDiffusionImpl
     const Real x = a_par_norm / (2.*u_norm);
     const Real tau_c = h/(a_par_norm)*x*(1.-x);
 
-    result *= tau_c;    
+    result *= tau_c;
     return result;
   }
 
