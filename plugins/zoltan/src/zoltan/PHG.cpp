@@ -48,15 +48,15 @@ public:
     m_size(size)
   {
   }
-  
+
   /// Insert a new index to remove and return true if that index was NOT inserted before
   bool insert(const Uint idx)
   {
     m_mapping.reset();
     cf3_assert(idx < m_size);
-    return m_indices_to_remove.insert(idx).second; 
+    return m_indices_to_remove.insert(idx).second;
   }
-  
+
   /// Number of indices that were registered for removal so far
   Uint size() const
   {
@@ -67,7 +67,7 @@ public:
   {
     return mapping()[old_idx];
   }
-  
+
   /// Removes the array items located at the indices inserted so far
   template<typename ArrayT>
   void remove_rows(ArrayT& array)
@@ -99,19 +99,19 @@ public:
 
     array.resize(nb_remaining);
   }
-  
+
 private:
   std::set<Uint> m_indices_to_remove;
-  
+
   // Maps old indices to new ones
   struct IndexMapping
   {
     IndexMapping(const std::set<Uint>& indices_to_remove, const Uint array_size)
     {
       const Uint nb_to_remove = indices_to_remove.size();
-        
+
       m_index_map.resize(nb_to_remove);
-      
+
       std::vector<bool> needs_remove(nb_to_remove, false);
       const Uint nb_remaining = array_size - nb_to_remove;
       const std::set<Uint>::const_iterator tail_begin = indices_to_remove.lower_bound(nb_remaining);
@@ -133,10 +133,10 @@ private:
           ++remove_it;
         }
       }
-      
+
       m_nb_remaining = nb_remaining;
     }
-    
+
     Uint operator[](const Uint src_idx) const
     {
       if(src_idx >= m_nb_remaining)
@@ -146,22 +146,22 @@ private:
         cf3_assert(map_idx < m_index_map.size());
         return m_index_map[map_idx];
       }
-      
+
       return src_idx;
     }
-    
+
     std::vector<Uint> m_index_map;
     Uint m_nb_remaining;
   };
-  
+
   const IndexMapping& mapping()
   {
     if(is_null(m_mapping.get()))
       m_mapping.reset(new IndexMapping(m_indices_to_remove, m_size));
-    
+
     return *m_mapping;
   }
-  
+
   boost::scoped_ptr<IndexMapping> m_mapping;
   const Uint m_size;
 };
@@ -246,9 +246,9 @@ class NodePacker
 {
   typedef std::vector<char> BufferT;
 public:
-  
+
   typedef BufferT::iterator PosT;
-  
+
   NodePacker(const mesh::Dictionary& dict, BufferT& buffer) :
     m_dict(dict),
     m_buffer(buffer),
@@ -261,16 +261,16 @@ public:
     for(Uint field_idx = 0; field_idx != m_nb_fields; ++field_idx)
     {
       m_field_sizes.push_back(sizeof(Real) * dict.fields()[field_idx]->row_size());
-      m_entry_size += m_field_sizes.back();      
+      m_entry_size += m_field_sizes.back();
     }
   }
-  
+
   /// Return the size needed for the given number of entries
   std::ptrdiff_t size(const Uint nb_entries)
   {
     return nb_entries*m_entry_size;
   }
-  
+
   /// Reset the internal pointer to the given position
   void reset(const PosT position)
   {
@@ -282,12 +282,12 @@ public:
   {
     return m_position;
   }
-  
+
   void pack_local_id(const Uint local_id)
   {
     pack_number(m_dict.glb_idx()[local_id]);
     pack_number(m_dict.rank()[local_id]);
-    
+
     for(Uint field_idx = 0; field_idx != m_nb_fields; ++field_idx)
     {
       const char* data_ptr = reinterpret_cast<const char*>(&((*m_dict.fields()[field_idx])[local_id][0]));
@@ -295,14 +295,14 @@ public:
       m_position += m_field_sizes[field_idx];
     }
   }
-  
+
   void pack_global_id(const Uint global_id)
   {
     const mesh::Dictionary::GlbToLocT::const_iterator gid_it = m_dict.glb_to_loc().find(global_id);
     cf3_assert(gid_it != m_dict.glb_to_loc().end());
     pack_local_id(gid_it->second);
   }
-  
+
   /// Pack a single number
   template<typename NumberT>
   void pack_number(const NumberT& number)
@@ -311,19 +311,19 @@ public:
     std::copy(number_ptr, number_ptr+sizeof(NumberT), m_position);
     m_position += sizeof(NumberT);
   }
-  
+
 private:
   typedef Uint GidT;
   typedef Uint RankT;
-  
+
   static const Uint gid_size = sizeof(GidT);
   static const Uint rank_size = sizeof(RankT);
-  
-  
+
+
   const mesh::Dictionary& m_dict;
   BufferT& m_buffer;
   const Uint m_nb_fields;
-  
+
   PosT m_position;
   std::ptrdiff_t m_entry_size;
   std::vector<std::ptrdiff_t> m_field_sizes;
@@ -340,7 +340,7 @@ public:
     m_position(buffer.begin())
   {
   }
-  
+
   /// Unpack the next node and store it in the dictionary, using the provided data structure to
   /// look up the local ID
   template<typename GidToLocalT>
@@ -359,7 +359,6 @@ public:
       const Real* data_ptr = reinterpret_cast<const Real*>(&(*m_position));
       mesh::Field& field = *dict.fields()[field_idx];
       std::copy(data_ptr, data_ptr+field.row_size(), field[local_id].begin());
-
       const std::ptrdiff_t increment = field.row_size() * sizeof(Real);
       cf3_assert(std::distance(m_position, m_buffer.end()) >= increment);
       m_position += increment;
@@ -380,13 +379,13 @@ public:
   {
     return m_position == m_buffer.end();
   }
-  
+
 private:
   typedef Uint GidT;
   typedef Uint RankT;
-  
+
   const BufferT& m_buffer;
-  
+
   PosT m_position;
 };
 
@@ -399,7 +398,7 @@ public:
     m_local_id(local_id_start)
   {
   }
-  
+
   /// Create a new local ID for the given global ID, or return the previous one if it existed
   /// If a new ID was created, the second part of the return value is true
   std::pair<Uint, bool> create_local_id(const Uint global_id)
@@ -409,23 +408,23 @@ public:
     {
       return std::make_pair(mesh_found->second, false);
     }
-    
+
     const GidMapT::iterator new_found = new_glb_to_loc.find(global_id);
     if(new_found != new_glb_to_loc.end())
     {
       return std::make_pair(new_found->second, false);
     }
-    
+
     new_glb_to_loc[global_id] = m_local_id++;
     return std::make_pair(m_local_id - 1, true);
   }
-  
+
   /// Check if the given global id is registered
   bool exists(const Uint global_id)
   {
     return (new_glb_to_loc.count(global_id) != 0) || m_mesh_glb_to_loc->exists(global_id);
   }
-  
+
   /// Read only access, requiring that the element exists
   Uint operator[](const Uint global_id) const
   {
@@ -434,19 +433,19 @@ public:
     {
       return mesh_found->second;
     }
-    
+
     const GidMapT::const_iterator new_found = new_glb_to_loc.find(global_id);
     cf3_assert(new_found != new_glb_to_loc.end());
     return new_found->second;
   }
-  
+
 private:
   // The mapping obtained from e.g. the mesh
   const mesh::Dictionary::GlbToLocT* m_mesh_glb_to_loc;
-  
+
   // The mapping for any newly found
   GidMapT new_glb_to_loc;
-  
+
   // The current local id to assign
   Uint m_local_id;
 };
@@ -553,16 +552,16 @@ void remove_unused_nodes(const mesh::Mesh& mesh)
 void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid_map)
 {
   common::PE::Comm& comm = common::PE::Comm::instance();
-  
+
   boost::shared_ptr<mesh::NodeConnectivity> node_connectivity = common::allocate_component<mesh::NodeConnectivity>("NodeConnectivity");
   node_connectivity->initialize(mesh.elements());
-  
+
   const Uint nb_geom_nodes = mesh.geometry_fields().size();
   common::List<Uint>& geom_node_ranks = mesh.geometry_fields().rank();
 
   std::vector<Uint> send_sizes(comm.size(), 0); // Number of Uint values to send to each CPU
   std::vector< std::set<mesh::NodeConnectivity::ElementReferenceT> > element_sets(comm.size()); // Sets of elements to send
-  
+
   // Packed elements to send. Packing is as follows:
   // - total packed size
   // - entities index into mesh.entities();
@@ -571,15 +570,15 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
   // - Space index (in the entities.spaces() vector)
   // - GIDs of the nodes
   std::vector< std::vector<Uint> > send_elements(comm.size());
-  
+
   // Find the elements to pack
   for(Uint node_idx = 0; node_idx != nb_geom_nodes; ++node_idx)
   {
     const Uint destination_rank = geom_node_ranks[node_idx];
-    
+
     if(destination_rank == comm.rank())
       continue;
-    
+
     BOOST_FOREACH(const mesh::NodeConnectivity::ElementReferenceT& element_ref, node_connectivity->node_element_range(node_idx))
     {
       if(element_sets[destination_rank].insert(element_ref).second)
@@ -594,7 +593,7 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
       }
     }
   }
-  
+
   // Pack the elements
   mesh::Dictionary& geom_dict = mesh.geometry_fields();
   common::List<Uint>& geom_node_gids = geom_dict.glb_idx();
@@ -665,7 +664,7 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
       const Uint entry_size = recv_elements_for_rank[recv_idx];
       const Uint entities_idx = recv_elements_for_rank[recv_idx+1];
       const Uint new_gid = recv_elements_for_rank[recv_idx+2];
-      
+
       cf3_assert(entities_idx < element_gid_sets.size());
 
       // If we already owned the element, it doesn't need to be unpacked
@@ -734,11 +733,11 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
       const Uint entities_idx = recv_elements_for_rank[recv_idx++];
       const Uint element_gid = recv_elements_for_rank[recv_idx++];
       const Uint element_idx = current_entities_idx[entities_idx]++;
-      
+
       mesh::Entities& entities = *mesh.elements()[entities_idx];
       cf3_assert(element_idx < entities.glb_idx().size());
       entities.glb_idx()[element_idx] = element_gid;
-      
+
       const Uint nb_spaces = entities.spaces().size();
       for(Uint space_idx = 0; space_idx != nb_spaces; ++space_idx)
       {
@@ -746,19 +745,19 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
         ++recv_idx;
         mesh::Space& space = *entities.spaces()[space_idx];
         mesh::Connectivity::Row conn_row = space.connectivity()[element_idx];
-        
+
         const Uint element_start = recv_idx;
         const Uint element_end = recv_idx + space.shape_function().nb_nodes();
         const Uint dict_idx = space.dict_idx();
         const mesh::Dictionary* dict = mesh.dictionaries()[dict_idx].get();
-        
+
         for(; recv_idx != element_end; ++recv_idx)
         {
           const Uint node_gid = recv_elements_for_rank[recv_idx];
           const std::pair<Uint, bool> local_id = glb_to_loc[dict_idx].create_local_id(node_gid);
 
           cf3_assert(node_gid != math::Consts::uint_max());
-          
+
           if(local_id.second) // We have a new node to request
           {
             new_node_gids[dict_idx][node_gid] = rank;
@@ -789,7 +788,7 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
           }
         }
       }
-      
+
       cf3_assert(recv_idx <= recv_size);
     }
   }
@@ -847,23 +846,23 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
       cf3_assert(recv_idx <= recv_gids_for_rank.size());
     }
   }
-  
+
   // Pack the nodes
   for(Uint rank = 0; rank != comm.size(); ++rank)
   {
     const std::vector<Uint>& recv_gids_for_rank = recv_required_gids[rank];
     std::vector<char>& send_nodes_for_rank = send_nodes[rank];
-    
+
     // Allocate the storage
     send_nodes_for_rank.resize(buffer_sizes[rank]);
-    
+
     const Uint recv_size = recv_gids_for_rank.size();
     NodePacker::PosT last_pos = send_nodes_for_rank.begin();
     for(Uint recv_idx = 0; recv_idx != recv_size;)
     {
       const Uint dict_idx = recv_gids_for_rank[recv_idx++];
       const Uint dict_nb_entries = recv_gids_for_rank[recv_idx++];
-      
+
       NodePacker packer(*mesh.dictionaries()[dict_idx], send_nodes_for_rank);
       packer.reset(last_pos);
       packer.pack_number(dict_idx);
@@ -873,15 +872,15 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
         cf3_assert(recv_idx < recv_gids_for_rank.size());
         packer.pack_global_id(recv_gids_for_rank[recv_idx++]);
       }
-      
+
       last_pos = packer.position();
     }
   }
-  
+
   // Communicate the new nodes
   std::vector< std::vector<char> > recv_nodes(comm.size());
   comm.all_to_all(send_nodes, recv_nodes);
-  
+
   // Reserve storage for the new nodes
   for(Uint dict_idx = 0; dict_idx != nb_dicts; ++dict_idx)
   {
@@ -940,7 +939,7 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
     const Uint nb_elements = entities->size();
 
     const RealMatrix& support_local_coordinates = entities->geometry_space().shape_function().local_coordinates();
-    
+
     for(Uint elem_idx = 0; elem_idx != nb_elements; ++elem_idx)
     {
       elem_ranks[elem_idx] = geom_node_ranks[geom_connectivity[elem_idx][0]];
@@ -950,7 +949,7 @@ void complete_elements(const mesh::Mesh& mesh, const GidMapT& periodic_links_gid
     {
       if(space.get() == &(entities->geometry_space()))
         continue;
-      
+
       const mesh::Connectivity& dict_connectivity = space->connectivity();
       const RealMatrix& space_local_coordinates = space->shape_function().local_coordinates();
       std::vector<Uint> node_mapping;
@@ -1023,8 +1022,6 @@ void remove_full_ghost_elements(mesh::Mesh& mesh)
 struct HGCollection
 {
   HGCollection(mesh::Mesh& mesh) :
-    dimension(mesh.dimension()),
-    coordinates(mesh.geometry_fields().coordinates()),
     node_gids(mesh.geometry_fields().glb_idx()),
     node_ranks(mesh.geometry_fields().rank()),
     periodic_data(mesh.geometry_fields()),
@@ -1052,7 +1049,7 @@ struct HGCollection
       vertex_gids.push_back(node_gids[node_idx]);
       vertex_lids.push_back(node_idx);
     }
-    
+
     // Build the hypergraph structure
     Uint total_nb_elems = 0;
     Uint total_nb_pins = 0.;
@@ -1061,11 +1058,11 @@ struct HGCollection
       total_nb_elems += elems.size();
       total_nb_pins += elems.size() * elems.geometry_space().connectivity().row_size();
     }
-    
+
     hyperedge_gids.reserve(total_nb_elems);
     hyperedge_ptr.reserve(total_nb_elems);
     pin_gids.reserve(total_nb_pins);
-    
+
     BOOST_FOREACH(const mesh::Elements& elems, common::find_components_recursively_with_filter<mesh::Elements>(mesh, mesh::IsElementsVolume()))
     {
       hyperedge_gids.insert(hyperedge_gids.end(), elems.glb_idx().array().begin(), elems.glb_idx().array().end());
@@ -1084,6 +1081,11 @@ struct HGCollection
     }
 
     nodes_to_remove.resize(node_gids.size(), false);
+
+    for(auto&& field : geometry_dict.fields())
+    {
+      nb_vars += field->row_size();
+    }
   }
 
   // Updates the ranks of the old ghost nodes, i.e. nodes that don't stay on the current rank and are not removed
@@ -1191,16 +1193,16 @@ struct HGCollection
     std::copy(coll->hyperedge_ptr.begin(), coll->hyperedge_ptr.end(), edgePtr);
     std::copy(coll->pin_gids.begin(), coll->pin_gids.end(), pinGID);
   }
-  
+
   static int node_migration_size(void* data, int size_gid, int size_lid, ZOLTAN_ID_PTR global_id, ZOLTAN_ID_PTR local_id, int* ierr)
   {
     *ierr = ZOLTAN_OK;
 
     HGCollection* coll = static_cast<HGCollection*>(data);
 
-    // At least send the coordinates and the number of periodic links
-    int result = coll->dimension * sizeof(Real) + sizeof(Uint)
-        + coll->periodic_data.inverse_links(*local_id).size() * (sizeof(Uint) + coll->dimension * sizeof(Real)); // Also send each node (GID + coordinates) that has a periodic link to this one
+    // At least send the variables and the number of periodic links
+    int result = coll->nb_vars * sizeof(Real) + sizeof(Uint)
+        + coll->periodic_data.inverse_links(*local_id).size() * (sizeof(Uint) + coll->nb_vars * sizeof(Real)); // Also send each node (GID + variables) that has a periodic link to this one
 
     return result;
   }
@@ -1213,11 +1215,12 @@ struct HGCollection
 
     char* out_ptr = buffer;
 
-    const std::ptrdiff_t coord_size = coll->dimension*sizeof(Real);
-
-    // Coordinates of the node
-    const char* in_start = reinterpret_cast<const char*>(&coll->coordinates[*local_id][0]);
-    out_ptr = std::copy(in_start, in_start + coord_size, out_ptr);
+    // Data of the node
+    for(auto&& field : coll->geometry_dict.fields())
+    {
+      const char* in_start = reinterpret_cast<const char*>(&((*field)[*local_id][0]));
+      out_ptr = std::copy(in_start, in_start + field->row_size()*sizeof(Real), out_ptr);
+    }
 
     // Mark node for removal
     coll->nodes_to_remove[*local_id] = true;
@@ -1234,9 +1237,12 @@ struct HGCollection
       const char* gid_start = reinterpret_cast<const char*>(&coll->node_gids[inv_link]);
       out_ptr = std::copy(gid_start, gid_start + sizeof(Uint), out_ptr);
 
-      // Copy the coordinates
-      const char* coord_start = reinterpret_cast<const char*>(&coll->coordinates[inv_link][0]);
-      out_ptr = std::copy(coord_start, coord_start + coord_size, out_ptr);
+      // Copy the data
+      for(auto&& field : coll->geometry_dict.fields())
+      {
+        const char* in_start = reinterpret_cast<const char*>(&((*field)[inv_link][0]));
+        out_ptr = std::copy(in_start, in_start + field->row_size()*sizeof(Real), out_ptr);
+      }
 
       coll->nodes_to_remove[inv_link] = true;
       coll->node_ranks[inv_link] = dest;
@@ -1253,8 +1259,6 @@ struct HGCollection
 
     common::PE::Comm& comm = common::PE::Comm::instance();
 
-    const std::ptrdiff_t coord_size = coll->dimension*sizeof(Real);
-
     // Compute the number of coordinates to receive, including periodic nodes
     Uint nb_to_receive = 0;
     for(Uint i = 0; i != num_ids; ++i)
@@ -1265,13 +1269,13 @@ struct HGCollection
       }
 
       Uint nb_links;
-      char* buf_start = &buffer[idx[i]] + coord_size;
+      char* buf_start = &buffer[idx[i]] + coll->nb_vars*sizeof(Real);
       std::copy(buf_start, buf_start + sizeof(Uint), reinterpret_cast<char*>(&nb_links));
 
       nb_to_receive += 1 + nb_links;
     }
 
-    const Uint new_nodes_start = coll->coordinates.size();
+    const Uint new_nodes_start = coll->geometry_dict.size();
     const Uint new_nb_nodes = new_nodes_start + nb_to_receive;
     coll->geometry_dict.resize(new_nb_nodes);
     if(is_not_null(coll->periodic_data.periodic_links_active))
@@ -1316,8 +1320,13 @@ struct HGCollection
       char* buf_start = &buffer[idx[i]];
 
       // Unpack the node itself
-      cf3_assert_desc(common::to_str(node_idx) + " < " + common::to_str(coll->coordinates.size()), node_idx < coll->coordinates.size());
-      std::copy(buf_start, buf_start + coord_size, reinterpret_cast<char*>(&coll->coordinates[node_idx][0]));
+      cf3_assert_desc(common::to_str(node_idx) + " < " + common::to_str(coll->geometry_dict.size()), node_idx < coll->geometry_dict.size());
+      char* buf_ptr = buf_start;
+      for(auto&& field : coll->geometry_dict.fields())
+      {
+        std::copy(buf_ptr, buf_ptr + field->row_size()*sizeof(Real), reinterpret_cast<char*>(&((*field)[node_idx][0])));
+        buf_ptr += field->row_size()*sizeof(Real);
+      }
       coll->node_gids[node_idx] = global_ids[i];
       coll->node_ranks[node_idx] = comm.rank();
 
@@ -1326,18 +1335,20 @@ struct HGCollection
       ++node_idx;
 
       // Unpack the periodic links
-      char* buf_ptr = buf_start + coord_size;
       const char* buf_end = buf_start + static_cast<std::ptrdiff_t>(buf_size); // This is actually the maximum buffer end
       Uint nb_links = 0;
       std::copy(buf_ptr, buf_ptr + sizeof(Uint), reinterpret_cast<char*>(&nb_links));
       buf_ptr += sizeof(Uint);
       for(Uint link_idx = 0; link_idx != nb_links; ++link_idx)
       {
-        cf3_assert_desc(common::to_str(node_idx) + " < " + common::to_str(coll->coordinates.size()), node_idx < coll->coordinates.size());
+        cf3_assert_desc(common::to_str(node_idx) + " < " + common::to_str(coll->geometry_dict.size()), node_idx < coll->geometry_dict.size());
         std::copy(buf_ptr, buf_ptr + sizeof(Uint), reinterpret_cast<char*>(&coll->node_gids[node_idx]));
         buf_ptr += sizeof(Uint);
-        std::copy(buf_ptr, buf_ptr + coord_size, reinterpret_cast<char*>(&coll->coordinates[node_idx][0]));
-        buf_ptr += coord_size;
+        for(auto&& field : coll->geometry_dict.fields())
+        {
+          std::copy(buf_ptr, buf_ptr + field->row_size()*sizeof(Real), reinterpret_cast<char*>(&((*field)[node_idx][0])));
+          buf_ptr += field->row_size()*sizeof(Real);
+        }
         coll->node_ranks[node_idx] = comm.rank();
 
         (*coll->periodic_data.periodic_links_active)[node_idx] = true;
@@ -1388,18 +1399,15 @@ struct HGCollection
   // Pins, i.e. the mesh node GID linked to each element
   std::vector<Uint> pin_gids;
 
-  // Dimension of the mesh
-  const Uint dimension;
-
-  // Node coordinates
-  mesh::Field& coordinates;
+  // Number of reals spread across all geometry fields
+  Uint nb_vars = 0;
 
   // Mesh node GIDs
   common::List<Uint>& node_gids;
 
   // Mesh node ranks
   common::List<Uint>& node_ranks;
-  
+
   // Dict for the geometry
   mesh::Dictionary& geometry_dict;
 
@@ -1429,11 +1437,19 @@ void PHG::execute()
   common::PE::Comm& comm = common::PE::Comm::instance();
   if(!comm.is_initialized())
     throw common::SetupError(FromHere(), "MPI must be initiailized before using the Zoltan plugin");
-  
+
+  for(auto&& dict : mesh().dictionaries())
+  {
+    for(auto&& field : dict->fields())
+    {
+      field->synchronize();
+    }
+  }
+
   Zoltan zz(comm.communicator());
 
   zz.Set_Param("IMBALANCE_TOL", "1.005");
-  zz.Set_Param("DEBUG_LEVEL", "1");
+  zz.Set_Param("DEBUG_LEVEL", "0");
   zz.Set_Param("REMAP", "1");
   zz.Set_Param("LB_METHOD", "HYPERGRAPH");   // partitioning method
   zz.Set_Param("HYPERGRAPH_PACKAGE", "PHG"); // version of method
@@ -1446,10 +1462,10 @@ void PHG::execute()
   zz.Set_Param("LB_APPROACH", "PARTITION");
   zz.Set_Param("PHG_MULTILEVEL", "1");
   zz.Set_Param("CHECK_HYPERGRAPH", "1");
-  zz.Set_Param("PHG_OUTPUT_LEVEL", "2");
+  zz.Set_Param("PHG_OUTPUT_LEVEL", "0");
   zz.Set_Param("PHG_COARSENING_METHOD", "AGG");
   zz.Set_Param("PHG_EDGE_SIZE_THRESHOLD", "0.5");
-  zz.Set_Param("PHG_COARSEPARTITION_METHOD", "GREEDY"); 
+  zz.Set_Param("PHG_COARSEPARTITION_METHOD", "GREEDY");
 
 	// After linking periodic nodes, each rank has a full view of the mesh periodicity. We store this here based on GIDs
 	GidMapT periodic_link_gid_map;
@@ -1508,7 +1524,7 @@ void PHG::execute()
   collection.check();
 
   mesh().geometry_fields().rebuild_map_glb_to_loc();
-  
+
   collection.update_ranks();
   collection.check();
 
@@ -1527,6 +1543,18 @@ void PHG::execute()
   mesh().update_structures();
   mesh().update_statistics();
   mesh().check_sanity();
+
+  for(auto&& dict : mesh().dictionaries())
+  {
+    if(dict->get_child("CommPattern") != nullptr)
+    {
+      dict->remove_component("CommPattern");
+    }
+    for(auto&& field : dict->fields())
+    {
+      field->synchronize();
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

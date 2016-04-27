@@ -49,11 +49,10 @@ namespace detail
 /// Helper struct to handle projection to the wall near a given surface node
 struct WallProjection
 {
-  WallProjection(const Field& coordinates, const NodeConnectivity& node_connectivity, const Field& normals, const Dictionary& wall_dict) :
+  WallProjection(const Field& coordinates, const NodeConnectivity& node_connectivity, const std::vector<std::vector<RealVector>>& normals) :
     m_coords(coordinates),
     m_node_connectivity(node_connectivity),
-    m_normals(normals),
-    m_wall_dict(wall_dict)
+    m_normals(normals)
   {
   }
 
@@ -175,9 +174,7 @@ struct WallProjection
       {
         m_last_nearest_element = element_ref;
         m_has_nearest_element = true;
-        const Uint normal_idx = elem_entities.space(m_wall_dict).connectivity()[element_ref.second][0];
-        const Eigen::Map<RealVector const> normal(&m_normals[normal_idx][0], dim);
-        return fabs(normal.dot(inner_coord - elem_coords.row(0).transpose()));
+        return fabs(m_normals[element_ref.first][element_ref.second].dot(inner_coord - elem_coords.row(0).transpose()));
       }
     }
     // If we got here, no projections on the elements gave a result
@@ -200,8 +197,7 @@ struct WallProjection
 
   const Field& m_coords;
   const NodeConnectivity& m_node_connectivity;
-  const Field& m_normals;
-  const Dictionary& m_wall_dict;
+  const std::vector<std::vector<RealVector>>& m_normals;
   bool m_has_nearest_element = false;
   NodeConnectivity::ElementReferenceT m_last_nearest_element;
 };
@@ -242,46 +238,25 @@ void WallDistance::execute()
   Field& d = mesh.geometry_fields().create_field("wall_distance");
   d.add_tag("wall_distance");
 
-  // Field& nodal_normals = mesh.geometry_fields().create_field("nodal_normals", "nodal_normals[vector]");
-  // nodal_normals.add_tag("nodal_normals");
-
-  // Wall normal field
-  if(mesh.get_child("wall_P0") != nullptr)
-  {
-    throw common::SetupError(FromHere(), "wall_P0 dictionary existed, can't create normals for wall distance");
-  }
-
-  Dictionary& wall_P0 = *mesh.create_component<DiscontinuousDictionary>("wall_P0");
-  for(const auto& faces : surface_entities)
-    faces->create_space("cf3.mesh.LagrangeP0."+faces->element_type().shape_name(),wall_P0);
-  wall_P0.build();         // to tell the dictionary that all spaces have been added
-  mesh.update_structures(); // to tell the mesh there is a new dictionary added manually
-
-  Field& face_normals = wall_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");
-  face_normals.add_tag(mesh::Tags::normal());
+  std::vector<std::vector<RealVector>> normals;
 
   for(const auto& wall_entity : surface_entities)
   {
     const Uint nb_elems = wall_entity->size();
-    const auto& wall_space_conn = wall_entity->space(wall_P0).connectivity();
     const auto& geom_conn = wall_entity->geometry_space().connectivity();
     const ElementType& etype = wall_entity->element_type();
     const Uint element_nb_nodes = etype.nb_nodes();
 
+    normals.push_back(std::vector<RealVector>(nb_elems, RealVector(dim)));
+
     RealMatrix elem_coords(element_nb_nodes, dim);
     for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
     {
-      const Uint normal_fd_idx = wall_space_conn[elem_idx][0];
       const Connectivity::ConstRow conn_row = geom_conn[elem_idx];
       fill(elem_coords, coords, conn_row);
       RealVector normal(dim);
-      etype.compute_normal(elem_coords, normal);
-      Eigen::Map<RealVector>(&face_normals[normal_fd_idx][0], dim) = normal / normal.norm();
-      // for(const Uint node_idx : conn_row)
-      // {
-      //   Eigen::Map<RealVector> node_normal(&nodal_normals[node_idx][0], dim);
-      //   node_normal += normal;
-      // }
+      etype.compute_normal(elem_coords, normals.back()[elem_idx]);
+      normals.back()[elem_idx] /= normals.back()[elem_idx].norm();
     }
   }
 
@@ -289,7 +264,7 @@ void WallDistance::execute()
   const common::List<Uint>& surface_nodes = *surface_nodes_ptr;
   const Uint nb_surface_nodes = surface_nodes.size();
 
-  detail::WallProjection normal_distance(coords, *node_connectivity, face_normals, wall_P0);
+  detail::WallProjection normal_distance(coords, *node_connectivity, normals);
 
   // Link each node to a wall element. First column: 1 if a wall element exists. Second column: index to the entities in the node connectivity. Last column: element index
   auto& node_to_wall_element = *mesh.create_component<common::Table<Uint>>("node_to_wall_element");
@@ -343,7 +318,6 @@ void WallDistance::execute()
       }
     }
   }
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
