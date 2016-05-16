@@ -39,7 +39,7 @@ using namespace boost::proto;
 
 keAdjointbase::keAdjointbase(const std::string& name) :
   solver::Action(name),
-  U("AdjVelocity", "Adjointturb_solution"),
+  U("AdjVelocity", "adjoint_solution"),
   u("Velocity", "navier_stokes_solution"),
   ka("ka", "keAdjoint_solution"),
   epsilona("epsilona", "keAdjoint_solution"),

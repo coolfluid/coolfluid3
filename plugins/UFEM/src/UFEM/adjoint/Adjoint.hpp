@@ -75,10 +75,10 @@ private:
   /// The velocity solution field
   FieldVariable<0, VectorField> u;
   /// The pressure solution field
-  FieldVariable<1, ScalarField> p;
-  /// Pressure adjoint
+  FieldVariable<1, ScalarField> epsilon;
+  /// Pressure Adjointturb
   FieldVariable<2, ScalarField> q;
-  /// Velocity adjoint
+  /// Velocity Adjointturb
   FieldVariable<3, VectorField> U;
   /// Effective viscosity field
   FieldVariable<4, ScalarField> nu_eff;
@@ -86,6 +86,12 @@ private:
   FieldVariable<5, VectorField> g;
   /// Temperature field
   FieldVariable<6, ScalarField> density_ratio;
+  /// Adjoint turbulent kinetic energy
+  FieldVariable<7, ScalarField> ka;
+  /// Adjoint turbulence dissipation
+  FieldVariable<8, ScalarField> epsilona;
+  /// turbulent kinetic energy
+  FieldVariable<9, ScalarField> k;
 
   /// Access to the physics
   PhysicsConstant rho;
@@ -100,6 +106,9 @@ private:
   Real m_U_mean_disk = 0.;
   Real m_area = 0.;
   bool m_updating = false;
+  Real m_turbulence = 0.;
+  Real m_c_epsilon_1 = 1.44;
+  Real m_c_mu = 0.09;
 
   Handle<solver::ActionDirector> m_assembly;
   Handle<solver::ActionDirector> m_update;

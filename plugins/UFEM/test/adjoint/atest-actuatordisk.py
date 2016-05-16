@@ -20,7 +20,7 @@ e_init = 0.09**(3/4)*k_init**1.5/l0
 e_wall = 0.09**(3/4)*k_init**1.5/l0
 
 tstep = 1.
-num_steps = 3.
+num_steps = 1.
 
 env = cf.Core.environment()
 env.log_level = 4
@@ -43,10 +43,11 @@ disk.u_in = u_in[0]
 disk.th = 0.05
 disk.ct = Ct0
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-ad_solver = solver.add_unsteady_solver('cf3.UFEM.adjoint.Adjointturb')
+ad_solver = solver.add_unsteady_solver('cf3.UFEM.adjoint.Adjoint')
 ad_solver.ct = [Ct0]
 ad_solver.th = 0.05
 ad_solver.area = area
+ad_solver.turbulence = 1.
 #k-epsilon
 ke = solver.add_unsteady_solver('cf3.UFEM.StandardKEpsilon')
 ke.options.theta = 1.
@@ -72,7 +73,7 @@ gradient1.regions = [mesh.topology.uri()]
 # initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = initial_velocity
 solver.InitialConditions.density_ratio.density_ratio = 1. # This enables the body force
-solver.InitialConditions.Adjointturb_solution.AdjVelocity = [0., 0.]
+solver.InitialConditions.adjoint_solution.AdjVelocity = [0., 0.]
 ic_k = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'ke_solution')
 ic_k.variable_name = 'k'
 ic_k.value = [str(k_init)]
@@ -207,7 +208,7 @@ time.end_time = num_steps*tstep
 # solver.InitialConditions.execute()
 
 # run the simulation (forward, NS only)
-solver.TimeLoop.options.disabled_actions = ['Adjointturb','keAdjoint','gradient1']
+solver.TimeLoop.options.disabled_actions = ['Adjoint','keAdjoint']
 model.simulate()
 
 # run adjoint, starting from converged NS solution
