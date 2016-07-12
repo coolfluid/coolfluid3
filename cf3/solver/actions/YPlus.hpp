@@ -26,6 +26,11 @@ public:
   YPlus(const std::string& name);
   static std::string type_name() { return "YPlus"; }
   virtual void execute();
+private:
+  std::vector<std::vector<RealVector>> m_normals;
+  std::vector<std::vector<Real>> m_wall_velocity_gradient;
+  std::vector<Real> m_wall_velocity_gradient_nodal;
+  std::map<const mesh::Entities*, Uint> m_entities_map;
 };
 
 
