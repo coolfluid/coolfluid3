@@ -74,11 +74,11 @@ void YPlus::execute()
   const Uint vel_offset = velocity_field.descriptor().offset("Velocity");
 
   // initialize if needed
-  auto volume_node_connectivity = Handle<NodeConnectivity>(get_child("volume_node_connectivity"));
-  if(volume_node_connectivity == nullptr)
+  auto volume_node_connectivity = Handle<NodeConnectivity>(mesh.get_child("volume_node_connectivity"));
+  if(m_normals.empty())
   {
     // Node-to-element connectivity for the volume elements
-    volume_node_connectivity = create_component<NodeConnectivity>("volume_node_connectivity");
+    volume_node_connectivity = mesh.create_component<NodeConnectivity>("volume_node_connectivity");
     std::vector< Handle<Entities const> > volume_entities;
     for(const mesh::Elements& elements : common::find_components_recursively_with_filter<mesh::Elements>(mesh, IsElementsVolume()))
     {
@@ -87,22 +87,19 @@ void YPlus::execute()
     volume_node_connectivity->initialize(nb_nodes, volume_entities);
 
     mesh.geometry_fields().create_field("wall_velocity_gradient_nodal").add_tag("wall_velocity_gradient_nodal");
-    m_wall_velocity_gradient_nodal.resize(nb_nodes);
+    Dictionary& wall_P0 = *mesh.create_component<DiscontinuousDictionary>("wall_P0");
 
     m_normals.clear();
-    m_wall_velocity_gradient.clear();
     for(const Handle<Region>& region : regions())
     {
       for(mesh::Elements& wall_entity : common::find_components_recursively_with_filter<mesh::Elements>(*region, IsElementsSurface()))
       {
-        m_entities_map[&wall_entity] = m_normals.size();
         const Uint nb_elems = wall_entity.size();
         const auto& geom_conn = wall_entity.geometry_space().connectivity();
         const ElementType& etype = wall_entity.element_type();
         const Uint element_nb_nodes = etype.nb_nodes();
 
         m_normals.push_back(std::vector<RealVector>(nb_elems, RealVector(dim)));
-        m_wall_velocity_gradient.push_back(std::vector<Real>(nb_elems, 0.));
 
         RealMatrix elem_coords(element_nb_nodes, dim);
         for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
@@ -113,12 +110,26 @@ void YPlus::execute()
           etype.compute_normal(elem_coords, m_normals.back()[elem_idx]);
           m_normals.back()[elem_idx] /= m_normals.back()[elem_idx].norm();
         }
+
+        wall_entity.create_component<FaceConnectivity>("wall_face_connectivity")->initialize(*volume_node_connectivity);
+        wall_entity.create_space("cf3.mesh.LagrangeP0."+wall_entity.element_type().shape_name(),wall_P0);
       }
     }
+    wall_P0.build();         // to tell the dictionary that all spaces have been added
+    mesh.update_structures(); // to tell the mesh there is a new dictionary added manually
+    wall_P0.create_field("wall_velocity_gradient").add_tag("wall_velocity_gradient");
+  }
+
+  // Create the y+ field in the geometry dictionary
+  if(common::find_component_ptr_with_tag(mesh.geometry_fields(), "yplus") == nullptr)
+  {
+    mesh.geometry_fields().create_field("yplus").add_tag("yplus");
   }
 
   // Compute shear stress
   Uint surface_idx = 0;
+  Dictionary& wall_P0 = *Handle<mesh::Dictionary>(mesh.get_child_checked("wall_P0"));
+  Field& wall_velocity_gradient_field = *Handle<Field>(wall_P0.get_child_checked("wall_velocity_gradient"));
   for(const Handle<Region>& region : regions())
   {
     for(const mesh::Elements& elements : common::find_components_recursively_with_filter<mesh::Elements>(*region, IsElementsSurface()))
@@ -126,10 +137,12 @@ void YPlus::execute()
       const Uint nb_elements = elements.geometry_space().connectivity().size();
       cf3_assert(elements.element_type().nb_faces() == 1);
       const auto& face_connectivity = *Handle<FaceConnectivity const>(elements.get_child_checked("wall_face_connectivity"));
+      const auto& wall_conn = elements.space(wall_P0).connectivity();
       for(Uint surface_elm_idx = 0; surface_elm_idx != nb_elements; ++surface_elm_idx)
       {
         if(face_connectivity.has_adjacent_element(surface_elm_idx, 0))
         {
+          const Uint wall_field_idx = wall_conn[surface_elm_idx][0];
           // Get the wall normal vector
           const RealVector& normal = m_normals[surface_idx][surface_elm_idx];
           RealVector3 normal3;
@@ -161,33 +174,31 @@ void YPlus::execute()
             v3[2] = dim == 3 ? v[2] : 0.;
             tangential_velocity[i] = v3.cross(normal3).norm();
           }
-          m_wall_velocity_gradient[surface_idx][surface_elm_idx] = fabs((volume_etype.jacobian(centroid_mapped_coord, elem_coords).inverse() * velocity_sf.gradient(centroid_mapped_coord) * tangential_velocity).dot(-normal));
+          wall_velocity_gradient_field[wall_field_idx][0] = fabs((volume_etype.jacobian(centroid_mapped_coord, elem_coords).inverse() * velocity_sf.gradient(centroid_mapped_coord) * tangential_velocity).dot(-normal));
         }
       }
       ++surface_idx;
     }
   }
 
+  wall_velocity_gradient_field.synchronize();
+
   // Compute a nodal version of the wall velocity gradient
   const auto& wall_node_connectivity = *Handle<NodeConnectivity>(mesh.get_child_checked("wall_node_connectivity"));
+  Field& wall_velocity_gradient_field_nodal = *Handle<Field>(mesh.geometry_fields().get_child_checked("wall_velocity_gradient_nodal"));
   for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
   {
     Uint nb_connected_elems = 0;
-    m_wall_velocity_gradient_nodal[node_idx] = 0;
+    wall_velocity_gradient_field_nodal[node_idx][0] = 0;
     for(const NodeConnectivity::ElementReferenceT elref : wall_node_connectivity.node_element_range(node_idx))
     {
-      const auto idx_it = m_entities_map.find(wall_node_connectivity.entities()[elref.first].get());
-      if(idx_it == m_entities_map.end())
-      {
-        throw common::SetupError(FromHere(), "Could not find surface entity " + wall_node_connectivity.entities()[elref.first]->uri().path());
-      }
-      const Uint surface_idx = idx_it->second;
-      m_wall_velocity_gradient_nodal[node_idx] += m_wall_velocity_gradient[surface_idx][elref.second];
+      const Uint wall_field_idx = wall_node_connectivity.entities()[elref.first]->space(wall_P0).connectivity()[elref.second][0];
+      wall_velocity_gradient_field_nodal[node_idx][0] += wall_velocity_gradient_field[wall_field_idx][0];
       ++nb_connected_elems;
     }
     if(nb_connected_elems != 0)
     {
-      m_wall_velocity_gradient_nodal[node_idx] /= static_cast<Real>(nb_connected_elems);
+      wall_velocity_gradient_field_nodal[node_idx][0] /= static_cast<Real>(nb_connected_elems);
     }
   }
 
@@ -203,17 +214,12 @@ void YPlus::execute()
     if(node_to_wall_element[node_idx][0] != 0)
     {
       const Entities& wall_entities = *wall_node_connectivity.entities()[node_to_wall_element[node_idx][1]];
-      const auto idx_it = m_entities_map.find(&wall_entities);
-      if(idx_it == m_entities_map.end())
-      {
-        throw common::SetupError(FromHere(), "Could not find surface entity " + wall_entities.uri().path());
-      }
-      const Uint surface_idx = idx_it->second;
-      yplus_field[node_idx][0] = wall_distance_field[node_idx][0] * sqrt(nu*m_wall_velocity_gradient[surface_idx][node_to_wall_element[node_idx][2]]) / nu;
+      const Uint wall_field_idx = wall_entities.space(wall_P0).connectivity()[node_to_wall_element[node_idx][2]][0];
+      yplus_field[node_idx][0] = wall_distance_field[node_idx][0] * sqrt(nu*wall_velocity_gradient_field[wall_field_idx][0]) / nu;
     }
     else
     {
-      yplus_field[node_idx][0] = wall_distance_field[node_idx][0] * sqrt(nu*m_wall_velocity_gradient_nodal[node_to_wall_element[node_idx][1]]) / nu;
+      yplus_field[node_idx][0] = wall_distance_field[node_idx][0] * sqrt(nu*wall_velocity_gradient_field_nodal[node_to_wall_element[node_idx][1]][0]) / nu;
     }
   }
 }
