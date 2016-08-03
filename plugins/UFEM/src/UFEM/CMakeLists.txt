@@ -102,6 +102,8 @@ list( APPEND coolfluid_ufem_files
   SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
+  SSTKOmega.hpp
+  SSTKOmega.cpp
   StandardKEpsilon.hpp
   StandardKEpsilon.cpp
   StokesSteady.hpp
