@@ -5,11 +5,7 @@ import coolfluid as cf
 root = cf.Core.root()
 env = cf.Core.environment()
 
-# Global confifuration
-env.assertion_throws = False
-env.assertion_backtrace = False
-env.exception_backtrace = False
-env.regist_signal_handlers = False
+# Global configuration
 env.log_level = 4
 
 # setup a model
@@ -19,10 +15,7 @@ physics = model.create_physics('cf3.UFEM.NavierStokesPhysics')
 solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the Navier-Stokes solver as an unsteady solver
-ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-
-ic_visc = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_viscosity')
-ic_visc.variable_name = 'EffectiveViscosity'
+ns_solver = solver.add_unsteady_solver('cf3.UFEM.compressible.NavierStokes')
 
 # Generate mesh
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
@@ -75,14 +68,20 @@ solver.create_fields()
 
 #initial condition for the velocity. Unset variables (i.e. the pressure) default to zero
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
-ic_visc.value = ['10. + 2*sin(2/pi*x)']
+
+# Example of varying initial effective viscosity
+ic_visc = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'navier_stokes_viscosity')
+ic_visc.variable_name = 'EffectiveViscosity'
+ic_visc.value = ['0.1 + 0.01*sin(2/pi*x)']
 ic_visc.regions = [mesh.topology.uri()]
 ic_visc.execute()
+
+# Check initial conditions
 domain.write_mesh(cf.URI('laminar-channel-2d_output-init.pvtu'))
 
 # Physical constants
-physics.options().set('density', 1000.)
-physics.options().set('dynamic_viscosity', 10.)
+physics.density = 1000.
+physics.dynamic_viscosity = 0.1
 
 # Boundary conditions
 bc = ns_solver.BoundaryConditions
@@ -91,33 +90,20 @@ bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0.]
 bc.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
 
+# Setup a time series write
+write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
+write_manager.interval = 1 # Saves every timestep
+writer = write_manager.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
+writer.mesh = mesh
+writer.file = cf.URI('out-channel-{iteration}.vtm')
+
 # Time setup
 time = model.create_time()
-time.options().set('time_step', 0.1)
+time.time_step = 0.1
+time.end_time = 1.
 
-#ns_solver.options().set('disabled_actions', ['SolveLSS'])
-
-# Setup a time series write
-final_end_time = 10.
-save_interval = 1.
-current_end_time = 0.
-iteration = 0
-
-writer = root.create_component('Writer', 'cf3.mesh.gmsh.Writer')
-writer.fields = [mesh.geometry.navier_stokes_solution.uri()]
-writer.enable_overlap = True
-writer.mesh = mesh
-
-while current_end_time < final_end_time:
-  current_end_time += save_interval
-  time.options().set('end_time', current_end_time)
-  model.simulate()
-  writer.file = cf.URI('laminar-channel-2d_output-' +str(iteration) + '.msh')
-  writer.execute()
-  domain.write_mesh(cf.URI('laminar-channel-2d_output-' +str(iteration) + '.pvtu'))
-  iteration += 1
-  if iteration == 1:
-    solver.options().set('disabled_actions', ['InitialConditions'])
+# Run the simulation
+model.simulate()
 
 # print timings
 model.print_timing_tree()

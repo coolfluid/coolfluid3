@@ -109,7 +109,7 @@ void keAdjoint::do_set_expressions(LSSActionUnsteady& lss_action)//, solver::act
 
   //});
 
-  Handle<ProtoAction>(lss_action.get_child("Assembly"))->set_expression(
+  /*Handle<ProtoAction>(lss_action.get_child("Assembly"))->set_expression(
   elements_expression
   (
     allowed_elements,
@@ -148,7 +148,7 @@ void keAdjoint::do_set_expressions(LSSActionUnsteady& lss_action)//, solver::act
       lss_action.system_matrix += invdt * _T + m_theta * _A,
       lss_action.system_rhs += -_A * _x + _a
     )
-  ));
+  ));*/
 
   Handle<ProtoAction>(lss_action.get_child("Update"))->set_expression(nodes_expression(group
   (
