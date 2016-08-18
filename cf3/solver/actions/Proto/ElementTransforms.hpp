@@ -249,6 +249,59 @@ struct ElementMathImplicit :
 {
 };
 
+struct ElementIndexTag
+{
+};
+
+static boost::proto::terminal<ElementIndexTag>::type const element_index = {};
+
+struct GetElementIndex : boost::proto::callable
+{
+  typedef Uint result_type;
+
+  template<typename DataT>
+  result_type operator()(const DataT& data) const
+  {
+    return data.support().element_idx();
+  }
+};
+
+struct ElementsPointerTag
+{
+};
+
+static boost::proto::terminal<ElementsPointerTag>::type const elements_pointer = {};
+
+struct GetElementsPointer : boost::proto::callable
+{
+  typedef const mesh::Elements* result_type;
+
+  template<typename DataT>
+  result_type operator()(const DataT& data) const
+  {
+    return &data.support().elements();
+  }
+};
+
+
+/// Return information about the current element
+struct ElementInfo :
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      boost::proto::terminal<ElementIndexTag>,
+      GetElementIndex(boost::proto::_data)
+    >,
+    boost::proto::when
+    <
+      boost::proto::terminal<ElementsPointerTag>,
+      GetElementsPointer(boost::proto::_data)
+    >
+  >
+{
+};
+
 } // namespace Proto
 } // namespace actions
 } // namespace solver

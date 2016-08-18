@@ -939,6 +939,28 @@ BOOST_AUTO_TEST_CASE(ComputeArea)
   surface_integral(vector_int_result, regions, u*normal);
   BOOST_CHECK(vector_int_result == 0.);
 }
+
+BOOST_AUTO_TEST_CASE(ElementInfo)
+{
+  Handle<mesh::Mesh> mesh = common::Core::instance().root().create_component<mesh::Mesh>("ElementInfo");
+  Tools::MeshGeneration::create_rectangle(*mesh, 2., 2., 1, 2);
+
+  Uint e_idx = 0;
+  const mesh::Elements* els = nullptr;
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
+  (
+    mesh->topology(),
+    group
+    (
+      lit(e_idx) += element_index,
+      lit(els) = elements_pointer
+    )
+  );
+
+  BOOST_CHECK_EQUAL(e_idx, 1);
+  BOOST_CHECK_EQUAL(mesh->access_component("topology/region/Quad"), els);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
