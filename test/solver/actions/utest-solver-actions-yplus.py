@@ -27,6 +27,11 @@ def run_test(domain, mesh):
     wall_distance.regions = [wall_region]
     wall_distance.execute()
 
+    conn = domain.create_component("SurfaceToVolumeConnectivity", "cf3.mesh.actions.SurfaceToVolumeConnectivity")
+    conn.mesh = mesh
+    conn.execute()
+    conn.execute() # test double application
+
     yplus = domain.create_component('YPlus', 'cf3.solver.actions.YPlus')
     yplus.mesh = mesh
     yplus.regions = [wall_region.uri()]

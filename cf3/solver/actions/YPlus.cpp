@@ -75,17 +75,12 @@ void YPlus::execute()
 
   // initialize if needed
   auto volume_node_connectivity = Handle<NodeConnectivity>(mesh.get_child("volume_node_connectivity"));
+  if(is_null(volume_node_connectivity))
+  {
+    throw common::SetupError(FromHere(), "No connectivity data found, please execute SurfaceToVolumeConnectivity before YPlus");
+  }
   if(m_normals.empty())
   {
-    // Node-to-element connectivity for the volume elements
-    volume_node_connectivity = mesh.create_component<NodeConnectivity>("volume_node_connectivity");
-    std::vector< Handle<Entities const> > volume_entities;
-    for(const mesh::Elements& elements : common::find_components_recursively_with_filter<mesh::Elements>(mesh, IsElementsVolume()))
-    {
-      volume_entities.push_back(elements.handle<Entities const>());
-    }
-    volume_node_connectivity->initialize(nb_nodes, volume_entities);
-
     mesh.geometry_fields().create_field("wall_velocity_gradient_nodal").add_tag("wall_velocity_gradient_nodal");
     Dictionary& wall_P0 = *mesh.create_component<DiscontinuousDictionary>("wall_P0");
 
@@ -111,7 +106,6 @@ void YPlus::execute()
           m_normals.back()[elem_idx] /= m_normals.back()[elem_idx].norm();
         }
 
-        wall_entity.create_component<FaceConnectivity>("wall_face_connectivity")->initialize(*volume_node_connectivity);
         wall_entity.create_space("cf3.mesh.LagrangeP0."+wall_entity.element_type().shape_name(),wall_P0);
       }
     }
