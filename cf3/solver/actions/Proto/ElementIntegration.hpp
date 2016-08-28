@@ -282,6 +282,7 @@ struct ElementMathImplicitIndexed :
   boost::proto::or_
   <
     SFOps< boost::proto::call< ElementMathImplicitIndexed<I, J> > >,
+    ElementInfo,
     boost::proto::when
     <
       boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
