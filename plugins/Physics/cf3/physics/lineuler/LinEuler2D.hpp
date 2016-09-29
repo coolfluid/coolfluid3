@@ -85,9 +85,9 @@ public: // functions
   /// @return the physical model type
   virtual std::string type() const { return type_name(); }
   /// create a physical properties
-  virtual std::auto_ptr<physics::Properties> create_properties()
+  virtual boost::shared_ptr<physics::Properties> create_properties()
   {
-    std::auto_ptr<physics::Properties> props( new LinEuler2D::Properties() );
+    boost::shared_ptr<physics::Properties> props( new LinEuler2D::Properties() );
     set_constants( static_cast<LinEuler2D::Properties&>( *props ) );
     return props;
   }

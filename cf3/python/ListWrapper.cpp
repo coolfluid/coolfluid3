@@ -24,89 +24,74 @@ namespace python {
 
 using namespace boost::python;
 
-/// Tables can be used as python lists
-template<typename ValueT>
-struct List : PythonListInterface
-{
-  typedef common::List<ValueT> ListT;
-
-  List(ComponentWrapper& wrapped) :
-    m_list(wrapped.component<ListT>())
-  {
-  }
-
-  virtual Uint len() const
-  {
-    return m_list.size();
-  }
-
-  virtual object get_item(const Uint i) const
-  {
-    if(i >= m_list.size())
-    {
-      PyErr_SetString(PyExc_IndexError, ("Index " + boost::lexical_cast<std::string>(i) + " is out of range for List with number of rows: " + boost::lexical_cast<std::string>(m_list.size())).c_str());
-      boost::python::throw_error_already_set();
-    }
-    return object(m_list.array()[i]);
-  }
-
-  virtual void set_item(const Uint i, boost::python::object& value)
-  {
-    if(i >= m_list.size())
-      throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for Table with number of rows: " + boost::lexical_cast<std::string>(m_list.size()));
-    m_list.array()[i] = extract<ValueT>(value);
-  }
-
-  virtual std::string to_str() const
-  {
-    std::stringstream out_stream;
-    out_stream << m_list;
-    return out_stream.str();
-  }
-
-  ListT& m_list;
-};
-
-/// Extra methods for Table
 template<typename ValueT>
 struct ListMethods
 {
+  typedef common::List<ValueT> ListT;
   static void resize(ComponentWrapper& wrapped, const Uint nb_rows)
   {
-    wrapped.component< common::List<ValueT> >().resize(nb_rows);
+    wrapped.component<ListT>().resize(nb_rows);
   }
-};
 
-template<typename ValueT>
-void add_clist_methods(ComponentWrapper& wrapped, boost::python::api::object& py_obj)
-{
-  if(dynamic_cast<const common::List<ValueT>*>(&wrapped.component()))
+  static Uint len(const ComponentWrapperBase& wrapped)
   {
-    // Add list functionality
-    typedef List<ValueT> ListInterfaceT;
-    wrapped.set_list_interface(new ListInterfaceT(wrapped));
-
-    // Extra methods
-    typedef ListMethods<ValueT> ExtraMethodsT;
-    add_function(py_obj, ExtraMethodsT::resize, "resize", "Set the size of the table, i.e. the number of rows");
+    return wrapped.component<ListT>().size();
   }
-}
 
-void add_clist_methods(ComponentWrapper& wrapped, boost::python::api::object& py_obj)
-{
-  add_clist_methods<Real>(wrapped, py_obj);
-  add_clist_methods<Uint>(wrapped, py_obj);
-}
+  static object get_item(ComponentWrapperBase& wrapped, const Uint i)
+  {
+    const ListT& list = wrapped.component<ListT>();
+    if(i >= list.size())
+    {
+      PyErr_SetString(PyExc_IndexError, ("Index " + boost::lexical_cast<std::string>(i) + " is out of range for List with number of rows: " + boost::lexical_cast<std::string>(list.size())).c_str());
+      boost::python::throw_error_already_set();
+    }
+    return object(list.array()[i]);
+  }
+
+  static void set_item(ComponentWrapper& wrapped, const Uint i, object& value)
+  {
+    ListT& list = wrapped.component<ListT>();
+    if(i >= list.size())
+      throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for Table with number of rows: " + boost::lexical_cast<std::string>(list.size()));
+    list.array()[i] = extract<ValueT>(value);
+  }
+
+  static std::string to_str(const ComponentWrapperBase& wrapped)
+  {
+    std::stringstream out_stream;
+    out_stream << wrapped.component<ListT>();
+    return out_stream.str();
+  }
+
+};
 
 template<typename ValueT>
 void def_clist_types()
 {
+  typedef DerivedComponentWrapper< common::List<ValueT> > ListWrapper;
+  typedef DerivedComponentWrapper< common::List<ValueT> const > ListWrapperConst;
+
+  boost::python::class_<ListWrapper, boost::python::bases<ComponentWrapper> >(("List_"+common::class_name<ValueT>()).c_str(), boost::python::no_init)
+    .def("resize", ListMethods<ValueT>::resize, "Set the size of the List, i.e. the number of rows")
+    .def("__setitem__", ListMethods<ValueT>::set_item)
+    .def("__getitem__", ListMethods<ValueT>::get_item)
+    .def("__len__", ListMethods<ValueT>::len)
+    .def("__str__", ListMethods<ValueT>::to_str);
+
+  boost::python::class_<ListWrapperConst, boost::python::bases<ComponentWrapperConst> >(("ListConst_"+common::class_name<ValueT>()).c_str(), boost::python::no_init)
+    .def("__getitem__", ListMethods<ValueT>::get_item)
+    .def("__len__", ListMethods<ValueT>::len)
+    .def("__str__", ListMethods<ValueT>::to_str);
+
+  ComponentWrapperRegistry::instance().register_factory< DefaultComponentWrapperFactory< common::List<ValueT> > >();
 }
 
 void def_clist_types()
 {
   def_clist_types<Real>();
   def_clist_types<Uint>();
+  def_clist_types<bool>();
 }
 
 } // python

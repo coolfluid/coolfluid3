@@ -49,7 +49,7 @@ public: // methods
 
   /// Closes the CF runtime environment.
   /// @post Must not call any CF runtime functions after,
-  ///       only destruction procedures ar allowed afterwards.
+  ///       only destruction procedures are allowed afterwards.
   void terminate();
 
   /// @brief Gives the default root component.

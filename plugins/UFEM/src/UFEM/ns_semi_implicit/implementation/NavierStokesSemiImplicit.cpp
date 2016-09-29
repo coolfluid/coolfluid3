@@ -18,6 +18,7 @@
 #include <Thyra_DefaultSpmdMultiVector.hpp>
 #include <Thyra_VectorStdOps.hpp>
 #include <Thyra_MultiVectorStdOps.hpp>
+#include <Thyra_VectorBase.hpp>
 
 #include "common/Component.hpp"
 #include "common/Builder.hpp"
@@ -210,8 +211,8 @@ struct InnerLoop : solver::Action
   Handle< math::LSS::Vector > u;
   Handle< math::LSS::Vector > a;
   Handle< math::LSS::Vector > p;
-  Teuchos::RCP<Thyra::MultiVectorBase<Real> > delta_a;
-  Teuchos::RCP<Thyra::MultiVectorBase<Real> > aup_delta_p; // This is actually u_lss->rhs()
+  Teuchos::RCP<Thyra::VectorBase<Real> > delta_a;
+  Teuchos::RCP<Thyra::VectorBase<Real> > aup_delta_p; // This is actually u_lss->rhs()
   Handle< math::LSS::Vector > delta_p_sum;
   
   Handle<solver::Time> m_time;
@@ -232,7 +233,7 @@ ComponentBuilder < InnerLoop, common::Action, LibUFEM > InnerLoop_builder;
 /// Initialize inner loop data
 struct SetupInnerLoopData : solver::Action
 {
-  SetupInnerLoopData ( const string& name ) : solver::Action(name)
+  SetupInnerLoopData ( const std::string& name ) : solver::Action(name)
   {
   }
 
@@ -313,6 +314,12 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   options().add("enable_body_force", false)
     .pretty_name("Enable Force Term")
     .description("Activate the volume force term")
+    .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
+    .mark_basic();
+
+  options().add("enable_boussinesq", false)
+    .pretty_name("Enable Boussinesq")
+    .description("Activate the Boussinesq bouyancy approximation")
     .attach_trigger(boost::bind(&NavierStokesSemiImplicit::trigger_reset_assembly, this))
     .mark_basic();
     

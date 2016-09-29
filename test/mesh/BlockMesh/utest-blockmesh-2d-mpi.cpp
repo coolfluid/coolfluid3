@@ -82,10 +82,6 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   *blocks.create_patch("top", 1) << 5 << 4;
   *blocks.create_patch("bottom", 1) << 0 << 1;
 
-  // Partition the blocks
-  blocks.partition_blocks(4, 1);
-  blocks.partition_blocks(2, 0);
-
   // Build the mesh
   Mesh& mesh = *domain.create_component<Mesh>("mesh");
   blocks.create_mesh(mesh);
@@ -109,6 +105,8 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   std::vector<URI> fields;
   fields.push_back(elem_rank.uri());
   mesh.write_mesh("utest-blockmesh-2d-mpi_output.pvtu", fields);
+
+  PE::Comm::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

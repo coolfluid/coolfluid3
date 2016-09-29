@@ -44,4 +44,7 @@ model.simulate()
 model.print_timing_tree()
 
 # Write result
-domain.write_mesh(cf.URI('velocitygradient_output.pvtu'))
+writer = domain.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
+writer.mesh = mesh
+writer.file = cf.URI('velocitygradient_output.vtm')
+writer.execute()

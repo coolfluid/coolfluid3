@@ -80,10 +80,12 @@ void Partitioner::build_graph()
   edgelocsiz = total_nb_edges;
   edgegsttab.resize(total_nb_edges);
   edgeloctab.resize(total_nb_edges);
+  
+  std::vector<Real> edge_weights(total_nb_edges);
 
   cf3_assert(edgelocsiz >= vertloctab[vertlocnbr]);
 
-  list_of_connected_objects_in_part(Comm::instance().rank(),edgeloctab);
+  list_of_connected_objects_in_part(Comm::instance().rank(),edgeloctab,edge_weights);
 
   if (SCOTCH_dgraphBuild(&graph,
                          baseval,

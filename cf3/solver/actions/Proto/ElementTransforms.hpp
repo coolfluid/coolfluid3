@@ -13,6 +13,7 @@
 
 #include "solver/actions/Proto/EigenTransforms.hpp"
 #include "solver/actions/Proto/ElementOperations.hpp"
+#include "Partial.hpp"
 #include "solver/actions/Proto/Terminals.hpp"
 
 /// @file
@@ -31,8 +32,8 @@ struct RunTerminalOp : boost::proto::transform< RunTerminalOp<GrammarT> >
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::remove_reference<typename boost::proto::result_of::value<ExprT>::type>::type ValueT;
-    typedef typename boost::result_of<ValueT(GrammarT)>::type OpT;
-    typedef typename boost::result_of<OpT(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type result_type;
+    typedef typename boost::tr1_result_of<ValueT(GrammarT)>::type OpT;
+    typedef typename boost::tr1_result_of<OpT(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type result_type;
 
     result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data)
     {
@@ -50,8 +51,8 @@ struct RunFunctionOp : boost::proto::transform< RunFunctionOp<GrammarT> >
   {
     typedef typename boost::proto::result_of::child_c<ExprT, 0>::type Child0;
     typedef typename boost::remove_reference<typename boost::proto::result_of::value<Child0>::type>::type ValueT;
-    typedef typename boost::result_of<ValueT(GrammarT)>::type OpT;
-    typedef typename boost::result_of<OpT(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type result_type;
+    typedef typename boost::tr1_result_of<ValueT(GrammarT)>::type OpT;
+    typedef typename boost::tr1_result_of<OpT(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type result_type;
 
     result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data)
     {

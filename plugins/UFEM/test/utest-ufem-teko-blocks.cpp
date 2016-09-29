@@ -13,6 +13,7 @@
 #include <Teko_EpetraHelpers.hpp>
 #include <Teko_Utilities.hpp>
 
+#include <Thyra_describeLinearOp.hpp>
 #include <Thyra_EpetraLinearOp.hpp>
 #include <Thyra_VectorStdOps.hpp>
 
@@ -156,7 +157,6 @@ BOOST_AUTO_TEST_CASE( Blocked2DQuads )
   *blocks.create_patch("top", 1) << 2 << 3;
   *blocks.create_patch("left", 1) << 3 << 0;
 
-  blocks.partition_blocks(PE::Comm::instance().size(), YY);
   blocks.create_mesh(mesh);
 
   lss_action->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));

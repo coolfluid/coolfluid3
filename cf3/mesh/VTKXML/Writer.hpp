@@ -19,6 +19,7 @@
 namespace cf3 {
 namespace mesh {
   class ElementType;
+  class Dictionary;
 namespace VTKXML {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -45,6 +46,9 @@ public: // functions
   virtual std::string get_format() { return "VTKXML"; }
 
   virtual std::vector<std::string> get_extensions();
+  
+private:
+  Handle<mesh::Dictionary const> m_dictionary;
 }; // end Writer
 
 

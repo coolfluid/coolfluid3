@@ -108,12 +108,12 @@ void Reader::read_base(Mesh& parent_region)
   boost::algorithm::replace_all(m_base.name,".","_");
   boost::algorithm::replace_all(m_base.name,":","_");
   boost::algorithm::replace_all(m_base.name,"/","_");
-  
+
   if ( options().value<Uint>("dimension") != 0 )
   {
-    m_base.phys_dim = options().value<Uint>("dimension");     
+    m_base.phys_dim = options().value<Uint>("dimension");
   }
-  
+
   // Create basic region structure
 //  Region& base_region = m_mesh->topology();
 //  m_base_map[m_base.idx] = &base_region;
@@ -179,13 +179,13 @@ void Reader::read_zone(Mesh& mesh)
     Handle<Region> this_region;
     if (m_zone.unique && options().value<bool>("zone_handling") == false)
     {
-      this_region = mesh.topology().handle<Region>(); 
+      this_region = mesh.topology().handle<Region>();
     }
     else
     {
       this_region = mesh.topology().create_region(m_zone.name).handle<Region>();
     }
-    
+
     this_region->add_tag("grid_zone");
     m_zone_map[m_zone.idx] = this_region.get();
 
@@ -262,7 +262,7 @@ void Reader::read_zone(Mesh& mesh)
     Handle<Region> this_region;
     if (m_zone.unique && options().value<bool>("zone_handling") == false)
     {
-      this_region = mesh.topology().handle<Region>(); 
+      this_region = mesh.topology().handle<Region>();
     }
     else
     {
@@ -305,7 +305,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
   Real *xCoord;
   Real *yCoord;
   Real *zCoord;
-    
+
   switch (m_zone.coord_dim)
   {
     case 3:
@@ -477,7 +477,7 @@ void Reader::read_section(Region& parent_region)
       // Convert the cgns element type to the CF element type
       const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype_cgns]+to_str(m_zone.coord_dim)+"D";
       // Add the nodes to the correct Elements component using its buffer
-      cf3_assert(buffer[etype_CF]);
+      cf3_assert(is_not_null(buffer[etype_CF]));
       Uint table_idx = buffer[etype_CF]->add_row(row);
 
       // Store the global element number to a pair of (region , local element number)
@@ -716,7 +716,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
         // Add the local element to the correct Elements component through its buffer
         std::cout << "element_region->element_type().derived_type_name() = " << element_region->element_type().derived_type_name() << std::endl;
-        cf3_assert(buffer[element_region->element_type().derived_type_name()]);
+        cf3_assert(is_not_null(buffer[element_region->element_type().derived_type_name()]));
         buffer[element_region->element_type().derived_type_name()]->add_row(element_region->geometry_space().connectivity()[local_element]);
       }
 
@@ -781,7 +781,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
         // Add the local element to the correct Elements component through its buffer
         std::cout << "element_region->element_type().derived_type_name() = " << element_region->element_type().derived_type_name() << std::endl;
-        cf3_assert(buffer[element_region->element_type().derived_type_name()]);
+        cf3_assert(is_not_null(buffer[element_region->element_type().derived_type_name()]));
         buffer[element_region->element_type().derived_type_name()]->add_row(element_region->geometry_space().connectivity()[local_element]);
       }
 

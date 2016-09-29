@@ -364,7 +364,7 @@ void TrilinosVector::print(const std::string& filename, std::ios_base::openmode 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosVector::print_native(ostream& stream)
+void TrilinosVector::print_native(std::ostream& stream)
 {
   m_vec->Print(stream);
 }
@@ -494,7 +494,7 @@ void TrilinosVector::sync()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosVector::read_native(const common::URI& filename, const string type)
+void TrilinosVector::read_native(const common::URI& filename, const std::string type)
 {
   if(type == "rhs")
   {

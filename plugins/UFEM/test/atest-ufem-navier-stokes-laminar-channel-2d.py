@@ -60,10 +60,12 @@ right_patch = blocks.create_patch_nb_faces(name = 'right', nb_faces = 2)
 right_patch[0] = [1, 3]
 right_patch[1] = [3, 5]
 
-blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
-
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
+
+partitioner = domain.create_component('Partitioner', 'cf3.zoltan.PHG')
+partitioner.mesh = mesh
+partitioner.execute()
 
 ns_solver.regions = [mesh.topology.uri()]
 
@@ -88,13 +90,6 @@ bc.add_constant_bc(region_name = 'left', variable_name = 'Velocity').value = u_i
 bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [0., 0.]
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0.]
 bc.add_constant_bc(region_name = 'right', variable_name = 'Pressure').value = 0.
-
-pressure_integral = solver.add_unsteady_solver('cf3.UFEM.SurfaceIntegral')
-pressure_integral.set_field(variable_name = 'Pressure', field_tag = 'navier_stokes_solution')
-pressure_integral.regions = [mesh.topology.access_component('bottom').uri()]
-pressure_integral.history = solver.create_component('ForceHistory', 'cf3.solver.History')
-pressure_integral.history.file = cf.URI('force-implicit.tsv')
-pressure_integral.history.dimension = 2
 
 # Time setup
 time = model.create_time()

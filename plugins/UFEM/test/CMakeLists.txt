@@ -38,7 +38,7 @@ coolfluid_add_test( UTEST utest-scalar-advection
 
 coolfluid_add_test( UTEST utest-rdm-merge
                     CPP utest-rdm-merge.cpp
-                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_blockmesh                    
+                    LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_blockmesh
                     MPI 1)
 
 coolfluid_add_test( UTEST utest-proto-ns-assembly
@@ -77,12 +77,12 @@ coolfluid_add_test( ATEST atest-ufem-heat3d-sphere
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-cylinder2d
                     PYTHON atest-ufem-navier-stokes-cylinder2d.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu
-                    MPI 1)
+                    MPI 4)
 
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-laminar-channel-2d
                     PYTHON atest-ufem-navier-stokes-laminar-channel-2d.py
                     MPI 2)
-                    
+
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-periodic-channel-2d
                     PYTHON atest-ufem-navier-stokes-periodic-channel-2d.py
                     MPI 2)
@@ -120,6 +120,25 @@ coolfluid_add_test( ATEST atest-flatplate2d-scalar-neumann
 coolfluid_add_test( ATEST atest-flatplate2d-spalartallmaras
                     PYTHON atest-flatplate2d-spalartallmaras.py)
 
+coolfluid_add_test( ATEST atest-flatplate2d-kepsilon
+                    PYTHON atest-flatplate2d-kepsilon.py)
+
+coolfluid_add_test( ATEST atest-channel-chienkepsilon
+                    PYTHON atest-channel-chienkepsilon.py
+                    MPI 4)
+
+coolfluid_add_test( ATEST atest-channel-standardkepsilon
+                    PYTHON atest-channel-standardkepsilon.py)
+
+coolfluid_add_test( ATEST atest-comte-bellot
+                    PYTHON atest-comte-bellot.py)
+
+coolfluid_add_test( ATEST atest-kepsilon-grid
+                    PYTHON atest-kepsilon-grid.py)
+
+coolfluid_add_test( ATEST atest-channel-spalart-allmaras
+                    PYTHON atest-channel-spalart-allmaras.py)
+
 coolfluid_add_test( ATEST atest-multiregion
                     PYTHON atest-multiregion.py)
 
@@ -136,7 +155,7 @@ coolfluid_add_test( UTEST utest-ufem-teko-blocks
                     CPP utest-ufem-teko-blocks.cpp
                     LIBS coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_blockmesh
                     MPI 1)
-                    
+
 coolfluid_add_test(UTEST utest-ufem-surfaceintegral
                    PYTHON utest-ufem-surfaceintegral.py
                    MPI 4)
@@ -149,6 +168,21 @@ coolfluid_add_test( ATEST atest-ufem-velocitygradient
                     PYTHON atest-ufem-velocitygradient.py
                     MPI 4 )
 
+coolfluid_add_test( ATEST utest-kepsilonphysics
+                    PYTHON utest-kepsilonphysics.py)
+
+coolfluid_add_test( ATEST atest-ufem-abl
+                    PYTHON atest-ufem-abl.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/abl.msh
+                    MPI 4)
+
+coolfluid_add_test( ATEST atest-ufem-abl-boussinesqconcentration
+                    PYTHON atest-ufem-abl-boussinesqconcentration.py
+                    ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/abl.msh
+                    MPI 4)
+
 add_subdirectory(demo)
 add_subdirectory(les)
 add_subdirectory(particles)
+add_subdirectory(adjoint)
+add_subdirectory(compressible)

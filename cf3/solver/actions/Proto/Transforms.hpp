@@ -10,6 +10,7 @@
 #include <boost/accumulators/accumulators_fwd.hpp>
 
 #include <boost/fusion/container/vector/convert.hpp>
+#include <boost/mpl/copy.hpp>
 #include <boost/mpl/max.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/transform.hpp>
@@ -88,7 +89,7 @@ struct DefineType
 template<typename I, typename Expr>
 struct DefineTypeOp
 {
-  typedef typename boost::result_of<DefineType<I::value>(Expr)>::type var_type;
+  typedef typename boost::tr1_result_of<DefineType<I::value>(Expr)>::type var_type;
   typedef typename boost::mpl::if_<boost::mpl::is_void_<var_type>, boost::mpl::void_, typename var_type::type>::type type;
 };
 
@@ -97,7 +98,7 @@ template<typename ExprT>
 struct ExpressionProperties
 {
   /// Number of variables in the expression (boost mpl integral constant)
-  typedef typename boost::result_of<ExprVarArity(ExprT)>::type NbVarsT;
+  typedef typename boost::tr1_result_of<ExprVarArity(ExprT)>::type NbVarsT;
 
   /// Types of the used variables
   typedef typename boost::fusion::result_of::as_vector
@@ -129,6 +130,28 @@ private:
   VarsT& m_vars;
 };
 
+/// Returns the data structure associated with a numbered variable
+struct VarData :
+  boost::proto::transform< VarData >
+{
+  template<typename VarT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<VarT, StateT, DataT>
+  {
+
+    typedef typename boost::remove_reference<typename impl::expr_param>::type::index_type var_idx_t;
+    typedef decltype(std::declval<typename impl::data_param>().var_data(var_idx_t())) result_type;
+
+    result_type operator ()(
+                typename impl::expr_param var
+              , typename impl::state_param state
+              , typename impl::data_param data
+    ) const
+    {
+      return data.var_data(var_idx_t());
+    }
+  };
+};
+
 /// Returns the data value of a numbered variable
 struct VarValue :
   boost::proto::transform< VarValue >
@@ -145,6 +168,7 @@ struct VarValue :
               , typename impl::data_param data
     ) const
     {
+
       return data.var_data(var).value();
     }
   };
@@ -302,6 +326,16 @@ struct DeepCopy : //boost::proto::functional::deep_copy
     boost::proto::nary_expr<boost::proto::_, boost::proto::vararg< boost::proto::when<DeepCopy, boost::proto::_byval(DeepCopy)> > >
   >
 {
+};
+
+/// Generic definition of result, using C++11 features
+template<typename Signature>
+struct generic_result;
+
+template<typename This, typename... ArgsT>
+struct generic_result<This(ArgsT...)>
+{
+  typedef decltype(std::declval<This>()(std::declval<ArgsT>()...)) type;
 };
 
 } // namespace Proto

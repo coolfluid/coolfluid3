@@ -1,14 +1,22 @@
 coolfluid3_add_library( TARGET coolfluid_vtk
   SOURCES
+    CF3ToVTK.hpp
+    CF3ToVTK.cpp
     LibVTK.hpp
     LibVTK.cpp
+    LiveCoProcessor.hpp
+    LiveCoProcessor.cpp
     MeshInterpolator.hpp
     MeshInterpolator.cpp
+    MultiblockWriter.hpp
+    MultiblockWriter.cpp
+    SourcePipeline.hpp
+    SourcePipeline.cpp
     Tetrahedralize.hpp
     Tetrahedralize.cpp
   LIBS
     coolfluid_mesh
+    coolfluid_solver
     ${VTK_LIBRARIES}
   INCLUDES
-    ${VTK_INCLUDE_DIR}
-  CONDITION  VTK_FOUND )
+    ${VTK_INCLUDE_DIR})

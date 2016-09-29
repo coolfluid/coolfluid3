@@ -12,15 +12,12 @@
 #include "common/CF.hpp"
 #include "math/VectorialFunction.hpp"
 
+#include "Terminals.hpp"
+
 namespace cf3 {
 namespace solver {
 namespace actions {
 namespace Proto {
-
-/// Base class of all functions that can be evaluated using "default" C++ semantics
-struct FunctionBase
-{
-};
 
 /// Pow function based on Proto docs example
 template<Uint Exp>

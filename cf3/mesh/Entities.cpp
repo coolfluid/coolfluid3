@@ -6,7 +6,7 @@
 
 #include <ios>
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 
 #include "common/Link.hpp"
 #include "common/FindComponents.hpp"

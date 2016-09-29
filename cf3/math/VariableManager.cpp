@@ -13,6 +13,7 @@
 #include "common/OptionT.hpp"
 
 #include "common/XML/Protocol.hpp"
+#include "common/Signal.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "math/VariableManager.hpp"
@@ -32,6 +33,11 @@ common::ComponentBuilder < VariableManager, Component, LibMath > VariableManager
 
 VariableManager::VariableManager(const std::string& name): Component(name)
 {
+  regist_signal( "create_descriptor" )
+    .connect( boost::bind( &VariableManager::signal_create_descriptor, this, _1 ) )
+    .description("Create a new descriptor")
+    .pretty_name("Create Descriptor")
+    .signature( boost::bind ( &VariableManager::signature_create_descriptor, this, _1) );
 }
 
 VariableManager::~VariableManager()
@@ -52,7 +58,9 @@ void VariableManager::signal_create_descriptor(SignalArgs& node)
 {
   SignalOptions options(node);
 
-  create_descriptor(options.option("name").value_str(), options.option("description").value_str());
+  SignalFrame reply = node.create_reply(uri());
+  SignalOptions reply_options(reply);
+  reply_options.add("created_component", create_descriptor(options.option("name").value_str(), options.option("description").value_str()).uri());
 }
 
 

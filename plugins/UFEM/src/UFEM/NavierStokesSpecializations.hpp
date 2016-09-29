@@ -28,14 +28,14 @@ struct SUPGSpecialized
   typedef void result_type;
 
   template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
-  void operator()(const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& dt, const Real& rho, MatrixT& A, MatrixT& T) const
+  void operator()(const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& dt, MatrixT& A, MatrixT& T) const
   {
-    apply(typename UT::EtypeT(), p, u, u_adv, nu_eff, dt, rho, A, T);
+    apply(typename UT::EtypeT(), p, u, u_adv, nu_eff, dt, A, T);
   }
 
   /// Specialization for triangles
   template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& dt, const Real& rho, MatrixT& A, MatrixT& T) const
+  void apply(const mesh::LagrangeP1::Triag2D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& dt, MatrixT& A, MatrixT& T) const
   {
     typedef mesh::LagrangeP1::Triag2D ElementT;
     const RealVector2 u_avg = u_adv.value().colwise().mean();
@@ -111,13 +111,13 @@ struct SUPGSpecialized
         A(Vi,Vj)+=val*(      normals(i, XX)*normals(j, XX)+4./3.*normals(i, YY)*normals(j, YY));
 
         // Pressure (Standard + SUPG)
-        val  = 1./(6.*rho);
-        val += tau_su/(4.*rho*volume)*u_ni;
+        val  = 1./6.;
+        val += tau_su/(4.*volume)*u_ni;
         A(Ui,Pj) += normals(j, XX)*val;
         A(Vi,Pj) += normals(j, YY)*val;
 
         // Pressure (PSPG)
-        const Real laplacian = 1./(4.*rho*volume)*(normals(i, XX)*normals(j, XX)+normals(i, YY)*normals(j, YY));
+        const Real laplacian = 1./(4.*volume)*(normals(i, XX)*normals(j, XX)+normals(i, YY)*normals(j, YY));
         A(Pi,Pj) += tau_ps*laplacian;
 
         // Continuity (Standard)
@@ -148,7 +148,7 @@ struct SUPGSpecialized
 
   /// Specialization for tetrahedra
   template<typename PT, typename UT, typename UADVT, typename NUT, typename MatrixT>
-  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& dt, const Real& rho, MatrixT& A, MatrixT& T) const
+  void apply(const mesh::LagrangeP1::Tetra3D&, const PT& p, const UT& u, const UADVT& u_adv, const NUT& nu_eff, const Real& dt, MatrixT& A, MatrixT& T) const
   {
     typedef mesh::LagrangeP1::Tetra3D ElementT;
     const RealVector3 u_avg = u_adv.value().colwise().mean();
@@ -251,14 +251,14 @@ struct SUPGSpecialized
         A(Wi,Wj)+=val*(      normals(i, XX)*normals(j, XX)+      normals(i, YY)*normals(j, YY)+4./3.*normals(i, ZZ)*normals(j, ZZ));
 
         // Pressure (Standard + SUPG)
-        val  = 1./(12.*rho);
-        val += tau_su/(9.*rho*volume)*u_ni;
+        val  = 1./(12.);
+        val += tau_su/(9.*volume)*u_ni;
         A(Ui,Pj) += normals(j, XX)*val;
         A(Vi,Pj) += normals(j, YY)*val;
         A(Wi,Pj) += normals(j, ZZ)*val;
 
         // Pressure (PSPG)
-        val = tau_ps/(9.*rho*volume)*(normals(i, XX)*normals(j, XX)+normals(i, YY)*normals(j, YY)+normals(i, ZZ)*normals(j, ZZ));
+        val = tau_ps/(9.*volume)*(normals(i, XX)*normals(j, XX)+normals(i, YY)*normals(j, YY)+normals(i, ZZ)*normals(j, ZZ));
         A(Pi,Pj) += val;
 
         // Continuity (Standard)

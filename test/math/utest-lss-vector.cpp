@@ -17,6 +17,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <Teuchos_VerboseObject.hpp>
+#include <Thyra_VectorBase.hpp>
 #include <Thyra_VectorStdOps.hpp>
 
 #include "common/Log.hpp"

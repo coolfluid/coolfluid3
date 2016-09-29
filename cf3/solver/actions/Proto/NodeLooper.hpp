@@ -60,7 +60,7 @@ struct NodeLooperDim
 
     typedef typename boost::remove_const<typename boost::remove_reference
     <
-      typename boost::result_of<NodeGrammar(const ProtoExprT&, int, DataT&)>::type
+      typename boost::tr1_result_of<NodeGrammar(const ProtoExprT&, int, DataT&)>::type
     >::type>::type ValueT;
 
     explicit NodesExpressionStored(ProtoExprT const &expr = ProtoExprT())
@@ -156,7 +156,7 @@ private:
       used_entities.push_back(entities.handle<mesh::Entities>());
     }
 
-    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = mesh::build_used_nodes_list(used_entities, dict, true);
+    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = mesh::build_used_nodes_list(used_entities, dict, false);
 
     const common::List<Uint>& nodes = *used_nodes_ptr;
     const Uint nb_nodes = nodes.size();
@@ -217,14 +217,14 @@ struct NodeLooper
   void operator()(const NbDimsT&)
   {
     mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(m_region);
-    
+
     common::Table<Real>& coords = mesh.geometry_fields().coordinates();
     if(NbDimsT::value != coords.row_size())
       return;
 
     // Execute with known dimension
     NodeLooperDim<ExprT, NbDimsT>(m_expr, m_region, m_variables)();
-    
+
     FieldSynchronizer::instance().synchronize();
   }
 
@@ -238,7 +238,7 @@ private:
 template<Uint dim, typename ExprT>
 void for_each_node(mesh::Region& root_region, const ExprT& expr)
 {
-  // IF COMPILATION FAILS HERE: the espression passed is invalid
+  // IF COMPILATION FAILS HERE: the expression passed is invalid
   BOOST_MPL_ASSERT_MSG(
     (boost::proto::matches<ExprT, NodeGrammar>::value),
                        INVALID_NODE_EXPRESSION,

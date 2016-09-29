@@ -55,17 +55,24 @@ void NavierStokes::set_assembly_expression(const std::string& action_name)
           element_quadrature
           (
             _A(p    , u[_i]) += transpose(N(p) + tau_ps*u_adv*nabla(p)*0.5) * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
-            _A(p    , p)     += tau_ps * transpose(nabla(p)) * nabla(p) / rho, // Continuity, PSPG
+            _A(p    , p)     += tau_ps * transpose(nabla(p)) * nabla(p), // Continuity, PSPG
             _A(u[_i], u[_i]) += nu_eff * transpose(nabla(u)) * nabla(u) + transpose(N(u) + tau_su*u_adv*nabla(u)) * u_adv*nabla(u), // Diffusion + advection
-            _A(u[_i], p)     += transpose(N(u) + tau_su*u_adv*nabla(u)) * nabla(p)[_i] / rho, // Pressure gradient (standard and SUPG)
+            _A(u[_i], p)     += transpose(N(u) + tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
             _A(u[_i], u[_j]) += transpose(tau_bulk*nabla(u)[_i] // Bulk viscosity
                                 + 0.5*u_adv[_i]*(N(u) + tau_su*u_adv*nabla(u))) * nabla(u)[_j],  // skew symmetric part of advection (standard +SUPG)
             _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u), // Time, PSPG
             _T(u[_i], u[_i]) += transpose(N(u) + tau_su*u_adv*nabla(u)) * N(u), // Time, standard and SUPG
-            _a[u[_i]] += transpose(N(u) + tau_su*u_adv*nabla(u)) * g[_i]
+            _a[u[_i]] += transpose(N(u) + tau_su*u_adv*nabla(u)) * g[_i] * density_ratio
           )
         ),
-        for_specialized_elements(supg_specialized(p, u, u_adv, nu_eff, lit(dt()), rho, _A, _T)),
+        for_specialized_elements
+        (
+          supg_specialized(p, u, u_adv, nu_eff, lit(dt()), _A, _T),
+          element_quadrature
+          (
+            _a[u[_i]] += transpose(N(u) + tau_su*u_adv*nabla(u)) * g[_i] * density_ratio
+          )
+        ),
         system_rhs += -_A * _x + _a,
         _A(p) = _A(p) / theta,
         system_matrix += invdt() * _T + theta * _A

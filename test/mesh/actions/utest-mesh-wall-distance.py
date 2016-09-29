@@ -11,6 +11,8 @@ domain = root.create_component('Domain', 'cf3.mesh.Domain')
 # 2D case
 mesh = domain.create_component('mesh','cf3.mesh.Mesh')
 
+writer = domain.create_component('CF3ToVTK', 'cf3.vtk.MultiblockWriter')
+
 blocks = root.create_component('model', 'cf3.mesh.BlockMesh.BlockArrays')
 points = blocks.create_points(dimensions = 2, nb_points = 9)
 points[0] = [0., 0.]
@@ -45,8 +47,6 @@ left[1] = [8, 0]
 step = blocks.create_patch_nb_faces(name = 'step', nb_faces = 2)
 step[0] = [7, 4]
 step[1] = [4, 6]
-blocks.partition_blocks(nb_partitions = 2, direction = 0)
-blocks.partition_blocks(nb_partitions = 2, direction = 1)
 blocks.create_mesh(mesh.uri())
 
 make_boundary_global = root.create_component('MakeBoundaryGlobal', 'cf3.mesh.actions.MakeBoundaryGlobal')
@@ -58,7 +58,9 @@ wall_distance.mesh = mesh
 wall_distance.regions = [mesh.topology.step]
 wall_distance.execute()
 
-domain.write_mesh(cf.URI('wall-distance-2dstep.pvtu'))
+writer.mesh =  mesh
+writer.file = cf.URI('wall-distance-2dstep.vtm')
+writer.execute()
 
 mesh.delete_component()
 
@@ -66,10 +68,15 @@ mesh.delete_component()
 mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'mesh')
 make_boundary_global.mesh = mesh
 make_boundary_global.execute()
+
 wall_distance.mesh = mesh
 wall_distance.regions = [mesh.topology.inner]
 wall_distance.execute()
-domain.write_mesh(cf.URI('wall-distance-sphere.pvtu'))
+
+writer.mesh =  mesh
+writer.file = cf.URI('wall-distance-sphere.vtm')
+writer.execute()
+
 
 mesh.delete_component()
 
@@ -111,13 +118,15 @@ step = blocks.create_patch_nb_faces(name = 'step', nb_faces = 2)
 step[0] = [7, 4]
 step[1] = [4, 6]
 blocks.extrude_blocks(positions=[1.], nb_segments=[10], gradings=[1.])
-blocks.partition_blocks(nb_partitions = 2, direction = 0)
-blocks.partition_blocks(nb_partitions = 2, direction = 1)
 blocks.create_mesh(mesh.uri())
 
 make_boundary_global.mesh = mesh
 make_boundary_global.execute()
+
 wall_distance.mesh = mesh
 wall_distance.regions = [mesh.topology.step, mesh.topology.back]
 wall_distance.execute()
-domain.write_mesh(cf.URI('wall-distance-3dstep.pvtu'))
+
+writer.mesh =  mesh
+writer.file = cf.URI('wall-distance-3dstep.vtm')
+writer.execute()

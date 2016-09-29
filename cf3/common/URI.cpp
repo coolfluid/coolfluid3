@@ -6,7 +6,7 @@
 
 #include <ios>
 
-#include <boost/assign/list_of.hpp> // for map_list_of
+#include "common/BoostAssign.hpp" // for map_list_of
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 

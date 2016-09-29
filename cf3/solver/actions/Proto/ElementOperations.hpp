@@ -73,6 +73,29 @@ struct NodesOp : boost::proto::transform< NodesOp >
   };
 };
 
+
+/// Possible types for mapped coords
+struct MappedCoordTerms :
+  boost::proto::or_
+  <
+    boost::proto::terminal< RealVector >,
+    boost::proto::terminal< RealVector1 >,
+    boost::proto::terminal< RealVector2 >,
+    boost::proto::terminal< RealVector3 >
+  >
+{
+};
+
+/// Transform to evalate mapped coordinates
+struct EvalMappedCoords :
+  boost::proto::or_
+  <
+    boost::proto::when<MappedCoordTerms, boost::proto::_value>,
+    GaussGrammar
+  >
+{
+};
+
 /// Base class for the implementation of operations that depend on mapped coordinates (CRTP pattern)
 template<typename ExprT, typename StateT, typename DataT, typename Derived, template<typename> class ResultType>
 struct MappedOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
@@ -98,30 +121,8 @@ struct MappedOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
   /// Mapped coordinates were supplied as an argument
   result_type dispatch(boost::mpl::int_<2>, typename MappedOpBase::expr_param expr, typename MappedOpBase::data_param data)
   {
-    return Derived::apply(data.support(), boost::proto::value(boost::proto::child_c<1>(expr)));
+    return Derived::apply(data.support(), EvalMappedCoords()(boost::proto::child_c<1>(expr), 0, data));
   }
-};
-
-/// Possible types for mapped coords
-struct MappedCoordTerms :
-  boost::proto::or_
-  <
-    boost::proto::terminal< RealVector >,
-    boost::proto::terminal< RealVector1 >,
-    boost::proto::terminal< RealVector2 >,
-    boost::proto::terminal< RealVector3 >
-  >
-{
-};
-
-/// Transform to evalate mapped coordinates
-struct EvalMappedCoords :
-  boost::proto::or_
-  <
-    boost::proto::when<MappedCoordTerms, boost::proto::_value>,
-    GaussGrammar
-  >
-{
 };
 
 /// Base class for the implementation of operations that depend on mapped coordinates (CRTP pattern)
@@ -326,6 +327,24 @@ struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
   };
 };
 
+struct IsLocalOp : boost::proto::transform< IsLocalOp >
+{
+  template<typename SupportT>
+  struct ResultType
+  {
+    typedef Real type;
+  };
+
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : MappedOpBase<ExprT, StateT, DataT, impl<ExprT, StateT, DataT>, ResultType>
+  {
+    static Real apply(const typename impl::SupportT& support)
+    {
+      return support.is_local_element();
+    }
+  };
+};
+
 /// Operation with a custom implementation
 template<typename OpImpl, typename GrammarT>
 struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl, GrammarT> >
@@ -351,7 +370,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
       <
         typename boost::remove_reference
         <
-          typename boost::result_of
+          typename boost::tr1_result_of
           <
             ChildGrammar(typename boost::proto::result_of::child_c<ExprT, Idx>::type, StateT, DataT)
           >::type
@@ -412,70 +431,70 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::terminal, 0, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename boost::remove_reference<DataT>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename boost::remove_reference<DataT>::type)>::type type;
     };
 
     /// Specialization for a function with one argument
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 2, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type)>::type type;
     };
 
     /// Specialization for a function with 2 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 3, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type)>::type type;
     };
 
     /// Specialization for a function with 3 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 4, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type)>::type type;
     };
 
     /// Specialization for a function with 4 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 5, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type)>::type type;
     };
 
     /// Specialization for a function with 5 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 6, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type)>::type type;
     };
 
     /// Specialization for a function with 6 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 7, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type)>::type type;
     };
 
     /// Specialization for a function with 7 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 8, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type)>::type type;
     };
 
     /// Specialization for a function with 8 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 9, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type, typename ChildType<8>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type, typename ChildType<8>::type)>::type type;
     };
-    
+
     /// Specialization for a function with 9 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 10, Dummy>
     {
-      typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type, typename ChildType<8>::type, typename ChildType<9>::type)>::type type;
+      typedef typename boost::tr1_result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type, typename ChildType<5>::type, typename ChildType<6>::type, typename ChildType<7>::type, typename ChildType<8>::type, typename ChildType<9>::type)>::type type;
     };
 
     typedef typename ResultType<typename boost::proto::tag_of<ExprT>::type, boost::proto::arity_of<ExprT>::value>::type result_type;
@@ -670,7 +689,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data));
       }
-      
+
       result_type operator()(boost::proto::tag::function,
                              boost::mpl::int_<5>,
                              typename impl::expr_param expr,
@@ -683,7 +702,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
           GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data),
           GetChild<typename EvaluatedChild<4>::type>()(ChildGrammar()(boost::proto::child_c<4>(expr), state, data), data));
       }
-      
+
       result_type operator()(boost::proto::tag::function,
                              boost::mpl::int_<7>,
                              typename impl::expr_param expr,
@@ -731,7 +750,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
           GetChild<typename EvaluatedChild<7>::type>()(ChildGrammar()(boost::proto::child_c<7>(expr), state, data), data),
           GetChild<typename EvaluatedChild<8>::type>()(ChildGrammar()(boost::proto::child_c<8>(expr), state, data), data));
       }
-      
+
       result_type operator()(boost::proto::tag::function,
                              boost::mpl::int_<10>,
                              typename impl::expr_param expr,
@@ -779,7 +798,7 @@ template<typename OpT>
 struct SFOp< CustomSFOp<OpT> >
 {
   OpT op;
-  
+
   template<typename Signature>
   struct result;
 
@@ -810,6 +829,7 @@ boost::proto::terminal< SFOp<CoordinatesOp> >::type const coordinates = {};
 boost::proto::terminal< SFOp<JacobianOp> >::type const jacobian = {};
 boost::proto::terminal< SFOp<JacobianDeterminantOp> >::type const jacobian_determinant = {};
 boost::proto::terminal< SFOp<NormalOp> >::type const normal = {};
+boost::proto::terminal< SFOp<IsLocalOp> >::type const is_local_element = {};
 boost::proto::terminal< SFOp<NablaOp> >::type const nabla = {};
 
 boost::proto::terminal< SFOp<ShapeFunctionOp> >::type const N = {};

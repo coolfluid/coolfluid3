@@ -130,9 +130,3 @@ else()
   set( BUILD_SHARED_LIBS ON )
 
 endif()
-
-
-
-
-
-

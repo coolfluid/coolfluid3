@@ -7,10 +7,7 @@
 #ifndef cf3_common_Table_fwd_hpp
 #define cf3_common_Table_fwd_hpp
 
-#define BOOST_MULTI_ARRAY_NO_GENERATORS 0
-#include <boost/multi_array/base.hpp>
-#undef BOOST_MULTI_ARRAY_NO_GENERATORS
-
+#include "common/BoostArray.hpp"
 #include "common/CF.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -34,7 +34,6 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/math/special_functions/next.hpp>
-#include <boost/math/tools/test.hpp>
 #include <boost/static_assert.hpp>
 
 #include "common/EigenAssertions.hpp"
@@ -66,7 +65,7 @@ const Accumulator test(const T& A, const T& B)
   Accumulator result;
   test(A, B, result);
   return result;
-};
+}
 
 /// Function that tests the difference between two objects, returning separate results for exact (integer and string) and inexact (floating-point) types.
 /// See "Comparing floating point numbers" by Bruce Dawson at http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
@@ -75,31 +74,31 @@ void test(const T& A, const T& B, Accumulator& Result)
 {
   // This will be triggered if this template is ever instantiated
   BOOST_STATIC_ASSERT(sizeof(T) == 0);
-};
+}
 
 /// Specialization of test() that tests bool
 inline void test(const bool& A, const bool& B, Accumulator& Result)
 {
   Result.exact(A == B);
-};
+}
 
 /// Specialization of test that tests int
 inline void test(const int& A, const int& B, Accumulator& Result)
 {
   Result.exact(A == B);
-};
+}
 
 /// Specialization of test that tests char
 inline void test(const char& A, const char& B, Accumulator& Result)
 {
   Result.exact(A == B);
-};
+}
 
 /// Specialization of test that tests Uint
 inline void test(const Uint& A, const Uint& B, Accumulator& Result)
 {
   Result.exact(A == B);
-};
+}
 
 /// Specialization of test that tests Real
 inline void test(const Real& A, const Real& B, Accumulator& Result)
@@ -115,7 +114,14 @@ inline void test(const Real& A, const Real& B, Accumulator& Result)
   {
     Result.ulps(std::fabs(boost::math::float_distance(A, B)));
   }
-};
+}
+
+template<typename FirstT, typename SecondT>
+inline void test(const std::pair<FirstT, SecondT>& A, const std::pair<FirstT, SecondT>& B, Accumulator& Result)
+{
+  test(A.first, B.first, Result);
+  test(A.second, B.second, Result);
+}
 
 /// Given iterators designating two sequences, calls the test() function for each pair of values,
 /// and confirms that both sequences are the same length.
@@ -126,7 +132,7 @@ void range_test(IteratorT A, IteratorT LastA, IteratorT B, IteratorT LastB, Accu
     test(*A, *B, Result);
 
   Result.exact(A == LastA && B == LastB);
-};
+}
 
 /// Compares vector-like sequences
 template<typename VectorT>
@@ -138,7 +144,7 @@ void vector_test(const VectorT& A, const VectorT& B, Accumulator& Result)
     test(A[i], B[j], Result);
 
   Result.exact(sizeA == sizeB);
-};
+}
 
 /// Compares Eigen matrices or vectors
 template<int NbRows, int NbCols>
@@ -149,7 +155,7 @@ void vector_test(const Eigen::Matrix<Real, NbRows, NbCols>& A, const Eigen::Matr
       test(A(i, j), B(k, l), Result);
 
   Result.exact(A.rows() == B.rows() && A.cols() == B.cols());
-};
+}
 
 } // Testing
 } // Tools

@@ -144,7 +144,6 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   *blocks.create_patch("top", 1) << 2 << 3;
   *blocks.create_patch("left", 1) << 3 << 0;
 
-  blocks.partition_blocks(PE::Comm::instance().size(), YY);
   blocks.create_mesh(mesh);
 
   lss_action->options().set("regions", std::vector<URI>(1, mesh.topology().uri()));

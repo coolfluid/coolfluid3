@@ -7,7 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for the Hexa3D shape function"
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/test/unit_test.hpp>
 
 #include "common/EigenAssertions.hpp"

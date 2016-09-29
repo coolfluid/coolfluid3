@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <cstring>
+
 #include "python/BoostPython.hpp"
 
 #include "common/Core.hpp"
@@ -51,10 +53,9 @@ struct CoreWrapper
       for(Uint i = 0; i != argc; ++i)
       {
         std::string arg_i = boost::python::extract<std::string>(arglist[i]);
-        argv[i] = new char[arg_i.size()];
-        arg_i.copy(argv[i], arg_i.size());
+        argv[i] = new char[arg_i.size()+1];
+        std::strcpy(argv[i], arg_i.c_str());
       }
-
       common::Core::instance().initiate(argc, argv);
       common::PE::Comm::instance().init(argc, argv);
     }
@@ -79,7 +80,7 @@ struct CoreWrapper
   {
     common::Core::instance().terminate();
   }
-  
+
   static void wait_for_debugger(const int rank)
   {
     common::PE::wait_for_debugger(rank);
