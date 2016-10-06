@@ -54,16 +54,50 @@ const RealMatrix& Tetra::local_coordinates()
   static const RealMatrix loc_coord =
       (RealMatrix(nb_nodes, dimensionality) <<
 
-       0.,  0.,  0.,
-       1.,  0.,  0.,
-       0.,  1.,  0.,
-       0.,  0.,  1.
-
+	0., 0., 0.,
+        1., 0., 0.,
+        0., 1., 0.,
+        0., 0., 1.
+       
        ).finished();
   return loc_coord;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+const RealMatrix& Tetra::mononomial_coefficients()
+{
+  static const RealMatrix coeffs=
+      (RealMatrix(nb_nodes, nb_nodes) <<
+
+       
+       1.,  -1.,  -1., -1.,
+       0.,   1.,   0.,  0.,
+       0.,   0.,   1.,  0.,
+       0.,   0.,   0.,  1.
+
+       ).finished();
+  return coeffs;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const RealMatrix& Tetra::mononomial_exponents()
+{
+  static const RealMatrix exponents=
+      (RealMatrix(nb_nodes, dimensionality) <<
+
+       0, 0, 0,
+       1, 0, 0,
+       0, 1, 0,
+       0, 0, 1
+
+       ).finished();
+  return exponents;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 } // LagrangeP1
 } // mesh
