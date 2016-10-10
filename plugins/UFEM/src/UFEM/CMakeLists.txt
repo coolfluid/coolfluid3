@@ -26,6 +26,8 @@ list( APPEND coolfluid_ufem_files
   BCHoldValue.cpp
   BCNeumannConstant.cpp
   BCNeumannConstant.hpp
+  BCSSTKOmega.hpp
+  BCSSTKOmega.cpp
   BCWallEpsilon.hpp
   BCWallEpsilon.cpp
   BCWallEpsilonABL.hpp

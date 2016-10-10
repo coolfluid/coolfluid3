@@ -18,6 +18,8 @@
 #include "math/LSS/SolveLSS.hpp"
 #include "math/LSS/ZeroLSS.hpp"
 
+#include "mesh/ConnectivityData.hpp"
+
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Proto/ElementGradDiv.hpp"
 #include "solver/actions/Iterate.hpp"
@@ -32,18 +34,31 @@
 namespace cf3 {
 namespace UFEM {
 
-
+common::ComponentBuilder < SSTKOmega, common::Action, LibUFEM > SSTKOmega_builder;
 
 using namespace solver::actions::Proto;
 using namespace boost::proto;
 
+struct AddVorticity
+{
+  typedef void result_type;
+
+  template<typename VorticityT>
+  void operator()(VorticityT& vorticity_var, const Real vorticity) const
+  {
+    vorticity_var.add_nodal_values(vorticity*VorticityT::ElementVectorT::Ones());
+  }
+};
+
+static MakeSFOp<AddVorticity>::type const add_vorticity = {};
+
 SSTKOmega::SSTKOmega(const std::string& name) :
   solver::Action(name),
-  k("k", "ke_solution"),
-  omega("omega", "ke_solution"),
+  k("k", "komega_solution"),
+  omega("omega", "komega_solution"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"), // This is the viscosity that needs to be modified to be visible in NavierStokes
   d("wall_distance", "wall_distance"),
-  yplus("yplus", "yplus")
+  vorticity("vorticity_magnitude", "vorticity")
 {
   options().add("velocity_tag", "navier_stokes_solution")
     .pretty_name("Velocity Tag")
@@ -69,17 +84,22 @@ SSTKOmega::SSTKOmega(const std::string& name) :
   link_physics_constant("kinematic_viscosity", m_nu_lam);
   link_physics_constant("density", m_rho);
 
+  link_physics_constant("kappa", m_kappa);
+
+  create_component<ProtoAction>("ComputeVorticityMagnitude");
   create_component<ProtoAction>("UpdateNut");
 
   auto lss = create_component<LSSActionUnsteady>("LSS");
-  lss->set_solution_tag("ke_solution");
+  lss->set_solution_tag("komega_solution");
   lss->create_component<math::LSS::ZeroLSS>("ZeroLSS");
   lss->create_component<ProtoAction>("Assembly");
-  lss->create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag("ke_solution");
+  lss->create_component<BoundaryConditions>("BoundaryConditions")->set_solution_tag("komega_solution");
   lss->get_child("BoundaryConditions")->mark_basic();
   lss->create_component<math::LSS::SolveLSS>("SolveLSS");
   lss->create_component<ProtoAction>("Update");
   lss->mark_basic();
+
+  trigger_set_expression();
 }
 
 SSTKOmega::~SSTKOmega()
@@ -89,14 +109,20 @@ SSTKOmega::~SSTKOmega()
 void SSTKOmega::trigger_set_expression()
 {
   FieldVariable<2, VectorField> u("Velocity", options().value<std::string>("velocity_tag"));
-  do_set_expressions(*Handle<LSSActionUnsteady>(get_child("LSS")), *Handle<ProtoAction>(get_child("UpdateNut")), u);
+  do_set_expressions(*Handle<LSSActionUnsteady>(get_child("LSS")), *Handle<ProtoAction>(get_child("UpdateNut")), *Handle<ProtoAction>(get_child("ComputeVorticityMagnitude")), u);
 }
 
 void SSTKOmega::execute()
 {
-  auto lss_action = Handle<LSSActionUnsteady>(get_child("LSS"));
+  m_gamma_1 = m_beta_1/m_beta_s - m_sigma_omega1*m_kappa*m_kappa/(std::sqrt(m_beta_s));
+  m_gamma_2 = m_beta_2/m_beta_s - m_sigma_omega2*m_kappa*m_kappa/(std::sqrt(m_beta_s));
+
+  Handle<ProtoAction> compute_vorticity(get_child("ComputeVorticityMagnitude"));
+  compute_vorticity->execute();
   Handle<ProtoAction> update_nut(get_child("UpdateNut"));
   update_nut->execute();
+
+  auto lss_action = Handle<LSSActionUnsteady>(get_child("LSS"));
   for(Uint i = 0; i != 2; ++i)
   {
     lss_action->execute();
@@ -111,7 +137,7 @@ void SSTKOmega::on_regions_set()
   access_component("LSS/BoundaryConditions")->options().set("regions", options()["regions"].value());
 }
 
-void SSTKOmega::do_set_expressions(LSSActionUnsteady& lss_action, solver::actions::Proto::ProtoAction& update_nut, FieldVariable<2, VectorField>& u)
+void SSTKOmega::do_set_expressions(LSSActionUnsteady& lss_action, solver::actions::Proto::ProtoAction& update_nut, solver::actions::Proto::ProtoAction& compute_vorticity, FieldVariable<2, VectorField>& u)
 {
   Real& dt = lss_action.dt();
   Real& invdt = lss_action.invdt();
@@ -150,17 +176,39 @@ void SSTKOmega::do_set_expressions(LSSActionUnsteady& lss_action, solver::action
       (
         _A(k,k) += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * u * nabla(k) + (m_nu_lam + nut(nu_eff) * F1(m_sigma_k1, m_sigma_k2, k, omega, d, partial(k,_i)*partial(omega,_i))) * transpose(nabla(k)) * nabla(k) // Advection and diffusion
                  + transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * m_beta_s*omega*N(k), // sink term
-        _T(k,k) +=  transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * N(k),
-        _a[k] += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (0.5*nut(nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))), // Production
+        _T(k,k) += transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * N(k),
+        _a[k] +=   transpose(N(k) + (tau_su*u + cw.apply(u, k))*nabla(k)) * (0.5*nut(nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))), // Production
 
         _A(omega,omega) += transpose(N(omega) + (tau_su*u + cw.apply(u, omega))*nabla(omega)) * u * nabla(omega) + (m_nu_lam + nut(nu_eff) * F1(m_sigma_omega1, m_sigma_omega2, k, omega, d, partial(k,_i)*partial(omega,_i))) * transpose(nabla(omega)) * nabla(omega) // Advection and diffusion
-        //                + transpose(N(omega) + (tau_su*u + cw.apply(u, omega))*nabla(omega))*N(omega)*(m_c_epsilon_2 * gamma(k, nut(nu_eff), omega)), // sink term
-        // _T(omega,omega) +=  transpose(N(omega) + (tau_su*u + cw.apply(u, omega))*nabla(omega)) * N(omega),
-        // _a[omega] += transpose(N(omega) + (tau_su*u + cw.apply(u, omega))*nabla(omega)) * gamma(k, nut(nu_eff), omega) * lit(m_c_epsilon_1) * (0.5*nut(nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i)))
+                         + transpose(N(omega) + (tau_su*u + cw.apply(u, omega))*nabla(omega)) * F1(m_beta_1, m_beta_2, k, omega, d, partial(k,_i)*partial(omega,_i))*omega*N(omega), // sink term
+        _T(omega,omega) += transpose(N(omega) + (tau_su*u + cw.apply(u, omega))*nabla(omega)) * N(omega),
+        _a[omega] +=       transpose(N(omega) + (tau_su*u + cw.apply(u, omega))*nabla(omega)) * (F1(m_gamma_1, m_gamma_2, k, omega, d, partial(k,_i)*partial(omega,_i)) / (nut(nu_eff)*lit(m_rho)) * (0.5*nut(nu_eff)) * ((partial(u[_i], _j) + partial(u[_j], _i)) * (partial(u[_i], _j) + partial(u[_j], _i))) + lit(2.)*F1(lit(0.), lit(1.), k, omega, d, partial(k,_i)*partial(omega,_i))*lit(m_sigma_omega2)/omega * (partial(k, _i)*partial(omega, _i)))
       ),
       lss_action.system_matrix += invdt * _T + m_theta * _A,
       lss_action.system_rhs += -_A * _x + _a
     )
+  ));
+
+  FieldVariable<6, ScalarField> valence("Valence", "node_valence");
+
+  compute_vorticity.set_expression(
+  elements_expression
+  (
+    allowed_elements,
+    add_vorticity(vorticity, _sqrt(0.5*((partial(u[_i], _j) - partial(u[_j], _i)) * (partial(u[_i], _j) - partial(u[_j], _i)))) / valence)
+  ));
+
+  const auto nut_update = make_lambda([this](const Real k, const Real omega, const Real d, const Real vorticity)
+  {
+    const Real arg2 = std::max(2*std::sqrt(k)/(m_beta_s*omega*d), 500.*m_nu_lam/(d*d*omega));
+    const Real F2 = std::tanh(arg2*arg2);
+    return m_a1*k / std::max(m_a1*omega, F2*vorticity);
+  });
+
+  update_nut.set_expression(nodes_expression
+  (
+
+    nu_eff = m_nu_lam + nut_update(k, omega, d, vorticity)
   ));
 
   Handle<ProtoAction>(lss_action.get_child("Update"))->set_expression(nodes_expression(group

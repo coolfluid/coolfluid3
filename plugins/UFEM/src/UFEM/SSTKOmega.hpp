@@ -48,7 +48,7 @@ public: // functions
   virtual ~SSTKOmega();
 
 protected:
-  virtual void do_set_expressions(LSSActionUnsteady& lss_action, solver::actions::Proto::ProtoAction& update_nut, FieldVariable<2, VectorField>& u);
+  virtual void do_set_expressions(LSSActionUnsteady& lss_action, solver::actions::Proto::ProtoAction& update_nut, solver::actions::Proto::ProtoAction& compute_vorticity, FieldVariable<2, VectorField>& u);
   void trigger_set_expression();
   virtual void on_regions_set();
 
@@ -64,7 +64,7 @@ protected:
   FieldVariable<1, ScalarField> omega;
   FieldVariable<3, ScalarField> nu_eff;
   FieldVariable<4, ScalarField> d;
-  FieldVariable<5, ScalarField> yplus;
+  FieldVariable<5, ScalarField> vorticity; // Magnitude of the vorticity
 
   Real m_nu_lam = 0;
 
@@ -85,9 +85,11 @@ protected:
   Real m_sigma_omega1 = 0.5;
   Real m_sigma_omega2 = 0.856;
   Real m_beta_1 = 0.075;
-  Real m_beta_2 = 0.0282;
+  Real m_beta_2 = 0.0828;
   Real m_gamma_1;
   Real m_gamma_2;
+  Real m_kappa;
+  Real m_a1 = 0.31;
 
   CrosswindDiffusion cw;
 };
