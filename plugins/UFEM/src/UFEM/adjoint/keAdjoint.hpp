@@ -37,6 +37,7 @@ public: // functions
 
 protected:
   virtual void do_set_expressions(LSSActionUnsteady& lss_action);//, solver::actions::Proto::ProtoAction& update_nut, FieldVariable<2, VectorField>& u);
+ Real m_c_tau = 6;
 };
 } // adjoint
 } // UFEM
