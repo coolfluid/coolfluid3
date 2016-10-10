@@ -61,7 +61,7 @@ gradient1.options.velocity_variable = 'AdjVelocity'
 gradient1.options.velocity_tag = 'adjoint_solution'
 gradient1.options.gradient_name = 'U'
 
-mesh = domain.load_mesh(file = cf.URI('actuator2d.msh'), name = 'Mesh')
+mesh = domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
 # active region
 disk.regions = [mesh.topology.actuator.uri(), mesh.topology.actuator.uri()]

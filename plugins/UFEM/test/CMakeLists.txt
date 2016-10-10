@@ -127,6 +127,10 @@ coolfluid_add_test( ATEST atest-channel-chienkepsilon
                     PYTHON atest-channel-chienkepsilon.py
                     MPI 4)
 
+coolfluid_add_test( ATEST atest-channel-sst
+                    PYTHON atest-channel-sst.py
+                    MPI 4)
+
 coolfluid_add_test( ATEST atest-channel-standardkepsilon
                     PYTHON atest-channel-standardkepsilon.py)
 
