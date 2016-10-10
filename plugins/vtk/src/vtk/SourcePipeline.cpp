@@ -18,7 +18,6 @@
 #include <vtkSMWriterProxy.h>
 
 #include <string>
-#include <vtksys/ios/sstream>
 
 vtkStandardNewMacro(SourcePipeline);
 
