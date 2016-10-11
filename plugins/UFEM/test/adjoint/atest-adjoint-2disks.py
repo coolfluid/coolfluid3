@@ -22,7 +22,7 @@ c=(3-sqrt(5))/2
 MAXITER = 15.
 
 tstep = 5.
-num_steps = 50.
+num_steps = 1.
 
 env = cf.Core.environment()
 env.log_level = 3
