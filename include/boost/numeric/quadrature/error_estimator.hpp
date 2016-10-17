@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include <iomanip>
+#include <iostream>
 
 namespace boost
 {
