@@ -130,3 +130,6 @@ else()
   set( BUILD_SHARED_LIBS ON )
 
 endif()
+
+# gmsh mesh generation
+set(CF3_GMSH_EXECUTABLE "gmsh" CACHE FILEPATH "Gmsh command")
