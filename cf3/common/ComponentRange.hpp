@@ -297,7 +297,7 @@ public:
   }
 
 private:
-  const StorageT& m_components;
+  StorageT m_components;
 };
 
 template<typename ComponentT=common::Component, typename ParentT>
@@ -363,7 +363,7 @@ public:
     return m_base_range.end_position();
   }
 
-  const BaseRangeT& m_base_range;
+  BaseRangeT m_base_range;
   PredicateT m_predicate;
 };
 
@@ -422,7 +422,7 @@ public:
   }
 
 private:
-  const BaseRangeT& m_base_range;
+  BaseRangeT m_base_range;
 
   template<typename RangeT>
   bool recursive_increment(const RangeT& parent_range, typename PositionT::iterator& position_iterator, const typename PositionT::iterator& position_end, PositionT& output_position) const
