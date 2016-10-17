@@ -13,7 +13,7 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjoint
     BCAdjointpressurey.hpp
     BCAdjointpressurey.cpp
     BCAdjointpressurez.hpp
-    BCAdjointpressurez.cpp 
+    BCAdjointpressurez.cpp
     keAdjoint.cpp
     keAdjoint.hpp
     kaRobinke.cpp
@@ -30,3 +30,5 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjoint
     coolfluid_mesh
     coolfluid_ufem
   CONDITION  CF3_ENABLE_PROTO)
+
+set_source_files_properties(keAdjoint.cpp PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=1024")
