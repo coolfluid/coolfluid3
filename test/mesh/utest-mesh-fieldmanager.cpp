@@ -49,6 +49,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   Core::instance().environment().options().set("exception_aborts",false);
   Core::instance().environment().options().set("exception_backtrace",false);
   Core::instance().environment().options().set("exception_outputs",false);
+  Core::instance().environment().options().set("log_level",4);
   Component& root = Core::instance().root();
 
   // tag to use (normally supplied by the solver)
@@ -76,7 +77,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
 
   // Now change the descriptor and ensure there is an error
   var_manager->get_child(tag)->remove_tag(tag);
-  var_manager->create_descriptor(tag, "a, b[v], c[t]").options().set(common::Tags::dimension(), 3u);
+  var_manager->create_descriptor(tag, "a, b[v]").options().set(common::Tags::dimension(), 2u);
   BOOST_CHECK_THROW(field_manager.create_field(tag, mesh.geometry_fields()), SetupError);
 }
 
@@ -85,4 +86,3 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
-
