@@ -120,32 +120,6 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
 
   // Create blocks for a 3D channel
   Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
-
-  // Try partitioning in multiple directions for certain numbers of CPUS
-  if(nb_procs == 16)
-  {
-    blocks.partition_blocks(8, XX);
-    blocks.partition_blocks(2, ZZ);
-  }
-  else if(nb_procs == 32)
-  {
-    blocks.partition_blocks(8, XX);
-    blocks.partition_blocks(4, ZZ);
-  }
-  else if(nb_procs == 64)
-  {
-    blocks.partition_blocks(16, XX);
-    blocks.partition_blocks(4, ZZ);
-  }
-  else if(nb_procs == 128)
-  {
-    blocks.partition_blocks(16, XX);
-    blocks.partition_blocks(8, ZZ);
-  }
-  else
-  {
-    blocks.partition_blocks(nb_procs, XX);
-  }
   
   blocks.create_mesh(mesh());
 }
@@ -172,6 +146,7 @@ BOOST_AUTO_TEST_CASE( RankField )
 BOOST_AUTO_TEST_CASE( WriteMesh )
 {
   mesh().write_mesh("utest-blockmesh-3d-mpi_output.pvtu", fields);
+  PE::Comm::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

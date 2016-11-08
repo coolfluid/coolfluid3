@@ -66,7 +66,7 @@ Dictionary::Dictionary ( const std::string& name  ) :
   m_glb_idx = create_static_component< common::List<Uint> >(mesh::Tags::global_indices());
   m_glb_idx->add_tag(mesh::Tags::global_indices());
 
-  m_glb_to_loc = create_static_component< common::Map<boost::uint64_t,Uint> >(mesh::Tags::map_global_to_local());
+  m_glb_to_loc = create_static_component< GlbToLocT >(mesh::Tags::map_global_to_local());
   m_glb_to_loc->add_tag(mesh::Tags::map_global_to_local());
 
   m_connectivity = create_static_component< common::DynTable<SpaceElem> >("element_connectivity");
@@ -105,7 +105,8 @@ Uint Dictionary::size() const
 
 void Dictionary::resize(const Uint size)
 {
-  if (m_glb_idx->size() == 0)
+  const Uint old_size = m_glb_idx->size();
+  if (old_size == 0)
   {
     m_glb_idx->resize(size);
     m_rank->resize(size);
@@ -121,6 +122,9 @@ void Dictionary::resize(const Uint size)
     m_glb_idx->resize(size);
     m_rank->resize(size);
   }
+
+  std::fill(m_glb_idx->array().begin() + old_size, m_glb_idx->array().end(), std::numeric_limits<Uint>::max());
+
   properties()["size"]=size;
   boost_foreach(Field& field, find_components<Field>(*this))
       field.resize(size);
@@ -292,6 +296,27 @@ bool Dictionary::check_sanity(std::vector<std::string>& messages) const
       {
         messages.push_back(glb_idx().uri().string()+"["+to_str(i)+"] has non-unique entries.  (glb_idx "+to_str(glb_idx()[i])+" exists more than once, no further checks)");
         break;
+      }
+    }
+  }
+
+  const common::List<Uint>* periodic_links_nodes = Handle<common::List<Uint> const>(get_child("periodic_links_nodes")).get();
+  const common::List<bool>* periodic_links_active = Handle<common::List<bool> const>(get_child("periodic_links_active")).get();
+  if(is_not_null(periodic_links_active))
+  {
+    for (Uint i=0; i != size(); ++i)
+    {
+      if((*periodic_links_active)[i])
+      {
+        const Uint link_lid = (*periodic_links_nodes)[i];
+        if((*periodic_links_active)[link_lid])
+        {
+          messages.push_back(periodic_links_nodes->uri().string()+"["+to_str(i)+"] links to another periodic node at " + common::to_str(link_lid));
+        }
+        if(rank()[i] != rank()[link_lid])
+        {
+          messages.push_back(periodic_links_nodes->uri().string()+"["+to_str(i)+"] is at rank " + common::to_str(rank()[i]) + ", but the link " + common::to_str(link_lid) + " is at rank " + common::to_str(rank()[link_lid]));
+        }
       }
     }
   }

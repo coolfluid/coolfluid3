@@ -41,7 +41,10 @@ class Mesh_API Dictionary : public common::Component {
 friend class Mesh; // dirty (but harmless) hack, because geometry coordinates field
                    // needs to be initialized differently and added to m_fields
 
-public: // functions
+public:
+
+  /// Type for the mapping from global to local IDs
+  typedef common::Map<boost::uint64_t,Uint> GlbToLocT;
 
   /// Contructor
   /// @param name of the component
@@ -90,10 +93,7 @@ public: // functions
   const common::List<Uint>& rank() const { return *m_rank; }
 
   /// Return a mapping between global and local indices
-//  common::Map<boost::uint64_t,Uint>& glb_to_loc() { return *m_glb_to_loc; }
-
-  /// Return a mapping between global and local indices
-  const common::Map<boost::uint64_t,Uint>& glb_to_loc() const { return *m_glb_to_loc; }
+  const GlbToLocT& glb_to_loc() const { return *m_glb_to_loc; }
 
   /// Node to space-element connectivity
   const common::DynTable<SpaceElem>& connectivity() const { return *m_connectivity; }
@@ -167,7 +167,7 @@ protected:
   Handle<Field> m_coordinates;
   Handle<common::DynTable<Uint> > m_glb_elem_connectivity;
   Handle<common::PE::CommPattern> m_comm_pattern;
-  Handle<common::Map<boost::uint64_t,Uint> > m_glb_to_loc;
+  Handle<GlbToLocT> m_glb_to_loc;
   bool m_is_continuous;
 
   /// Connectivity with the element of the space

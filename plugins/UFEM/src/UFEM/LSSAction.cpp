@@ -125,7 +125,7 @@ void LSSAction::execute()
   {
     throw SetupError(FromHere(), "Error executing " + uri().string() + ": LSS is not created");
   }
-  
+
   if(!m_implementation->m_lss->is_created())
     on_regions_set();
 
@@ -142,7 +142,7 @@ LSS::System& LSSAction::create_lss()
   lss->mark_basic();
   lss->options().set("matrix_builder", options().option("matrix_builder").value());
   lss->options().set("solution_strategy", options().option("solution_strategy").value());
-  
+
   configure_option_recursively("lss", lss);
 
   cf3_assert(is_not_null(options().value< Handle<LSS::System> >("lss")));
@@ -168,15 +168,22 @@ void LSSAction::on_regions_set()
   {
     return;
   }
-  
+
   if(m_loop_regions.empty())
   {
     return;
   }
-  
+
+  // m_loop_regions may have been altered by prior on_regions_set handling, so pass on the actual regions vector to child options
+  std::vector<common::URI> new_regions_option_value; new_regions_option_value.reserve(m_loop_regions.size());
+  for(auto&& region : m_loop_regions)
+  {
+    new_regions_option_value.push_back(region->uri());
+  }
+
   Handle<mesh::Mesh> mesh = find_parent_component_ptr<mesh::Mesh>(*m_loop_regions.front());
   cf3_assert(is_not_null(mesh));
-  
+
   if(options().value<bool>("use_geometry_space"))
   {
     m_dictionary = mesh->geometry_fields().handle<mesh::Dictionary>();
@@ -195,7 +202,7 @@ void LSSAction::on_regions_set()
   cf3_always_assert(is_not_null(m_dictionary));
 
   m_implementation->m_updating = true;
-  
+
   m_implementation->m_lss = options().value< Handle<LSS::System> >("lss");
   if(is_null(m_implementation->m_lss))
   {
@@ -274,7 +281,7 @@ void LSSAction::on_regions_set()
     solution_strategy->set_coordinates(comm_pattern, m_dictionary->coordinates(), *used_nodes, periodic_links_active_vec);
 
     CFdebug << "Finished creating LSS" << CFendl;
-    configure_option_recursively(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+    configure_option_recursively(solver::Tags::regions(), new_regions_option_value);
     configure_option_recursively("lss", m_implementation->m_lss);
     // Also do links to BCs
     BOOST_FOREACH(common::Link& link, common::find_components_recursively<common::Link>(*this))
@@ -294,7 +301,7 @@ void LSSAction::on_regions_set()
   BOOST_FOREACH(const Handle<Component>& ic, m_created_initial_conditions)
   {
     if(is_not_null(ic))
-      ic->options().set(solver::Tags::regions(), options().option(solver::Tags::regions()).value());
+      ic->options().set(solver::Tags::regions(), new_regions_option_value);
   }
 
   cf3_assert(is_not_null(m_implementation->m_lss));

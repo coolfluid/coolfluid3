@@ -21,6 +21,7 @@
 #include "ElementGrammar.hpp"
 
 #include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/ElementTypePredicates.hpp"
 
@@ -238,7 +239,7 @@ struct ElementLooper
       return;
 
     dispatch(boost::mpl::int_<boost::mpl::size< boost::mpl::filter_view< ElementTypesT, mesh::IsCompatibleWith<ETYPE> > >::value>(), sf);
-    
+
     FieldSynchronizer::instance().synchronize();
   }
 

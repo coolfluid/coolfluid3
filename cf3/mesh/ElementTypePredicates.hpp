@@ -36,23 +36,23 @@ struct IsCellType
   };
 };
 
-/// Compile-time predicate to determine if the given shape function represents a volume element, i.e. dimensions == dimensionality
+/// Compile-time predicate to determine if the given shape function represents a face element, i.e. dimensions-1 == dimensionality
 struct IsFaceType
 {
   template<typename ETYPE>
   struct apply
   {
-    typedef typename boost::mpl::equal_to<boost::mpl::int_<ETYPE::dimension>,boost::mpl::int_<ETYPE::dimensionality> >::type type;
+    typedef typename boost::mpl::equal_to<boost::mpl::int_<ETYPE::dimension-1>,boost::mpl::int_<ETYPE::dimensionality> >::type type;
   };
 };
 
-/// Compile-time predicate to determine if the given shape function represents a volume element, i.e. dimensions == dimensionality
+/// Compile-time predicate to determine if the given shape function represents an edge element, i.e. dimensions == dimensionality
 struct IsEdgeType
 {
   template<typename ETYPE>
   struct apply
   {
-    typedef typename boost::mpl::equal_to<boost::mpl::int_<ETYPE::dimension>,boost::mpl::int_<ETYPE::dimensionality> >::type type;
+    typedef typename boost::mpl::equal_to<boost::mpl::int_<ETYPE::dimension-2>,boost::mpl::int_<ETYPE::dimensionality> >::type type;
   };
 };
 

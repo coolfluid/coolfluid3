@@ -69,21 +69,29 @@ void ParallelDataToFields::execute()
     }
   }
 
-  mesh::Dictionary& geom = mesh.geometry_fields();
-  mesh::Field& node_rank = geom.get_child("node_rank") ? *(geom.get_child("node_rank")->handle<mesh::Field>()) : geom.create_field("node_rank");
-  mesh::Field& node_ghost = geom.get_child("node_ghosts") ? *(geom.get_child("node_ghosts")->handle<mesh::Field>()) : geom.create_field("node_ghosts");
-  mesh::Field& node_gids = geom.get_child("node_gids") ? *(geom.get_child("node_gids")->handle<mesh::Field>()) : geom.create_field("node_gids");
-
-  const Uint nb_points = geom.size();
-  for(Uint i = 0; i != nb_points; ++i)
+  BOOST_FOREACH(const Handle<mesh::Dictionary>& dict_h, mesh.dictionaries())
   {
-    node_rank[i][0] = geom.rank()[i];
-    node_ghost[i][0] = static_cast<Real>(geom.is_ghost(i));
-    node_gids[i][0] = static_cast<Real>(geom.glb_idx()[i]);
+    mesh::Dictionary& dict = *dict_h;
+    if(!dict.continuous())
+      continue;
+
+    mesh::Field& node_rank = dict.get_child("node_rank") ? *(dict.get_child("node_rank")->handle<mesh::Field>()) : dict.create_field("node_rank");
+    mesh::Field& node_ghost = dict.get_child("node_ghosts") ? *(dict.get_child("node_ghosts")->handle<mesh::Field>()) : dict.create_field("node_ghosts");
+    mesh::Field& node_gids = dict.get_child("node_gids") ? *(dict.get_child("node_gids")->handle<mesh::Field>()) : dict.create_field("node_gids");
+
+    const Uint nb_points = dict.size();
+    for(Uint i = 0; i != nb_points; ++i)
+    {
+      node_rank[i][0] = dict.rank()[i];
+      node_ghost[i][0] = static_cast<Real>(dict.is_ghost(i));
+      node_gids[i][0] = static_cast<Real>(dict.glb_idx()[i]);
+    }
   }
 
   if(common::PE::Comm::instance().is_active() && common::PE::Comm::instance().size() > 1)
   {
+    const Uint nb_points = mesh.geometry_fields().size();
+
     Uint max_nb_nodes, min_nb_nodes, total_nb_nodes;
     common::PE::Comm::instance().all_reduce(common::PE::min(), &nb_points, 1, &min_nb_nodes);
     common::PE::Comm::instance().all_reduce(common::PE::plus(), &nb_points, 1, &total_nb_nodes);

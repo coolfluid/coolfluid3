@@ -9,6 +9,8 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
+#include "common/OptionList.hpp"
+#include "common/OptionT.hpp"
 #include "common/Table.hpp"
 
 #include "mesh/CGNS/Writer.hpp"
@@ -38,7 +40,9 @@ Writer::Writer( const std::string& name )
 : MeshWriter(name),
   Shared()
 {
-
+  options().add("file_type", std::string("adf"))
+    .pretty_name("File Type")
+    .description("CGNS file databse manager (adf or hdf5)");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -55,6 +59,25 @@ std::vector<std::string> Writer::get_extensions()
 void Writer::write()
 {
   m_fileBasename = m_file_path.base_name(); // filename without extension
+
+  const std::string file_type = options().value<std::string>("file_type");
+  int cgns_file_type = -1;
+  if(file_type == "adf")
+  {
+    cgns_file_type = CG_FILE_ADF;
+  }
+  else if(file_type == "hdf5")
+  {
+    cgns_file_type = CG_FILE_HDF5;
+  }
+
+  if(cgns_file_type == -1)
+  {
+    throw common::SetupError(FromHere(), "Unspported CGNS file type: " + file_type);
+  }
+
+  CFdebug << "Setting CGNS file type to " << file_type << CFendl;
+  CALL_CGNS(cg_set_file_type(cgns_file_type));
 
 
   CFdebug << "Opening file " << m_file_path.path() << CFendl;

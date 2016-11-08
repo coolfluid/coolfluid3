@@ -46,7 +46,8 @@ common::ComponentBuilder < Domain, Component, LibMesh > Domain_Builder;
 struct Domain::Implementation
 {
   Implementation(Component& component) :
-    m_component(component)
+    m_component(component),
+    m_load_balancer_type("cf3.mesh.actions.LoadBalance")
   {
   }
 
@@ -84,6 +85,7 @@ struct Domain::Implementation
 
   Component& m_component;
   Handle<WriteMesh> m_write_mesh;
+  std::string m_load_balancer_type;
 
 };
 
@@ -116,6 +118,12 @@ Domain::Domain( const std::string& name  ) :
   options().add("dimension", 0u)
       .description("The coordinate dimension (0 --> maximum found dimensionality inside all meshes)")
       .pretty_name("Dimension");
+
+  options().add("load_balancer_type", m_implementation->m_load_balancer_type)
+    .description("Builder name for the load balancer to use when loading a mesh")
+    .pretty_name("Load Balancer Type")
+    .link_to(&m_implementation->m_load_balancer_type)
+    .mark_basic();
 
   /// @deprecated Call write_mesh() on the mesh contained itself
   regist_signal( "write_mesh" )
@@ -150,12 +158,16 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
   mesh_loader->options().set("dimension",dimension());
   mesh_loader->load_mesh_into(file, *mesh);
 
+  mesh->check_sanity();
+
   CFdebug << "Loaded mesh " << file.string() << " into mesh " << name << CFendl;
 
   // rebalance the mesh if necessary and create global idx and ranks
-
-  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balancer")
+  if(!m_implementation->m_load_balancer_type.empty())
+  {
+    build_component_abstract_type<MeshTransformer>(m_implementation->m_load_balancer_type, "load_balancer")
       ->transform(mesh);
+  }
 
   // raise an event to indicate that a mesh was rebalanced (changed)
   // in serial it is important still to raise the event

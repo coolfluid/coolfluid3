@@ -11,6 +11,8 @@ list( APPEND coolfluid_solver_actions_files
   LoopOperation.cpp
   Probe.hpp
   Probe.cpp
+  ProbePoints.hpp
+  ProbePoints.cpp
   ProbePostProcFunction.hpp
   ProbePostProcFunction.cpp
   ProbePostProcHistory.hpp
@@ -56,6 +58,8 @@ list( APPEND coolfluid_solver_actions_files
   TwoPointCorrelation.cpp
   WriteRestartFile.hpp
   WriteRestartFile.cpp
+  YPlus.hpp
+  YPlus.cpp
 )
 
 list( APPEND coolfluid_solver_actions_proto_files
@@ -85,23 +89,29 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/GaussPoints.hpp
     Proto/IndexLooping.hpp
     Proto/LSSWrapper.hpp
+    Proto/NodalMatrixManipulation.hpp
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp
     Proto/NodeLooper.hpp
+    Proto/Partial.hpp
     Proto/PhysicsConstant.hpp
     Proto/RestrictExpressionToElementType.hpp
     Proto/RHSVector.hpp
     Proto/SetRHS.hpp
     Proto/SetSolution.hpp
     Proto/SolutionVector.hpp
+    Proto/SurfaceIntegration.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp
+    Proto/ZeroLSSRow.hpp
 
     # Actions using Proto
     CopyScalar.hpp
     CopyScalar.cpp
     NodeValence.hpp
     NodeValence.cpp
+    FaceNormals.hpp
+    FaceNormals.cpp
 )
 
 if( CF3_ENABLE_PROTO )

@@ -171,7 +171,8 @@ WorkerStatus::Type Comm::status()
 Communicator Comm::spawn( int count, const char * command, char ** args,
                             const char * hosts )
 {
-  ::MPI::Info info = ::MPI::Info::Create();
+  MPI_Info info;
+  MPI_Info_create(&info);
   Communicator comm;
 
   if(count < 1)
@@ -181,7 +182,7 @@ Communicator Comm::spawn( int count, const char * command, char ** args,
   std::strcpy(cmd_non_const, command);
   int error_codes[count];
 
-  info.Set("host", "localhost");
+  MPI_Info_set(info, "host", "localhost");
 
   CFinfo << "Spawning " << count << " workers on localhost." << CFendl;
 
@@ -211,6 +212,3 @@ Communicator Comm::get_parent() const
 } // namespace PE
 } // namespace common
 } // namespace cf3
-
-
-

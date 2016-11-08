@@ -39,7 +39,7 @@ coolfluid_set_package( PACKAGE Qt4 DESCRIPTION "UI framework" QUIET VARS QT4_FOU
 ##############################################################################
 #  Find ParaView
 
-include( DetectParaView )
+#include( DetectParaView )
 
 ##############################################################################
 # find non essential packages

@@ -38,12 +38,17 @@ namespace UFEM
 {
 
 using namespace solver::actions::Proto;
+using boost::proto::lit;
 
 common::ComponentBuilder < HeatCouplingFlux, common::ActionDirector, LibUFEM > HeatCouplingFlux_Builder;
 
 HeatCouplingFlux::HeatCouplingFlux(const std::string& name) :
   ActionDirector(name),
-  m_rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
+  m_rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied")),
+  lambda_f("thermal_conductivity_fluid"),
+  lambda_s("thermal_conductivity_solid"),
+  rho("density"),
+  cp("specific_heat_capacity")
 {
   options().add("gradient_region", m_gradient_region)
     .pretty_name("Gradient Region")
@@ -54,6 +59,11 @@ HeatCouplingFlux::HeatCouplingFlux(const std::string& name) :
   options().add("temperature_field_tag", UFEM::Tags::solution())
     .pretty_name("Temperature Field Tag")
     .description("Tag for the temperature field in the region where the gradient needs to be calculated")
+    .attach_trigger(boost::bind(&HeatCouplingFlux::trigger_setup, this));
+
+  options().add("flux_to_fluid", true)
+    .pretty_name("Neumann BC imposed to fluid")
+    .description("If true Neumann BC for fluid, if false tot the solid domain")
     .attach_trigger(boost::bind(&HeatCouplingFlux::trigger_setup, this));
 
   // First compute the gradient
@@ -105,6 +115,9 @@ void HeatCouplingFlux::trigger_setup()
   // Represents the gradient of the temperature, to be stored in an (element based) field
   FieldVariable<1, VectorField> GradT("TemperatureGradient", "gradient_field", mesh::LagrangeP0::LibLagrangeP0::library_namespace());
 
+  // to do first of two steps for the Robin BC
+  const bool flux_to_fluid = options().value<bool>("flux_to_fluid");
+
   // Expression to calculate the gradient, at the cell centroid:
   // nabla(T, center) is the shape function gradient matrix evaluated at the element center
   // T are the nodal values for the temperature
@@ -114,19 +127,29 @@ void HeatCouplingFlux::trigger_setup()
     GradT = nabla(T, gauss_points_1)*nodal_values(T) // Calculate the gradient at the first gauss point, i.e. the cell center
   ));
 
-  // Expression for the Neumann BC itself
+  if (flux_to_fluid == true)
+ {
+  // Expression for the Neumann BC itself, using the conductivity for the fluid
   neumann_heat_flux->set_expression(elements_expression
   (
     boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-    group(m_rhs(T) += - integral<1>(transpose(N(T))*GradT*normal), // Classical Neumann condition formulation for finite elements
-          _cout << "rhs" << integral<1>(transpose(N(T))*GradT*normal) << "\n",
-          _cout << "GradT" << GradT << "\n")
-  ));
+          group(m_rhs(T) += -integral<1>(transpose(N(T))*GradT*normal*lambda_s/(boost::proto::lit(rho)*cp)) // Classical Neumann condition formulation for finite elements
+  )));
 
   // Raise an event to indicate that we added a variable (GradT)
   common::XML::SignalOptions options;
   common::SignalArgs f = options.create_frame();
   common::Core::instance().event_handler().raise_event("ufem_variables_added", f);
+}
+  else
+  {
+  // Expression for the Neumann BC itself, using the conductivity in the solid
+    neumann_heat_flux->set_expression(elements_expression
+    (
+      boost::mpl::vector2<mesh::LagrangeP0::Line, mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+      group(m_rhs(T) += -integral<1>(transpose(N(T))*GradT*normal*lambda_f) // Classical Neumann condition formulation for finite elements divided by boost::proto::lit(lambda_s) ?
+    )));
+  }
 }
 
 } // namespace UFEM

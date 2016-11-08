@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
@@ -53,7 +55,7 @@ Action::Action ( const std::string& name ) :
       .description("Physical model")
       .pretty_name("Physical Model")
       .mark_basic()
-      .link_to(&m_physical_model);
+      .attach_trigger(boost::bind(&Action::trigger_physics, this));
 
   std::vector< common::URI > dummy;
   options().add(Tags::regions(), dummy)
@@ -137,7 +139,7 @@ void Action::config_regions()
       throw common::ValueNotFound ( FromHere(),
                            "Component [" + region_uri.path() +"] is not of type Region" );
   }
-  
+
   on_regions_set();
 }
 
@@ -147,6 +149,51 @@ void Action::on_regions_set()
 {
 }
 
+void Action::link_physics_constant(const std::string& name, Real& value)
+{
+  m_physics_links[name] = &value;
+  if(is_not_null(m_physical_model))
+  {
+    auto option_trigger = [this, name, &value]() { value = m_physical_model->options().value<Real>(name); };
+    m_trigger_ids[name] = m_physical_model->options().option(name).attach_trigger_tracked(option_trigger);
+    option_trigger(); // Make sure the value is updated
+  }
+}
+
+void Action::clear_triggers()
+{
+  if(is_not_null(m_physical_model))
+  {
+    for(const auto& trigger_pair : m_trigger_ids)
+    {
+      m_physical_model->options().option(trigger_pair.first).detach_trigger(trigger_pair.second);
+    }
+  }
+  m_trigger_ids.clear();
+}
+
+void Action::trigger_physics()
+{
+  // Clean up links with old model, if any
+  clear_triggers();
+
+  m_physical_model = options().value<Handle<physics::PhysModel>>(Tags::physical_model());
+
+  if(is_null(m_physical_model))
+  {
+    return;
+  }
+
+  // Update triggers
+  for(const auto& link_pair : m_physics_links)
+  {
+    const std::string& name = link_pair.first;
+    Real& value = *(link_pair.second);
+    auto option_trigger = [this, name, &value]() { value = m_physical_model->options().value<Real>(name); };
+    m_trigger_ids[name] = m_physical_model->options().option(name).attach_trigger_tracked(option_trigger);
+    option_trigger();
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

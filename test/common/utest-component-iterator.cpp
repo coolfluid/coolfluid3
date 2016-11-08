@@ -16,8 +16,9 @@
 #include "common/FindComponents.hpp"
 #include "common/Group.hpp"
 #include "common/Link.hpp"
-
+#include "common/OptionList.hpp"
 #include "common/StringConversion.hpp"
+#include "common/TaggedComponentFilter.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -428,6 +429,40 @@ BOOST_AUTO_TEST_CASE( test_find_components_with_tag )
     BOOST_CHECK_EQUAL(group.name(),special_component_names[counter++]);
   BOOST_CHECK_EQUAL(counter,special_component_names.size());
 }
+
+//BOOST_AUTO_TEST_CASE( test_find_components_with_taged_component_filter )
+//{
+//  Uint counter;
+
+//  const boost::shared_ptr<common::TaggedComponentFilter> tagged_filter = common::allocate_component<common::TaggedComponentFilter>("TaggedComponentFilter");
+//  tagged_filter->options().set("tag", "specia");
+
+//  BOOST_CHECK_EQUAL(find_components_with_filter<Group>(group2(),*tagged_filter).empty() , true);
+//  BOOST_CHECK_EQUAL(find_components_with_filter<Group>(const_group2(),*tagged_filter).empty() , true);
+//  BOOST_CHECK_EQUAL(find_components_with_filter(group2(),*tagged_filter).empty() , true);
+//  BOOST_CHECK_EQUAL(find_components_with_filter(const_group2(),*tagged_filter).empty() , true);
+
+//  BOOST_CHECK_EQUAL(find_components_with_filter<Group>(group1(),*tagged_filter).empty() , false);
+//  BOOST_CHECK_EQUAL(find_components_with_filter<Group>(const_group1(),*tagged_filter).empty() , false);
+//  BOOST_CHECK_EQUAL(find_components_with_filter(group1(),*tagged_filter).empty() , false);
+//  BOOST_CHECK_EQUAL(find_components_with_filter(const_group1(),*tagged_filter).empty() , false);
+
+//  BOOST_FOREACH(Group& group, find_components_with_filter<Group>(group1(),*tagged_filter))
+//    BOOST_CHECK_EQUAL(group.name(),"group1_2");
+
+//  BOOST_FOREACH(const Group& group, find_components_with_filter<Group>(group1(),*tagged_filter))
+//    BOOST_CHECK_EQUAL(group.name(),"group1_2");
+
+//  counter = 0;
+//  BOOST_FOREACH(Component& group, find_components_with_filter(group1(),*tagged_filter))
+//    BOOST_CHECK_EQUAL(group.name(),special_component_names[counter++]);
+//  BOOST_CHECK_EQUAL(counter,special_component_names.size());
+
+//  counter = 0;
+//  BOOST_FOREACH(const Component& group, find_components_with_filter(const_group1(),*tagged_filter))
+//    BOOST_CHECK_EQUAL(group.name(),special_component_names[counter++]);
+//  BOOST_CHECK_EQUAL(counter,special_component_names.size());
+//}
 
 BOOST_AUTO_TEST_CASE( test_find_components_with_name )
 {

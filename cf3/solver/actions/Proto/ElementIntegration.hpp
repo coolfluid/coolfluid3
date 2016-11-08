@@ -25,7 +25,22 @@ namespace cf3 {
 namespace solver {
 namespace actions {
 namespace Proto {
-  
+
+namespace detail
+{
+  // Helper to call eval on reals and matrix types
+  template<typename T>
+  inline auto do_eval(T&& matexpr) -> decltype(matexpr.eval())
+  {
+    return matexpr.eval();
+  }
+
+  inline Real& do_eval(Real&& r)
+  {
+    return r;
+  }
+}
+
 template<typename DataT, typename VarT>
 struct GetOrderFromData
 {
@@ -45,16 +60,16 @@ struct GetOrder
   // The type of the data associated with the variable, containing info about the order. Void if the variable doesn't exist
   typedef typename DataT::template DataType<I>::type VarDataT;
   // The type of the variable. Void if the variable doesn't appear in the current subexpression
-  typedef typename boost::result_of<DefineType<I::value>(ExprT)>::type VarT;
+  typedef typename boost::tr1_result_of<DefineType<I::value>(ExprT)>::type VarT;
   typedef boost::mpl::int_<GetOrderFromData<VarDataT, VarT>::value> type;
 };
-  
+
 /// Get the maximum order of the shape functions used in Expr
-template<typename ExprT, typename DataT>
+template<typename ExprT, typename DataT, Uint SupportOrder>
 struct MaxOrder
 {
-  typedef typename boost::result_of<ExprVarArity(ExprT)>::type NbVarsT;
-  
+  typedef typename boost::tr1_result_of<ExprVarArity(ExprT)>::type NbVarsT;
+
   typedef typename boost::mpl::deref<typename boost::mpl::max_element
   <
     typename boost::mpl::transform
@@ -63,6 +78,8 @@ struct MaxOrder
       GetOrder<boost::mpl::_1, DataT, ExprT>
     >::type
   >::type>::type type;
+
+  static constexpr Uint value = boost::mpl::if_<boost::mpl::is_void_<type>, boost::mpl::int_<SupportOrder>, type>::type::value;
 };
 
 /// Determine integration order based on the order of the shape function
@@ -82,7 +99,7 @@ struct IntegrationOrder<2>
 {
   static const Uint value = 4;
 };
-  
+
 /// Tag for an integral, wit the order provided as an MPL integral constant
 template<typename OrderT>
 struct IntegralTag
@@ -143,7 +160,7 @@ public:
     <
       typename boost::remove_reference
       <
-        typename boost::result_of
+        typename boost::tr1_result_of
         <
           ElementMathImplicit
           (
@@ -155,13 +172,9 @@ public:
       >::type
     >::type EigenExprT;
 
-    // Converter to get a real matrix type that can hold the result
-    typedef ValueType
-    <
-      EigenExprT
-    > ValueT;
 
-    typedef const typename ValueT::type& result_type;
+
+    typedef const typename std::remove_const<typename std::remove_reference<decltype(detail::do_eval(std::declval<EigenExprT>()))>::type>::type& result_type;
 
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
@@ -242,8 +255,8 @@ struct ElementQuadratureEval :
       typedef typename boost::remove_reference<DataT>::type UnrefDataT;
       typedef typename UnrefDataT::SupportT::EtypeT SupportShapeFunctionT;
       typedef typename SupportShapeFunctionT::MappedCoordsT MappedCoordsT;
-      
-      static const Uint max_order = MaxOrder<ExprT, UnrefDataT>::type::value;
+
+      static const Uint max_order = MaxOrder<ExprT, UnrefDataT, SupportShapeFunctionT::order>::value;
       typedef mesh::Integrators::GaussMappedCoords<IntegrationOrder<max_order>::value, SupportShapeFunctionT::shape> GaussT;
 
       for(Uint i = 0; i != GaussT::nb_points; ++i)
@@ -269,6 +282,7 @@ struct ElementMathImplicitIndexed :
   boost::proto::or_
   <
     SFOps< boost::proto::call< ElementMathImplicitIndexed<I, J> > >,
+    ElementInfo,
     boost::proto::when
     <
       boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,

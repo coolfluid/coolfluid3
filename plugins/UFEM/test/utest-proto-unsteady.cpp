@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     << create_proto_action("Initialize", nodes_expression(temperature = initial_temp))
     << create_proto_action("InitializeAnalytical", nodes_expression(temperature_analytical = initial_temp));
   *lss_action
-      << allocate_component<math::LSS::ZeroLSS>("ZeroLSS")
+      << (common::allocate_component<cf3::math::LSS::ZeroLSS>("ZeroLSS"))
       << create_proto_action
       (
         "Assembly",
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
         )
       )
       << bc
-      << allocate_component<math::LSS::SolveLSS>("SolveLSS")
+      << (common::allocate_component<cf3::math::LSS::SolveLSS>("SolveLSS"))
       << create_proto_action("Increment", nodes_expression(temperature += lss_action->solution(temperature)));
 
   // Setup physics

@@ -6,7 +6,7 @@
 
 #include <iomanip>
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
 

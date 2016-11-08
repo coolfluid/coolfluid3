@@ -9,6 +9,8 @@
 
 #include "common/Handle.hpp"
 
+#include "math/MatrixTypes.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
@@ -38,6 +40,13 @@ boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const std::vect
 /// @param [in]  include_ghost_elems  if true, ghost elements will be included in the search
 /// @return used_nodes  List of used nodes
 boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const common::Component& node_user, const Dictionary& dictionary, const bool include_ghost_elems, const bool follow_periodic_links = true);
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Build a mapping linking the local source coordinates to the nearest local coordinate in support_local_coords.
+/// @param node_mapping [out] Mapping from source_local_coords to indices into support_local_coords
+/// @param is_interior [out] True for each source_local_coord that is an internal node, i.e. a node that is not on the element boundary.
+void nearest_node_mapping(const RealMatrix& support_local_coords, const RealMatrix& source_local_coords, std::vector<Uint>& node_mapping, std::vector<bool>& is_interior);
 
 ////////////////////////////////////////////////////////////////////////////////
 

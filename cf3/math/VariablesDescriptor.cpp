@@ -9,7 +9,7 @@
 #include <sstream>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/regex.hpp>
 #include <boost/bind.hpp>
 
@@ -19,6 +19,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Tags.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -72,6 +73,8 @@ struct VariablesDescriptor::Implementation
         .link_to(&m_user_names.back());
 
     m_size += to_size(type);
+
+    update_description_property();
   }
 
   void push_back(const std::string& name, const Uint nb_vars)
@@ -224,9 +227,6 @@ struct VariablesDescriptor::Implementation
 
   std::string description() const
   {
-//    if(!m_dim)
-//      throw SetupError(FromHere(), "Attempt to get field description in " + m_component.uri().string() + " before dimension is configured");
-
     const Uint nb_vars = m_indices.size();
 
     // Create a string with the description of the variables
@@ -259,6 +259,8 @@ struct VariablesDescriptor::Implementation
       m_indices.erase(internal_names[i]);
       m_indices[prefix+internal_names[i]] = indices[i];
     }
+
+    update_description_property();
   }
 
   ///////////// Helper functions ////////
@@ -290,6 +292,8 @@ struct VariablesDescriptor::Implementation
       m_offsets[i] = m_size;
       m_size += to_size(m_types[i]);
     }
+
+    update_description_property();
   }
 
   std::string variable_property_name(std::string var_name)
@@ -315,6 +319,11 @@ struct VariablesDescriptor::Implementation
     }
 
     throw ValueNotFound(FromHere(), message.str());
+  }
+
+  void update_description_property()
+  {
+    m_component.properties().set("variables_description", description());
   }
 
   /////////////// data //////////////
@@ -379,6 +388,7 @@ VariablesDescriptor::VariablesDescriptor( const std::string& name ) :
   Component(name),
   m_implementation(new Implementation(*this))
 {
+  properties().add("variables_description", std::string());
 }
 
 VariablesDescriptor::~VariablesDescriptor()

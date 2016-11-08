@@ -37,26 +37,26 @@ namespace detail {
   {
     static const Uint value = I;
   };
-  
+
   template<>
   struct SafeNbNodes<0>
   {
     static const Uint value = 1;
   };
-  
+
   template<Uint I>
   inline void assert_nb_nodes()
   {
   }
-  
+
   template<>
   inline void assert_nb_nodes<0>()
   {
     throw common::ShouldNotBeHere(FromHere(), "Number of element nodes was found to be zero.");
   }
 }
-  
-  
+
+
 /// Tag for system matrix
 struct SystemMatrixTag
 {
@@ -94,25 +94,37 @@ struct MatrixAssignOpsCases
 /// Translate tag to operator
 inline void do_assign_op_matrix(boost::proto::tag::assign, math::LSS::Matrix& lss_matrix, const math::LSS::BlockAccumulator& block_accumulator)
 {
-  lss_matrix.set_values(block_accumulator);
+  if(std::count(block_accumulator.indices.begin(), block_accumulator.indices.end(), static_cast<Uint>(-1)) == 0)
+  {
+    lss_matrix.set_values(block_accumulator);
+  }
 }
 
 /// Translate tag to operator
 inline void do_assign_op_matrix(boost::proto::tag::plus_assign, math::LSS::Matrix& lss_matrix, const math::LSS::BlockAccumulator& block_accumulator)
 {
-  lss_matrix.add_values(block_accumulator);
+  if(std::count(block_accumulator.indices.begin(), block_accumulator.indices.end(), static_cast<Uint>(-1)) == 0)
+  {
+    lss_matrix.add_values(block_accumulator);
+  }
 }
 
 /// Translate tag to operator
 inline void do_assign_op_rhs(boost::proto::tag::assign, math::LSS::Vector& lss_rhs, const math::LSS::BlockAccumulator& block_accumulator)
 {
-  lss_rhs.set_rhs_values(block_accumulator);
+  if(std::count(block_accumulator.indices.begin(), block_accumulator.indices.end(), static_cast<Uint>(-1)) == 0)
+  {
+    lss_rhs.set_rhs_values(block_accumulator);
+  }
 }
 
 /// Translate tag to operator
 inline void do_assign_op_rhs(boost::proto::tag::plus_assign, math::LSS::Vector& lss_rhs, const math::LSS::BlockAccumulator& block_accumulator)
 {
-  lss_rhs.add_rhs_values(block_accumulator);
+  if(std::count(block_accumulator.indices.begin(), block_accumulator.indices.end(), static_cast<Uint>(-1)) == 0)
+  {
+    lss_rhs.add_rhs_values(block_accumulator);
+  }
 }
 
 /// Translate tag to operator
@@ -238,7 +250,7 @@ boost::proto::transform< RHSAccumulator >
       static const Uint nb_dofs = mat_size / nb_nodes;
       math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
       lss_term.convert_to_lss(data);
-      
+
       for(Uint i = 0; i != var_offset; ++i)
       {
         const Uint block_idx = (i % nb_nodes)*nb_dofs + i / nb_nodes;

@@ -12,6 +12,7 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/signals2/connection.hpp>
 
+#include "common/ConnectionManager.hpp"
 #include "common/Exception.hpp"
 
 #include "common/XML/SignalFrame.hpp" // try forward declaration
@@ -20,8 +21,6 @@
 
 namespace cf3 {
 namespace common {
-
-  class ConnectionManager;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -50,8 +49,6 @@ public: // typedefs
   typedef boost::signals2::signal< void ( XML::SignalFrame& ) > signal_type;
   /// Signal connection type
   typedef boost::signals2::connection connection_type;
-  /// Signal slot type
-  typedef signal_type::slot_type slot_type;
 
 public: // functions
 
@@ -75,14 +72,25 @@ public: // functions
   Signal& hidden( bool is );
 
   /// connects to a subscribing signature
-  Signal& signature(const Signal::slot_type& subscriber);
+  template<typename slot_type>
+  Signal& signature(const slot_type& subscriber)
+  {
+    m_signature->connect( subscriber );
+    return *this;
+  }
 
   /// connects to a subscribing slot
-  Signal& connect(const Signal::slot_type& subscriber);
+  template<typename slot_type>
+  Signal& connect(const slot_type& subscriber)
+  {
+    m_signal->connect( subscriber );
+    return *this;
+  }
 
   /// connects to a subscribing slot
   /// and saves the connection on a ConnectionManager
-  Signal& connect(const Signal::slot_type& subscriber, ConnectionManager* mng );
+  template<typename slot_type>
+  Signal& connect(const slot_type& subscriber, ConnectionManager* mng );
 
   //@} END MUTATORS
 
@@ -150,6 +158,15 @@ public:
   void disconnect();
 
 };
+
+template<typename slot_type>
+Signal& Signal::connect(const slot_type& subscriber, ConnectionManager* mng )
+{
+  Signal::connection_type conn = m_signal->connect( subscriber );
+  mng->manage_connection( this->name() )
+     ->connect( conn );
+  return *this;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

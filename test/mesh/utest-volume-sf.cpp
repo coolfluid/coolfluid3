@@ -10,7 +10,7 @@
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/transform_view.hpp>
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/test/unit_test.hpp>
 
 #include <boost/fusion/adapted/mpl.hpp>

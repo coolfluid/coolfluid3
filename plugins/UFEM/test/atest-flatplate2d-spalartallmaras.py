@@ -7,7 +7,7 @@ import coolfluid as cf
 root = cf.Core.root()
 env = cf.Core.environment()
 
-## Global confifuration
+## Global configuration
 env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
@@ -95,6 +95,10 @@ top_patch[2] = [4, 11]
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 
+partitioner = domain.create_component('Partitioner', 'cf3.zoltan.PHG')
+partitioner.mesh = mesh
+partitioner.execute()
+
 # Because of multi-region support, solvers do not automatically have a region assigned, so we must manually set the solvers to work on the whole mesh
 nstokes.regions = [mesh.topology.uri()]
 satm.regions = [mesh.topology.uri()]
@@ -106,7 +110,7 @@ NU_wall = 0.
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
-solver.InitialConditions.spalart_allmaras_solution.TurbulentViscosity = NU_in
+solver.InitialConditions.spalart_allmaras_solution.SAViscosity = NU_in
 
 #properties for Navier-Stokes
 physics.density = 1.2
@@ -129,29 +133,24 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().se
 
 # Boundary conditions for Spalart-Allmaras
 bc = satm.get_child('BoundaryConditions')
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'TurbulentViscosity').options().set('value', NU_in)
-bc.add_constant_bc(region_name = 'bottom1', variable_name = 'TurbulentViscosity').options().set('value',  NU_wall)
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'TurbulentViscosity').options().set('value',  NU_wall)
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'TurbulentViscosity').options().set('value',  NU_in)
-bc.add_constant_bc(region_name = 'top', variable_name = 'TurbulentViscosity').options().set('value', NU_in)
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'SAViscosity').options().set('value', NU_in)
+bc.add_constant_bc(region_name = 'bottom1', variable_name = 'SAViscosity').options().set('value',  NU_wall)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'SAViscosity').options().set('value',  NU_wall)
+bc.add_constant_bc(region_name = 'bottom3', variable_name = 'SAViscosity').options().set('value',  NU_in)
+bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').options().set('value', NU_in)
+
+write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
+write_manager.interval = 1
+writer = write_manager.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
+writer.mesh = mesh
+writer.file = cf.URI('atest-flatplate2d-spalartallmaras-{iteration}.vtm')
 
 # Time setup
 time = model.create_time()
-time.time_step = 0.01
-time.end_time = 0.
+time.time_step = 0.1
+time.end_time = 0.5
 
-# Setup a time series write
-final_end_time = 0.05
-save_interval = 0.01
-iteration = 0
-
-while time.end_time < final_end_time:
-  time.end_time += save_interval
-  model.simulate()
-  domain.write_mesh(cf.URI('atest-flatplate2d-satm-coupled_limit-' +str(iteration) + '.pvtu'))
-  iteration += 1
-  if iteration == 1:
-    solver.options().set('disabled_actions', ['InitialConditions'])
+model.simulate()
 
 # print timings
 model.print_timing_tree()

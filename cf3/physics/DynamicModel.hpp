@@ -60,9 +60,9 @@ public: // functions
   virtual std::string type() const;
 
   /// create a physical properties
-  virtual std::auto_ptr<physics::Properties> create_properties()
+  virtual boost::shared_ptr<physics::Properties> create_properties()
   {
-    return std::auto_ptr<physics::Properties>( new DynamicModel::Properties() );
+    return boost::shared_ptr<physics::Properties>( new DynamicModel::Properties() );
   }
 
   /// Create a Variables component

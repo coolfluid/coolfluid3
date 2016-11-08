@@ -280,26 +280,26 @@ void ServerNetworkComm::callback_read( TCPConnection::Ptr conn,
 ////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::send_frame_to_client( SignalFrame & signal,
-                                              const string & clientid )
+                                              const std::string & clientid )
 {
   init_send( get_connection(clientid), signal );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ServerNetworkComm::send_frame_rejected_to_client ( const string clientid,
-                                                         const string & frameid,
+void ServerNetworkComm::send_frame_rejected_to_client ( const std::string clientid,
+                                                         const std::string & frameid,
                                                          const URI & sender,
-                                                         const string &reason )
+                                                         const std::string &reason )
 {
   send_frame_rejected( get_connection(clientid), frameid, sender, reason );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ServerNetworkComm::send_message_to_client( const string & message,
+void ServerNetworkComm::send_message_to_client( const std::string & message,
                                                 LogMessage::Type type,
-                                                const string & clientid )
+                                                const std::string & clientid )
 {
   send_message( get_connection(clientid), message, type );
 }
@@ -307,7 +307,7 @@ void ServerNetworkComm::send_message_to_client( const string & message,
 ////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::send_frame_rejected( TCPConnection::Ptr client,
-                                             const string & frameid,
+                                             const std::string & frameid,
                                              const URI & sender,
                                              const std::string & reason )
 {
@@ -323,7 +323,7 @@ void ServerNetworkComm::send_frame_rejected( TCPConnection::Ptr client,
 ////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::send_message( TCPConnection::Ptr client,
-                                      const string & message,
+                                      const std::string & message,
                                       LogMessage::Type type )
 {
   SignalFrame frame("message", SERVER_CORE_PATH, CLIENT_LOG_PATH);
@@ -340,7 +340,7 @@ void ServerNetworkComm::send_message( TCPConnection::Ptr client,
 
 ////////////////////////////////////////////////////////////////////////////
 
-TCPConnection::Ptr ServerNetworkComm::get_connection( const string & uuid ) const
+TCPConnection::Ptr ServerNetworkComm::get_connection( const std::string & uuid ) const
 {
   TCPConnection::Ptr connection;
 

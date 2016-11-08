@@ -196,7 +196,7 @@ struct RCGStrategy::Implementation
   int m_dim;
 };
 
-RCGStrategy::RCGStrategy(const string& name) :
+RCGStrategy::RCGStrategy(const std::string& name) :
   CoordinatesStrategy(name),
   m_implementation(new Implementation(*this))
 {    

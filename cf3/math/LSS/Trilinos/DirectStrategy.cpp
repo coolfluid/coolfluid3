@@ -149,7 +149,7 @@ struct DirectStrategy::Implementation
   Uint m_count;
 };
 
-DirectStrategy::DirectStrategy(const string& name) :
+DirectStrategy::DirectStrategy(const std::string& name) :
   CoordinatesStrategy(name),
   m_implementation(new Implementation(*this))
 {

@@ -77,7 +77,7 @@ public: // functions
 
   void signal_exit ( SignalArgs & args );
 
-  void new_signal ( const ::MPI::Intercomm &, boost::shared_ptr<XML::XmlDoc> );
+  void new_signal (boost::shared_ptr<XML::XmlDoc> );
 
   //@} END SIGNALS
 

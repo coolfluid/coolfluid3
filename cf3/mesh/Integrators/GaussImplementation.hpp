@@ -7,7 +7,7 @@
 #ifndef cf3_mesh_Integrators_GaussImplementation_HH
 #define cf3_mesh_Integrators_GaussImplementation_HH
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 
 #include "math/MatrixTypes.hpp"
 

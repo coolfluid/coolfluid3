@@ -79,11 +79,6 @@ BOOST_AUTO_TEST_CASE( Grid2D )
 
   BOOST_CHECK_NO_THROW(mesh.write_mesh("grid-2d.msh"));
 
-
-  // Test block partitioning
-  BOOST_CHECK_NO_THROW(blocks.partition_blocks(5, 0));
-//  BOOST_CHECK_NO_THROW(blocks.partition_blocks(3, 1));
-
   Handle<Mesh> block_mesh = blocks.create_block_mesh();
   BOOST_CHECK(true);
   std::vector<URI> fields;

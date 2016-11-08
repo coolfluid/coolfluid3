@@ -51,6 +51,8 @@ list( APPEND coolfluid_mesh_actions_files
   PeriodicMeshPartitioner.cpp
   LoadBalance.hpp
   LoadBalance.cpp
+  RegionsToMesh.hpp
+  RegionsToMesh.cpp
   RemoveGhostElements.hpp
   RemoveGhostElements.cpp
   Rotate.hpp
@@ -59,6 +61,8 @@ list( APPEND coolfluid_mesh_actions_files
   ShortestEdge.cpp
   SurfaceIntegral.hpp
   SurfaceIntegral.cpp
+  SurfaceToVolumeConnectivity.hpp
+  SurfaceToVolumeConnectivity.cpp
   Translate.hpp
   Translate.cpp
   VolumeIntegral.hpp

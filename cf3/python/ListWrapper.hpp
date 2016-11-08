@@ -13,11 +13,6 @@ namespace cf3 {
 namespace common { class Component; }
 namespace python {
 
-class ComponentWrapper;
-
-/// Python wrapping for the List class
-void add_clist_methods(ComponentWrapper& wrapped, boost::python::api::object& py_obj);
-
 void def_clist_types();
 
 } // python

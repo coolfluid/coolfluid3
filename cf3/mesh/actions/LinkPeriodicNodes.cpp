@@ -50,13 +50,13 @@ std::vector<Uint> used_nodes(const mesh::Region& region, const mesh::Dictionary&
   boost::shared_ptr< common::List< Uint > > own_used_node_list = build_used_nodes_list(region, dict, false, false);
   std::vector<Uint> used_node_vec;
   common::PE::Comm& comm = common::PE::Comm::instance();
-  
+
   if(!comm.is_active())
   {
     used_node_vec.assign(own_used_node_list->array().begin(), own_used_node_list->array().end());
     return used_node_vec;
   }
-  
+
   std::vector<Uint> own_gids; own_gids.reserve(own_used_node_list->size());
   const Uint nb_nodes = dict.size();
   std::vector<bool> is_added(nb_nodes, false);
@@ -65,36 +65,36 @@ std::vector<Uint> used_nodes(const mesh::Region& region, const mesh::Dictionary&
     own_gids.push_back(dict.glb_idx()[own_idx]);
     is_added[own_idx] = true; // All local nodes are in the list automatically
   }
-  
+
   std::vector< std::vector<Uint> > recv_gids;
   comm.all_gather(own_gids, recv_gids);
-  
+
   std::set<Uint> global_boundary_gids; // GIDs that reside on other CPUs
   const Uint nb_procs = comm.size();
   for(Uint i = 0; i != nb_procs; ++i)
   {
     if(i == comm.rank())
       continue;
-    
+
     BOOST_FOREACH(const Uint gid, recv_gids[i])
     {
       global_boundary_gids.insert(gid);
     }
   }
-  
+
   std::list<Uint> extra_nodes;
   for(Uint i = 0; i != nb_nodes; ++i)
   {
     if(is_added[i])
       continue;
-    
+
     if(global_boundary_gids.count(dict.glb_idx()[i]))
     {
       is_added[i] = true;
       extra_nodes.push_back(i);
     }
   }
-  
+
   used_node_vec.reserve(own_used_node_list->size()+ extra_nodes.size());
   used_node_vec.insert(used_node_vec.end(), own_used_node_list->array().begin(), own_used_node_list->array().end());
   used_node_vec.insert(used_node_vec.end(), extra_nodes.begin(), extra_nodes.end());
@@ -151,6 +151,22 @@ void LinkPeriodicNodes::execute()
 
   common::List<Uint>& periodic_links_nodes = *periodic_links_nodes_h;
   common::List<bool>& periodic_links_active = *periodic_links_active_h;
+
+  if(periodic_links_nodes.size() != mesh.geometry_fields().size())
+  {
+    periodic_links_nodes.resize(mesh.geometry_fields().size());
+    periodic_links_active.resize(mesh.geometry_fields().size());
+  }
+
+  for(bool& b : periodic_links_active.array())
+  {
+    b = false;
+  }
+  for(Uint& n : periodic_links_nodes.array())
+  {
+    n = 0;
+  }
+
   cf3_assert(periodic_links_nodes.size() == mesh.geometry_fields().size());
   cf3_assert(periodic_links_active.size() == mesh.geometry_fields().size());
 
@@ -167,6 +183,8 @@ void LinkPeriodicNodes::execute()
 
   const RealVector translation_vector = to_vector(m_translation_vector);
 
+
+	common::List<Uint>& ranks = mesh.geometry_fields().rank();
   BOOST_FOREACH(const Uint source_node_idx, source_nodes)
   {
     const RealVector source_coord = to_vector(coords[source_node_idx]) + translation_vector;
@@ -175,15 +193,17 @@ void LinkPeriodicNodes::execute()
       if(detail::is_close(source_coord, to_vector(coords[dest_node_idx])))
       {
         periodic_links_active[source_node_idx] = true;
-        periodic_links_nodes[source_node_idx] = dest_node_idx;
+				periodic_links_nodes[source_node_idx] = periodic_links_active[dest_node_idx] ? periodic_links_nodes[dest_node_idx] : dest_node_idx;
+				cf3_assert(!periodic_links_active[periodic_links_nodes[source_node_idx]]);
+				ranks[source_node_idx] = ranks[periodic_links_nodes[source_node_idx]];
       }
     }
   }
+/*
+  boost::shared_ptr<NodeConnectivity> node_connectivity = common::allocate_component<NodeConnectivity>("node_connectivity");
+  node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Entities>(*m_destination_region, IsElementsSurface()));
 
-  boost::shared_ptr<CNodeConnectivity> node_connectivity = common::allocate_component<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Elements>(*m_destination_region, IsElementsSurface()));
-
-  BOOST_FOREACH(mesh::Elements& elements, common::find_components_recursively_with_filter<mesh::Elements>(*m_source_region, IsElementsSurface()))
+  BOOST_FOREACH(mesh::Entities& elements, common::find_components_recursively_with_filter<mesh::Entities>(*m_source_region, IsElementsSurface()))
   {
     Handle< common::List<Uint> > periodic_links_elements_h(elements.get_child("periodic_links_elements"));
     if(is_null(periodic_links_elements_h))
@@ -219,11 +239,9 @@ void LinkPeriodicNodes::execute()
       }
       std::sort(translated_row.begin(), translated_row.end());
       bool found_match = false;
-      BOOST_FOREACH(const Uint other_element_glb_idx, node_connectivity->node_element_range(translated_row.front()))
+      BOOST_FOREACH(const NodeConnectivity::ElementReferenceT elref, node_connectivity->node_element_range(translated_row.front()))
       {
-        CNodeConnectivity::ElementReferenceT elref = node_connectivity->element(other_element_glb_idx);
-        cf3_assert(is_not_null(elref.first));
-        const Elements& other_elements = *elref.first;
+        const Entities& other_elements = *node_connectivity->entities()[elref.first];
         const Uint other_idx = elref.second;
         const Connectivity& other_conn = other_elements.geometry_space().connectivity();
         const Connectivity::ConstRow other_row = other_conn[other_idx];
@@ -279,6 +297,7 @@ void LinkPeriodicNodes::execute()
     periodic_link->link_to(const_cast<Elements&>(*elements_to_link));
     cf3_always_assert(nb_elements == elements_to_link->size());
   }
+	*/
 }
 
 //////////////////////////////////////////////////////////////////////////////

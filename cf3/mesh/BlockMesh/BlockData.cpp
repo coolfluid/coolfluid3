@@ -4,7 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/assign/list_of.hpp>
+#include <boost/filesystem/fstream.hpp>
+
+#include "common/BoostAssign.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
@@ -103,43 +105,23 @@ namespace detail
     output.push_back(ValT(input.size()));
     std::copy(input.begin(), input.end(), output.back().begin());
   }
+
+  // Helper function to distribute a count evenly among processes
+  void distribute(const Uint begin, const Uint count, const Uint nb_procs, std::vector<Uint>& distribution)
+  {
+    distribution.clear();
+    distribution.reserve(nb_procs+1);
+    distribution.push_back(begin);
+    const Uint divided = count / nb_procs;
+    const Uint remainder = count % nb_procs;
+    for(Uint i = 0; i != nb_procs; ++i)
+    {
+      distribution.push_back(distribution.back() + divided + (i==0 ? remainder : 0));
+    }
+  }
 }
 
 ComponentBuilder < BlockArrays, Component, LibBlockMesh > BlockArrays_Builder;
-
-/// Helper struct to keep using the old partitioning method
-struct BlocksPartitioning
-{
-  /// Type to store indices into another vector
-  typedef std::vector<Uint> IndicesT;
-  /// Data type for counts of data, i.e. number of points
-  typedef std::vector<Uint> CountsT;
-  /// Storage for a single point coordinate (STL vector for ease of use with boost::spirit)
-  typedef std::vector<Real> PointT;
-  /// Storage for a grading corresponding to a single block
-  typedef std::vector<Real> GradingT;
-  /// Storage for true/false flags
-  typedef std::vector<bool> BooleansT;
-
-  Uint dimension;
-
-  /// The coordinates for all the nodes
-  std::vector<PointT> points;
-
-  /// Points for each block, in terms of node indices
-  std::vector<IndicesT> block_points;
-  /// Subdivisions for each block, along X, Y and Z
-  std::vector<CountsT> block_subdivisions;
-  /// edgeGrading for each block
-  std::vector<GradingT> block_gradings;
-  /// Distribution of blocks among processors
-  IndicesT block_distribution;
-
-  /// Name for each patch
-  std::vector<std::string> patch_names;
-  /// Point indices for each patch (grouped per 4 or 2, depending on dimension)
-  std::vector<IndicesT> patch_points;
-};
 
 struct BlockArrays::Implementation
 {
@@ -152,7 +134,7 @@ struct BlockArrays::Implementation
 
   Handle<Mesh> block_mesh;
   Handle<Connectivity> default_shell_connectivity;
-  Handle<CFaceConnectivity> face_connectivity;
+  Handle<FaceConnectivity> face_connectivity;
 
   /// Encapsulate a single block, providing all data needed to produce the mesh connectivity
   struct Block
@@ -164,7 +146,8 @@ struct BlockArrays::Implementation
       segments(dim),
       bounded(dim),
       neighbors(dim, nullptr),
-      strides(dim)
+      node_strides(dim),
+      element_strides(dim)
     {
     }
 
@@ -191,16 +174,53 @@ struct BlockArrays::Implementation
       return result;
     }
 
-    /// Get the global index. Available after "dimension" subsequent calls to operator[]
-    Uint global_idx() const
+    /// Get the global node index. Available after "dimension" subsequent calls to operator[]
+    Uint global_node_idx() const
     {
       cf3_assert(search_indices.size() == dimensions);
-      Uint result = start_index;
+      Uint result = nodes_distribution.front();
       for(Uint i = 0; i != dimensions; ++i)
       {
-        result += strides[i]*search_indices[i];
+        result += node_strides[i]*search_indices[i];
       }
       return result;
+    }
+
+    /// Get the global element index. Available after "dimension" subsequent calls to operator[]
+    Uint global_element_idx() const
+    {
+      cf3_assert(search_indices.size() == dimensions);
+      Uint result = elements_distribution.front();
+      for(Uint i = 0; i != dimensions; ++i)
+      {
+        result += element_strides[i]*search_indices[i];
+      }
+      return result;
+    }
+
+    /// True if the element at the given location is local to the current rank
+    bool is_local_element(const Uint i, const Uint j, const Uint k) const
+    {
+      cf3_assert(dimensions == 3);
+      cf3_assert(i < segments[0]);
+      cf3_assert(j < segments[1]);
+      cf3_assert(k < segments[2]);
+
+      const Uint rank = common::PE::Comm::instance().rank();
+      const Uint element_gid = elements_distribution.front() + element_strides[0]*i + element_strides[1]*j + element_strides[2]*k;
+      return element_gid >= elements_distribution[rank] && element_gid < elements_distribution[rank+1];
+    }
+
+    /// 2D version
+    bool is_local_element(const Uint i, const Uint j) const
+    {
+      cf3_assert(dimensions == 2);
+      cf3_assert(i < segments[0]);
+      cf3_assert(j < segments[1]);
+
+      const Uint rank = common::PE::Comm::instance().rank();
+      const Uint element_gid = elements_distribution.front() + element_strides[0]*i + element_strides[1]*j;
+      return element_gid >= elements_distribution[rank] && element_gid < elements_distribution[rank+1];
     }
 
     /// Number of dimensions (2 or 3)
@@ -217,12 +237,16 @@ struct BlockArrays::Implementation
     std::vector<bool> bounded;
     /// Neighbors in the positive direction
     std::vector<Block*> neighbors;
-    /// Strides in each direction
-    std::vector<Uint> strides;
-    /// Starting index for this block
-    Uint start_index;
-    /// True if the block is stored on the current MPI rank
-    bool is_local;
+    /// Point strides in each direction
+    std::vector<Uint> node_strides;
+    /// Element strides in each direction
+    std::vector<Uint> element_strides;
+    /// Parallel distribution of nodes and elements
+    std::vector<Uint> nodes_distribution;
+    std::vector<Uint> elements_distribution;
+    /// Start and end local IDs
+    Uint local_nodes_start;
+    Uint local_nodes_end;
   };
 
   struct Patch
@@ -250,16 +274,16 @@ struct BlockArrays::Implementation
       }
     }
 
-    /// Access to a global index, 1D version
-    Uint global_idx(Uint i) const
+    /// Access to the adjacent block, with search indices set correctly. 1D version
+    Block adjacent_block(Uint i) const
     {
       cf3_assert(block.dimensions == 2);
       i = fixed_idx ? i : segments[0]-i;
-      return block[fixed_direction == 0 ? fixed_idx : i][fixed_direction == 1 ? fixed_idx : i].global_idx();
+      return block[fixed_direction == 0 ? fixed_idx : i][fixed_direction == 1 ? fixed_idx : i];
     }
 
-    /// Access to a global index, 2D version
-    Uint global_idx(Uint i, Uint j) const
+    /// Access to the adjacent block, with search indices set correctly. 2D version
+    Block adjacent_block(Uint i, Uint j) const
     {
       cf3_assert(block.dimensions == 3);
       if(fixed_direction != 2)
@@ -269,13 +293,45 @@ struct BlockArrays::Implementation
       switch(fixed_direction)
       {
         case 0:
-          return block[fixed_idx][i][j].global_idx();
+          return block[fixed_idx][i][j];
         case 1:
-          return block[i][fixed_idx][j].global_idx();
+          return block[i][fixed_idx][j];
         case 2:
-          return block[i][j][fixed_idx].global_idx();
+          return block[i][j][fixed_idx];
       }
       return 0;
+    }
+
+    /// True if the patch element is local to the current rank (2D)
+    bool is_local_element(Uint i) const
+    {
+      cf3_assert(block.dimensions == 2);
+      i = fixed_idx ? i : segments[0]-i-1;
+      const Uint end_idx = fixed_idx != 0 ? fixed_idx - 1 : fixed_idx;
+      return block.is_local_element(fixed_direction == 0 ? end_idx : i, fixed_direction == 1 ? end_idx : i);
+    }
+
+    /// True if the patch element is local to the current rank (3D)
+    bool is_local_element(Uint i, Uint j) const
+    {
+      cf3_assert(block.dimensions == 3);
+      if(fixed_direction != 2)
+        i = fixed_idx ? i : segments[0]-i-1;
+      else
+        i = fixed_idx ? segments[0]-i-1 : i;
+
+      const Uint end_idx = fixed_idx != 0 ? fixed_idx - 1 : fixed_idx;
+
+      switch(fixed_direction)
+      {
+        case 0:
+          return block.is_local_element(end_idx, i, j);
+        case 1:
+          return block.is_local_element(i, end_idx, j);
+        case 2:
+          return block.is_local_element(i, j, end_idx);
+      }
+      return false;
     }
 
     const Block& block;
@@ -285,16 +341,6 @@ struct BlockArrays::Implementation
     Uint fixed_idx;
     Uint m_orientation;
   };
-
-  void trigger_block_distribution()
-  {
-    const Uint nb_blocks = blocks->size();
-    if(block_distribution.empty() || block_distribution.back() != blocks->size())
-    {
-      block_distribution.assign(2, 0);
-      block_distribution.back() = nb_blocks;
-    }
-  }
 
   void trigger_block_regions()
   {
@@ -314,14 +360,11 @@ struct BlockArrays::Implementation
   {
     trigger_block_regions();
     ghost_counter = 0;
-    const Uint rank = PE::Comm::instance().rank();
-    const Uint partition_begin = block_distribution[rank];
-    const Uint partition_end = block_distribution[rank+1];
 
     const Uint nb_blocks = blocks->size();
     const Uint dimensions = points->row_size();
 
-    CFaceConnectivity& face_conn = *face_connectivity;
+    FaceConnectivity& face_conn = *face_connectivity;
 
     // Unify positive axis face_indices between 2D and 3D cases
     std::vector<Uint> positive_faces(dimensions);
@@ -346,19 +389,23 @@ struct BlockArrays::Implementation
     }
 
     block_list.assign(nb_blocks, Block(dimensions));
+    needed_nodes_ijk.clear();
+    needed_nodes_ijk.resize(nb_blocks);
+
     patch_map.clear();
     const Table<Uint>& block_subdivs = *block_subdivisions;
-    Uint block_start = 0;
+    Uint block_nodes_start = 0;
+    Uint block_elements_start = 0;
+    Uint local_nodes_start = 0;
     for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
     {
       Block& block = block_list[block_idx];
-      block.is_local = block_idx >= partition_begin && block_idx < partition_end;
-      block.start_index = block_start;
 
       const Table<Uint>::ConstRow row = (*blocks)[block_idx];
       const Table<Uint>::ConstRow subdiv_row = block_subdivs[block_idx];
 
-      Uint stride = 1;
+      Uint node_stride = 1;
+      Uint element_stride = 1;
       Uint nb_points = 1;
       block.nb_elems = 1;
       for(Uint i = 0; i != dimensions; ++i)
@@ -377,13 +424,15 @@ struct BlockArrays::Implementation
           error_str << "]. Did you flip the ordering of patch nodes?";
           throw common::SetupError(FromHere(), error_str.str());
         }
-        CFaceConnectivity::ElementReferenceT adj_elem = face_conn.adjacent_element(block_idx, positive_faces[i]);
-        block.strides[i] = stride;
-        block.bounded[i] = adj_elem.first->element_type().dimensionality() != dimensions;
+        FaceConnectivity::ElementReferenceT adj_elem = face_conn.adjacent_element(block_idx, positive_faces[i]);
+        block.node_strides[i] = node_stride;
+        block.element_strides[i] = element_stride;
+        block.bounded[i] = face_conn.node_connectivity().entities()[adj_elem.first]->element_type().dimensionality() != dimensions;
         block.nb_points[i] = subdiv_row[i] + (block.bounded[i] ? 1 : 0);
         block.segments[i] = subdiv_row[i];
         block.nb_elems *= subdiv_row[i];
-        stride *= block.nb_points[i];
+        node_stride *= block.nb_points[i];
+        element_stride *= block.segments[i];
         nb_points *= block.nb_points[i];
         block.neighbors[i] = block.bounded[i] ? nullptr : &block_list[adj_elem.second];
       }
@@ -392,74 +441,87 @@ struct BlockArrays::Implementation
       const std::string& my_region = block_regions[block_idx];
       for(Uint i = 0; i != dimensions; ++i)
       {
-        CFaceConnectivity::ElementReferenceT adj_elems[2];
+        FaceConnectivity::ElementReferenceT adj_elems[2];
         adj_elems[0] = face_conn.adjacent_element(block_idx, negative_faces[i]);
         adj_elems[1] = face_conn.adjacent_element(block_idx, positive_faces[i]);
         // check for a patch both in the positive and negative direction
         for(Uint dir = 0; dir != 2; ++dir)
         {
           const Uint patch_orientation = dir == 0 ? negative_faces[i] : positive_faces[i];
-          if(adj_elems[dir].first->element_type().dimensionality() == (dimensions-1))
+          if(face_conn.node_connectivity().entities()[adj_elems[dir].first]->element_type().dimensionality() == (dimensions-1))
           {
-            patch_map[adj_elems[dir].first->parent()->name()].push_back(new Patch(block, i, dir * (block.nb_points[i]-1), patch_orientation));
+            patch_map[face_conn.node_connectivity().entities()[adj_elems[dir].first]->parent()->name()].push_back(new Patch(block, i, dir * (block.nb_points[i]-1), patch_orientation));
           }
           else
           {
-            cf3_assert(adj_elems[dir].first->element_type().dimensionality() == dimensions);
+            cf3_assert(face_conn.node_connectivity().entities()[adj_elems[dir].first]->element_type().dimensionality() == dimensions);
             cf3_assert(adj_elems[dir].second < block_regions.size());
             const std::string& other_region = block_regions[adj_elems[dir].second];
             if(other_region != my_region)
             {
-              const std::string internal_patch_name = std::string("region_bnd_") + my_region + "_" + other_region;
+              const std::string internal_patch_name = my_region + std::string("_interface_to_") + other_region;
               patch_map[internal_patch_name].push_back(new Patch(block, i, dir * (block.nb_points[i]), patch_orientation));
             }
           }
         }
       }
-      block_start += nb_points;
+
+      // Distribution of nodes and elements among processed
+      const Uint nb_procs = PE::Comm::instance().size();
+      const Uint rank = PE::Comm::instance().rank();
+      detail::distribute(block_elements_start, block.nb_elems, nb_procs, block.elements_distribution);
+      detail::distribute(block_nodes_start, nb_points, nb_procs, block.nodes_distribution);
+
+      block.local_nodes_start = local_nodes_start;
+      local_nodes_start += block.nodes_distribution[rank+1] - block.nodes_distribution[rank];
+      block.local_nodes_end = local_nodes_start;
+
+      // Make sure all local nodes are added to the needed nodes list
+      const Uint block_local_begin = block.nodes_distribution[rank];
+      const Uint block_local_end = block.nodes_distribution[rank+1];
+      for(Uint gid = block_local_begin; gid != block_local_end; ++gid)
+      {
+        std::array<Uint, 3> ijk = {0,0,0};
+        Uint current_remainder = gid - block_nodes_start;
+        for(Uint d = 0; d != dimensions; ++d)
+        {
+          const Uint idx = dimensions-d-1;
+          ijk[idx] = (current_remainder / block.node_strides[idx]);
+          current_remainder = current_remainder % block.node_strides[idx];
+        }
+        needed_nodes_ijk[block_idx][gid - block_local_begin + block.local_nodes_start] = ijk;
+      }
+
+      block_nodes_start += nb_points;
+      block_elements_start += block.nb_elems;
     }
-  }
-
-  /// Distribution of nodes among the CPUs
-  void create_nodes_distribution(const Uint nb_procs, const Uint rank)
-  {
-    cf3_assert(rank < nb_procs);
-
-    if(block_distribution.size() != (nb_procs+1))
-      throw SetupError(FromHere(), "Block distribution size of " + boost::lexical_cast<std::string>(block_distribution.size()) + " does not match number of processes " + boost::lexical_cast<std::string>(nb_procs) + "+1. Did you parallelize the blocks?");
-
-    // Initialize the nodes distribution
-    nodes_dist.reserve(nb_procs+1);
-    nodes_dist.push_back(0);
-    for(Uint proc = 0; proc != (nb_procs-1); ++proc)
-    {
-      nodes_dist.push_back(nodes_dist.back() + block_list[block_distribution[proc+1]].start_index - block_list[block_distribution[proc]].start_index);
-    }
-    const Block& last_block = block_list[block_distribution[nb_procs]-1];
-    Uint last_block_nb_nodes = 1;
-    for(Uint i = 0; i != last_block.dimensions; ++i)
-      last_block_nb_nodes *= last_block.nb_points[i];
-
-    nodes_dist.push_back(nodes_dist.back() + last_block.start_index - block_list[block_distribution[nb_procs-1]].start_index + last_block_nb_nodes);
-
-    local_nodes_begin = nodes_dist[rank];
-    local_nodes_end = nodes_dist[rank+1];
+    nb_local_nodes = local_nodes_start;
   }
 
   /// Convert a global index to a local one, creating a ghost node if needed
-  Uint to_local(const Uint gid)
+  Uint to_local(const Block& block)
   {
-    if(gid >= local_nodes_begin && gid < local_nodes_end)
-      return gid - local_nodes_begin;
+    const Uint rank = common::PE::Comm::instance().rank();
+    const Uint block_local_begin = block.nodes_distribution[rank];
+    const Uint block_local_end = block.nodes_distribution[rank+1];
+    const Uint gid = block.global_node_idx();
+    if(gid >= block_local_begin && gid < block_local_end) // Local node, compute local index
+    {
+      return gid - block_local_begin + block.local_nodes_start;
+    }
 
-    const Uint lid = local_nodes_end - local_nodes_begin + ghost_counter;
-    std::pair<IndexMapT::iterator, bool> stored_gid = global_to_local.insert(std::make_pair(gid, lid));
+    // Non-local node, add a ghost
+    const Uint lid = nb_local_nodes + ghost_counter;
+    const Uint ghost_rank = std::upper_bound(block.nodes_distribution.begin(), block.nodes_distribution.end(), gid) - 1 - block.nodes_distribution.begin();
+    std::pair<IndexMapT::iterator, bool> stored_gid = global_to_local.insert(std::make_pair(gid, std::make_pair(lid, ghost_rank)));
 
     // increment the number of ghosts if we didn't add a ghost for this gid before
     if(stored_gid.second)
+    {
       ++ghost_counter;
+    }
 
-    return stored_gid.first->second;
+    return stored_gid.first->second.first;
   }
 
   template<typename T>
@@ -475,19 +537,31 @@ struct BlockArrays::Implementation
     {
       for(Uint k = 0; k != segments[ZZ]; ++k)
       {
-        for(Uint j = 0; j != segments[YY]; ++j)
+        for(Uint j =0; j != segments[YY]; ++j)
         {
-          for(Uint i = 0; i != segments[XX]; ++i)
+          for(Uint i =0; i != segments[XX]; ++i)
           {
+            if(!block_list[block_idx].is_local_element(i,j,k))
+              continue;
+
             common::Table<Uint>::Row element_connectivity = volume_connectivity[element_idx++];
-            element_connectivity[0] = to_local(block_list[block_idx][i  ][j  ][k  ].global_idx());
-            element_connectivity[1] = to_local(block_list[block_idx][i+1][j  ][k  ].global_idx());
-            element_connectivity[2] = to_local(block_list[block_idx][i+1][j+1][k  ].global_idx());
-            element_connectivity[3] = to_local(block_list[block_idx][i  ][j+1][k  ].global_idx());
-            element_connectivity[4] = to_local(block_list[block_idx][i  ][j  ][k+1].global_idx());
-            element_connectivity[5] = to_local(block_list[block_idx][i+1][j  ][k+1].global_idx());
-            element_connectivity[6] = to_local(block_list[block_idx][i+1][j+1][k+1].global_idx());
-            element_connectivity[7] = to_local(block_list[block_idx][i  ][j+1][k+1].global_idx());
+            element_connectivity[0] = to_local(block_list[block_idx][i  ][j  ][k  ]);
+            element_connectivity[1] = to_local(block_list[block_idx][i+1][j  ][k  ]);
+            element_connectivity[2] = to_local(block_list[block_idx][i+1][j+1][k  ]);
+            element_connectivity[3] = to_local(block_list[block_idx][i  ][j+1][k  ]);
+            element_connectivity[4] = to_local(block_list[block_idx][i  ][j  ][k+1]);
+            element_connectivity[5] = to_local(block_list[block_idx][i+1][j  ][k+1]);
+            element_connectivity[6] = to_local(block_list[block_idx][i+1][j+1][k+1]);
+            element_connectivity[7] = to_local(block_list[block_idx][i  ][j+1][k+1]);
+
+            needed_nodes_ijk[block_idx][element_connectivity[0]] = {i,j,k};
+            needed_nodes_ijk[block_idx][element_connectivity[1]] = {i+1,j,k};
+            needed_nodes_ijk[block_idx][element_connectivity[2]] = {i+1,j+1,k};
+            needed_nodes_ijk[block_idx][element_connectivity[3]] = {i,j+1,k};
+            needed_nodes_ijk[block_idx][element_connectivity[4]] = {i,j,k+1};
+            needed_nodes_ijk[block_idx][element_connectivity[5]] = {i+1,j,k+1};
+            needed_nodes_ijk[block_idx][element_connectivity[6]] = {i+1,j+1,k+1};
+            needed_nodes_ijk[block_idx][element_connectivity[7]] = {i,j+1,k+1};
           }
         }
       }
@@ -499,11 +573,21 @@ struct BlockArrays::Implementation
       {
         for(Uint i = 0; i != segments[XX]; ++i)
         {
+          if(!block_list[block_idx].is_local_element(i,j))
+          {
+            continue;
+          }
+
           common::Table<Uint>::Row element_connectivity = volume_connectivity[element_idx++];
-          element_connectivity[0] = to_local(block_list[block_idx][i  ][j  ].global_idx());
-          element_connectivity[1] = to_local(block_list[block_idx][i+1][j  ].global_idx());
-          element_connectivity[2] = to_local(block_list[block_idx][i+1][j+1].global_idx());
-          element_connectivity[3] = to_local(block_list[block_idx][i  ][j+1].global_idx());
+          element_connectivity[0] = to_local(block_list[block_idx][i  ][j  ]);
+          element_connectivity[1] = to_local(block_list[block_idx][i+1][j  ]);
+          element_connectivity[2] = to_local(block_list[block_idx][i+1][j+1]);
+          element_connectivity[3] = to_local(block_list[block_idx][i  ][j+1]);
+
+          needed_nodes_ijk[block_idx][element_connectivity[0]] = {i,j,0};
+          needed_nodes_ijk[block_idx][element_connectivity[1]] = {i+1,j,0};
+          needed_nodes_ijk[block_idx][element_connectivity[2]] = {i+1,j+1,0};
+          needed_nodes_ijk[block_idx][element_connectivity[3]] = {i,j+1,0};
         }
       }
     }
@@ -513,6 +597,7 @@ struct BlockArrays::Implementation
   template<typename ET>
   void fill_block_coordinates_3d(Table<Real>& mesh_coords, const Uint block_idx)
   {
+    const Uint rank = common::PE::Comm::instance().rank();
     typename ET::NodesT block_nodes;
     fill(block_nodes, *points, (*blocks)[block_idx]);
     const Table<Uint>::ConstRow& segments = (*block_subdivisions)[block_idx];
@@ -525,51 +610,49 @@ struct BlockArrays::Implementation
 
     Real w[4][3]; // weights for each edge
     Real w_mag[3]; // Magnitudes of the weights
-    for(Uint k = 0; k <= segments[ZZ]; ++k)
+
+    for(const auto& ijk : needed_nodes_ijk[block_idx])
     {
-      for(Uint j = 0; j <= segments[YY]; ++j)
-      {
-        for(Uint i = 0; i <= segments[XX]; ++i)
-        {
-          // Weights are calculating according to the BlockMesh algorithm
-          w[0][KSI] = (1. - ksi[i][0])*(1. - eta[j][0])*(1. - zta[k][0]) + (1. + ksi[i][0])*(1. - eta[j][1])*(1. - zta[k][1]);
-          w[1][KSI] = (1. - ksi[i][1])*(1. + eta[j][0])*(1. - zta[k][3]) + (1. + ksi[i][1])*(1. + eta[j][1])*(1. - zta[k][2]);
-          w[2][KSI] = (1. - ksi[i][2])*(1. + eta[j][3])*(1. + zta[k][3]) + (1. + ksi[i][2])*(1. + eta[j][2])*(1. + zta[k][2]);
-          w[3][KSI] = (1. - ksi[i][3])*(1. - eta[j][3])*(1. + zta[k][0]) + (1. + ksi[i][3])*(1. - eta[j][2])*(1. + zta[k][1]);
-          w_mag[KSI] = (w[0][KSI] + w[1][KSI] + w[2][KSI] + w[3][KSI]);
+      const Uint i = ijk.second[0];
+      const Uint j = ijk.second[1];
+      const Uint k = ijk.second[2];
+      // Weights are calculating according to the BlockMesh algorithm from OpenFoam
+      w[0][KSI] = (1. - ksi[i][0])*(1. - eta[j][0])*(1. - zta[k][0]) + (1. + ksi[i][0])*(1. - eta[j][1])*(1. - zta[k][1]);
+      w[1][KSI] = (1. - ksi[i][1])*(1. + eta[j][0])*(1. - zta[k][3]) + (1. + ksi[i][1])*(1. + eta[j][1])*(1. - zta[k][2]);
+      w[2][KSI] = (1. - ksi[i][2])*(1. + eta[j][3])*(1. + zta[k][3]) + (1. + ksi[i][2])*(1. + eta[j][2])*(1. + zta[k][2]);
+      w[3][KSI] = (1. - ksi[i][3])*(1. - eta[j][3])*(1. + zta[k][0]) + (1. + ksi[i][3])*(1. - eta[j][2])*(1. + zta[k][1]);
+      w_mag[KSI] = (w[0][KSI] + w[1][KSI] + w[2][KSI] + w[3][KSI]);
 
-          w[0][ETA] = (1. - eta[j][0])*(1. - ksi[i][0])*(1. - zta[k][0]) + (1. + eta[j][0])*(1. - ksi[i][1])*(1. - zta[k][3]);
-          w[1][ETA] = (1. - eta[j][1])*(1. + ksi[i][0])*(1. - zta[k][1]) + (1. + eta[j][1])*(1. + ksi[i][1])*(1. - zta[k][2]);
-          w[2][ETA] = (1. - eta[j][2])*(1. + ksi[i][3])*(1. + zta[k][1]) + (1. + eta[j][2])*(1. + ksi[i][2])*(1. + zta[k][2]);
-          w[3][ETA] = (1. - eta[j][3])*(1. - ksi[i][3])*(1. + zta[k][0]) + (1. + eta[j][3])*(1. - ksi[i][2])*(1. + zta[k][3]);
-          w_mag[ETA] = (w[0][ETA] + w[1][ETA] + w[2][ETA] + w[3][ETA]);
+      w[0][ETA] = (1. - eta[j][0])*(1. - ksi[i][0])*(1. - zta[k][0]) + (1. + eta[j][0])*(1. - ksi[i][1])*(1. - zta[k][3]);
+      w[1][ETA] = (1. - eta[j][1])*(1. + ksi[i][0])*(1. - zta[k][1]) + (1. + eta[j][1])*(1. + ksi[i][1])*(1. - zta[k][2]);
+      w[2][ETA] = (1. - eta[j][2])*(1. + ksi[i][3])*(1. + zta[k][1]) + (1. + eta[j][2])*(1. + ksi[i][2])*(1. + zta[k][2]);
+      w[3][ETA] = (1. - eta[j][3])*(1. - ksi[i][3])*(1. + zta[k][0]) + (1. + eta[j][3])*(1. - ksi[i][2])*(1. + zta[k][3]);
+      w_mag[ETA] = (w[0][ETA] + w[1][ETA] + w[2][ETA] + w[3][ETA]);
 
-          w[0][ZTA] = (1. - zta[k][0])*(1. - ksi[i][0])*(1. - eta[j][0]) + (1. + zta[k][0])*(1. - ksi[i][3])*(1. - eta[j][3]);
-          w[1][ZTA] = (1. - zta[k][1])*(1. + ksi[i][0])*(1. - eta[j][1]) + (1. + zta[k][1])*(1. + ksi[i][3])*(1. - eta[j][2]);
-          w[2][ZTA] = (1. - zta[k][2])*(1. + ksi[i][1])*(1. + eta[j][1]) + (1. + zta[k][2])*(1. + ksi[i][2])*(1. + eta[j][2]);
-          w[3][ZTA] = (1. - zta[k][3])*(1. - ksi[i][1])*(1. + eta[j][0]) + (1. + zta[k][3])*(1. - ksi[i][2])*(1. + eta[j][3]);
-          w_mag[ZTA] = (w[0][ZTA] + w[1][ZTA] + w[2][ZTA] + w[3][ZTA]);
+      w[0][ZTA] = (1. - zta[k][0])*(1. - ksi[i][0])*(1. - eta[j][0]) + (1. + zta[k][0])*(1. - ksi[i][3])*(1. - eta[j][3]);
+      w[1][ZTA] = (1. - zta[k][1])*(1. + ksi[i][0])*(1. - eta[j][1]) + (1. + zta[k][1])*(1. + ksi[i][3])*(1. - eta[j][2]);
+      w[2][ZTA] = (1. - zta[k][2])*(1. + ksi[i][1])*(1. + eta[j][1]) + (1. + zta[k][2])*(1. + ksi[i][2])*(1. + eta[j][2]);
+      w[3][ZTA] = (1. - zta[k][3])*(1. - ksi[i][1])*(1. + eta[j][0]) + (1. + zta[k][3])*(1. - ksi[i][2])*(1. + eta[j][3]);
+      w_mag[ZTA] = (w[0][ZTA] + w[1][ZTA] + w[2][ZTA] + w[3][ZTA]);
 
-          // Get the mapped coordinates of the node to add
-          typename ET::MappedCoordsT mapped_coords;
-          mapped_coords[KSI] = (w[0][KSI]*ksi[i][0] + w[1][KSI]*ksi[i][1] + w[2][KSI]*ksi[i][2] + w[3][KSI]*ksi[i][3]) / w_mag[KSI];
-          mapped_coords[ETA] = (w[0][ETA]*eta[j][0] + w[1][ETA]*eta[j][1] + w[2][ETA]*eta[j][2] + w[3][ETA]*eta[j][3]) / w_mag[ETA];
-          mapped_coords[ZTA] = (w[0][ZTA]*zta[k][0] + w[1][ZTA]*zta[k][1] + w[2][ZTA]*zta[k][2] + w[3][ZTA]*zta[k][3]) / w_mag[ZTA];
+      // Get the mapped coordinates of the node to add
+      typename ET::MappedCoordsT mapped_coords;
+      mapped_coords[KSI] = (w[0][KSI]*ksi[i][0] + w[1][KSI]*ksi[i][1] + w[2][KSI]*ksi[i][2] + w[3][KSI]*ksi[i][3]) / w_mag[KSI];
+      mapped_coords[ETA] = (w[0][ETA]*eta[j][0] + w[1][ETA]*eta[j][1] + w[2][ETA]*eta[j][2] + w[3][ETA]*eta[j][3]) / w_mag[ETA];
+      mapped_coords[ZTA] = (w[0][ZTA]*zta[k][0] + w[1][ZTA]*zta[k][1] + w[2][ZTA]*zta[k][2] + w[3][ZTA]*zta[k][3]) / w_mag[ZTA];
 
-          typename ET::SF::ValueT sf;
-          ET::SF::compute_value(mapped_coords, sf);
+      typename ET::SF::ValueT sf;
+      ET::SF::compute_value(mapped_coords, sf);
 
-          // Transform to real coordinates
-          typename ET::CoordsT coords = sf * block_nodes;
+      // Transform to real coordinates
+      typename ET::CoordsT coords = sf * block_nodes;
 
-          // Store the result
-          const Uint node_idx = to_local(block_list[block_idx][i][j][k].global_idx());
-          cf3_assert(node_idx < mesh_coords.size());
-          mesh_coords[node_idx][XX] = coords[XX];
-          mesh_coords[node_idx][YY] = coords[YY];
-          mesh_coords[node_idx][ZZ] = coords[ZZ];
-        }
-      }
+      // Store the result
+      const Uint node_idx = ijk.first;
+      cf3_assert(node_idx < mesh_coords.size());
+      mesh_coords[node_idx][XX] = coords[XX];
+      mesh_coords[node_idx][YY] = coords[YY];
+      mesh_coords[node_idx][ZZ] = coords[ZZ];
     }
   }
 
@@ -588,52 +671,42 @@ struct BlockArrays::Implementation
 
     Real w[2][2]; // weights for each edge
     Real w_mag[2]; // Magnitudes of the weights
-    for(Uint j = 0; j <= segments[YY]; ++j)
+    for(const auto& ijk : needed_nodes_ijk[block_idx])
     {
-      for(Uint i = 0; i <= segments[XX]; ++i)
-      {
-        // Weights are calculating according to the BlockMesh algorithm
-        w[0][KSI] = (1. - ksi[i][0])*(1. - eta[j][0]) + (1. + ksi[i][0])*(1. - eta[j][1]);
-        w[1][KSI] = (1. - ksi[i][1])*(1. + eta[j][0]) + (1. + ksi[i][1])*(1. + eta[j][1]);
-        w_mag[KSI] = (w[0][KSI] + w[1][KSI]);
+      const Uint i = ijk.second[0];
+      const Uint j = ijk.second[1];
 
-        w[0][ETA] = (1. - eta[j][0])*(1. - ksi[i][0]) + (1. + eta[j][0])*(1. - ksi[i][1]);
-        w[1][ETA] = (1. - eta[j][1])*(1. + ksi[i][0]) + (1. + eta[j][1])*(1. + ksi[i][1]);
-        w_mag[ETA] = (w[0][ETA] + w[1][ETA]);
+      // Weights are calculating according to the BlockMesh algorithm
+      w[0][KSI] = (1. - ksi[i][0])*(1. - eta[j][0]) + (1. + ksi[i][0])*(1. - eta[j][1]);
+      w[1][KSI] = (1. - ksi[i][1])*(1. + eta[j][0]) + (1. + ksi[i][1])*(1. + eta[j][1]);
+      w_mag[KSI] = (w[0][KSI] + w[1][KSI]);
 
-        // Get the mapped coordinates of the node to add
-        typename ET::MappedCoordsT mapped_coords;
-        mapped_coords[KSI] = (w[0][KSI]*ksi[i][0] + w[1][KSI]*ksi[i][1]) / w_mag[KSI];
-        mapped_coords[ETA] = (w[0][ETA]*eta[j][0] + w[1][ETA]*eta[j][1]) / w_mag[ETA];
+      w[0][ETA] = (1. - eta[j][0])*(1. - ksi[i][0]) + (1. + eta[j][0])*(1. - ksi[i][1]);
+      w[1][ETA] = (1. - eta[j][1])*(1. + ksi[i][0]) + (1. + eta[j][1])*(1. + ksi[i][1]);
+      w_mag[ETA] = (w[0][ETA] + w[1][ETA]);
 
-        typename ET::SF::ValueT sf;
-        ET::SF::compute_value(mapped_coords, sf);
+      // Get the mapped coordinates of the node to add
+      typename ET::MappedCoordsT mapped_coords;
+      mapped_coords[KSI] = (w[0][KSI]*ksi[i][0] + w[1][KSI]*ksi[i][1]) / w_mag[KSI];
+      mapped_coords[ETA] = (w[0][ETA]*eta[j][0] + w[1][ETA]*eta[j][1]) / w_mag[ETA];
 
-        // Transform to real coordinates
-        typename ET::CoordsT coords = sf * block_nodes;
+      typename ET::SF::ValueT sf;
+      ET::SF::compute_value(mapped_coords, sf);
 
-        // Store the result
-        const Uint node_idx = to_local(block_list[block_idx][i][j].global_idx());
-        cf3_assert(node_idx < mesh_coords.size());
-        mesh_coords[node_idx][XX] = coords[XX];
-        mesh_coords[node_idx][YY] = coords[YY];
-      }
+      // Transform to real coordinates
+      typename ET::CoordsT coords = sf * block_nodes;
+
+      // Store the result
+      const Uint node_idx = ijk.first;
+      cf3_assert(node_idx < mesh_coords.size());
+      mesh_coords[node_idx][XX] = coords[XX];
+      mesh_coords[node_idx][YY] = coords[YY];
     }
   }
 
   void add_patch(const std::string& name, Elements& patch_elems)
   {
     const Uint dimensions = points->row_size();
-
-    // Determine patch number of elements
-    Uint patch_nb_elems = 0;
-    BOOST_FOREACH(const Patch& patch, patch_map[name])
-    {
-      if(patch.block.is_local)
-        patch_nb_elems += patch.nb_elems;
-    }
-    patch_elems.resize(patch_nb_elems);
-
     Connectivity& patch_conn = patch_elems.geometry_space().connectivity();
 
     if(dimensions == 3)
@@ -647,20 +720,37 @@ struct BlockArrays::Implementation
         {{0,0},{1,0},{1,1},{0,1}}
       };
 
-      Uint elem_idx = 0;
-      BOOST_FOREACH(const Patch& patch, patch_map[name])
+      // Count number of elements
+      Uint nb_elems = 0;
+      for(const Patch& patch : patch_map[name])
       {
-        if(!patch.block.is_local)
-          continue;
         for(Uint i = 0; i != patch.segments[0]; ++i)
         {
           for(Uint j = 0; j != patch.segments[1]; ++j)
           {
-            Connectivity::Row elem_row = patch_conn[elem_idx++];
-            elem_row[0] = to_local(patch.global_idx(i + idx_offsets[patch.m_orientation][0][0], j + idx_offsets[patch.m_orientation][0][1]));
-            elem_row[1] = to_local(patch.global_idx(i + idx_offsets[patch.m_orientation][1][0], j + idx_offsets[patch.m_orientation][1][1]));
-            elem_row[2] = to_local(patch.global_idx(i + idx_offsets[patch.m_orientation][2][0], j + idx_offsets[patch.m_orientation][2][1]));
-            elem_row[3] = to_local(patch.global_idx(i + idx_offsets[patch.m_orientation][3][0], j + idx_offsets[patch.m_orientation][3][1]));
+            if(patch.is_local_element(i, j))
+              ++nb_elems;
+          }
+        }
+      }
+      patch_elems.resize(nb_elems);
+
+      // add elements
+      Uint elem_idx = 0;
+      for(const Patch& patch : patch_map[name])
+      {
+        for(Uint i = 0; i != patch.segments[0]; ++i)
+        {
+          for(Uint j = 0; j != patch.segments[1]; ++j)
+          {
+            if(patch.is_local_element(i, j))
+            {
+              Connectivity::Row elem_row = patch_conn[elem_idx++];
+              elem_row[0] = to_local(patch.adjacent_block(i + idx_offsets[patch.m_orientation][0][0], j + idx_offsets[patch.m_orientation][0][1]));
+              elem_row[1] = to_local(patch.adjacent_block(i + idx_offsets[patch.m_orientation][1][0], j + idx_offsets[patch.m_orientation][1][1]));
+              elem_row[2] = to_local(patch.adjacent_block(i + idx_offsets[patch.m_orientation][2][0], j + idx_offsets[patch.m_orientation][2][1]));
+              elem_row[3] = to_local(patch.adjacent_block(i + idx_offsets[patch.m_orientation][3][0], j + idx_offsets[patch.m_orientation][3][1]));
+            }
           }
         }
       }
@@ -668,537 +758,49 @@ struct BlockArrays::Implementation
     else
     {
       cf3_assert(dimensions == 2);
-      Uint elem_idx = 0;
-      BOOST_FOREACH(const Patch& patch, patch_map[name])
+      // count elements
+      Uint nb_elems = 0;
+      for(const Patch& patch : patch_map[name])
       {
-        if(!patch.block.is_local)
-          continue;
+        for(Uint i = 0; i != patch.segments[0]; ++i)
+        {
+          if(patch.is_local_element(i))
+            ++nb_elems;
+        }
+      }
+      patch_elems.resize(nb_elems);
+
+      // add elements
+      Uint elem_idx = 0;
+      for(const Patch& patch : patch_map[name])
+      {
         const Uint first_offset = patch.fixed_direction == 0 ? 1 : 0;
         const Uint second_offset = patch.fixed_direction == 0 ? 0 : 1;
         for(Uint i = 0; i != patch.segments[0]; ++i)
         {
-          Connectivity::Row elem_row = patch_conn[elem_idx++];
-          elem_row[1] = to_local(patch.global_idx(i + first_offset));
-          elem_row[0] = to_local(patch.global_idx(i + second_offset));
-        }
-      }
-    }
-  }
-
-  /// Create the data structure used to partition blocks
-  BlocksPartitioning create_partitioning_data()
-  {
-    BlocksPartitioning result;
-
-    const Table<Real>& points_tbl = *points;
-    result.dimension = points->row_size();
-
-    const Table<Uint>& blocks_tbl = *blocks;
-    const Uint nb_blocks = blocks_tbl.size();
-
-    result.block_distribution = block_distribution;
-
-    const Uint nb_points = points_tbl.size();
-    result.points.reserve(nb_points);
-    for(Uint i = 0; i != nb_points; ++i)
-    {
-      detail::add_row(result.points, points_tbl[i]);
-    }
-
-    const Table<Real>& gradings_tbl = *block_gradings;
-    const Table<Uint>& subdivs_tbl = *block_subdivisions;
-    result.block_gradings.reserve(nb_blocks);
-    result.block_points.reserve(nb_blocks);
-    result.block_subdivisions.reserve(nb_blocks);
-    for(Uint i = 0; i != nb_blocks; ++i)
-    {
-      detail::add_row(result.block_gradings, gradings_tbl[i]);
-      detail::add_row(result.block_points, blocks_tbl[i]);
-      detail::add_row(result.block_subdivisions, subdivs_tbl[i]);
-    }
-
-    BOOST_FOREACH(const Table<Uint>& patch, find_components< Table<Uint> >(*patches))
-    {
-      result.patch_names.push_back(patch.name());
-      const Uint patch_row_size = patch.row_size();
-      const Uint patch_size = patch.size();
-      result.patch_points.push_back(BlocksPartitioning::IndicesT(patch_row_size*patch_size));
-      BlocksPartitioning::IndicesT::iterator insert_it = result.patch_points.back().begin();
-      for(Uint i = 0; i != patch_size; ++i)
-      {
-        std::copy(patch[i].begin(), patch[i].end(), insert_it);
-        insert_it += patch_row_size;
-      }
-    }
-
-    return result;
-  }
-
-  /// Copy back data from a partitioning structure
-  void update_blocks(const BlocksPartitioning& blocks_partitioning)
-  {
-    print_vector(CFdebug << "Printing partitioning data for block distribution ", blocks_partitioning.block_distribution);
-    CFdebug << CFendl;
-    const Uint nb_points = blocks_partitioning.points.size();
-    points->resize(nb_points);
-    CFdebug << "Partitioned points:" << CFendl;
-    for(Uint i = 0; i != nb_points; ++i)
-    {
-      points->set_row(i, blocks_partitioning.points[i]);
-
-      print_vector(CFdebug << "  " << i << ": ", blocks_partitioning.points[i]);
-      CFdebug << CFendl;
-    }
-
-    const Uint nb_blocks = blocks_partitioning.block_points.size();
-    blocks->resize(nb_blocks);
-    block_gradings->resize(nb_blocks);
-    block_subdivisions->resize(nb_blocks);
-    CFdebug << "Partitioned blocks (subdivisions):" << CFendl;
-    for(Uint i = 0; i != nb_blocks; ++i)
-    {
-      blocks->set_row(i, blocks_partitioning.block_points[i]);
-      block_subdivisions->set_row(i, blocks_partitioning.block_subdivisions[i]);
-      block_gradings->set_row(i, blocks_partitioning.block_gradings[i]);
-
-      print_vector(CFdebug << "  " << i << ": ", blocks_partitioning.block_points[i]);
-      print_vector(CFdebug << " (", blocks_partitioning.block_subdivisions[i]);
-      CFdebug  << ")" << CFendl;
-    }
-
-    const Uint nb_patches = blocks_partitioning.patch_names.size();
-    CFdebug << "Partitioned patches:" << CFendl;
-    for(Uint i = 0; i != nb_patches; ++i)
-    {
-      Handle< Table<Uint> > patch_tbl(patches->get_child(blocks_partitioning.patch_names[i]));
-      const Uint patch_nb_elems = blocks_partitioning.patch_points[i].size();
-      patch_tbl->resize(patch_nb_elems/patch_tbl->row_size());
-      patch_tbl->seekp(0);
-      for(Uint j = 0; j != patch_nb_elems; ++j)
-        (*patch_tbl) << blocks_partitioning.patch_points[i][j];
-      patch_tbl->seekp(0);
-
-      print_vector(CFdebug << "  " << blocks_partitioning.patch_names[i] << ": ", blocks_partitioning.patch_points[i]);
-      CFdebug << CFendl;
-    }
-
-    block_distribution = blocks_partitioning.block_distribution;
-  }
-
-  /// Represents a single layer across the mesh
-  struct BlockLayer
-  {
-    /// Size of a single layer of cells
-    Uint segment_size;
-    /// Number of cell layers for the block layer
-    Uint nb_segments;
-    /// Block layer across all original partitions
-    std::vector<Uint> global_layer;
-    /// Block layer filtered to only contain the blocks for the current original partition
-    std::vector<Uint> local_layer;
-    /// Accumulation of all added layers
-    std::vector<Uint> added_blocks;
-    /// Reamaining number of segments when multiple partitions fit in one block layer
-    Uint remaining_nb_segments;
-  };
-
-  /// Recursive function to build a list of block indices that constitutes a single layer
-  bool build_block_layer(const Uint block_idx, const Uint direction, const std::vector<Uint>& transverse_directions, const std::vector<Uint>& output_block_layer, const std::vector<Uint>& added_blocks, std::set<Uint>& recursed_blocks)
-  {
-    if(!recursed_blocks.insert(block_idx).second)
-      return true;
-
-    // Block was already found or is not part of the search
-    if(std::count(output_block_layer.begin(), output_block_layer.end(), block_idx) != 0 ||
-       std::count(added_blocks.begin(), added_blocks.end(), block_idx) != 0)
-      return true;
-
-    cf3_assert(face_connectivity->has_adjacent_element(block_idx, direction));
-    const CFaceConnectivity::ElementReferenceT adj_elem = face_connectivity->adjacent_element(block_idx, direction);
-    // If we have a volume element as neighbor in the main negative direction
-    // and it is not in the previous layer, then we are not in the current layer.
-    if(adj_elem.first->element_type().dimensionality() == adj_elem.first->element_type().dimension() &&
-       std::count(added_blocks.begin(), added_blocks.end(), adj_elem.second) == 0)
-      return false;
-
-    // Recurse through the transverse directions
-    BOOST_FOREACH(const Uint transverse_direction, transverse_directions)
-    {
-      const CFaceConnectivity::ElementReferenceT transverse_elem = face_connectivity->adjacent_element(block_idx, transverse_direction);
-      if(transverse_elem.first->element_type().dimensionality() < transverse_elem.first->element_type().dimension()) // skip faces
-        continue;
-      if(!build_block_layer(transverse_elem.second, direction, transverse_directions, output_block_layer, added_blocks, recursed_blocks))
-        return false;
-    }
-
-    return true;
-  }
-
-  void build_block_layer(const Uint direction, const Uint start_direction, const std::vector<Uint>& transverse_directions, const Uint partition, BlockLayer& layer)
-  {
-    layer.added_blocks.insert(layer.added_blocks.end(), layer.global_layer.begin(), layer.global_layer.end());
-    layer.global_layer.clear();
-    const Uint nb_blocks = blocks->size();
-    for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
-    {
-      if(std::count(layer.added_blocks.begin(), layer.added_blocks.end(), block_idx) != 0)
-        continue;
-
-      std::set<Uint> recursed_blocks;
-      if(build_block_layer(block_idx, start_direction, transverse_directions, layer.global_layer, layer.added_blocks, recursed_blocks))
-        layer.global_layer.push_back(block_idx);
-    }
-
-    const Uint partition_begin = block_distribution[partition];
-    const Uint partition_end = block_distribution[partition+1];
-    layer.local_layer.clear();
-    layer.segment_size = 0;
-    layer.nb_segments = 0;
-    Table<Uint>& subdivs = *block_subdivisions;
-    const Uint dimensions = points->row_size();
-    BOOST_FOREACH(const Uint block_idx, layer.global_layer)
-    {
-      if(layer.nb_segments == 0)
-      {
-        layer.nb_segments = subdivs[block_idx][direction];
-      }
-      else
-      {
-        cf3_assert(layer.nb_segments == subdivs[block_idx][direction]);
-      }
-
-      if(dimensions == 2)
-      {
-        layer.segment_size += subdivs[block_idx][direction == 0 ? 1 : 0];
-      }
-      else
-      {
-        Uint i, j;
-        if(direction == 0) { i = 1; j = 2; }
-        if(direction == 1) { i = 0; j = 2; }
-        if(direction == 2) { i = 0; j = 1; }
-        layer.segment_size += subdivs[block_idx][i]*subdivs[block_idx][j];
-      }
-
-      if(block_idx >= partition_begin && block_idx < partition_end)
-        layer.local_layer.push_back(block_idx);
-    }
-    layer.remaining_nb_segments = layer.nb_segments;
-  }
-
-  void partition_blocks(const Uint nb_partitions, const Uint direction)
-  {
-    // save the block regions
-    trigger_block_regions();
-    const std::vector<std::string> old_block_regions = block_regions;
-    block_regions.clear();
-
-    const Uint dimensions = points->row_size();
-    const Uint mapped_stride = dimensions == 3 ? 4 : 2;
-    const BlocksPartitioning blocks_in = create_partitioning_data();
-
-    const Uint nb_blocks = blocks_in.block_points.size();
-
-    const CFaceConnectivity& volume_to_face_connectivity = *face_connectivity;
-
-    // Numbering of the faces
-     const Uint XNEG_2D = 3;
-     const Uint XPOS_2D = 1;
-     const Uint YNEG_2D = 0;
-     const Uint YPOS_2D = 2;
-
-    // Direction to search from
-    const Uint start_direction = dimensions == 3 ? ( direction == XX ? Hexa::KSI_NEG : (direction == YY ? Hexa::ETA_NEG : Hexa::ZTA_NEG) ) : (direction == XX ? XNEG_2D : YNEG_2D);
-    const Uint end_direction = dimensions == 3 ? ( direction == XX ? Hexa::KSI_POS : (direction == YY ? Hexa::ETA_POS : Hexa::ZTA_POS) ) : (direction == XX ? XPOS_2D : YPOS_2D);
-
-    const ElementTypeFaceConnectivity& etype_faces = dimensions == 3 ? Hexa3D::faces() : Quad2D::faces();
-
-    // Cache local node indices in the start direction
-    BlocksPartitioning::IndicesT start_face_nodes;
-    BOOST_FOREACH(const Uint face_node_idx, etype_faces.nodes_range(start_direction))
-    {
-      start_face_nodes.push_back(face_node_idx);
-    }
-
-    // Cache local node indices in the opposite direction
-    BlocksPartitioning::IndicesT end_face_nodes;
-    BOOST_FOREACH(const Uint face_node_idx, etype_faces.nodes_range(end_direction))
-    {
-      end_face_nodes.push_back(face_node_idx);
-    }
-
-    // Transverse directions
-    BlocksPartitioning::IndicesT transverse_directions;
-    BlocksPartitioning::IndicesT transverse_axes;
-    if(dimensions == 2)
-    {
-      transverse_directions = direction == XX ? boost::assign::list_of(YNEG_2D)(YPOS_2D) : boost::assign::list_of(XNEG_2D)(XPOS_2D);
-      transverse_axes.assign(1, direction == XX ? YY : XX);
-    }
-    else
-    {
-      if(direction == XX)
-      {
-        transverse_directions = boost::assign::list_of(Hexa::ETA_NEG)(Hexa::ETA_POS)(Hexa::ZTA_NEG)(Hexa::ZTA_POS);
-        transverse_axes = boost::assign::list_of(YY)(ZZ);
-      }
-      else if(direction == YY)
-      {
-        transverse_directions = boost::assign::list_of(Hexa::KSI_NEG)(Hexa::KSI_POS)(Hexa::ZTA_NEG)(Hexa::ZTA_POS);
-        transverse_axes = boost::assign::list_of(XX)(ZZ);
-      }
-      else if(direction == ZZ)
-      {
-        transverse_directions = boost::assign::list_of(Hexa::ETA_NEG)(Hexa::ETA_POS)(Hexa::KSI_NEG)(Hexa::KSI_POS);
-        transverse_axes = boost::assign::list_of(YY)(XX);
-      }
-    }
-
-    // map patch names to their patch index
-    std::map<std::string, Uint> patch_idx_map;
-    for(Uint patch_idx = 0; patch_idx != blocks_in.patch_names.size(); ++patch_idx)
-      patch_idx_map[blocks_in.patch_names[patch_idx]] = patch_idx;
-
-    // Init output data
-    BlocksPartitioning blocks_out;
-    blocks_out.points = blocks_in.points;
-    blocks_out.patch_names = blocks_in.patch_names;
-    blocks_out.dimension = blocks_in.dimension;
-    blocks_out.patch_points.resize(blocks_in.patch_points.size());
-
-    const Uint nb_nodes = blocks_in.points.size();
-    std::vector< std::vector<Uint> > node_mapping(nb_partitions+1, std::vector<Uint>(nb_nodes));
-    std::vector< std::vector<bool> > node_is_mapped(nb_partitions+1, std::vector<bool>(nb_nodes, false));
-    for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
-    {
-      for(Uint i = 0; i != (nb_partitions+1); ++i)
-      {
-        node_mapping[i][node_idx] = node_idx;
-      }
-      node_is_mapped[0][node_idx] = true;
-      node_is_mapped[nb_partitions][node_idx] = true;
-    }
-
-    // total number of elements
-    Uint global_nb_elements = 0;
-    for(Uint block = 0; block != nb_blocks; ++block)
-      global_nb_elements += block_list[block].nb_elems;
-
-    // All the blocks at the start of the direction to partition in
-    const Uint nb_existing_partitions = block_distribution.size()-1;
-    for(Uint existing_partition = 0; existing_partition != nb_existing_partitions; ++existing_partition)
-    {
-      const common::Table<Real>::ArrayT& block_coordinates = points->array();
-      BlocksPartitioning blocks_to_partition = blocks_in;
-      BlockLayer layer;
-      build_block_layer(direction, start_direction, transverse_directions, existing_partition, layer);
-
-      print_vector(CFdebug << "Examining block layer: ", layer.local_layer); CFdebug << CFendl;
-
-      // Size of one partition
-      const Uint partition_size = static_cast<Uint>( ceil( static_cast<Real>(global_nb_elements) / static_cast<Real>(nb_partitions) ) );
-
-      Uint nb_partitioned = 0;
-      Uint block_layer_offset = 0;
-      for(Uint partition = 0; partition != nb_partitions; ++partition)
-      {
-        // Update block distribution
-        blocks_out.block_distribution.push_back(blocks_out.block_points.size());
-
-        Uint partition_remaining_size = partition == (nb_partitions-1) ? global_nb_elements-nb_partitioned : partition_size;
-        while(partition_remaining_size)
-        {
-          // Get the total size of a slice of elements in the current direction
-          cf3_assert(layer.segment_size);
-          Uint partition_nb_slices = static_cast<Uint>( ceil( static_cast<Real>(partition_remaining_size) / static_cast<Real>(layer.segment_size) ) );
-          cf3_assert(partition_nb_slices);
-          if((nb_partitioned + (partition_nb_slices * layer.segment_size)) >= global_nb_elements)
+          if(patch.is_local_element(i))
           {
-            const Uint nb_remaining_elements = global_nb_elements - nb_partitioned;
-            partition_nb_slices = nb_remaining_elements / layer.segment_size;
-            partition_remaining_size = global_nb_elements - nb_partitioned;
-          }
-
-          bool is_first_layer = false;
-          bool is_last_layer = false;
-
-          if(block_layer_offset == 0)
-            is_first_layer = true;
-
-          if(layer.remaining_nb_segments > partition_nb_slices) // block is larger than the remaining number of slices
-          {
-            block_layer_offset += partition_nb_slices;
-            BOOST_FOREACH(const Uint block_idx, layer.local_layer)
-            {
-              common::Table<Real>::ArrayT mapped_coords;
-              detail::create_mapped_coords(blocks_in.block_subdivisions[block_idx][direction],
-                                           &blocks_in.block_gradings[block_idx][mapped_stride*direction], mapped_coords, mapped_stride);
-
-              //Adjust gradings and nodes
-              BlocksPartitioning::GradingT new_gradings = blocks_in.block_gradings[block_idx];
-              for(Uint i = 0; i != mapped_stride; ++i)
-              {
-                const Uint original_end_node_idx = blocks_in.block_points[block_idx][end_face_nodes[i]];
-                const Uint original_start_node_idx = blocks_in.block_points[block_idx][start_face_nodes[dimensions == 3 ? ( (i == 0 || i == 2) ? i : (i == 3 ? 1 : 3) ) : (i == 0 ? 1 : 0)]];
-                const Uint grading_idx = dimensions == 3 ? ( (end_direction != Hexa::ETA_POS || i == 0 || i == 3) ? i : (i == 1 ? 3 : 2) ) : (end_direction != YPOS_2D) ? i : (i == 0 ? 1 : 0);
-
-                if(!node_is_mapped[partition+1][original_end_node_idx])
-                {
-                  node_is_mapped[partition+1][original_end_node_idx] = true;
-                  node_is_mapped[partition+1][original_start_node_idx] = true;
-                  CFdebug << "mapping node " << original_end_node_idx << " to " << blocks_out.points.size() << CFendl;
-                  node_mapping[partition+1][original_end_node_idx] = blocks_out.points.size();
-                  node_mapping[partition+1][original_start_node_idx] = blocks_out.points.size();
-                  // Get new block node coords
-                  Line1D::MappedCoordsT mapped_coord;
-                  mapped_coord << mapped_coords[block_layer_offset][grading_idx];
-
-                  const BlocksPartitioning::PointT& old_node = blocks_in.points[original_end_node_idx];
-
-                  Line1D::NodesT block_nodes;
-                  block_nodes(0, XX) = block_coordinates[original_start_node_idx][direction];
-                  block_nodes(1, XX) = block_coordinates[original_end_node_idx][direction];
-                  Line1D::SF::ValueT sf_1d;
-                  Line1D::SF::compute_value(mapped_coord, sf_1d);
-                  const Line1D::CoordsT node_1d = sf_1d * block_nodes;
-
-                  blocks_out.points.push_back(BlocksPartitioning::PointT(dimensions));
-                  for(Uint i = 0; i != dimensions; ++i)
-                  {
-                    blocks_out.points.back()[i] = direction == i ? node_1d[XX] : old_node[i];
-                  }
-                }
-
-                // Adjust the gradings
-                new_gradings[mapped_stride*direction + i] =   (mapped_coords[partition_nb_slices][grading_idx] - mapped_coords[partition_nb_slices - 1][grading_idx])
-                / (mapped_coords[1][grading_idx] - mapped_coords[0][grading_idx]);
-                blocks_to_partition.block_gradings[block_idx][mapped_stride*direction + i] = (mapped_coords[layer.nb_segments][grading_idx] - mapped_coords[layer.nb_segments - 1][grading_idx])
-                / (mapped_coords[partition_nb_slices + 1][grading_idx] - mapped_coords[partition_nb_slices][grading_idx]);
-              }
-
-              // Adjust number of segments
-              BlocksPartitioning::CountsT new_block_subdivisions = blocks_to_partition.block_subdivisions[block_idx];
-              new_block_subdivisions[direction] = partition_nb_slices;
-              blocks_to_partition.block_subdivisions[block_idx][direction] -= partition_nb_slices;
-
-              // append data to the output
-              blocks_out.block_gradings.push_back(new_gradings);
-              blocks_out.block_subdivisions.push_back(new_block_subdivisions);
-
-              block_regions.push_back(old_block_regions[block_idx]);
-            }
-
-            // All slices are immediatly accounted for
-            nb_partitioned += partition_nb_slices * layer.segment_size;
-            partition_remaining_size = 0;
-            layer.remaining_nb_segments -= partition_nb_slices;
-          }
-          else // blocks fits entirely into the partition
-          {
-            is_last_layer = true;
-            const Uint nb_added = layer.segment_size * (layer.remaining_nb_segments);
-            nb_partitioned += nb_added;
-            cf3_assert(nb_added <= partition_remaining_size);
-            partition_remaining_size -= nb_added;
-            BOOST_FOREACH(const Uint block_idx, layer.local_layer)
-            {
-              blocks_out.block_gradings.push_back(blocks_to_partition.block_gradings[block_idx]);
-              blocks_out.block_subdivisions.push_back(blocks_to_partition.block_subdivisions[block_idx]);
-              block_regions.push_back(old_block_regions[block_idx]);
-            }
-          }
-
-          // Set the block nodes of the previous layer
-          BOOST_FOREACH(const Uint block_idx, layer.local_layer)
-          {
-            CFdebug << "start node mapping for block " << blocks_out.block_points.size() << ":" << CFendl;
-            std::vector<Uint> new_block_points(2*mapped_stride);
-            BOOST_FOREACH(const Uint i, start_face_nodes)
-            {
-              new_block_points[i] = is_first_layer ? blocks_in.block_points[block_idx][i] : node_mapping[partition][blocks_in.block_points[block_idx][i]];
-              CFdebug << "  " << blocks_in.block_points[block_idx][i] << " --> " << new_block_points[i] << CFendl;
-            }
-            CFdebug << "end node mapping for block " << blocks_out.block_points.size() << ":" << CFendl;
-            BOOST_FOREACH(const Uint i, end_face_nodes)
-            {
-              new_block_points[i] = is_last_layer ? blocks_in.block_points[block_idx][i] : node_mapping[partition+1][blocks_in.block_points[block_idx][i]];
-              CFdebug << "  " << blocks_in.block_points[block_idx][i] << " --> " << new_block_points[i] << CFendl;
-            }
-
-            blocks_out.block_points.push_back(new_block_points);
-
-            // Add new patches
-            BOOST_FOREACH(const Uint transverse_direction, transverse_directions)
-            {
-              const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, transverse_direction);
-              if(adjacent_element.first->element_type().dimensionality() < dimensions)
-              {
-                const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
-                BOOST_FOREACH(const Uint i, etype_faces.nodes_range(transverse_direction))
-                {
-                  blocks_out.patch_points[patch_idx].push_back(new_block_points[i]);
-                }
-              }
-            }
-          }
-
-          if(is_last_layer)
-          {
-            block_layer_offset = 0;
-            build_block_layer(direction, start_direction, transverse_directions, existing_partition, layer);
-            print_vector(CFdebug << "Examining block layer: ", layer.local_layer); CFdebug << CFendl;
+            Connectivity::Row elem_row = patch_conn[elem_idx++];
+            elem_row[1] = to_local(patch.adjacent_block(i + first_offset));
+            elem_row[0] = to_local(patch.adjacent_block(i + second_offset));
           }
         }
       }
     }
-
-    blocks_out.block_distribution.push_back(blocks_out.block_points.size());
-
-    // Preserve original start and end patches
-    const BlocksPartitioning::IndicesT start_end_directions = boost::assign::list_of(start_direction)(end_direction);
-    for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
-    {
-      BOOST_FOREACH(const Uint lengthwise_direction, start_end_directions)
-      {
-        const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, lengthwise_direction);
-        if(adjacent_element.first->element_type().dimensionality() < dimensions)
-        {
-          CFdebug << "adding end patch " << adjacent_element.first->parent()->name() << " to block " << block_idx << CFendl;
-          const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
-          BOOST_FOREACH(const Uint i, etype_faces.nodes_range(lengthwise_direction))
-          {
-            blocks_out.patch_points[patch_idx].push_back(blocks_in.block_points[block_idx][i]);
-          }
-        }
-      }
-    }
-
-    Uint nb_elems_out = 0;
-    BOOST_FOREACH(const std::vector<Uint> segments, blocks_out.block_subdivisions)
-    {
-      if(dimensions == 2)
-        nb_elems_out += segments[0]*segments[1];
-      else
-        nb_elems_out += segments[0]*segments[1]*segments[2];
-    }
-    cf3_assert(nb_elems_out == global_nb_elements);
-
-    update_blocks(blocks_out);
   }
 
   /// Helper data to construct the mesh connectivity
   std::vector<Block> block_list;
   typedef std::map<std::string, boost::ptr_vector<Patch> > PatchMapT;
   PatchMapT patch_map;
-  /// Distribution of nodes across the CPUs
-  std::vector<Uint> nodes_dist;
-  Uint local_nodes_begin;
-  Uint local_nodes_end;
+  /// Distribution of the local nodes among blocks
+  Uint nb_local_nodes;
   Uint ghost_counter;
-  typedef std::map<Uint, Uint> IndexMapT;
+  typedef std::map<Uint, std::pair<Uint,Uint> > IndexMapT; // second pair is <lid, rank>
   IndexMapT global_to_local;
-  std::vector<Uint> block_distribution;
   std::vector<std::string> block_regions;
+  /// Keeps the indices that are needed on this rank, for each block
+  std::vector< std::map < Uint, std::array<Uint, 3> > > needed_nodes_ijk;
 };
 
 BlockArrays::BlockArrays(const std::string& name) :
@@ -1246,12 +848,6 @@ BlockArrays::BlockArrays(const std::string& name) :
     .description("Create a mesh that only contains the inner blocks. Surface patches are in a single region and numbered for passing to create_patch.")
     .pretty_name("Create Inner Blocks");
 
-  regist_signal( "partition_blocks" )
-    .connect( boost::bind( &BlockArrays::signal_partition_blocks, this, _1 ) )
-    .description("Partition the blocks for parallel mesh generation")
-    .pretty_name("Partition Blocks")
-    .signature( boost::bind(&BlockArrays::signature_partition_blocks, this, _1) );
-
   regist_signal( "extrude_blocks" )
     .connect( boost::bind( &BlockArrays::signal_extrude_blocks, this, _1 ) )
     .description("Extrude a 2D mesh in a number of spanwise (Z-direction) blocks. The number of spanwise blocks is determined by the size of the passed arguments")
@@ -1264,20 +860,32 @@ BlockArrays::BlockArrays(const std::string& name) :
     .pretty_name("Create Mesh")
     .signature( boost::bind(&BlockArrays::signature_create_mesh, this, _1) );
 
-  options().add("block_distribution", std::vector<Uint>())
-    .pretty_name("Block Distribution")
-    .description("The distribution of the blocks among CPUs in a parallel simulation")
-    .link_to(&m_implementation->block_distribution)
-    .attach_trigger(boost::bind(&Implementation::trigger_block_distribution, m_implementation.get()));
-
-  options().add("overlap", 1u).pretty_name("Overlap")
-    .description("Number of cell layers to overlap across parallel partitions. Ignored in serial runs");
-
   options().add("block_regions", std::vector<std::string>())
     .pretty_name("Block Regions")
     .description("For each block, the region it belongs to. Leave empty to assign each block to the region \"interior\"")
     .link_to(&m_implementation->block_regions)
-    .attach_trigger(boost::bind(&Implementation::trigger_block_regions, m_implementation.get()));
+    .attach_trigger(boost::bind(&Implementation::trigger_block_regions, m_implementation.get()))
+    .mark_basic();
+
+  options().add("periodic_x", std::vector<std::string>())
+    .pretty_name("Periodic X")
+    .description("Make the mesh periodic in the X direction?")
+    .mark_basic();
+
+  options().add("periodic_y", std::vector<std::string>())
+    .pretty_name("Periodic Y")
+    .description("Make the mesh periodic in the Y direction?")
+    .mark_basic();
+
+  options().add("periodic_z", std::vector<std::string>())
+    .pretty_name("Periodic Z")
+    .description("Make the mesh periodic in the Z direction?")
+    .mark_basic();
+
+  options().add("autopartition", true)
+    .pretty_name("Autopartition")
+    .description("Autopartition the mesh using the PHG partitioner")
+    .mark_basic();
 }
 
 BlockArrays::~BlockArrays()
@@ -1305,9 +913,6 @@ Handle< Table< Uint > > BlockArrays::create_blocks(const Uint nb_blocks)
 
   m_implementation->blocks->set_row_size(dimensions == 3 ? 8 : 4);
   m_implementation->blocks->resize(nb_blocks);
-
-  // Make sure we update the default block distribution, if needed
-  m_implementation->trigger_block_distribution();
 
   return m_implementation->blocks;
 }
@@ -1401,10 +1006,12 @@ Handle< Mesh > BlockArrays::create_block_mesh()
     patch_elems.geometry_space().connectivity().array() = patch_connectivity_table.array();
   }
 
+  m_implementation->block_mesh->update_structures();
+
   // Create connectivity data
-  CNodeConnectivity& node_connectivity = *m_implementation->block_mesh->create_component<CNodeConnectivity>("node_connectivity");
-  node_connectivity.initialize(find_components_recursively<Elements>(*m_implementation->block_mesh));
-  m_implementation->face_connectivity = block_elements.create_component<CFaceConnectivity>("face_connectivity");
+  NodeConnectivity& node_connectivity = *m_implementation->block_mesh->create_component<NodeConnectivity>("node_connectivity");
+  node_connectivity.initialize(m_implementation->block_mesh->elements());
+  m_implementation->face_connectivity = block_elements.create_component<FaceConnectivity>("face_connectivity");
   m_implementation->face_connectivity->initialize(node_connectivity);
 
   const Uint nb_faces = dimensions == 3 ? LagrangeP1::Hexa3D::nb_faces : LagrangeP1::Quad2D::nb_faces;
@@ -1449,7 +1056,6 @@ Handle< Mesh > BlockArrays::create_block_mesh()
   }
 
   // Create a field containing the indices of the unassigned patches
-  std::cout << "creating elems_P0" << std::endl;
   Dictionary& elems_P0 = m_implementation->block_mesh->create_discontinuous_space("elems_P0","cf3.mesh.LagrangeP0", std::vector< Handle<Entities> >(1, default_shell_elems.handle<Entities>()));
   Field& shell_face_indices = elems_P0.create_field("shell_face_index");
   const Space& shell_space = elems_P0.space(default_shell_elems);
@@ -1459,52 +1065,16 @@ Handle< Mesh > BlockArrays::create_block_mesh()
     shell_face_indices[field_idx][0] = i;
   }
 
-  const Uint nb_partitions = m_implementation->block_distribution.size()-1;
-  for(Uint part = 0; part != nb_partitions; ++part)
-  {
-    const Uint blocks_begin = m_implementation->block_distribution[part];
-    const Uint blocks_end = m_implementation->block_distribution[part+1];
-    for(Uint i = blocks_begin; i != blocks_end; ++i)
-    {
-      block_elements.rank()[i] = part;
-      block_elements.glb_idx()[i] = i;
-    }
-  }
 
-  // Create a field containing the ranks of the blocks
-  std::cout << "creating blocks_P0" << std::endl;
-  Dictionary& block_elems_P0 = m_implementation->block_mesh->create_discontinuous_space("blocks_P0","cf3.mesh.LagrangeP0", std::vector< Handle<Entities> >(1, block_elements.handle<Entities>()));
-  Field& block_ranks = block_elems_P0.create_field("block_rank");
-  const Space& block_space = block_elems_P0.space(block_elements);
-  for(Uint part = 0; part != nb_partitions; ++part)
+  const Uint blocks_begin = 0;
+  const Uint blocks_end = nb_blocks;
+  for(Uint i = blocks_begin; i != blocks_end; ++i)
   {
-    const Uint blocks_begin = m_implementation->block_distribution[part];
-    const Uint blocks_end = m_implementation->block_distribution[part+1];
-    for(Uint i = blocks_begin; i != blocks_end; ++i)
-    {
-      const Uint field_idx = block_space.connectivity()[i][0];
-      block_ranks[field_idx][0] = part;
-    }
+    block_elements.rank()[i] = 0;
+    block_elements.glb_idx()[i] = i;
   }
 
   return m_implementation->block_mesh;
-}
-
-void BlockArrays::partition_blocks(const Uint nb_partitions, const Uint direction)
-{
-  // Check user-supplied data
-  m_implementation->check_handle(m_implementation->points, "create_points", "Points definition");
-  m_implementation->check_handle(m_implementation->blocks, "create_blocks", "Blocks definition");
-  m_implementation->check_handle(m_implementation->block_subdivisions, "create_block_subdivisions", "Block subdivisions");
-  m_implementation->check_handle(m_implementation->block_gradings, "create_block_gradings", "Block gradings");
-
-  create_block_mesh();
-  m_implementation->create_blocks();
-  m_implementation->partition_blocks(nb_partitions, direction);
-
-  // The algorithm just modifies the linked parameter, so we need to reset the option to keep it in sync
-  options().set("block_distribution", m_implementation->block_distribution);
-  options().set("block_regions", m_implementation->block_regions);
 }
 
 void BlockArrays::extrude_blocks(const std::vector<Real>& positions, const std::vector< Uint >& nb_segments, const std::vector< Real >& gradings)
@@ -1620,8 +1190,6 @@ void BlockArrays::extrude_blocks(const std::vector<Real>& positions, const std::
     std::reverse_copy(block_points_3d[i].begin(), block_points_3d[i].begin()+4, front_patch[i].begin());
     std::copy(block_points_3d[(nb_layers-1)*nb_blocks_2d+i].begin()+4, block_points_3d[(nb_layers-1)*nb_blocks_2d+i].begin()+8, back_patch[i].begin());
   }
-
-  m_implementation->trigger_block_distribution();
 }
 
 void BlockArrays::create_mesh(Mesh& mesh)
@@ -1648,55 +1216,42 @@ void BlockArrays::create_mesh(Mesh& mesh)
   // Block connectivity helper data
   m_implementation->create_blocks();
 
-  m_implementation->create_nodes_distribution(nb_procs, rank);
-
   m_implementation->trigger_block_regions();
 
-  typedef std::map< std::string, std::vector<Uint> > ElementsDistT;
-  ElementsDistT elements_dist;
-  for(Uint proc = 0; proc != nb_procs; ++proc)
+  typedef std::map< std::string, Uint > ElementsPerRegionT;
+  ElementsPerRegionT elements_per_region; // Number of local elements per region
+  const Uint nb_blocks = m_implementation->block_regions.size();
+  for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
   {
-    const Uint proc_begin = m_implementation->block_distribution[proc];
-    const Uint proc_end = m_implementation->block_distribution[proc+1];
-    Uint nb_elements = 0;
-    for(Uint block = proc_begin; block != proc_end; ++block)
-    {
-      std::vector<Uint>& region_elements_dist = elements_dist[m_implementation->block_regions[block]];
-      if(region_elements_dist.empty())
-        region_elements_dist.push_back(0);
-      if(region_elements_dist.size() < proc + 2)
-        region_elements_dist.push_back(region_elements_dist.back());
-      region_elements_dist.back() += m_implementation->block_list[block].nb_elems;
-    }
+    elements_per_region[m_implementation->block_regions[block_idx]] = 0;
   }
-
-  const Uint blocks_begin = m_implementation->block_distribution[rank];
-  const Uint blocks_end = m_implementation->block_distribution[rank+1];
+  for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
+  {
+    const Implementation::Block& block = m_implementation->block_list[block_idx];
+    elements_per_region[m_implementation->block_regions[block_idx]] += block.elements_distribution[rank+1] - block.elements_distribution[rank];
+  }
 
   Dictionary& geometry_dict = mesh.geometry_fields();
 
   std::map<std::string, Elements*> elements_map;
-  for(ElementsDistT::const_iterator it = elements_dist.begin(); it != elements_dist.end(); ++it)
+  for(ElementsPerRegionT::const_iterator it = elements_per_region.begin(); it != elements_per_region.end(); ++it)
   {
-    const std::vector<Uint>& region_elements_dist = it->second;
     Elements& volume_elements = mesh.topology().create_region(it->first).create_elements(dimensions == 3 ? "cf3.mesh.LagrangeP1.Hexa3D" : "cf3.mesh.LagrangeP1.Quad2D", geometry_dict);
-    volume_elements.resize(region_elements_dist[rank+1]-region_elements_dist[rank]);
+    volume_elements.resize(it->second);
     elements_map[it->first] = &volume_elements;
   }
 
   // Set the connectivity, this also updates ghost node indices
   std::map<std::string, Uint> element_idx_map; // global element index per region
+  const Uint blocks_begin = 0;
+  const Uint blocks_end = m_implementation->block_list.size();
   for(Uint block_idx = blocks_begin; block_idx != blocks_end; ++block_idx)
   {
     m_implementation->add_block(block_subdivisions[block_idx], block_idx, elements_map[m_implementation->block_regions[block_idx]]->geometry_space().connectivity(), element_idx_map[m_implementation->block_regions[block_idx]]);
   }
 
-  const Uint nodes_begin = m_implementation->nodes_dist[rank];
-  const Uint nodes_end = m_implementation->nodes_dist[rank+1];
-  const Uint nb_nodes_local = nodes_end - nodes_begin;
-
   // Initialize coordinates
-  mesh.initialize_nodes(nb_nodes_local + m_implementation->ghost_counter, dimensions);
+  mesh.initialize_nodes(m_implementation->nb_local_nodes + m_implementation->ghost_counter, dimensions);
   Field& coordinates = mesh.geometry_fields().coordinates();
 
   // Fill the coordinate array
@@ -1719,29 +1274,37 @@ void BlockArrays::create_mesh(Mesh& mesh)
   }
 
   // surface patches shouldn't have introduced new ghosts
-  cf3_assert(coordinates.size() == nb_nodes_local + m_implementation->ghost_counter);
+  cf3_assert(coordinates.size() == m_implementation->nb_local_nodes + m_implementation->ghost_counter);
 
+  common::List<Uint>& gids = mesh.geometry_fields().glb_idx(); gids.resize(m_implementation->nb_local_nodes + m_implementation->ghost_counter);
+  common::List<Uint>& ranks = mesh.geometry_fields().rank(); ranks.resize(m_implementation->nb_local_nodes + m_implementation->ghost_counter);
+
+  // Local nodes
+  Uint node_idx = 0;
+  for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
+  {
+    const Implementation::Block& block = m_implementation->block_list[block_idx];
+    const Uint nodes_begin = block.nodes_distribution[rank];
+    const Uint nodes_end = block.nodes_distribution[rank+1];
+    for(Uint gid = nodes_begin; gid != nodes_end; ++gid)
+    {
+      gids[node_idx] = gid;
+      ranks[node_idx] = rank;
+      ++node_idx;
+    }
+  }
+
+  // Ghosts
+  for(Implementation::IndexMapT::const_iterator ghost_it = m_implementation->global_to_local.begin(); ghost_it != m_implementation->global_to_local.end(); ++ghost_it)
+  {
+    const Uint global_id = ghost_it->first;
+    const Uint local_id = ghost_it->second.first;
+    const Uint ghost_rank = ghost_it->second.second;
+    gids[local_id] = global_id;
+    ranks[local_id] = ghost_rank;
+  }
   if(PE::Comm::instance().is_active())
   {
-    common::List<Uint>& gids = mesh.geometry_fields().glb_idx(); gids.resize(nb_nodes_local + m_implementation->ghost_counter);
-    common::List<Uint>& ranks = mesh.geometry_fields().rank(); ranks.resize(nb_nodes_local + m_implementation->ghost_counter);
-
-    // Local nodes
-    for(Uint i = 0; i != nb_nodes_local; ++i)
-    {
-      gids[i] = i + nodes_begin;
-      ranks[i] = rank;
-    }
-
-    // Ghosts
-    for(Implementation::IndexMapT::const_iterator ghost_it = m_implementation->global_to_local.begin(); ghost_it != m_implementation->global_to_local.end(); ++ghost_it)
-    {
-      const Uint global_id = ghost_it->first;
-      const Uint local_id = ghost_it->second;
-      gids[local_id] = global_id;
-      ranks[local_id] = std::upper_bound(m_implementation->nodes_dist.begin(), m_implementation->nodes_dist.end(), global_id) - 1 - m_implementation->nodes_dist.begin();
-    }
-
     mesh.geometry_fields().coordinates().parallelize_with(mesh.geometry_fields().comm_pattern());
     mesh.geometry_fields().coordinates().synchronize();
   }
@@ -1782,6 +1345,7 @@ void BlockArrays::create_mesh(Mesh& mesh)
     elements.rank().resize(nb_elems);
     elements.glb_idx().resize(nb_elems);
 
+    const mesh::Connectivity& conn = elements.geometry_space().connectivity();
     for (Uint elem=0; elem != nb_elems; ++elem)
     {
       elements.rank()[elem] = rank;
@@ -1792,34 +1356,70 @@ void BlockArrays::create_mesh(Mesh& mesh)
 
   mesh.update_structures();
 
-  const Uint overlap = options().value<Uint>("overlap");
-  if(overlap != 0 && PE::Comm::instance().size() > 1)
-  {
-    mesh.block_mesh_changed(true); // avoid triggering mesh_changed before the load event is raised
-    MeshTransformer& grow_overlap = *Handle<MeshTransformer>(create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap"));
-    for(Uint i = 0; i != overlap; ++i)
-      grow_overlap.transform(mesh);
-
-    mesh.geometry_fields().remove_component("CommPattern");
-    mesh.block_mesh_changed(false);
-  }
   mesh.raise_mesh_loaded();
+  mesh.check_sanity();
+
+  auto periodic_x = options().value<std::vector<std::string>>("periodic_x");
+  auto periodic_y = options().value<std::vector<std::string>>("periodic_y");
+  auto periodic_z = options().value<std::vector<std::string>>("periodic_z");
+
+  const std::vector<std::vector<std::string>> periodic = {periodic_x, periodic_y, periodic_z};
+  if(!periodic_x.empty() || !periodic_y.empty() || !periodic_z.empty())
+  {
+    common::build_component_abstract_type<mesh::MeshTransformer>("cf3.mesh.actions.MakeBoundaryGlobal", "globalbnd")->transform(mesh);
+  }
+  for(Uint i = 0; i != 3; ++i)
+  {
+    if(!periodic[i].empty())
+    {
+      auto average_pos = [&](const Table<Uint>& conn)
+      {
+        RealVector result(dimensions); result.setZero();
+        Real count = 0.;
+        for(auto&& row : conn.array())
+        {
+          for(const Uint idx : row)
+          {
+            result += Eigen::Map<RealVector const>(&points[idx][0], dimensions);
+            count += 1.;
+          }
+        }
+        result /= count;
+        return result;
+      };
+
+      const RealVector translation = average_pos(*Handle<Table<Uint> const>(m_implementation->patches->get_child(periodic[i][0]))) - average_pos(*Handle<Table<Uint> const>(m_implementation->patches->get_child(periodic[i][1])));
+
+      CFdebug << "computed translation vector: " << translation.transpose() << CFendl;
+      auto periodic_linker = common::build_component_abstract_type<mesh::MeshTransformer>("cf3.mesh.actions.LinkPeriodicNodes", "link");
+      periodic_linker->options().set("destination_region", Handle<Region>(mesh.topology().get_child(periodic[i][0])));
+      periodic_linker->options().set("source_region", Handle<Region>(mesh.topology().get_child(periodic[i][1])));
+      periodic_linker->options().set("translation_vector", std::vector<Real>(translation.data(), translation.data() + dimensions));
+      periodic_linker->transform(mesh);
+      mesh.add_component(periodic_linker);
+    }
+  }
+
+  if(nb_procs == 1 || !options().value<bool>("autopartition"))
+    return;
+
+  try
+  {
+    auto partitioner = common::build_component_abstract_type<mesh::MeshTransformer>("cf3.zoltan.PHG", "load_balancer");
+    partitioner->transform(mesh);
+
+    SignalOptions options;
+    options.add("mesh_uri", mesh.uri());
+    options.add("mesh_rebalanced", true);
+    SignalArgs args = options.create_frame();
+    Core::instance().event_handler().raise_event( "mesh_changed", args);
+    mesh.check_sanity();
+  }
+  catch(const std::exception& e)
+  {
+    throw common::SetupError(FromHere(), std::string("BlockMesher could not partition mesh: cf3.zoltan.PHG failed to load with error:\n") + e.what());
+  }
 }
-
-void BlockArrays::signature_partition_blocks(SignalArgs& args)
-{
-  SignalOptions options(args);
-  options.add("nb_partitions", PE::Comm::instance().size()).pretty_name("Nb. Partitions").description("Number of partitions");
-  options.add("direction", 0u).pretty_name("Direction").description("Partitioning direction (0=X, 1=Y, 2=Z)");
-}
-
-void BlockArrays::signal_partition_blocks(SignalArgs& args)
-{
-  SignalOptions options(args);
-  partition_blocks(options["nb_partitions"].value<Uint>(), options["direction"].value<Uint>());
-}
-
-
 
 void BlockArrays::signature_create_points(SignalArgs& args)
 {

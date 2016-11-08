@@ -747,7 +747,7 @@ void TrilinosFEVbrMatrix::print(const std::string& filename, std::ios_base::open
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosFEVbrMatrix::print_native(ostream& stream)
+void TrilinosFEVbrMatrix::print_native(std::ostream& stream)
 {
   m_mat->Print(stream);
 }

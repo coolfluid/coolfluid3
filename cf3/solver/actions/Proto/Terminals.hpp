@@ -247,6 +247,56 @@ static boost::proto::terminal< double(*)(double, double) >::type const _max = {&
 static boost::proto::terminal< double(*)(double, double) >::type const _min = {&min};
 static boost::proto::terminal< double(*)(double, double) >::type const _std_pow = {&std::pow};
 
+// Function for partial derivatives in index notation
+struct PartialTag
+{
+};
+
+static boost::proto::terminal<PartialTag>::type partial = {};
+
+/// Base class of all functions that can be evaluated using "default" C++ semantics
+struct FunctionBase
+{
+};
+
+// Helpers for putting lambdas in terminals
+template<typename T>
+struct LambdaTraits
+{
+};
+
+template<typename R, typename LambdaT, typename... ArgsT>
+struct LambdaTraits<R (LambdaT::*)(ArgsT...) const>
+{
+  typedef R return_type;
+};
+
+template<typename T>
+struct LambdaWrapper : FunctionBase
+{
+  typedef typename LambdaTraits<decltype(&T::operator())>::return_type result_type;
+
+  LambdaWrapper(const T& lambda) : m_wrapped(lambda)
+  {
+  }
+
+  template<typename... ArgsT>
+  inline result_type operator()(ArgsT... args) const
+  {
+    return m_wrapped(args...);
+  }
+
+  T m_wrapped;
+};
+
+/// Make a proto expression out of a C++11 lambda function
+template<typename T>
+auto make_lambda(const T& lambda) -> decltype(boost::proto::as_expr(LambdaWrapper<T>(lambda)))
+{
+  return boost::proto::as_expr(LambdaWrapper<T>(lambda));
+}
+
+
 } // namespace Proto
 } // namespace actions
 } // namespace solver

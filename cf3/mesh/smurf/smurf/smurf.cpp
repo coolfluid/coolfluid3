@@ -66,7 +66,7 @@ string bread(ifstream& F)
 // ------------------------------------------------------------------------ //
 // MeshWriter
 
-MeshWriter::MeshWriter(const string& fname, const DataType _datatype, const bool _reverse, const unsigned _version, const double _solutiontime) :
+MeshWriter::MeshWriter(const std::string& fname, const DataType _datatype, const bool _reverse, const unsigned _version, const double _solutiontime) :
   m_file(NULL),
   m_datatype(_datatype),
   m_reverse(_reverse),
@@ -89,7 +89,7 @@ MeshWriter::~MeshWriter()
 }
 
 
-void MeshWriter::writeMainHeader(const string& htitle, const vector< string >& vnames)
+void MeshWriter::writeMainHeader(const std::string& htitle, const vector< string >& vnames)
 {
   m_nvars = (unsigned) vnames.size();
 
@@ -240,7 +240,7 @@ void MeshWriter::writeZoneData(const ZoneType& type, const ZonePack& pack, const
 // ------------------------------------------------------------------------ //
 // MeshReader
 
-MeshReader::MeshReader(const string& fname)
+MeshReader::MeshReader(const std::string& fname)
 {
   m_file.open(fname.c_str(),ios::binary);
   if (!m_file) {

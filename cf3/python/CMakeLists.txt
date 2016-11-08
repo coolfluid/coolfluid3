@@ -2,6 +2,8 @@ if( CF3_HAVE_PYTHON )
 
     list( APPEND coolfluid_python_files
       BoostPython.hpp
+      ComponentFilterPython.hpp
+      ComponentFilterPython.cpp
       ComponentWrapper.hpp
       ComponentWrapper.cpp
       CoreWrapper.hpp

@@ -8,7 +8,7 @@
 #define cf3_GooglePerfTools_ProfiledTestFixture_hpp
 
 
-#include <boost/test/test_observer.hpp>
+//#include <boost/test/test_observer.hpp>
 
 #include "common/BoostFilesystem.hpp"
 

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_FindComponents_hpp
-#define cf3_common_FindComponents_hpp
+#ifndef cf3_common_FindComponentsNew_hpp
+#define cf3_common_FindComponentsNew_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1285,4 +1285,4 @@ Handle<Component> find_parent_component_ptr_with_tag(ComponentT& comp, StringCon
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_FindComponents_hpp
+#endif // cf3_common_FindComponentsNew_hpp

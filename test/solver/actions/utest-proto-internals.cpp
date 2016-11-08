@@ -100,7 +100,7 @@ void print_variables(const ExprT&)
 template<typename GrammarT, typename ExprT>
 bool get_result(const GrammarT&, const ExprT&)
 {
-  return boost::result_of<GrammarT(ExprT)>::type::value;
+  return boost::tr1_result_of<GrammarT(ExprT)>::type::value;
 }
 
 //////////////////////////////////////////////////////////////////////////////

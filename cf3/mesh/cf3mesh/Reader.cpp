@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 
 #include "common/BinaryDataReader.hpp"
 #include "common/BoostFilesystem.hpp"

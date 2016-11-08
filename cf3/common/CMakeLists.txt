@@ -19,6 +19,7 @@ list( APPEND coolfluid_common_files
     BinaryDataReader.cpp
     BinaryDataWriter.hpp
     BinaryDataWriter.cpp
+		BoostAssign.hpp
     BoostIostreams.hpp
     BoostFilesystem.hpp
     BoostAnyConversion.cpp
@@ -39,12 +40,16 @@ list( APPEND coolfluid_common_files
     CommonAPI.hpp
     Component.hpp
     Component.cpp
+    ComponentFilter.hpp
+    ComponentFilter.cpp
     ComponentIterator.hpp
+		ComponentRange.hpp
     ConnectionManager.hpp
     ConnectionManager.cpp
     Core.hpp
     Core.cpp
     CreateComponentDataType.hpp
+    DereferenceComponent.hpp
     DynTable.hpp
     DynTable.cpp
     EigenAssertions.hpp
@@ -137,6 +142,8 @@ list( APPEND coolfluid_common_files
     Table_fwd.hpp
     Table.hpp
     Table.cpp
+    TaggedComponentFilter.hpp
+    TaggedComponentFilter.cpp
     TaggedObject.hpp
     TaggedObject.cpp
     Tags.hpp
@@ -286,4 +293,3 @@ coolfluid3_add_library( TARGET   coolfluid_common
 add_subdirectory( MacOSX )   # support for Mac OSX
 add_subdirectory( Linux  )   # support for Linux
 add_subdirectory( Win32  )   # support for Win32
-

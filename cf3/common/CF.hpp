@@ -63,6 +63,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // define the nullptr either as macro or as nullptr idiom until C++0x
+#ifdef CF3_CXX_MANUAL_NATIVE_NULLPTR
+  using std::nullptr_t;
+#else
 #ifdef CF3_CXX_SUPPORTS_NULLPTR
 const class nullptr_t
 {
@@ -76,6 +79,7 @@ private:
   using std::nullptr_t;
 #else
   #define nullptr 0
+#endif
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

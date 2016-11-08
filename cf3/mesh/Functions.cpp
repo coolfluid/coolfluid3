@@ -66,29 +66,14 @@ boost::shared_ptr< List< Uint > > build_used_nodes_list( const std::vector< Hand
   {
     const List<Uint>& per_links = *periodic_links_nodes;
     const List<bool>& per_active = *periodic_links_active;
-    // Any node connected periodically to a used node is also used. This needs to be done multiple times for multiple periodic links
-    bool update = true;
-    Uint counter = 0;
-    while(update)
+    // Any node connected periodically to a used node is also used
+    for(Uint i = 0; i != all_nb_nodes; ++i)
     {
-      update = false;
-      cf3_always_assert(counter < 4);
-      for(Uint i = 0; i != all_nb_nodes; ++i)
+      if(per_active[i] && (node_is_used[per_links[i]] || node_is_used[i]))
       {
-        if(!per_active[i])
-          continue;
-        if(node_is_used[i] && !node_is_used[per_links[i]])
-        {
-          update = true;
-          node_is_used[per_links[i]] = true;
-        }
-        if(node_is_used[per_links[i]] && !node_is_used[i])
-        {
-          update = true;
-          node_is_used[i] = true;
-        }
+        node_is_used[i] = true;
+        node_is_used[per_links[i]] = true;
       }
-      ++counter;
     }
   }
 
@@ -124,6 +109,44 @@ boost::shared_ptr< common::List< Uint > > build_used_nodes_list( const Component
     entities_vector = range_to_const_vector( find_components_recursively<Entities>(node_user) );
 
   return build_used_nodes_list(entities_vector,dictionary,include_ghost_elems, follow_periodic_links);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void nearest_node_mapping(const RealMatrix& support_local_coords, const RealMatrix& source_local_coords, std::vector<Uint>& node_mapping, std::vector<bool>& is_interior)
+{
+  const Real eps = 1e-8;
+  const Real min = support_local_coords.minCoeff();
+  const Real max = support_local_coords.maxCoeff();
+  const Real max_sum = min == -1. ? -2. : 1.-eps;
+
+  const Eigen::Array<bool, Eigen::Dynamic, 1> is_interior_arr = ((source_local_coords.array() > min).rowwise().all() && (source_local_coords.array() < max).rowwise().all() && source_local_coords.array().rowwise().sum() < max_sum);
+
+  const Uint nb_target_nodes = source_local_coords.rows();
+
+  node_mapping.resize(nb_target_nodes);
+  is_interior.resize(nb_target_nodes);
+
+  Eigen::Array<int, Eigen::Dynamic, 1> counts(support_local_coords.rows());
+  counts.setZero();
+
+  for(Uint row_idx = 0; row_idx != nb_target_nodes; ++row_idx)
+  {
+    is_interior[row_idx] = is_interior_arr[row_idx];
+
+    // Compute the distances between the target node and the support nodes
+    const Eigen::Array<Real, Eigen::Dynamic, 1> distances = (support_local_coords.rowwise() - source_local_coords.row(row_idx)).rowwise().squaredNorm();
+
+    // Minimal distance
+    const Real min_dist = distances.minCoeff();
+
+    // Index of the nearest node that has been selected the fewest times
+    int min_idx;
+    (distances.array() == min_dist).select(counts, nb_target_nodes).minCoeff(&min_idx);
+
+    node_mapping[row_idx] = min_idx;
+    ++counts[min_idx];
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

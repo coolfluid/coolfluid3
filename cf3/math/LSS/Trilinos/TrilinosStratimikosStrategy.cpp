@@ -299,7 +299,7 @@ Real TrilinosStratimikosStrategy::compute_residual()
 }
 
 
-void TrilinosStratimikosStrategy::set_default_parameters(const string& builder_name)
+void TrilinosStratimikosStrategy::set_default_parameters(const std::string& builder_name)
 {
   common::build_component_abstract_type<ParameterListDefaults>(builder_name, "DefaultParams")->set_parameters(*m_implementation->m_parameter_list);
   m_implementation->update_parameters();

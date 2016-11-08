@@ -2,6 +2,7 @@ import sys
 # sys.path.append('/data/scholl/coolfluid3/build/dso')
 import coolfluid as cf
 
+
 # Some shortcuts
 root = cf.Core.root()
 env = cf.Core.environment()
@@ -11,7 +12,7 @@ env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
 env.regist_signal_handlers = False
-env.log_level = 4
+env.log_level = 1
 
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.ModelUnsteady')
@@ -129,24 +130,24 @@ heatcond.options().set('regions', [mesh.access_component('topology/solid').uri()
 
 u_in = [1., 0.]
 u_wall = [0., 0.]
-phi_in = 10.
-phi_wall = 0.
+Tin = 10.
+Twall = 0.
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_in
-solver.InitialConditions.scalar_advection_solution.Scalar = phi_wall
-solver.InitialConditions.heat_conduction_solution.Temperature = phi_wall
+solver.InitialConditions.heat_conduction_solution.Temperature = Twall
 
 #properties for Navier-Stokes
 physics.density = 1.
 physics.dynamic_viscosity = 1.e-5
-scalaradv.scalar_coefficient = 1.
+physics.reference_temperature = Twall
+scalaradv.pr = 1./physics.dynamic_viscosity
 
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
 bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
 bc.add_constant_bc(region_name = 'inlet', variable_name = 'Velocity').options().set('value', u_in)
-bc.add_constant_bc(region_name = 'region_bnd_fluid_solid', variable_name = 'Velocity').options().set('value',  u_wall)
+bc.add_constant_bc(region_name = 'fluid_interface_to_solid', variable_name = 'Velocity').options().set('value',  u_wall)
 bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Velocity').options().set('value',  u_wall)
 bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity', component = 1).options().set('value',  0.)
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().set('value', 1.)
@@ -155,20 +156,20 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().se
 # Boundary conditions for ScalarAdvection
 bc = scalaradv.get_child('BoundaryConditions')
 bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
-bc.add_constant_bc(region_name = 'inlet', variable_name = 'Temperature').options().set('value', phi_in)
-bc_wall_temp = bc.create_bc_action(region_name = 'region_bnd_fluid_solid', builder_name = 'cf3.UFEM.BCHoldValue')
+bc.add_constant_bc(region_name = 'inlet', variable_name = 'Temperature').options().set('value', Tin)
+bc_wall_temp = bc.create_bc_action(region_name = 'solid_interface_to_fluid', builder_name = 'cf3.UFEM.BCHoldValue')
 bc_wall_temp.set_tags(from_field_tag = 'heat_conduction_solution', to_field_tag = 'scalar_advection_solution', from_variable = 'Temperature', to_variable = 'Temperature')
-bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Temperature').options().set('value',  phi_in)
-bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Temperature').options().set('value',  phi_in)
-bc.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().set('value', phi_in)
+bc.add_constant_bc(region_name = 'bottom2', variable_name = 'Temperature').options().set('value',  Tin)
+bc.add_constant_bc(region_name = 'bottom3', variable_name = 'Temperature').options().set('value',  Tin)
+bc.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().set('value', Tin)
 
 # Boundary conditions for HeatConduction
 bc = heatcond.get_child('BoundaryConditions')
 bc.options().set('regions', [mesh.access_component('topology').uri()]) # needed to make the lookup work
-heat_coupling = bc.create_bc_action(region_name = 'region_bnd_fluid_solid', builder_name = 'cf3.UFEM.HeatCouplingFlux')
+heat_coupling = bc.create_bc_action(region_name = 'fluid_interface_to_solid', builder_name = 'cf3.UFEM.HeatCouplingFlux')
 heat_coupling.options().set('gradient_region', mesh.access_component('topology/fluid'))
 heat_coupling.options().set('temperature_field_tag', 'scalar_advection_solution')
-bc.add_constant_bc(region_name = 'solid_bottom', variable_name = 'Temperature').options().set('value',  phi_wall)
+bc.add_constant_bc(region_name = 'solid_bottom', variable_name = 'Temperature').options().set('value',  Twall)
 
 # Time setup
 time = model.create_time()
@@ -179,7 +180,7 @@ time.options().set('time_step', 0.01)
 final_end_time = 0.02
 save_interval = 0.01
 current_end_time = 0.
-iteration = 0.
+iteration = 0
 solver.TimeLoop.CouplingIteration.options.max_iter = 10
 solver.create_fields()
 

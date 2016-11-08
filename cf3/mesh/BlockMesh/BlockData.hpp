@@ -65,12 +65,6 @@ public:
   /// Create the volume block mesh
   Handle<Mesh> create_block_mesh();
 
-  /// Partition the blocks along one direction. If a previous partitioning exists, each partition is repartitioned into
-  /// nb_partitions blocks
-  /// @param nb_partitions Number of partitions to create
-  /// @param direction Direction to partition in (X = 0, Y = 1, Z = 2)
-  void partition_blocks(const Uint nb_partitions, const Uint direction);
-
   /// Extrude a 2D mesh in a number of spanwise (Z-direction) blocks. The number of spanwise blocks is determined by
   /// the size of the passed arguments
   /// @param positions Spanwise coordinate for each new spanwise layer of points. Values must ne greater than 0
@@ -96,8 +90,6 @@ public:
   void signature_create_patch_face_list(common::SignalArgs& args);
   void signal_create_patch_face_list(common::SignalArgs& args);
   void signal_create_block_mesh(common::SignalArgs& args);
-  void signature_partition_blocks(common::SignalArgs& args);
-  void signal_partition_blocks(common::SignalArgs& args);
   void signature_create_mesh(common::SignalArgs& args);
   void signature_extrude_blocks(common::SignalArgs& args);
   void signal_extrude_blocks(common::SignalArgs& args);

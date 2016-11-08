@@ -478,6 +478,23 @@ void NavierStokesSemiImplicit::set_elements_expressions( const std::string& name
       m_u_lss->system_rhs += velocity_rhs(u_adv, nu_eff, g, lit(a), lit(dt)*(1. - lit(theta))*lit(a) - lit(u_vec), (1. - lit(theta))*lit(delta_p_sum) - lit(p_vec), lit(tau_su), lit(tau_bulk))
     )));
   }
+  if(options().value<bool>("enable_boussinesq"))
+  {
+    FieldVariable<7, VectorField> g("Force", "body_force");
+    FieldVariable<8, ScalarField> T("Temperature", "scalar_advection_solution");
+    PhysicsConstant Tref("reference_temperature");
+    m_inner_loop->get_child("URHSAssembly")->create_component<ProtoAction>(name+"_bousinesq")->set_expression(elements_expression(ElementsT(),
+    group
+    (
+      _A(u,u) = _0, _a = _0,
+      compute_tau.apply(u_adv, nu_eff, lit(dt), lit(tau_su)),
+      element_quadrature
+      (
+         _a[u[_i]] += transpose(N(u) + tau_su*u_adv*nabla(u)) * g[_i] * (Tref - T)/T
+      ),
+      m_u_lss->system_rhs += _a
+    )));
+  }
 
   // Assembly of pressure RHS
   m_inner_loop->get_child("PRHSAssembly")->create_component<ProtoAction>(name)->set_expression(elements_expression(ElementsT(),

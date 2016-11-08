@@ -61,7 +61,7 @@ void BCHoldValue::set_tags ( const std::string& from_field_tag, const std::strin
   FieldVariable<0, ScalarField> from(from_variable, from_field_tag);
   FieldVariable<1, ScalarField> to(to_variable, to_field_tag);
   
-  set_expression(nodes_expression(group(m_dirichlet(to) = from, _cout << "  boundary temperature (from): " << from << "  boundary temperature (to): " << to <<  "\n")));
+  set_expression(nodes_expression(group(m_dirichlet(to) = from)));
 }
 
 void BCHoldValue::signal_set_tags ( common::SignalArgs& node )

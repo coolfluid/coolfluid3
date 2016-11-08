@@ -108,7 +108,7 @@ void Tetrahedralize::execute()
   
   vtkSmartPointer<vtkDataSetTriangleFilter> triangulator = vtkSmartPointer<vtkDataSetTriangleFilter>::New();
   triangulator->SetTetrahedraOnly(true);
-  triangulator->SetInput(vtk_unstruc_grid);
+  triangulator->SetInputData(vtk_unstruc_grid);
   
   vtkSmartPointer<vtkUnstructuredGrid> out_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   triangulator->SetOutput(out_grid);

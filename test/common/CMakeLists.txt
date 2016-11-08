@@ -88,6 +88,10 @@ coolfluid_add_test( UTEST utest-component-iterator
                     CPP   utest-component-iterator.cpp
                     LIBS  coolfluid_common )
 
+coolfluid_add_test( UTEST utest-component-range
+                    CPP   utest-component-range.cpp
+                    LIBS  coolfluid_common )
+
 
 coolfluid_add_test( UTEST utest-foreach
                     CPP   utest-foreach.cpp
@@ -116,6 +120,10 @@ coolfluid_add_test( UTEST utest-options
 
 coolfluid_add_test( UTEST utest-action-director
                     CPP   utest-action-director.cpp
+                    LIBS  coolfluid_common )
+
+coolfluid_add_test( UTEST utest-common-dereference
+                    CPP   utest-common-dereference.cpp
                     LIBS  coolfluid_common )
 
 
@@ -204,6 +212,6 @@ coolfluid_add_test( UTEST utest-common-arraydiff
                     CPP   utest-common-arraydiff.cpp
                     LIBS  coolfluid_common
                     MPI 2 )
-                    
+
 coolfluid_add_test (UTEST utest-common-print-timing-tree
                     PYTHON utest-common-print-timing-tree.py)

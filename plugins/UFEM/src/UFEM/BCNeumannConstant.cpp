@@ -62,8 +62,6 @@ BCNeumannConstant::~BCNeumannConstant()
 {
 }
 
-
-
 void BCNeumannConstant::set_tags (const std::string& neumann_variable, const std::string& gradient_field )
 {
   FieldVariable<0, ScalarField> neumann(neumann_variable, gradient_field);

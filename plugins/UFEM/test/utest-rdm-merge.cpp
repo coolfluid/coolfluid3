@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
         )
       )
       << bc
-      << allocate_component<math::LSS::SolveLSS>("SolveLSS")
+      << allocate_component<cf3::math::LSS::SolveLSS>("SolveLSS")
       << create_proto_action("Increment", nodes_expression(fi += lss_action->solution(fi)));
 
   // Setup physics

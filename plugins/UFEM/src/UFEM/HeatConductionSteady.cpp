@@ -62,7 +62,7 @@ struct HeatSpecialized
 
 static solver::actions::Proto::MakeSFOp<HeatSpecialized>::type const heat_specialized = {};
 
-HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSAction ( name ), heat_cond("heat_conductivity")
+HeatConductionSteady::HeatConductionSteady ( const std::string& name ) : LSSAction ( name ), lambda_s("thermal_conductivity_solid")
 {
   options().add("heat_space_name", "geometry")
     .pretty_name("Heat Space Name")
@@ -95,12 +95,13 @@ void HeatConductionSteady::trigger()
 {
   const bool use_specializations = options().option("use_specializations").value<bool>();
 
-  ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
   ConfigurableConstant<Real> relaxation_factor_hc("relaxation_factor_hc", "factor for relaxation in case of coupling", 1.);
 
   FieldVariable<0, ScalarField> T("Temperature", "heat_conduction_solution");
   FieldVariable<1, ScalarField> q("Heat", "source_terms", options().option("heat_space_name").value<std::string>());
-
+  FieldVariable<3, ScalarField> temperature1_hc("TemperatureHistoryHC1", "temperature_history_hc");
+  FieldVariable<4, ScalarField> temperature2_hc("TemperatureHistoryHC2", "temperature_history_hc");
+  FieldVariable<5, ScalarField> temperature3_hc("TemperatureHistoryHC3", "temperature_history_hc");
 
   if(use_specializations)
   {
@@ -115,12 +116,12 @@ void HeatConductionSteady::trigger()
           _A = _0,
           element_quadrature
           (
-            _A(T) += k * transpose(nabla(T)) * nabla(T)
+            _A(T) += lambda_s * transpose(nabla(T)) * nabla(T)
           )
         ),
-        specialized_elements(heat_specialized(T, k, _A(T))),
+        specialized_elements(heat_specialized(T, lambda_s, _A(T))),
         system_matrix +=  _A,
-        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q) * heat_cond
+        system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q)
       )
     ));
   }
@@ -134,7 +135,7 @@ void HeatConductionSteady::trigger()
         _A = _0,
         element_quadrature
         (
-          _A(T) += k * transpose(nabla(T)) * nabla(T)
+          _A(T) += lambda_s * transpose(nabla(T)) * nabla(T)
         ),
         system_matrix +=  _A,
         system_rhs += -_A * _x + integral<2>(transpose(N(T))*N(q)*jacobian_determinant) * nodal_values(q)
@@ -143,13 +144,35 @@ void HeatConductionSteady::trigger()
   }
 
   m_update->set_expression(nodes_expression(T += relaxation_factor_hc*solution(T)));     // Set the solution
+
+  // Set the proto expression for the update step
+  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression
+        (group
+        (
+        (T += relaxation_factor_hc*solution(T)),
+        temperature3_hc = temperature2_hc,
+        temperature2_hc = temperature1_hc,
+        temperature1_hc = T
+        ))
+        );
+
 }
 
 void HeatConductionSteady::on_initial_conditions_set(InitialConditions& initial_conditions)
-{
-  initial_conditions.create_initial_condition(solution_tag());
-}
 
+  {
+  FieldVariable<0, ScalarField> T("Temperature", solution_tag());
+  FieldVariable<3, ScalarField> temperature1_hc("TemperatureHistoryHC1", "temperature_history_hc");
+  FieldVariable<4, ScalarField> temperature2_hc("TemperatureHistoryHC2", "temperature_history_hc");
+  FieldVariable<5, ScalarField> temperature3_hc("TemperatureHistoryHC3", "temperature_history_hc");
+
+  initial_conditions.create_initial_condition(solution_tag());
+
+    // Use a proto action to set the temperature_history easily
+  Handle<ProtoAction> temp_history_ic (initial_conditions.create_initial_condition("temperature_history", "cf3.solver.ProtoAction"));
+  temp_history_ic->set_expression(nodes_expression(group(temperature1_hc = T, temperature2_hc = T, temperature3_hc = T)));
+
+  }
 
 } // UFEM
 } // cf3

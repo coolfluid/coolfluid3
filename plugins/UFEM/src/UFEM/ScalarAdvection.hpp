@@ -28,6 +28,7 @@
 #include "LibUFEM.hpp"
 #include "LSSActionUnsteady.hpp"
 
+#include "CrossWindDiffusion.hpp"
 #include "SUPG.hpp"
 
 namespace cf3 {
@@ -48,22 +49,31 @@ public: // functions
 
 private:
 
+  /// Create the solver
+  void trigger_assembly();
+
   /// Called when the internal name to use for the scalar variable is changed
   void trigger_scalar_name();
 
-  virtual void on_initial_conditions_set ( InitialConditions& initial_conditions );
+  /// Prandtl number
+  Real m_pr;
 
-  /// Scalar diffusivity
-  Real m_alpha;
+  /// Turbulent Prandtl number
+  Real m_pr_t;
+
+  /// Parameter for the theta scheme
+  Real m_theta;
 
   /// Stabilization coefficient
   Real tau_su;
 
   ComputeTau compute_tau;
+
+  CrosswindDiffusion cw;
 };
 
 } // UFEM
 } // cf3
 
 
-#endif // cf3_UFEM_NavierStokes_hpp
+#endif // cf3_UFEM_ScalarAdvection_hpp

@@ -23,13 +23,13 @@ struct GradientOp
   template<typename This, typename VarT, typename MappedCoordsT>
   struct result<This(VarT, MappedCoordsT)>
   {
-    typedef const typename VarT::EtypeT::CoordsT& type;
+    typedef const typename Eigen::Matrix<Real, VarT::EtypeT::dimensionality, VarT::dimension>& type;
   };
 
   template<typename This, typename VarT>
   struct result<This(VarT)>
   {
-    typedef const typename VarT::EtypeT::CoordsT& type;
+    typedef const typename Eigen::Matrix<Real, VarT::EtypeT::dimensionality, VarT::dimension>& type;
   };
 
   template<typename VarT, typename ResultT>
