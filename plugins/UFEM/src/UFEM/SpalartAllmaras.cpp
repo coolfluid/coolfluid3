@@ -75,6 +75,15 @@ void SpalartAllmaras::trigger_set_expression()
 
   PhysicsConstant nu_lam("kinematic_viscosity");
 
+  const auto d2 = make_lambda([&](const Real d)
+  {
+    if(d>0.0)
+    {
+      return d*d;
+    }
+    return 1e-16;
+  });
+
   Handle<ProtoAction>(get_child("Assembly"))->set_expression(
   elements_expression
   (
@@ -88,7 +97,7 @@ void SpalartAllmaras::trigger_set_expression()
       (
         _A(nu_sa) += transpose(N(nu_sa) + (tau_su*u + cw.apply(u, nu_sa))*nabla(nu_sa)) * u * nabla(nu_sa)   // advection terms
                    - lit(m_sa_coeff.op.cb1) * lit(m_sa_coeff.op.Stilde) * transpose(N(nu_sa)) * N(nu_sa) // production
-                   + lit(m_sa_coeff.op.fw) * lit(m_sa_coeff.op.cw1) * nu_sa / (d*d) * transpose(N(nu_sa)) * N(nu_sa) // destruction
+                   + lit(m_sa_coeff.op.fw) * lit(m_sa_coeff.op.cw1) * nu_sa / (d2(d)) * transpose(N(nu_sa)) * N(nu_sa) // destruction
                    + (lit(1.)/lit(m_sa_coeff.op.sigma) * (nu_sa + nu_lam)) * transpose(nabla(nu_sa)) * nabla(nu_sa) // diffusion
                    + lit(m_sa_coeff.op.cb2) / lit(m_sa_coeff.op.sigma) * transpose(N(nu_sa)) * transpose(gradient(nu_sa))*nabla(nu_sa), // diffusion added term
         _T(nu_sa,nu_sa) +=  transpose(N(nu_sa) + (tau_su*u + cw.apply(u, nu_sa))*nabla(nu_sa)) * N(nu_sa) // Time, standard and SUPG

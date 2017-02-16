@@ -1,7 +1,6 @@
 import coolfluid as cf
 from math import pi
 import numpy as np
-import pylab as pl
 
 # Flow properties
 h = 1.
@@ -76,8 +75,6 @@ right_patch = blocks.create_patch_nb_faces(name = 'right', nb_faces = 2)
 right_patch[0] = [1, 3]
 right_patch[1] = [3, 5]
 
-#blocks.partition_blocks(nb_partitions = 4, direction = 0)
-
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 
@@ -137,6 +134,11 @@ wall_distance.mesh = mesh
 wall_distance.regions = [mesh.topology.bottom, mesh.topology.top]
 wall_distance.execute()
 
+# Needed for yplus to work
+conn = domain.create_component("SurfaceToVolumeConnectivity", "cf3.mesh.actions.SurfaceToVolumeConnectivity")
+conn.mesh = mesh
+conn.execute()
+
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value =  u_wall
@@ -160,18 +162,22 @@ time.end_time = 3000.
 
 # Run the simulation
 model.simulate()
-
-# Plot simulation velocity
-coords = np.array(mesh.geometry.coordinates)
-ns_sol = np.array(mesh.geometry.navier_stokes_solution)
-line = np.abs(coords[:,0])<1e-6
-pl.plot(coords[line, 1], ns_sol[line, 0])
-
-# Plot MKM velocity
-y_mkm = np.array([0.0, 0.00030118, 0.0012045, 0.0027095, 0.0048153, 0.0075205, 0.010823, 0.014722, 0.019215, 0.024298, 0.029969, 0.036224, 0.04306, 0.050472, 0.058456, 0.067007, 0.07612, 0.08579, 0.096011, 0.10678, 0.11808, 0.12991, 0.14227, 0.15515, 0.16853, 0.18242, 0.19679, 0.21165, 0.22699, 0.24279, 0.25905, 0.27575, 0.29289, 0.31046, 0.32844, 0.34683, 0.36561, 0.38477, 0.4043, 0.42419, 0.44443, 0.465, 0.4859, 0.5071, 0.5286, 0.55039, 0.57244, 0.59476, 0.61732, 0.6401, 0.66311, 0.68632, 0.70972, 0.73329, 0.75702, 0.7809, 0.80491, 0.82904, 0.85327, 0.87759, 0.90198, 0.92644, 0.95093, 0.97546, 1.0])
-u_mkm = np.array([0.0, 0.053639, 0.21443, 0.48197, 0.85555, 1.3339, 1.9148, 2.5939, 3.3632, 4.2095, 5.1133, 6.0493, 6.9892, 7.9052, 8.7741, 9.579, 10.311, 10.967, 11.55, 12.066, 12.52, 12.921, 13.276, 13.59, 13.87, 14.121, 14.349, 14.557, 14.75, 14.931, 15.101, 15.264, 15.419, 15.569, 15.714, 15.855, 15.993, 16.128, 16.26, 16.389, 16.515, 16.637, 16.756, 16.872, 16.985, 17.094, 17.2, 17.302, 17.4, 17.494, 17.585, 17.672, 17.756, 17.835, 17.911, 17.981, 18.045, 18.103, 18.154, 18.198, 18.235, 18.264, 18.285, 18.297, 18.301])
-pl.plot(y_mkm-1., u_mkm*u_tau)
-
-pl.show()
-
-model.print_timing_tree()
+#
+# try:
+#     import pylab as pl
+#     import os
+#     if os.environ.get('NOPLOT', '0') == '0':
+#         # Plot simulation velocity
+#         coords = np.array(mesh.geometry.coordinates)
+#         ns_sol = np.array(mesh.geometry.navier_stokes_solution)
+#         line = np.abs(coords[:,0])<1e-6
+#         pl.plot(coords[line, 1], ns_sol[line, 0])
+#
+#         # Plot MKM velocity
+#         y_mkm = np.array([0.0, 0.00030118, 0.0012045, 0.0027095, 0.0048153, 0.0075205, 0.010823, 0.014722, 0.019215, 0.024298, 0.029969, 0.036224, 0.04306, 0.050472, 0.058456, 0.067007, 0.07612, 0.08579, 0.096011, 0.10678, 0.11808, 0.12991, 0.14227, 0.15515, 0.16853, 0.18242, 0.19679, 0.21165, 0.22699, 0.24279, 0.25905, 0.27575, 0.29289, 0.31046, 0.32844, 0.34683, 0.36561, 0.38477, 0.4043, 0.42419, 0.44443, 0.465, 0.4859, 0.5071, 0.5286, 0.55039, 0.57244, 0.59476, 0.61732, 0.6401, 0.66311, 0.68632, 0.70972, 0.73329, 0.75702, 0.7809, 0.80491, 0.82904, 0.85327, 0.87759, 0.90198, 0.92644, 0.95093, 0.97546, 1.0])
+#         u_mkm = np.array([0.0, 0.053639, 0.21443, 0.48197, 0.85555, 1.3339, 1.9148, 2.5939, 3.3632, 4.2095, 5.1133, 6.0493, 6.9892, 7.9052, 8.7741, 9.579, 10.311, 10.967, 11.55, 12.066, 12.52, 12.921, 13.276, 13.59, 13.87, 14.121, 14.349, 14.557, 14.75, 14.931, 15.101, 15.264, 15.419, 15.569, 15.714, 15.855, 15.993, 16.128, 16.26, 16.389, 16.515, 16.637, 16.756, 16.872, 16.985, 17.094, 17.2, 17.302, 17.4, 17.494, 17.585, 17.672, 17.756, 17.835, 17.911, 17.981, 18.045, 18.103, 18.154, 18.198, 18.235, 18.264, 18.285, 18.297, 18.301])
+#         pl.plot(y_mkm-1., u_mkm*u_tau)
+#
+#         pl.show()
+#
+# model.print_timing_tree()
