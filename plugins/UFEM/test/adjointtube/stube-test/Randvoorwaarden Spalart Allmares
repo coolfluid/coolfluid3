@@ -1,0 +1,35 @@
+// Randvoorwaarden SA model
+
+# Add the Spalart-Allmaras turbulence model
+	satm = solver.add_unsteady_solver('cf3.UFEM.SpalartAllmaras')
+
+# Boundary conditions for Navier-Stokes
+	bc = nstokes.get_child('BoundaryConditions')
+	bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = u_wall
+	bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = u_wall
+	
+// hieronder specifiek voor Spalart Allmares, maar dit werkt niet in .py file
+	bc = satm.children.BoundaryConditions
+	bc.add_constant_bc(region_name = 'bottom', variable_name = 'SAViscosity').value = 0.
+	bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').value = 0.
+
+satm.regions = [mesh.topology.uri()]
+	
+	u_in = [1., 0.]
+	u_wall = [0., 0.]
+	NU_in = 0.001
+	NU_wall = 0.
+	
+	#initial conditions
+	solver.InitialConditions.navier_stokes_solution.Velocity = u_in
+	solver.InitialConditions.spalart_allmaras_solution.SAViscosity = NU_in
+
+# Boundary conditions for Spalart-Allmaras
+	bc = satm.get_child('BoundaryConditions')
+	bc.add_constant_bc(region_name = 'inlet', variable_name = 'SAViscosity').options().set('value', NU_in)
+	bc.add_constant_bc(region_name = 'bottom1', variable_name = 'SAViscosity').options().set('value', NU_wall)
+	bc.add_constant_bc(region_name = 'bottom2', variable_name = 'SAViscosity').options().set('value', NU_wall)
+	bc.add_constant_bc(region_name = 'bottom3', variable_name = 'SAViscosity').options().set('value', NU_in)
+	bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').options().set('value', NU_in)
+
+
