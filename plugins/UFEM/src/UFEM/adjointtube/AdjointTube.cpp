@@ -165,7 +165,7 @@ void Adjoint::trigger_assembly()
                   _A(U[_i], U[_j]) += -transpose(N(U)) * u[_j] * nabla(U)[_i], // Bulk viscosity + additional adjoint advection term
                                       //+ 0.5*u[_i]*(N(U) - tau_su*u*nabla(U)) * nabla(U)[_j], //  skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
-                  _T(U[_i], U[_i]) += transpose(N(U)) * N(U), // Time, standard and SUPG
+                  _T(U[_i], U[_i]) += transpose(N(U)) * N(U) // Time, standard and SUPG
                   // _a[U[_i]] += -transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
                          //   + m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
                                       //      +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu*transpose(nabla(U))*_col(partial(u[_i],_j)+partial(u[_j],_i),_i)))
