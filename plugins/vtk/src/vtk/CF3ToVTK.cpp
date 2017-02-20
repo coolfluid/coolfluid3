@@ -306,18 +306,17 @@ struct CF3ToVTK::node_mapping
         std::vector< vtkSmartPointer<vtkDoubleArray> >& arrays = field_vars.second;
         const Uint nb_arrays = arrays.size();
         const math::VariablesDescriptor& descriptor = field_vars.first->descriptor();
-        std::vector<std::vector<Real>> temp_rows;
-        for(const auto& arr : arrays)
-        {
-          temp_rows.push_back(std::vector<Real>(arr->GetNumberOfComponents(), 0.));
-        }
         for(const auto& node_link : node_map)
         {
           const mesh::Field::ConstRow row = source_array[node_link.first];
           for(Uint array_idx = 0; array_idx != nb_arrays; ++array_idx)
           {
-            std::copy(row.begin() + descriptor.offset(array_idx), row.begin() + descriptor.offset(array_idx) + descriptor.var_length(array_idx), temp_rows[array_idx].begin());
-            arrays[array_idx]->SetTupleValue(node_link.second, &temp_rows[array_idx][0]);
+            const Uint nb_comps = descriptor.var_length(array_idx);
+            const Uint offset = descriptor.offset(array_idx);
+            for(Uint comp_idx = 0; comp_idx != nb_comps; ++comp_idx)
+            {
+              arrays[array_idx]->SetTypedComponent(node_link.second, comp_idx, row[offset+comp_idx]);
+            }
           }
         }
       }
@@ -357,7 +356,12 @@ struct CF3ToVTK::node_mapping
             for(Uint array_idx = 0; array_idx != nb_arrays; ++array_idx)
             {
               cf3_assert(cf3_cell_idx < cf3_cell_to_vtk.size());
-              arrays[array_idx]->SetTupleValue(cf3_cell_to_vtk[cf3_cell_idx], row_sum.data()+descriptor.offset(array_idx));
+              const Uint nb_comps = descriptor.var_length(array_idx);
+              const Uint offset = descriptor.offset(array_idx);
+              for(Uint comp_idx = 0; comp_idx != nb_comps; ++comp_idx)
+              {
+                arrays[array_idx]->SetTypedComponent(cf3_cell_to_vtk[cf3_cell_idx], comp_idx, row_sum[offset+comp_idx]);
+              }
             }
 
             ++cf3_cell_idx;
