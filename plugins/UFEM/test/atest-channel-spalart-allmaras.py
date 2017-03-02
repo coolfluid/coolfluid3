@@ -5,13 +5,14 @@ import numpy as np
 # Flow properties
 h = 1.
 nu = 0.0001
-re_tau = 180.
+re_tau = 590.
 u_tau = re_tau * nu / h
-a_tau = re_tau**2*nu**2/h**3
+a_tau = u_tau**2 / h
+Uc = u_tau**2*h/nu
 
 y_segs = 32
 x_size = 4.*pi*h
-x_segs = 32
+x_segs = 4
 ungraded_h = float(y_segs)
 
 # Some shortcuts
@@ -79,7 +80,7 @@ mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 
 coordmap = {}
-b = 0.9544
+b = 0.98
 xi = np.linspace(-h, h, y_segs*2+1)
 y_graded = h/b * np.tanh(xi*np.arctanh(b))
 
@@ -104,6 +105,12 @@ partitioner = domain.create_component('Partitioner', 'cf3.zoltan.PHG')
 partitioner.mesh = mesh
 partitioner.execute()
 
+create_point_region = domain.create_component('CreatePointRegion', 'cf3.mesh.actions.AddPointRegion')
+create_point_region.coordinates = [x_size/2., 0.]  #[x_size/2., h, z_size/2.]
+create_point_region.region_name = 'center'
+create_point_region.mesh = mesh
+create_point_region.execute()
+
 yplus.mesh = mesh
 
 # Because of multi-region support, solvers do not automatically have a region assigned, so we must manually set the solvers to work on the whole mesh
@@ -115,13 +122,18 @@ u_wall = [0., 0.]
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_wall
-solver.InitialConditions.spalart_allmaras_solution.SAViscosity = 0.1
 solver.InitialConditions.density_ratio.density_ratio = 1.
+# solver.InitialConditions.spalart_allmaras_solution.SAViscosity = 5*nu
 
 ic_g = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'body_force')
 ic_g.variable_name = 'Force'
 ic_g.regions = [mesh.topology.uri()]
 ic_g.value = [str(a_tau), '0']
+
+ic_sa = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'spalart_allmaras_solution')
+ic_sa.variable_name = 'SAViscosity'
+ic_sa.regions = [mesh.topology.uri()]
+ic_sa.value = ['{sa_visc}*(1-(y)^2)'.format(sa_visc=5.0*nu)]
 
 #properties for Navier-Stokes
 physics.density = 1.
@@ -143,6 +155,7 @@ conn.execute()
 bc = nstokes.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value =  u_wall
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value =  u_wall
+bc.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 0.
 
 bc = satm.children.BoundaryConditions
 bc.add_constant_bc(region_name = 'bottom', variable_name = 'SAViscosity').value = 0.
@@ -150,34 +163,50 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').value = 0
 
 # Setup a time series write
 write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
-write_manager.interval = 10
-writer = write_manager.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
+write_manager.interval = 200
+writer = write_manager.create_component('VTKWriter', 'cf3.mesh.VTKXML.Writer')
 writer.mesh = mesh
-writer.file = cf.URI('atest-channel-spalart-allmaras-{iteration}.vtm')
+writer.fields = [cf.URI('/NavierStokes/Domain/Mesh/geometry/navier_stokes_solution'), cf.URI('/NavierStokes/Domain/Mesh/geometry/spalart_allmaras_solution'), cf.URI('/NavierStokes/Domain/Mesh/geometry/yplus')]
+writer.file = cf.URI('atest-channel-spalart-allmaras-{iteration}.pvtu')
 
 # Time setup
 time = model.create_time()
-time.time_step = 10.
-time.end_time = 3000.
+time.time_step = 0.1
+time.end_time = 2000.0
 
 # Run the simulation
 model.simulate()
-#
-# try:
-#     import pylab as pl
-#     import os
-#     if os.environ.get('NOPLOT', '0') == '0':
-#         # Plot simulation velocity
-#         coords = np.array(mesh.geometry.coordinates)
-#         ns_sol = np.array(mesh.geometry.navier_stokes_solution)
-#         line = np.abs(coords[:,0])<1e-6
-#         pl.plot(coords[line, 1], ns_sol[line, 0])
-#
-#         # Plot MKM velocity
-#         y_mkm = np.array([0.0, 0.00030118, 0.0012045, 0.0027095, 0.0048153, 0.0075205, 0.010823, 0.014722, 0.019215, 0.024298, 0.029969, 0.036224, 0.04306, 0.050472, 0.058456, 0.067007, 0.07612, 0.08579, 0.096011, 0.10678, 0.11808, 0.12991, 0.14227, 0.15515, 0.16853, 0.18242, 0.19679, 0.21165, 0.22699, 0.24279, 0.25905, 0.27575, 0.29289, 0.31046, 0.32844, 0.34683, 0.36561, 0.38477, 0.4043, 0.42419, 0.44443, 0.465, 0.4859, 0.5071, 0.5286, 0.55039, 0.57244, 0.59476, 0.61732, 0.6401, 0.66311, 0.68632, 0.70972, 0.73329, 0.75702, 0.7809, 0.80491, 0.82904, 0.85327, 0.87759, 0.90198, 0.92644, 0.95093, 0.97546, 1.0])
-#         u_mkm = np.array([0.0, 0.053639, 0.21443, 0.48197, 0.85555, 1.3339, 1.9148, 2.5939, 3.3632, 4.2095, 5.1133, 6.0493, 6.9892, 7.9052, 8.7741, 9.579, 10.311, 10.967, 11.55, 12.066, 12.52, 12.921, 13.276, 13.59, 13.87, 14.121, 14.349, 14.557, 14.75, 14.931, 15.101, 15.264, 15.419, 15.569, 15.714, 15.855, 15.993, 16.128, 16.26, 16.389, 16.515, 16.637, 16.756, 16.872, 16.985, 17.094, 17.2, 17.302, 17.4, 17.494, 17.585, 17.672, 17.756, 17.835, 17.911, 17.981, 18.045, 18.103, 18.154, 18.198, 18.235, 18.264, 18.285, 18.297, 18.301])
-#         pl.plot(y_mkm-1., u_mkm*u_tau)
-#
-#         pl.show()
-#
-# model.print_timing_tree()
+# Plot simulation velocity
+try:
+    import pylab as pl
+    import os
+    if cf.Core.rank() == 0 and os.environ.get('NOPLOT', '0') == '0':
+        coords = np.array(mesh.geometry.coordinates)
+        ns_sol = np.array(mesh.geometry.navier_stokes_solution)
+        yplus_arr = np.array(mesh.geometry.yplus)
+        eff_visc = np.array(mesh.geometry.navier_stokes_viscosity)
+        line = np.abs(coords[:,0])<1e-6
+        u = ns_sol[line, 0]
+        nu_line = eff_visc[line,0]
+        y = coords[line, 1]
+        pl.figure()
+        pl.plot(y, nu_line, 'o')
+        pl.figure()
+        pl.plot(y, u, 'o')
+        u_tau_num = np.sqrt(nu*(u[1]-u[0])/(y[1]-y[0]))
+        yplus_cen = u_tau_num*h/nu
+        print u_tau_num #0.0538948365866
+        print u_tau # 0.059
+
+        # Plot MKM velocity
+        y_mkm = np.array([0.0000e+00, 7.5298e-05, 3.0118e-04, 6.7762e-04, 1.2045e-03, 1.8819e-03, 2.7095e-03, 3.6874e-03, 4.8153e-03, 6.0930e-03, 7.5205e-03, 9.0974e-03, 1.0823e-02, 1.2699e-02, 1.4722e-02, 1.6895e-02, 1.9215e-02, 2.1683e-02, 2.4298e-02, 2.7060e-02, 2.9969e-02, 3.3024e-02, 3.6224e-02, 3.9569e-02, 4.3060e-02, 4.6694e-02, 5.0472e-02, 5.4393e-02, 5.8456e-02, 6.2661e-02, 6.7007e-02, 7.1494e-02, 7.6120e-02, 8.0886e-02, 8.5790e-02, 9.0832e-02, 9.6011e-02, 1.0133e-01, 1.0678e-01, 1.1236e-01, 1.1808e-01, 1.2393e-01, 1.2991e-01, 1.3603e-01, 1.4227e-01, 1.4864e-01, 1.5515e-01, 1.6178e-01, 1.6853e-01, 1.7541e-01, 1.8242e-01, 1.8954e-01, 1.9679e-01, 2.0416e-01, 2.1165e-01, 2.1926e-01, 2.2699e-01, 2.3483e-01, 2.4279e-01, 2.5086e-01, 2.5905e-01, 2.6735e-01, 2.7575e-01, 2.8427e-01, 2.9289e-01, 3.0162e-01, 3.1046e-01, 3.1940e-01, 3.2844e-01, 3.3758e-01, 3.4683e-01, 3.5617e-01, 3.6561e-01, 3.7514e-01, 3.8477e-01, 3.9449e-01, 4.0430e-01, 4.1420e-01, 4.2419e-01, 4.3427e-01, 4.4443e-01, 4.5467e-01, 4.6500e-01, 4.7541e-01, 4.8590e-01, 4.9646e-01, 5.0710e-01, 5.1782e-01, 5.2860e-01, 5.3946e-01, 5.5039e-01, 5.6138e-01, 5.7244e-01, 5.8357e-01, 5.9476e-01, 6.0601e-01, 6.1732e-01, 6.2868e-01, 6.4010e-01, 6.5158e-01, 6.6311e-01, 6.7469e-01, 6.8632e-01, 6.9799e-01, 7.0972e-01, 7.2148e-01, 7.3329e-01, 7.4513e-01, 7.5702e-01, 7.6894e-01, 7.8090e-01, 7.9289e-01, 8.0491e-01, 8.1696e-01, 8.2904e-01, 8.4114e-01, 8.5327e-01, 8.6542e-01, 8.7759e-01, 8.8978e-01, 9.0198e-01, 9.1420e-01, 9.2644e-01, 9.3868e-01, 9.5093e-01, 9.6319e-01, 9.7546e-01, 9.8773e-01, 1.0000e-00])
+        u_mkm = np.array([0.0000e+00, 4.4231e-02, 1.7699e-01, 3.9816e-01, 7.0750e-01, 1.1046e+00, 1.5886e+00, 2.1573e+00, 2.8061e+00, 3.5272e+00, 4.3078e+00, 5.1307e+00, 5.9748e+00, 6.8174e+00, 7.6375e+00, 8.4177e+00, 9.1455e+00, 9.8142e+00, 1.0421e+01, 1.0968e+01, 1.1458e+01, 1.1895e+01, 1.2287e+01, 1.2636e+01, 1.2950e+01, 1.3233e+01, 1.3489e+01, 1.3722e+01, 1.3935e+01, 1.4131e+01, 1.4313e+01, 1.4482e+01, 1.4640e+01, 1.4789e+01, 1.4931e+01, 1.5066e+01, 1.5196e+01, 1.5321e+01, 1.5442e+01, 1.5560e+01, 1.5674e+01, 1.5786e+01, 1.5896e+01, 1.6003e+01, 1.6110e+01, 1.6214e+01, 1.6317e+01, 1.6418e+01, 1.6518e+01, 1.6616e+01, 1.6713e+01, 1.6808e+01, 1.6902e+01, 1.6995e+01, 1.7087e+01, 1.7179e+01, 1.7269e+01, 1.7358e+01, 1.7446e+01, 1.7533e+01, 1.7620e+01, 1.7705e+01, 1.7789e+01, 1.7873e+01, 1.7956e+01, 1.8038e+01, 1.8120e+01, 1.8202e+01, 1.8282e+01, 1.8362e+01, 1.8441e+01, 1.8520e+01, 1.8598e+01, 1.8676e+01, 1.8754e+01, 1.8831e+01, 1.8907e+01, 1.8982e+01, 1.9056e+01, 1.9128e+01, 1.9199e+01, 1.9269e+01, 1.9338e+01, 1.9406e+01, 1.9473e+01, 1.9539e+01, 1.9604e+01, 1.9668e+01, 1.9731e+01, 1.9794e+01, 1.9855e+01, 1.9916e+01, 1.9976e+01, 2.0035e+01, 2.0093e+01, 2.0149e+01, 2.0204e+01, 2.0258e+01, 2.0311e+01, 2.0364e+01, 2.0415e+01, 2.0464e+01, 2.0513e+01, 2.0561e+01, 2.0608e+01, 2.0653e+01, 2.0698e+01, 2.0741e+01, 2.0784e+01, 2.0826e+01, 2.0866e+01, 2.0905e+01, 2.0943e+01, 2.0979e+01, 2.1013e+01, 2.1046e+01, 2.1076e+01, 2.1105e+01, 2.1131e+01, 2.1156e+01, 2.1178e+01, 2.1198e+01, 2.1215e+01, 2.1230e+01, 2.1242e+01, 2.1251e+01, 2.1258e+01, 2.1262e+01, 2.1263e+01])
+
+        pl.plot(y_mkm-1., u_mkm*u_tau_num)
+
+        pl.show()
+except:
+    print('Skipping plot due to python errors')
+
+writer.file = cf.URI('atest-channel-spalart-allmaras-end.pvtu')
+writer.execute()

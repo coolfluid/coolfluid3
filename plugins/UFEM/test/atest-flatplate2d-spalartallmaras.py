@@ -109,7 +109,7 @@ NU_in = 0.001
 NU_wall = 0.
 
 #initial conditions
-solver.InitialConditions.navier_stokes_solution.Velocity = u_in
+solver.InitialConditions.navier_stokes_solution.Velocity = u_wall
 solver.InitialConditions.spalart_allmaras_solution.SAViscosity = NU_in
 
 #properties for Navier-Stokes
@@ -141,14 +141,15 @@ bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').options()
 
 write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
 write_manager.interval = 1
-writer = write_manager.create_component('VTKWriter', 'cf3.vtk.MultiblockWriter')
+writer = write_manager.create_component('VTKWriter', 'cf3.mesh.VTKXML.Writer')
 writer.mesh = mesh
-writer.file = cf.URI('atest-flatplate2d-spalartallmaras-{iteration}.vtm')
+writer.fields = [cf.URI('/NavierStokes/Domain/Mesh/geometry/navier_stokes_solution'), cf.URI('/NavierStokes/Domain/Mesh/geometry/spalart_allmaras_solution')]
+writer.file = cf.URI('atest-flatplate2d-spalartallmaras-{iteration}.pvtu')
 
 # Time setup
 time = model.create_time()
 time.time_step = 0.1
-time.end_time = 0.5
+time.end_time = 1.0
 
 model.simulate()
 

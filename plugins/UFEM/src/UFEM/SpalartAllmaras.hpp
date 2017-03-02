@@ -83,30 +83,23 @@ struct ComputeSACoeffs
     // We take the first gauss point here, i.e. we approximate the gradient by the value at the cell center.
     // nabla is the gradient matrix of the shape function of u
     Eigen::Matrix<Real, UT::dimension, UT::dimension> nabla_u = u.nabla() * u.value(); // The gradient of the velocity is the shape function gradient matrix multiplied with the nodal values
-//     std::cout << "u: " << u.value().transpose() << ", nabla_u:\n" << nabla_u << std::endl;
+
     // wall distance
     const Real d = wall_dist.value().mean(); // Mean cell wall distance
+    if(d <= 0.0)
+    {
+      throw std::runtime_error("0 distance in SA coefficient calculation");
+    }
     const Real omega = sqrt(0.5)*(nabla_u - nabla_u.transpose()).norm();
 
     const Real fv2    = 1. - chi/(1. + chi*fv1(chi, cv1));
-    const Real Sbar = nu_t_cell / (kappa*kappa*d*d)*fv2;
-    const Real c2 = 0.7;
-    const Real c3 = 0.9;
-    //std::cout << "omega: " << omega << std::endl;
-    if(Sbar >= -c2*omega)
-      Stilde = omega + Sbar;
-    else
-      Stilde = omega + omega*(c2*c2*omega + c3*Sbar) / ((c3 - 2*c2)*omega - Sbar);
+    Stilde = std::max(0.3*omega, omega + nu_t_cell / (kappa*kappa*d*d)*fv2);
 
-    Real r = nu_t_cell/(Stilde*kappa*kappa*d*d);
-    if (!std::isfinite(r) || r > 10)
-      r = 10;
+    Real r = std::min(nu_t_cell/(Stilde*kappa*kappa*d*d), 10.0);
     const Real g      = r+cw2*(r*r*r*r*r*r-r);
     const Real g6 = g*g*g*g*g*g;
     const Real cw36   = cw3*cw3*cw3*cw3*cw3*cw3;
-    fw     = g*::pow((1.+cw36)/(g6 + cw36),1./6.);
-
-    //std::cout << "sa_params: " << ft2 << ", " << Stilde << ", " << fw << ", " << diag_diff << std::endl;
+    fw = ::pow((1.+cw36)/(1.+cw36/(g6)),1./6.);
   }
 
   // Model constants
@@ -155,6 +148,8 @@ private:
   solver::actions::Proto::MakeSFOp<ComputeSACoeffs>::reference_type comp_sa;
 
   CrosswindDiffusion cw;
+
+  Real m_theta = 1.0;
 };
 
 } // UFEM
