@@ -28,9 +28,6 @@ blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [2, 3]
 blocks.create_patch_nb_faces(name = 'left', nb_faces = 1)[0] = [3, 0]
 #blocks.extrude_blocks(positions=[1., 2.], nb_segments=[segs/2, segs/2], gradings=[1., 1.])
 
-if cf.Core.nb_procs() > 1:
-  blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
-
 blocks.create_mesh(mesh.uri())
 
 make_par_data = root.create_component('MakeParData', 'cf3.solver.actions.ParallelDataToFields')
@@ -56,4 +53,3 @@ writer = root.create_component('CF3ToVTK', 'cf3.vtk.MultiblockWriter')
 writer.mesh =  mesh
 writer.file = cf.URI('multiblockwriter-out.vtm')
 writer.execute()
-

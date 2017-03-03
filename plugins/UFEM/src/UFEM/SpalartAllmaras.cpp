@@ -51,6 +51,11 @@ SpalartAllmaras::SpalartAllmaras(const std::string& name) :
     .description("Tag for the velocity field")
     .attach_trigger(boost::bind(&SpalartAllmaras::trigger_set_expression, this));
 
+  options().add("theta", m_theta)
+    .pretty_name("Theta")
+    .description("Theta coefficient for the theta-method.")
+    .link_to(&m_theta);
+
   set_solution_tag("spalart_allmaras_solution");
 
 
@@ -90,20 +95,20 @@ void SpalartAllmaras::trigger_set_expression()
     allowed_elements,
     group
     (
-      _A = _0, _T = _0,
+      _A = _0, _T = _0, _a = _0,
       compute_tau.apply( u, nu_eff, lit(dt()), lit(tau_su)),
       comp_sa( u, nu_sa, d, nu_lam),
       element_quadrature
       (
         _A(nu_sa) += transpose(N(nu_sa) + (tau_su*u + cw.apply(u, nu_sa))*nabla(nu_sa)) * u * nabla(nu_sa)   // advection terms
                    - lit(m_sa_coeff.op.cb1) * lit(m_sa_coeff.op.Stilde) * transpose(N(nu_sa)) * N(nu_sa) // production
-                   + lit(m_sa_coeff.op.fw) * lit(m_sa_coeff.op.cw1) * nu_sa / (d2(d)) * transpose(N(nu_sa)) * N(nu_sa) // destruction
-                   + (lit(1.)/lit(m_sa_coeff.op.sigma) * (nu_sa + nu_lam)) * transpose(nabla(nu_sa)) * nabla(nu_sa) // diffusion
-                   + lit(m_sa_coeff.op.cb2) / lit(m_sa_coeff.op.sigma) * transpose(N(nu_sa)) * transpose(gradient(nu_sa))*nabla(nu_sa), // diffusion added term
-        _T(nu_sa,nu_sa) +=  transpose(N(nu_sa) + (tau_su*u + cw.apply(u, nu_sa))*nabla(nu_sa)) * N(nu_sa) // Time, standard and SUPG
+                   + (lit(m_sa_coeff.op.cw1) * lit(m_sa_coeff.op.fw)) * nu_sa/d2(d) * transpose(N(nu_sa)) * N(nu_sa) // destruction
+                   + (lit(1.)/lit(m_sa_coeff.op.sigma) * (nu_sa + nu_lam)) * transpose(nabla(nu_sa)) * nabla(nu_sa), // diffusion
+        _T(nu_sa,nu_sa) +=  transpose(N(nu_sa) + (tau_su*u + cw.apply(u, nu_sa))*nabla(nu_sa)) * N(nu_sa), // Time, standard and SUPG
+        _a[nu_sa] += N(nu_sa)*(lit(m_sa_coeff.op.cb2)/lit(m_sa_coeff.op.sigma)*(partial(nu_sa,_i) * partial(nu_sa,_i)))
       ),
-      system_matrix += invdt() * _T + 1.0 * _A,
-      system_rhs += -_A * _x
+      system_matrix += invdt() * _T + m_theta * _A,
+      system_rhs += -_A * _x + _a
     )
   ));
 
@@ -111,7 +116,7 @@ void SpalartAllmaras::trigger_set_expression()
   group
   (
     nu_sa += solution(nu_sa),
-    nu_eff = nu_lam + nu_sa * _fv1(nu_sa/nu_lam, lit(m_sa_coeff.op.cv1))
+    nu_eff = nu_lam + _max(0.0, nu_sa * _fv1(nu_sa/nu_lam, lit(m_sa_coeff.op.cv1)))
   )));
 }
 
