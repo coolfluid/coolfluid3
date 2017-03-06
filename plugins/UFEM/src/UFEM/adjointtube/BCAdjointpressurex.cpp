@@ -68,7 +68,7 @@ BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
     FieldVariable<9, VectorField> grad_ux("grad_ux", "velocity_gradient");
 
 
-    set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (u[0]*U[0]) + (nu_eff*grad_Ux[0])-(m_turbulence*2*((epsilona*m_c_epsilon_1*m_c_mu*k)+(ka*k*k*m_c_mu/epsilon))*grad_ux[0])));
+    set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (u[0]*U[0]) + (nu_eff*grad_Ux[0])));
 
 
 

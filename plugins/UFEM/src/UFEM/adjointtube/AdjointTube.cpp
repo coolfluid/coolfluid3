@@ -148,8 +148,9 @@ void Adjoint::trigger_assembly()
     "AdjointAssembly",
     elements_expression
     (
-      boost::mpl::vector2<
+      boost::mpl::vector<
           mesh::LagrangeP1::Triag2D,
+          mesh::LagrangeP1::Quad2D,
           mesh::LagrangeP1::Tetra3D
           >(),
       group
