@@ -22,7 +22,7 @@ class UFEM_API UnsteadyAction : public solver::Action
 {
 public: // functions
 
-  /// Contructor
+  /// Constructor
   /// @param name of the component
   UnsteadyAction ( const std::string& name );
 

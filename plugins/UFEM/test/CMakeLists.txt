@@ -1,5 +1,5 @@
 include_directories(${Trilinos_INCLUDE_DIRS})
-
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Trilinos_CXX_COMPILER_FLAGS}" )
 # UFEM tests
 coolfluid_add_test( UTEST utest-proto-heat
                     CPP utest-proto-heat.cpp
@@ -184,6 +184,9 @@ coolfluid_add_test( ATEST atest-ufem-abl-boussinesqconcentration
                     PYTHON atest-ufem-abl-boussinesqconcentration.py
                     ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/abl.msh
                     MPI 4)
+
+coolfluid_add_test( ATEST atest-unsteady-bodyforce
+                    PYTHON atest-unsteady-bodyforce.py)
 
 add_subdirectory(demo)
 add_subdirectory(les)
