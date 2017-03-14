@@ -2,12 +2,11 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjointtube
   SOURCES
     AdjointTube.hpp
     AdjointTube.cpp
+    
     BCAdjointpressurex.hpp
     BCAdjointpressurex.cpp
     BCAdjointpressurey.hpp
     BCAdjointpressurey.cpp
-    BCAdjointpressurez.hpp
-    BCAdjointpressurez.cpp
     RobinUt.cpp
     RobinUt.hpp
     LibUFEMAdjointTube.hpp

@@ -83,6 +83,7 @@ kaRobinke::kaRobinke(const std::string& name) :
        (
        _A = _0,
        _A(ka,ka) =  integral<2>(transpose(N(ka))*N(ka)*(transpose(u)*transpose(normal))/(m_c_mu*k*k/m_sigma_k/epsilon)),
+       // (transpose(u)*transpose(normal))/(nu_eff*grad_Ux[1])
        _A(epsilona, epsilona) = integral<2>(transpose(N(epsilona))*N(epsilona)*(transpose(u)*transpose(normal))/(m_c_mu*k*k/m_sigma_epsilon/epsilon)),
 
               system_matrix+=_A,

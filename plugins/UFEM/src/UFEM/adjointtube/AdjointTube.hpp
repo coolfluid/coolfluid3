@@ -92,7 +92,8 @@ private:
   FieldVariable<8, ScalarField> epsilona;
   /// turbulent kinetic energy
   FieldVariable<9, ScalarField> k;
-
+  // sensitivity_derivative
+  FieldVariable<10, ScalarField> J;
   /// Access to the physics
   PhysicsConstant rho;
   PhysicsConstant nu;

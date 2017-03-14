@@ -100,8 +100,9 @@ RobinUt::RobinUt(const std::string& name) :
          group
          (
          _A(U) = _0, _A(q) = _0,
-         _A(U[lit(m_u_index1)],U[lit(m_u_index1)]) =  integral<2>(transpose(N(U))*N(U)*(transpose(u)*transpose(normal))/nu_eff),
-         _A(U[lit(m_u_index2)],U[lit(m_u_index2)]) =  integral<2>(transpose(N(U))*N(U)*(transpose(u)*transpose(normal))/nu_eff*dimension(u)),
+         _A(U[lit(m_u_index1)],U[lit(m_u_index1)]) =  integral<2>((transpose(N(U))*N(U)*(transpose(u)*transpose(normal))-transpose(N(u))*N(u))/nu_eff), // p 39 paper Pierre
+         // (u[0]*U[1])+ (nu_eff*grad_Ux[1]) = 0
+         _A(U[lit(m_u_index2)],U[lit(m_u_index2)]) =  integral<2>((transpose(N(U))*N(U)*(transpose(u)*transpose(normal))-transpose(N(u))*N(u))/nu_eff*dimension(u)),
 
                 system_matrix+=_A,
                 system_rhs += -_A*_x
