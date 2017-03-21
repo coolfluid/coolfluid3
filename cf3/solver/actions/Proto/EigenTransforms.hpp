@@ -303,7 +303,20 @@ struct MatrixSubscript :
     typedef boost::proto::matches< IdxExprT, boost::proto::terminal< IndexTag<boost::proto::_> > > IsLoopingIdxT;
 
     static const bool is_vector = LeftT::IsVectorAtCompileTime;
-    typedef typename boost::mpl::if_<typename boost::is_const<LeftT>::type, Real, Real&>::type ScalarTypeT;
+
+    template<typename MatrixT>
+    struct UseAsConst
+    {
+      typedef typename boost::is_const<LeftT>::type type;
+    };
+
+    template<typename MatrixT>
+    struct UseAsConst<Eigen::Map<MatrixT>>
+    {
+      typedef boost::mpl::true_ type;
+    };
+
+    typedef typename boost::mpl::if_<typename UseAsConst<LeftT>::type, Real, Real&>::type ScalarTypeT;
     typedef typename boost::mpl::if_c<is_vector, ScalarTypeT, typename LeftT::ConstRowXpr>::type subscript_result_type;
     typedef typename boost::mpl::and_<IsLoopingIdxT, boost::mpl::bool_<boost::remove_reference<DataT>::type::dimension == 1 && (LeftT::MaxRowsAtCompileTime > 1 || LeftT::MaxColsAtCompileTime > 1)> >::type IgnoreLoopingT;
     typedef typename boost::mpl::if_
@@ -323,6 +336,12 @@ struct MatrixSubscript :
     struct MatrixRef< Eigen::Transpose<MatrixT> >
     {
       typedef const Eigen::Transpose<MatrixT> type;
+    };
+
+    template<typename MatrixT>
+    struct MatrixRef< Eigen::Map<MatrixT> >
+    {
+      typedef const Eigen::Map<MatrixT> type;
     };
 
     /// Static dispatch through 2 versions of do_eval, in order to avoid compile errors
