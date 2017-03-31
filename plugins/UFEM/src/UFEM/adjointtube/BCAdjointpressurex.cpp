@@ -70,7 +70,8 @@ BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
 
 
     // set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (u[0]*U[0]) + (nu_eff*grad_Ux[0])-0.5*(transpose(u)*u)[0]-u[0]*u[0]));
-     set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (u[0]*U[0]) + (nu_eff*grad_Ux[0])-u[0]));
+     set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (u[0]*U[0]) + (nu_eff*grad_Ux[0])-u[0]*u[0]-0.5*(u[0]*u[0]+u[1]*u[1])));
+    //  set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (transpose(u)*U)[1] + (u[0]*U[0])+(u[1]*U[1]) + (nu_eff*grad_Ux[0])+(nu_eff*grad_Ux[1])-(u[0]*u[0])-(u[1]*u[1])-0.5*(u[0]*u[0]+u[1]*u[1])));
     //
     // -(m_turbulence*2*((epsilona*m_c_epsilon_1*m_c_mu*k)+(ka*k*k*m_c_mu/epsilon))*grad_ux[0])));
 

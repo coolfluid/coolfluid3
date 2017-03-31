@@ -59,6 +59,8 @@ list( APPEND coolfluid_ufem_files
   ComputeFluxFluid.cpp
   ComputeFluxSolid.hpp
   ComputeFluxSolid.cpp
+  EersteStap.hpp
+  EersteStap.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
   HeatCouplingRobinFluid.hpp
@@ -118,6 +120,8 @@ list( APPEND coolfluid_ufem_files
   SUPGFields.cpp
   Tags.hpp
   Tags.cpp
+  TweedeStap.hpp
+  TweedeStap.cpp
   UnsteadyAction.hpp
   UnsteadyAction.cpp
   VelocityGradient.hpp
