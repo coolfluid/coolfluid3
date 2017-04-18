@@ -58,8 +58,8 @@ BCSensUy::BCSensUy(const std::string& name) :
 
 
       options().add("n_y", m_n_y)
-        .pretty_name("Nx")
-        .description("Normal vector x component")
+        .pretty_name("Ny")
+        .description("Normal vector y component")
         .link_to(&m_n_y) //0 if frozen turbulence
         .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
 
@@ -68,10 +68,10 @@ BCSensUy::BCSensUy(const std::string& name) :
   FieldVariable<2, VectorField> grad_uy("grad_uy", "velocity_gradient");
 
 
-  // set_expression(nodes_expression(m_dirichlet(SensU)  = (transpose(grad_ux))));
+  //set_expression(nodes_expression(m_dirichlet(SensU[1])  = (grad_ux[1])));
   // Deze randvoorwaarde moet elementsgewijs gedefinieerd worden.
 
-  set_expression(nodes_expression(m_dirichlet(SensU[1])  = (grad_uy[0]*lit(m_n_x)+grad_uy[1]*lit(m_n_y))));
+  set_expression(nodes_expression(m_dirichlet(SensU[1])  = -(grad_uy[0]*lit(m_n_x)+grad_uy[1]*lit(m_n_y))));
 
   // detail::set_result(SensU, n, grad_ux,grad_uy)
 

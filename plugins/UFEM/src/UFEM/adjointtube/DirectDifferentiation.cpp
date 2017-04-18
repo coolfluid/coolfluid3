@@ -148,9 +148,7 @@ void DirectDifferentiation::trigger_assembly()
     elements_expression
     (
       boost::mpl::vector<
-          mesh::LagrangeP1::Triag2D,
-          mesh::LagrangeP1::Quad2D,
-          mesh::LagrangeP1::Tetra3D
+          mesh::LagrangeP1::Quad2D
           >(),
       group
       (
@@ -160,12 +158,13 @@ void DirectDifferentiation::trigger_assembly()
           (
                   _A(SensP    , SensU[_i]) += transpose(N(SensP) /*- tau_ps*u*nabla(q)*0.5*/) * nabla(SensU)[_i], //- tau_ps * transpose(nabla(q)[_i]) * u*nabla(U), // Standard continuity + PSPG for advection
                   _A(SensP    , SensP)     += tau_ps * transpose(nabla(SensP)) * nabla(SensP), // Continuity, PSPG
-                  _A(SensU[_i], SensU[_i]) += nu_eff * transpose(nabla(SensU)) * nabla(SensU) + transpose(N(u) - tau_su*u*nabla(SensU)) * u*nabla(SensU), // Diffusion + advection
-                  _A(SensU[_i], SensP)     += transpose(N(SensU) - tau_su*u*nabla(SensU)) * nabla(SensP)[_i], // Pressure gradient (standard and SUPG)
-                  _A(SensU[_i], SensU[_j]) += transpose(tau_bulk*nabla(SensU)[_i])* nabla(SensU)[_j]+ transpose(N(SensU))*N(SensU),//*partial(u[_i], _j)
+                  _A(SensU[_i], SensU[_i]) += nu_eff * transpose(nabla(SensU)) * nabla(SensU) + transpose(N(u) + tau_su*u*nabla(SensU)) * u*nabla(SensU), // Diffusion + advection
+                  _A(SensU[_i], SensP)     += transpose(N(SensU) + tau_su*u*nabla(SensU)) * nabla(SensP)[_i], // Pressure gradient (standard and SUPG)
+                  _A(SensU[_i], SensU[_j]) += transpose(tau_bulk*nabla(SensU)[_i])* nabla(SensU)[_j]+ transpose(N(SensU))*N(SensU)*_col(nabla(u)*nodal_values(u), _j)[_i],// + partial(u[_i],_j), // *(nabla(u)*partial(u[_i],_j)*transpose(nabla(u))),
+
                   _T(SensP    , SensU[_i]) += tau_ps * transpose(nabla(SensP)[_i]) * N(SensU), // Time, PSPG
-                  _T(SensU[_i], SensU[_i]) += transpose(N(SensU) - tau_su*u*nabla(SensU)) * N(SensU) // Time, standard and SUPG
-                  
+                  _T(SensU[_i], SensU[_i]) += transpose(N(SensU) + tau_su*u*nabla(SensU)) * N(SensU) // Time, standard and SUPG
+
           ),
         system_rhs += -_A * _x + _a,
         _A(SensP) = _A(SensP) / theta,

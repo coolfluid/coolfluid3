@@ -68,9 +68,10 @@ struct setresult
   void operator()(ResultFieldT& result_field, const NodalNormalT& n, const ElementIntegralT& ex, const ElementIntegralT& ey) const
   {
     typename ResultFieldT::ValueT nodal_values;
+
     for(int i = 0; i != ResultFieldT::ValueT::RowsAtCompileTime; ++i)
     {
-      nodal_values.row(i) = ((n.value().row(i)*RealVector2(ex,ey))/(n.value().row(i).norm()));
+      nodal_values.row(i) = ((n.value().row(i)*RealVector2(ex,ey)));///(n.value().row(i).norm()));
     }
 
     std::cout << "node normal values:\n" << n.value() << std::endl;

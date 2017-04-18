@@ -60,7 +60,22 @@ struct setnormal
     node_normals.col(0).setConstant(n[0]);
     node_normals.col(1).setConstant(n[1]);
     n_out.add_nodal_values(node_normals);
+    // node_normals.col(0).setConstant(n[0]/(sqrt(n[0]*n[0]+n[1]*n[1])));
+    // node_normals.col(1).setConstant(n[1]/(sqrt(n[0]*n[0]+n[1]*n[1])));
+    // n1.add_nodal_values(node_normals);
+
   }
+  // typedef void result_type_new;
+  //
+  // template<typename NormalT, typename NormalVectorsT>
+  // void operator()(const NormalT& n, NormalVectorsT& n1) const
+  // {
+  //   typename NormalVectorsT::ValueT node_normals;
+  //   node_normals.col(0).setConstant(n[0]/(sqrt(n[0]*n[0]+n[1]*n[1])));
+  //   node_normals.col(1).setConstant(n[1]/(sqrt(n[0]*n[0]+n[1]*n[1])));
+  //   n1.add_nodal_values(node_normals);
+
+
 };
 
 static MakeSFOp<setnormal>::type const set_normal = {};
@@ -73,6 +88,8 @@ TweedeStap::TweedeStap(const std::string& name) :
   m_zero_fields = create_component<ProtoAction>("ZeroFields");
 
   FieldVariable<0, VectorField> n_out("NodalNormal", "nodal_normals");
+  FieldVariable<1, VectorField> n1("NormalVector", "normal_vector");
+
   set_expression(elements_expression
   (
     boost::mpl::vector<mesh::LagrangeP1::Line2D>(),

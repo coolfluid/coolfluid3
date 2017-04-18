@@ -4,7 +4,7 @@ import numpy as np
 
 # Flow properties
 h = 1.# height of the inlet
-nu = 0.5 # viscosity
+nu = 0.005 # viscosity
 u_in = 2. # inlet velocity
 sa_visc = 5.0*nu # Spalart Allmaras viscosity
 
@@ -60,7 +60,7 @@ x_size = 12*h
 s_start = x_size/3.0
 s_end = 2.0*x_size/3.0
 x_segs1 = 10
-x_segs2 = 20
+x_segs2 = 50
 x_segs3 = x_segs1
 ungraded_h = float(y_segs)
 
@@ -240,7 +240,7 @@ model.print_timing_tree()
 # domain.write_mesh(outfile)
 
 # Adjoint oplossing
-time.end_time += 1300.0 * time.time_step/100 # add again the same number of steps as in the forward solution
+time.end_time += 10000.0 * time.time_step/100 # add again the same number of steps as in the forward solution
 
 probe1 = solver.add_probe(name = 'Probe', parent = ad_solver, dict = mesh.geometry)
 probe1.Log.variables = ['AdjVelocity[0]', 'AdjPressure']

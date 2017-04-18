@@ -33,7 +33,7 @@ public:
 
 
 private:
-  cf3::solver::actions::Proto::DirichletBC m_dirichlet;
+cf3::solver::actions::Proto::DirichletBC m_dirichlet;
   Real m_n_x = 0.0;
   Real m_n_y = 0.0;
 

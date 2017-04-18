@@ -44,7 +44,6 @@ using namespace solver::actions::Proto;
 using boost::proto::lit;
 
 common::ComponentBuilder < BCSensUx, common::Action, LibUFEMAdjointTube > BCSensUx_Builder;
-
 BCSensUx::BCSensUx(const std::string& name) :
   ProtoAction(name),
   m_dirichlet(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
@@ -58,8 +57,8 @@ BCSensUx::BCSensUx(const std::string& name) :
 
 
       options().add("n_y", m_n_y)
-        .pretty_name("Nx")
-        .description("Normal vector x component")
+        .pretty_name("Ny")
+        .description("Normal vector y component")
         .link_to(&m_n_y) //0 if frozen turbulence
         .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
 
@@ -71,7 +70,7 @@ BCSensUx::BCSensUx(const std::string& name) :
   // set_expression(nodes_expression(m_dirichlet(SensU)  = (transpose(grad_ux))));
   // Deze randvoorwaarde moet elementsgewijs gedefinieerd worden.
 
-  set_expression(nodes_expression(m_dirichlet(SensU[0])  = (grad_ux[0]*lit(m_n_x)+grad_ux[1]*lit(m_n_y))));
+  set_expression(nodes_expression(m_dirichlet(SensU[0])  = -(grad_ux[0]*lit(m_n_x)+grad_ux[1]*lit(m_n_y))));
   //set_expression(nodes_expression(m_dirichlet(SensU[1])  = (grad_uy[0])));//*n[0]+grad_uy[1]*n[1])));
 
   // detail::set_result(SensU, n, grad_ux,grad_uy)

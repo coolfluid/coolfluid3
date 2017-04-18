@@ -36,7 +36,7 @@ ad_solver.turbulence = 0.
 
 sensitivity_integral = solver.add_unsteady_solver('cf3.UFEM.EersteStap')
 
-dirdiff_solver = solver.add_unsteady_solver('cf3.UFEM.adjointtube.DirectDifferentiation')
+
 
 #sensitivity_integral.variable_name = 'SensDer'
 #sensitivity_integral.field_tag = 'sensitivity_derivative'
@@ -162,13 +162,13 @@ compute_normals.execute()
 sensitivity_integral.regions = [mesh.topology.access_component('bottom_curve').uri(),mesh.topology.access_component('bottom_straight').uri()]
 u_wall = [0., 0.]
 
-dirdiff_solver.regions = [mesh.topology.uri()]
+
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_wall
 # solver.InitialConditions.spalart_allmaras_solution.SAViscosity = sa_visc
 solver.InitialConditions.adjoint_solution.AdjVelocity = u_wall
-solver.InitialConditions.sensitivity_solution.SensU = u_wall
+
 
 #properties for Navier-Stokes
 physics.density = 1.2
@@ -222,13 +222,6 @@ bca.add_constant_component_bc(region_name = 'top', variable_name = 'AdjVelocity'
 # bc.add_constant_bc(region_name = 'bottom_curve', variable_name = 'SAViscosity').value = 0.
 # bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').value = 0.
 
-# Randvoorwaarden direct differentiation
-bcd = dirdiff_solver.BoundaryConditions
-bcd.add_constant_bc(region_name = 'inlet', variable_name = 'SensU').value =  [0.,0.]
-bcd.add_constant_bc(region_name = 'outlet', variable_name = 'SensP').value =  0.
-bc_dirdiff_p1 = bcd.create_bc_action(region_name = 'bottom_curve', builder_name = 'cf3.UFEM.adjointtube.BCSensU')
-bc_dirdiff_p2 = bcd.create_bc_action(region_name = 'bottom_straight', builder_name = 'cf3.UFEM.adjointtube.BCSensU')
-bc_dirdiff_p3 = bcd.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjointtube.BCSensU')
 
 # bc_adj_p4 = bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjointtube.BCSensP')
 # bc_adj_p4.turbulence = 0
@@ -247,7 +240,7 @@ writer.file = cf.URI('parab-out-sa-{iteration}.pvtu')
 # Time setup
 time = model.create_time()
 time.time_step = 0.01
-time.end_time = 1600.* time.time_step
+time.end_time = 2000.* time.time_step
 
 probe0 = solver.add_probe(name = 'Probe', parent = nstokes, dict = mesh.geometry)
 probe0.Log.variables = ['Velocity[0]', 'EffectiveViscosity']
@@ -257,7 +250,6 @@ probe0.History.file = cf.URI('parab-out-probe.tsv')
 # Run the simulation
 solver.TimeLoop.options.disabled_actions = ['AdjointTube']
 solver.TimeLoop.options.disabled_actions = ['EersteStap']
-solver.TimeLoop.options.disabled_actions = ['DirectDifferentiation']
 model.simulate()
 
 writer.file = cf.URI('parab-out-sa-end.pvtu')
@@ -269,7 +261,7 @@ model.print_timing_tree()
 # domain.write_mesh(outfile)
 
 # Adjoint oplossing
-time.end_time += 2000. * time.time_step/50 # add again the same number of steps as in the forward solution
+time.end_time += 10000. * time.time_step/50 # add again the same number of steps as in the forward solution
 
 probe1 = solver.add_probe(name = 'Probe', parent = ad_solver, dict = mesh.geometry)
 probe1.Log.variables = ['AdjVelocity[0]', 'AdjPressure']
@@ -279,7 +271,7 @@ probe1.History.file = cf.URI('parab-out-probe-adj.tsv')
 solver.TimeLoop.options.disabled_actions = ['NavierStokes'] # NS disabled, adjoint enabled
 solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
 solver.TimeLoop.options.disabled_actions = ['EersteStap']
-solver.TimeLoop.options.disabled_actions = ['DirectDifferentiation']
+
 
 model.simulate()
 
@@ -288,26 +280,13 @@ model.print_timing_tree()
 
 # sensitivity oplossing
 
-time.end_time += 1. * time.time_step # add again the same number of steps as in the forward solution
+time.end_time += 1. * time.time_step
 
 solver.TimeLoop.options.disabled_actions = ['AdjointTube']
 solver.TimeLoop.options.disabled_actions = ['NavierStokes'] # NS disabled, adjoint enabled
 solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
-solver.TimeLoop.options.disabled_actions = ['DirectDifferentiation']
+
 model.simulate()
 
 domain.write_mesh(cf.URI('parab-output-sens.pvtu'))
-model.print_timing_tree()
-
-# DirectDifferentiation oplossing
-time.end_time += 2000. * time.time_step/50
-
-solver.TimeLoop.options.disabled_actions = ['NavierStokes'] # NS disabled, adjoint enabled
-solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
-solver.TimeLoop.options.disabled_actions = ['EersteStap']
-solver.TimeLoop.options.disabled_actions = ['AdjointTube']
-
-model.simulate()
-
-domain.write_mesh(cf.URI('parab-output-dirdiff.pvtu'))
 model.print_timing_tree()

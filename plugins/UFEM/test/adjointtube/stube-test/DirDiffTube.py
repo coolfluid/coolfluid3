@@ -196,7 +196,7 @@ writer.fields = [cf.URI('/NavierStokes/Domain/Mesh/geometry/navier_stokes_soluti
 # Time setup
 time = model.create_time()
 time.time_step = 0.01
-time.end_time = 1.* time.time_step
+time.end_time = 2000.* time.time_step
 
 probe0 = solver.add_probe(name = 'Probe', parent = nstokes, dict = mesh.geometry)
 probe0.Log.variables = ['Velocity[0]', 'EffectiveViscosity']
@@ -221,7 +221,7 @@ bottom_conn = mesh.topology.bottom_curve.children["elements_cf3.mesh.LagrangeP1.
 for [start,end] in bottom_conn:
     interesting_points.append(start)
 
-bottom_conn = mesh.topology.bottom_curve.children["elements_cf3.mesh.LagrangeP1.Line2D"].spaces.geometry.children.connectivity
+bottom_conn = mesh.topology.bottom_straight.children["elements_cf3.mesh.LagrangeP1.Line2D"].spaces.geometry.children.connectivity
 for [start,end] in bottom_conn:
     interesting_points.append(start)
 
@@ -235,11 +235,17 @@ for p in interesting_points:
 
     bc_dirdiff_p1.n_x = n[0]/mag # genormaliseerde vector
     bc_dirdiff_p1.n_y = n[1]/mag
+    bc_dirdiff_p2.n_x = n[0]/mag # genormaliseerde vector
+    bc_dirdiff_p2.n_y = n[1]/mag
+    bc_dirdiff_p4.n_x = n[0]/mag # genormaliseerde vector
+    bc_dirdiff_p4.n_y = n[1]/mag
+    bc_dirdiff_p5.n_x = n[0]/mag # genormaliseerde vector
+    bc_dirdiff_p5.n_y = n[1]/mag
     print 'simulating for point', p, 'with normal x component', bc_dirdiff_p1.n_x
     print 'simulating for point', p, 'with normal y component', bc_dirdiff_p1.n_y
 
     # DirectDifferentiation oplossing
-    time.end_time += 1. * time.time_step/50
+    time.end_time += 500000. * time.time_step/50
 
     model.simulate()
 
