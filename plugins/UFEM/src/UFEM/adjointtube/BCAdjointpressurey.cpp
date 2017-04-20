@@ -66,8 +66,11 @@ BCAdjointpressurey::BCAdjointpressurey(const std::string& name) :
     FieldVariable<7, ScalarField> epsilon("epsilon", "ke_solution");
     FieldVariable<8, ScalarField> k("k", "ke_solution");
     FieldVariable<9, VectorField> grad_uy("grad_uy", "velocity_gradient");
+    FieldVariable<10,ScalarField> J("SensDer", "sensitivity_derivative");
+    FieldVariable<11, VectorField> grad_Ux("grad_Ux", "Adjvelocity_gradient");
 
-    set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (u[1]*U[1]) + (nu_eff*grad_Uy[1])-(m_turbulence*2*((epsilona*m_c_epsilon_1*m_c_mu*k)+(ka*k*k*m_c_mu/epsilon))*grad_uy[1])));
+    set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[1] + (u[1]*U[1]) + (nu_eff*grad_Ux[1])-u[1]/1.225)); //-0.5*(transpose(u)*u)[1]-u[1]*u[1]));
+    //-(m_turbulence*2*((epsilona*m_c_epsilon_1*m_c_mu*k)+(ka*k*k*m_c_mu/epsilon))*grad_uy[1])));
 
 
 

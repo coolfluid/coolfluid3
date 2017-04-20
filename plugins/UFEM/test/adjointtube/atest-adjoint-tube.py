@@ -29,7 +29,7 @@ solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add a concrete Navier-Stokes finite element solver
 ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
-ad_solver = solver.add_unsteady_solver('cf3.UFEM.adjointtube.Adjoint')
+ad_solver = solver.add_unsteady_solver('cf3.UFEM.adjointtube.AdjointTube')
 ad_solver.turbulence = 0.
 
 gradient1 = solver.add_unsteady_solver('cf3.UFEM.VelocityGradient')
