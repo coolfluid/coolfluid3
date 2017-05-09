@@ -62,7 +62,7 @@ struct setnormal
     n_out.add_nodal_values(node_normals);
     // node_normals.col(0).setConstant(n[0]/(sqrt(n[0]*n[0]+n[1]*n[1])));
     // node_normals.col(1).setConstant(n[1]/(sqrt(n[0]*n[0]+n[1]*n[1])));
-    // n1.add_nodal_values(node_normals);
+    // n_out.add_nodal_values(node_normals);
 
   }
   // typedef void result_type_new;

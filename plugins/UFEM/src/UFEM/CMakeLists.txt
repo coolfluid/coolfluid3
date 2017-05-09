@@ -61,6 +61,8 @@ list( APPEND coolfluid_ufem_files
   ComputeFluxSolid.cpp
   EersteStap.hpp
   EersteStap.cpp
+  GradPressureGradient.hpp
+  GradPressureGradient.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
   HeatCouplingRobinFluid.hpp
@@ -98,6 +100,8 @@ list( APPEND coolfluid_ufem_files
   NSResidual.cpp
   ParsedFunctionExpression.hpp
   ParsedFunctionExpression.cpp
+  PressureGradient.hpp
+  PressureGradient.cpp
   ScalarAdvection.cpp
   ScalarAdvection.hpp
   ScalarAdvectionCoupling.cpp
