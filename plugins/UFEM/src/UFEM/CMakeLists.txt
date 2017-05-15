@@ -94,6 +94,8 @@ list( APPEND coolfluid_ufem_files
   NavierStokesSpecializations.hpp
   NavierStokesPhysics.hpp
   NavierStokesPhysics.cpp
+  NormalizedNormals.hpp
+  NormalizedNormals.cpp
   NSResidual.hpp
   NSResidual.cpp
   ParsedFunctionExpression.hpp
