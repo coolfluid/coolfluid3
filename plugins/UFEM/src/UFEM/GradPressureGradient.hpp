@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_VelocityGradient_hpp
-#define cf3_UFEM_VelocityGradient_hpp
+#ifndef cf3_UFEM_GradPressureGradient_hpp
+#define cf3_UFEM_GradPressureGradient_hpp
 
 #include "InitialConditions.hpp"
 
@@ -17,15 +17,15 @@ namespace cf3 {
 namespace UFEM {
 
 /// Compute a field containing the velocity gradient tensor and the divergence
-class VelocityGradient : public solver::actions::Proto::ProtoAction
+class GradPressureGradient : public solver::actions::Proto::ProtoAction
 {
 public: // functions
   /// Contructor
   /// @param name of the component
-  VelocityGradient( const std::string& name );
+  GradPressureGradient( const std::string& name );
 
   /// Get the class name
-  static std::string type_name () { return "VelocityGradient"; }
+  static std::string type_name () { return "GradPressureGradient"; }
 
   virtual void execute();
 

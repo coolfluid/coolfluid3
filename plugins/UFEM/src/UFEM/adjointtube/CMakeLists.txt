@@ -14,8 +14,12 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjointtube
     BCAdjointpressurex.cpp
     BCAdjointpressurey.hpp
     BCAdjointpressurey.cpp
+    DirDiffSensP.hpp
+    DirDiffSensP.cpp
     RobinUt.cpp
     RobinUt.hpp
+    RobinSensU.cpp
+    RobinSensU.hpp
     LibUFEMAdjointTube.hpp
     LibUFEMAdjointTube.cpp
 

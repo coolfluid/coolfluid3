@@ -6,7 +6,7 @@ import numpy as np
 h = 1.# height of the inlet = 2*h, so 2 units in this case
 mu = 0.5
 nu = mu/1.2 # viscosity
-u_in = 2. # inlet velocity
+u_in = 2.083 # inlet velocity
 sa_visc = 5.0*nu # Spalart Allmaras viscosity
 
 # Some shortcuts
@@ -57,58 +57,67 @@ gradient2.options.velocity_tag = 'navier_stokes_solution'
 gradient2.options.gradient_name = 'u'
 
 # Generate mesh
-y_segs = 64 # number of segments in the y direction
-x_size = 12*h # length of the tube, so 12*1 units
-s_start = x_size/3.0 # beginning of the bend
-s_end = 2.0*x_size/3.0 # end of the bend
-x_segs1 = 20 # number of segments for the first straight part
-x_segs2 = 35 # number of segments for bend
-x_segs3 = x_segs1 # number of segments for the last straight part
+# Generate mesh
+y_segs = 64
+x_size = 12*h
+s_start = x_size/3.0
+s_mid = 1.5*x_size/3.0
+s_end = 2.0*x_size/3.0
+x_segs1 = 15
+x_segs2 = 15
+x_segs3 = x_segs1
 ungraded_h = float(y_segs)
 
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
-points = blocks.create_points(dimensions = 2, nb_points = 8)
+points = blocks.create_points(dimensions = 2, nb_points = 10)
 points[0] = [0.0, 0.0]
 points[1] = [s_start, 0.0]
 points[2] = [s_start, ungraded_h]
 points[3] = [0.0, ungraded_h]
-points[4] = [s_end, 0.0]
-points[5] = [s_end, ungraded_h]
-points[6] = [x_size, 0.0]
-points[7] = [x_size, ungraded_h]
+points[4] = [s_mid, 0.0]
+points[5] = [s_mid, ungraded_h]
+points[6] = [s_end, 0.0]
+points[7] = [s_end, ungraded_h]
+points[8] = [x_size, 0.0]
+points[9] = [x_size, ungraded_h]
 
-block_nodes = blocks.create_blocks(3)
+block_nodes = blocks.create_blocks(4)
 block_nodes[0] = [0, 1, 2, 3] # before bend
-block_nodes[1] = [1, 4, 5 ,2] # the bend
-block_nodes[2] = [4, 6, 7, 5] # after the bend
+block_nodes[1] = [1, 4, 5 ,2] # the bend left
+block_nodes[2] = [4, 6, 7, 5] # the bend right
+block_nodes[3] = [6, 8, 9, 7] # after bend
 
 block_subdivs = blocks.create_block_subdivisions()
 block_subdivs[0] = [x_segs1, y_segs]
 block_subdivs[1] = [x_segs2, y_segs]
-block_subdivs[2] = [x_segs3, y_segs]
+block_subdivs[2] = [x_segs2, y_segs]
+block_subdivs[3] = [x_segs3, y_segs]
 
 gradings = blocks.create_block_gradings()
 gradings[0] = [1., 1., 1., 1.]
-gradings[1] = [1., 1., 1., 1.]
-gradings[2] = [1., 1., 1., 1.]
+gradings[1] = [0.2, 0.2, 1., 1.]
+gradings[2] = [5.0, 5.0, 1., 1.]
+gradings[3] = [1., 1., 1., 1.]
 
 left_patch = blocks.create_patch_nb_faces(name = 'inlet', nb_faces = 1)
 left_patch[0] = [3, 0]
 
 bottom_patch = blocks.create_patch_nb_faces(name = 'bottom_straight', nb_faces = 2)
 bottom_patch[0] = [0, 1]
+bottom_patch[1] = [6, 8]
+
+bottom_patch = blocks.create_patch_nb_faces(name = 'bottom_curve', nb_faces = 2) # bend
+bottom_patch[0] = [1, 4]
 bottom_patch[1] = [4, 6]
 
-bottom_patch = blocks.create_patch_nb_faces(name = 'bottom_curve', nb_faces = 1) # bend
-bottom_patch[0] = [1, 4]
-
-top_patch = blocks.create_patch_nb_faces(name = 'top', nb_faces = 3)
-top_patch[0] = [7, 5]
-top_patch[1] = [5, 2]
-top_patch[2] = [2, 3]
+top_patch = blocks.create_patch_nb_faces(name = 'top', nb_faces = 4)
+top_patch[0] = [9, 7]
+top_patch[1] = [7, 5]
+top_patch[2] = [5, 2]
+top_patch[3] = [2, 3]
 
 right_patch = blocks.create_patch_nb_faces(name = 'outlet', nb_faces = 1)
-right_patch[0] = [6, 7]
+right_patch[0] = [8, 9]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
@@ -116,7 +125,7 @@ blocks.create_mesh(mesh.uri())
 coordmap = {}
 b = 0.975
 xi = np.linspace(-h, h, y_segs+1)
-y_graded = h/b * np.tanh(xi*np.arctanh(b))
+y_graded = h/b *np.tanh(xi*np.arctanh(b))
 
 coords = mesh.geometry.coordinates
 for i in range(len(coords)):
@@ -130,19 +139,17 @@ def curve_equation(x):
     return 0.0 # return 0.0
   if x > s_end:
     return -bend_height # return - bend_height
-  return bend_height*1.035*np.tanh(-x+6)/2-bend_height/2 # the bend follows a tanh law
+  return bend_height*1.035*np.tanh(-x+6)/2-bend_height/2 #(x-s_start) / (s_end-s_start)
 
 for i in range(len(coords)):
   old_y = coords[i][1]
   x = coords[i][0]
   coords[i][1] = curve_equation(x) + old_y
-#
-# compute_normals = domain.create_component('ComputeNormals','cf3.UFEM.TweedeStap')
-# compute_normals.mesh = mesh
-# compute_normals.regions = [mesh.topology.access_component('bottom_curve').uri()]#,mesh.topology.access_component('bottom_straight').uri()]
-# compute_normals.execute()
-# domain.write_mesh(cf.URI('mesh-input.pvtu'))
+
+coords[2938][1] = coords[2938][1] - 0.0001
+# domain.write_mesh(cf.URI("meshed.pvtu"))
 # exit()
+
 
 # Because of multi-region support, solvers do not automatically have a region assigned, so we must manually set the solvers to work on the whole mesh
 nstokes.regions = [mesh.topology.uri()]
@@ -154,9 +161,10 @@ gradient2.regions = [mesh.topology.uri()]
 
 compute_normals = domain.create_component('ComputeNormals','cf3.UFEM.TweedeStap')
 compute_normals.mesh = mesh
-compute_normals.regions = [mesh.topology.access_component('bottom_curve').uri(),mesh.topology.access_component('bottom_straight').uri()]
+compute_normals.regions = [mesh.topology.access_component('bottom_curve').uri(),mesh.topology.access_component('bottom_straight').uri(),mesh.topology.access_component('inlet').uri()]
 compute_normals.execute()
-
+# domain.write_mesh(cf.URI("meshed.pvtu"))
+# exit()
 # Regios direct differentiation definieren
 # DirDiff.regions = [mesh.topology.access_component('bottom_curve').uri(),mesh.topology.access_component('bottom_straight').uri()]
 sensitivity_integral.regions = [mesh.topology.access_component('bottom_curve').uri(),mesh.topology.access_component('bottom_straight').uri()]
@@ -210,11 +218,7 @@ bc_adj_p1.turbulence = 0
 bc_adj_u0 = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjointtube.RobinUt')
 bc_adj_u0.u_index1 = 1
 # bca.add_constant_component_bc(region_name = 'outlet', variable_name = 'AdjVelocity', component =1).value = 0.
-# bca.add_constant_component_bc(region_name = 'inlet', variable_name = 'AdjVelocity', component =1).value = 0.
-# bca.add_constant_component_bc(region_name = 'outlet', variable_name = 'AdjPressure').value = 0.0
-bca.add_constant_component_bc(region_name = 'bottom_curve', variable_name = 'AdjVelocity', component =1).value = 0.
-bca.add_constant_component_bc(region_name = 'bottom_straight', variable_name = 'AdjVelocity', component =1).value = 0.
-bca.add_constant_component_bc(region_name = 'top', variable_name = 'AdjVelocity', component =1).value = 0.
+
 # Spalart Allmaras randvoorwaarden
 # bc = satm.children.BoundaryConditions
 # bc.add_function_bc(region_name = 'inlet', variable_name = 'SAViscosity').value = ['{sa_visc}*(1-(y)^2)'.format(sa_visc=sa_visc)]
@@ -240,16 +244,15 @@ writer.file = cf.URI('parab-out-sa-{iteration}.pvtu')
 # Time setup
 time = model.create_time()
 time.time_step = 0.01
-time.end_time = 2000.* time.time_step
+time.end_time = 500.* time.time_step
 
 probe0 = solver.add_probe(name = 'Probe', parent = nstokes, dict = mesh.geometry)
-probe0.Log.variables = ['Velocity[0]', 'EffectiveViscosity']
+probe0.Log.variables = ['Velocity[0]', 'Pressure']
 probe0.coordinate = [s_end, 0.0]
 probe0.History.file = cf.URI('parab-out-probe.tsv')
 
 # Run the simulation
-solver.TimeLoop.options.disabled_actions = ['AdjointTube']
-solver.TimeLoop.options.disabled_actions = ['EersteStap']
+solver.TimeLoop.options.disabled_actions = ['AdjointTube', 'EersteStap']
 model.simulate()
 
 writer.file = cf.URI('parab-out-sa-end.pvtu')
@@ -261,16 +264,16 @@ model.print_timing_tree()
 # domain.write_mesh(outfile)
 
 # Adjoint oplossing
-time.end_time += 10000. * time.time_step/50 # add again the same number of steps as in the forward solution
+# time.time_step = 0.001
+time.end_time += 500. * time.time_step # add again the same number of steps as in the forward solution
 
 probe1 = solver.add_probe(name = 'Probe', parent = ad_solver, dict = mesh.geometry)
 probe1.Log.variables = ['AdjVelocity[0]', 'AdjPressure']
 probe1.coordinate = [s_end, 0.0]
 probe1.History.file = cf.URI('parab-out-probe-adj.tsv')
 
-solver.TimeLoop.options.disabled_actions = ['NavierStokes'] # NS disabled, adjoint enabled
+solver.TimeLoop.options.disabled_actions = ['NavierStokes', 'EersteStap'] # NS disabled, adjoint enabled
 solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
-solver.TimeLoop.options.disabled_actions = ['EersteStap']
 
 
 model.simulate()
@@ -282,8 +285,7 @@ model.print_timing_tree()
 
 time.end_time += 1. * time.time_step
 
-solver.TimeLoop.options.disabled_actions = ['AdjointTube']
-solver.TimeLoop.options.disabled_actions = ['NavierStokes'] # NS disabled, adjoint enabled
+solver.TimeLoop.options.disabled_actions = ['AdjointTube', 'NavierStokes']
 solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
 
 model.simulate()

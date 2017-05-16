@@ -71,7 +71,8 @@ struct setresult
 
     for(int i = 0; i != ResultFieldT::ValueT::RowsAtCompileTime; ++i)
     {
-      nodal_values.row(i) = ((n.value().row(i)*RealVector2(ex,ey)));///(n.value().row(i).norm()));
+      nodal_values.row(i) = ((n.value().row(i)*RealVector2(ex,ey)))/(n.value().row(i).norm());
+      std::cout << "node normal values:\n" << n.value().row(i)/(n.value().row(i).norm()) << std::endl;
     }
 
     std::cout << "node normal values:\n" << n.value() << std::endl;
@@ -150,8 +151,8 @@ void EersteStap::trigger_setup()
     // inaal wordt de vector (1x2), [(grad_Ux[0]*normal[0]*grad_Ux[1]*normal[1])*grad_ux[0] + (grad_Uy[0]*normal[0]*grad_Uy[1]*normal[1])*grad_uy[0]  ]
     // 2 de deel wordt: [(grad_Ux[0]*normal[0]*grad_Ux[1]*normal[1])*grad_ux[1] + (grad_Uy[0]*normal[0]*grad_Uy[1]*normal[1])*grad_uy[1]  ]
 
-    detail::set_result(J, n, integral<2>(-(nu*grad_Ux[0]*n[0]+nu*grad_Ux[1]*n[1]-q*n[0])*grad_ux[0] - (nu*grad_Uy[0]*n[0]+nu*grad_Uy[1]*n[1]-q*n[1])*grad_uy[0]),
-    integral<2>(-(nu*grad_Ux[0]*n[0]+nu*grad_Ux[1]*n[1]-q*n[0])*grad_ux[1] - (nu*grad_Uy[0]*n[0]+nu*grad_Uy[1]*n[1]-q*n[1])*grad_uy[1]))
+    detail::set_result(J, n, integral<2>((-(nu*grad_Ux[0]*normal[0]+nu*grad_Ux[1]*normal[1]-q*normal[0])*grad_ux[0] - (nu*grad_Uy[0]*normal[0]+nu*grad_Uy[1]*normal[1]-q*normal[1])*grad_uy[0])*_norm(normal)),
+    integral<2>((-(nu*grad_Ux[0]*normal[0]+nu*grad_Ux[1]*normal[1]-q*normal[0])*grad_ux[1] - (nu*grad_Uy[0]*normal[0]+nu*grad_Uy[1]*n[1]-q*normal[1])*grad_uy[1])*_norm(normal)))
     //detail::set_result(J, n, integral<2>(grad_Ux[0]),integral<2>(grad_Ux[0]))
     // detail::set_result(J, n, integral<2> (transpose(u)*U),integral<2> ((transpose(u)*U)))
 

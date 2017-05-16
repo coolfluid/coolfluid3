@@ -1,12 +1,10 @@
 import coolfluid as cf
-import math
 from math import pi
-from math import sqrt
 import numpy as np
 
 # Flow properties
 h = 1.# height of the inlet = 2*h, so 2 units in this case
-mu = 0.005
+mu = 0.5
 nu = mu/1.2 # viscosity
 u_in = 2.083 # inlet velocity
 sa_visc = 5.0*nu # Spalart Allmaras viscosity
@@ -30,16 +28,27 @@ solver = model.create_solver('cf3.UFEM.Solver')
 
 # Add the Navier-Stokes solver as an unsteady solver
 nstokes = solver.add_unsteady_solver('cf3.UFEM.NavierStokes')
+# De adjoint oplosser toevoegen
+# ad_solver = solver.add_unsteady_solver('cf3.UFEM.adjointtube.AdjointTube')
+# ad_solver.turbulence = 0.
+# Toevoegen van direct differentiation solver, SensU en SensP te berekenen
 
-#satm = solver.add_unsteady_solver('cf3.UFEM.SpalartAllmaras')
 
-dirdiff_solver = solver.add_unsteady_solver('cf3.UFEM.adjointtube.DirectDifferentiation')
+sensitivity_integral = solver.add_unsteady_solver('cf3.UFEM.EersteStap')
 
-gradient1 = solver.add_unsteady_solver('cf3.UFEM.PressureGradient')
-gradient1.options.gradient_tag = 'pressure_gradient'
-gradient1.options.pressure_variable = 'Pressure'
-gradient1.options.pressure_tag = 'navier_stokes_solution'
-gradient1.options.gradient_name = 'p'
+
+
+#sensitivity_integral.variable_name = 'SensDer'
+#sensitivity_integral.field_tag = 'sensitivity_derivative'
+# Add the Spalart-Allmaras turbulence model
+# satm = solver.add_unsteady_solver('cf3.UFEM.SpalartAllmaras')
+
+
+gradient1 = solver.add_unsteady_solver('cf3.UFEM.VelocityGradient')
+gradient1.options.gradient_tag = 'Adjvelocity_gradient'
+gradient1.options.velocity_variable = 'AdjVelocity'
+gradient1.options.velocity_tag = 'adjoint_solution'
+gradient1.options.gradient_name = 'U'
 
 gradient2 = solver.add_unsteady_solver('cf3.UFEM.VelocityGradient')
 gradient2.options.gradient_tag = 'velocity_gradient'
@@ -47,13 +56,7 @@ gradient2.options.velocity_variable = 'Velocity'
 gradient2.options.velocity_tag = 'navier_stokes_solution'
 gradient2.options.gradient_name = 'u'
 
-# gradient3 = solver.add_unsteady_solver('cf3.UFEM.GradPressureGradient')
-# gradient3.options.gradient_tag = 'gradient_pressure_gradient'
-# gradient3.options.gradp_variable = 'grad_p'
-# gradient3.options.gradp_tag = 'navier_stokes_solution'
-# gradient3.options.gradient_name = 'grad_p'
-
-
+# Generate mesh
 # Generate mesh
 y_segs = 64
 x_size = 12*h
@@ -143,30 +146,31 @@ for i in range(len(coords)):
   x = coords[i][0]
   coords[i][1] = curve_equation(x) + old_y
 
-# domain.write_mesh(cf.URI("meshed.pvtu"))
-# exit()
 # Because of multi-region support, solvers do not automatically have a region assigned, so we must manually set the solvers to work on the whole mesh
 nstokes.regions = [mesh.topology.uri()]
-# ad_solver.regions = [mesh.topology.uri()] # voor de adjoint oplossing uit comment plaatsen
-#satm.regions = [mesh.topology.uri()]
+ad_solver.regions = [mesh.topology.uri()] # voor de adjoint oplossing uit comment plaatsen
+# satm.regions = [mesh.topology.uri()]
 gradient1.regions = [mesh.topology.uri()]
-
 gradient2.regions = [mesh.topology.uri()]
-# gradient3.regions = [mesh.topology.uri()]
+
 
 compute_normals = domain.create_component('ComputeNormals','cf3.UFEM.TweedeStap')
 compute_normals.mesh = mesh
-compute_normals.regions = [mesh.topology.access_component('bottom_curve').uri(),mesh.topology.access_component('bottom_straight').uri(),mesh.topology.access_component('outlet').uri()]
+compute_normals.regions = [mesh.topology.access_component('bottom_curve').uri(),mesh.topology.access_component('bottom_straight').uri()]
 compute_normals.execute()
 
+# Regios direct differentiation definieren
+# DirDiff.regions = [mesh.topology.access_component('bottom_curve').uri(),mesh.topology.access_component('bottom_straight').uri()]
+sensitivity_integral.regions = [mesh.topology.access_component('bottom_curve').uri(),mesh.topology.access_component('bottom_straight').uri()]
 u_wall = [0., 0.]
 
-dirdiff_solver.regions = [mesh.topology.uri()]
+
 
 #initial conditions
 solver.InitialConditions.navier_stokes_solution.Velocity = u_wall
-solver.InitialConditions.sensitivity_solution.SensU = u_wall
-#solver.InitialConditions.spalart_allmaras_solution.SAViscosity = sa_visc
+# solver.InitialConditions.spalart_allmaras_solution.SAViscosity = sa_visc
+solver.InitialConditions.adjoint_solution.AdjVelocity = u_wall
+
 
 #properties for Navier-Stokes
 physics.density = 1.2
@@ -192,101 +196,62 @@ bot_bc.value =  u_wall
 bot_bc.regions = [mesh.topology.bottom_straight.uri(), mesh.topology.bottom_curve.uri()]
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value =  u_wall
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').value = 0.0
+# bc.add_constant_component_bc(region_name = 'outlet', variable_name = 'Velocity', component =1).value = 0. # tangentiele snelheid uitlaat 0 stellen
 
-# Randvoorwaarden direct differentiation
-bcd = dirdiff_solver.BoundaryConditions
-bcd.add_constant_bc(region_name = 'inlet', variable_name = 'SensU').value =  [0.,0.]
-bcd.add_constant_bc(region_name = 'outlet', variable_name = 'SensP').value =  0.
-bcd.add_constant_bc(region_name = 'inlet', variable_name = 'SensP').value =  0.
-bc_dirdiff_p1 = bcd.create_bc_action(region_name = 'bottom_curve', builder_name = 'cf3.UFEM.adjointtube.BCSensUx')
-bc_dirdiff_p2 = bcd.create_bc_action(region_name = 'bottom_straight', builder_name = 'cf3.UFEM.adjointtube.BCSensUx')
 
-bc_dirdiff_p4 = bcd.create_bc_action(region_name = 'bottom_curve', builder_name = 'cf3.UFEM.adjointtube.BCSensUy')
-bc_dirdiff_p5 = bcd.create_bc_action(region_name = 'bottom_straight', builder_name = 'cf3.UFEM.adjointtube.BCSensUy')
+bca = ad_solver.BoundaryConditions
+bca.add_function_bc(region_name = 'inlet', variable_name = 'AdjVelocity').value =  ['{u_in}*(1-(y)^2)'.format(u_in=u_in), '0']
 
-# randvoorwaarde uitlaat voor de Sensitivities Pressure
-# bc_dirdiff_p6 = bcd.create_bc_action(region_name = 'bottom_curve, builder_name = 'cf3.UFEM.adjointtube.DirDiffSensP')
-# bc_dirdiff_p7 = bcd.create_bc_action(region_name = 'bottom_straigh, builder_name = 'cf3.UFEM.adjointtube.DirDiffSensP')
-
-bc_dirdiff_p8 = bcd.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjointtube.RobinSensU')
-
-#Spalart Allmaras randvoorwaarden
+bca.add_constant_bc(region_name = 'bottom_straight', variable_name = 'AdjVelocity').value =  u_wall
+bca.add_constant_bc(region_name = 'bottom_curve', variable_name = 'AdjVelocity').value =  u_wall
+bca.add_constant_bc(region_name = 'top', variable_name = 'AdjVelocity').value =  u_wall
+bc_adj_p1 = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjointtube.BCAdjointpressurex')
+bc_adj_p1.turbulence = 0
+# bc_adj_p2 = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjointtube.BCAdjointpressurey')
+# bc_adj_p2.turbulence = 0
+bc_adj_u0 = bca.create_bc_action(region_name = 'outlet', builder_name = 'cf3.UFEM.adjointtube.RobinUt')
+bc_adj_u0.u_index1 = 1
+# bca.add_constant_component_bc(region_name = 'outlet', variable_name = 'AdjVelocity', component =1).value = 0.
+# bca.add_constant_component_bc(region_name = 'inlet', variable_name = 'AdjVelocity', component =1).value = 0.
+# bca.add_constant_component_bc(region_name = 'outlet', variable_name = 'AdjPressure').value = 0.0
+# bca.add_constant_component_bc(region_name = 'bottom_curve', variable_name = 'AdjVelocity', component =1).value = 0.
+# bca.add_constant_component_bc(region_name = 'bottom_straight', variable_name = 'AdjVelocity', component =1).value = 0.
+# bca.add_constant_component_bc(region_name = 'top', variable_name = 'AdjVelocity', component =1).value = 0.
+# Spalart Allmaras randvoorwaarden
 # bc = satm.children.BoundaryConditions
 # bc.add_function_bc(region_name = 'inlet', variable_name = 'SAViscosity').value = ['{sa_visc}*(1-(y)^2)'.format(sa_visc=sa_visc)]
 # bc.add_constant_bc(region_name = 'bottom_straight', variable_name = 'SAViscosity').value = 0.
 # bc.add_constant_bc(region_name = 'bottom_curve', variable_name = 'SAViscosity').value = 0.
 # bc.add_constant_bc(region_name = 'top', variable_name = 'SAViscosity').value = 0.
-# Setup a time series write
-# write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
-# write_manager.interval = 200
-# writer = write_manager.create_component('VTKWriter', 'cf3.mesh.VTKXML.Writer')
-# writer.mesh = mesh
-# #writer.fields = [cf.URI('/NavierStokes/Domain/Mesh/geometry/navier_stokes_solution'), cf.URI('/NavierStokes/Domain/Mesh/geometry/spalart_allmaras_solution'), cf.URI('/NavierStokes/Domain/Mesh/geometry/velocity_gradient')]
-# writer.fields = [cf.URI('/NavierStokes/Domain/Mesh/geometry/navier_stokes_solution'), cf.URI('/NavierStokes/Domain/Mesh/geometry/velocity_gradient')]
-#
-# writer.file = cf.URI('parab-out-sa-{iteration}.pvtu')
 
-writer = domain.create_component('VTKWriter', 'cf3.mesh.VTKXML.Writer')
+
+# bc_adj_p4 = bca.create_bc_action(region_name = 'top', builder_name = 'cf3.UFEM.adjointtube.BCSensP')
+# bc_adj_p4.turbulence = 0
+# Solver setup
+
+# Setup a time series write
+write_manager = solver.add_unsteady_solver('cf3.solver.actions.TimeSeriesWriter')
+write_manager.interval = 200
+writer = write_manager.create_component('VTKWriter', 'cf3.mesh.VTKXML.Writer')
 writer.mesh = mesh
+#writer.fields = [cf.URI('/NavierStokes/Domain/Mesh/geometry/navier_stokes_solution'), cf.URI('/NavierStokes/Domain/Mesh/geometry/spalart_allmaras_solution'), cf.URI('/NavierStokes/Domain/Mesh/geometry/velocity_gradient')]
 writer.fields = [cf.URI('/NavierStokes/Domain/Mesh/geometry/navier_stokes_solution'), cf.URI('/NavierStokes/Domain/Mesh/geometry/velocity_gradient')]
+
+writer.file = cf.URI('parab-out-sa-{iteration}.pvtu')
 
 # Time setup
 time = model.create_time()
 time.time_step = 0.01
-time.end_time = 100.* time.time_step
+time.end_time = 5000.* time.time_step
 
 probe0 = solver.add_probe(name = 'Probe', parent = nstokes, dict = mesh.geometry)
-probe0.Log.variables = ['Velocity[0]', 'EffectiveViscosity']
+probe0.Log.variables = ['Velocity[0]', 'Pressure']
 probe0.coordinate = [s_end, 0.0]
-probe0.History.file = cf.URI('parab-out-probe-dirdiff.tsv')
+probe0.History.file = cf.URI('parab-out-probe.tsv')
 
 # Run the simulation
-solver.TimeLoop.options.disabled_actions = ['AdjointTube', 'EersteStap', 'DirectDifferentiation']
+solver.TimeLoop.options.disabled_actions = ['AdjointTube', 'EersteStap']
 model.simulate()
-model.print_timing_tree()
 
-writer.file = cf.URI('parab-out-dirdiff-end.pvtu')
+writer.file = cf.URI('parab-out-sa-end.pvtu')
 writer.execute()
-
-solver.TimeLoop.options.disabled_actions = ['NavierStokes', 'EersteStap', 'AdjointTube'] # NS disabled, adjoint enabled
-solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
-
-mesh.print_tree()
-
-interesting_points = []
-bottom_conn = mesh.topology.bottom_curve.children["elements_cf3.mesh.LagrangeP1.Line2D"].spaces.geometry.children.connectivity
-for [start,end] in bottom_conn:
-    interesting_points.append(start)
-
-bottom_conn = mesh.topology.bottom_straight.children["elements_cf3.mesh.LagrangeP1.Line2D"].spaces.geometry.children.connectivity
-for [start,end] in bottom_conn:
-    interesting_points.append(start)
-
-normals_field = mesh.geometry.NodalNormal
-
-for p in interesting_points:
-
-    n = normals_field[p]
-    mag = sqrt(n[0]*n[0]+n[1]*n[1]) # magnitude of the vector
-    print 'simulating for point', p, 'with normal', n
-
-    bc_dirdiff_p1.n_x = n[0]/mag # genormaliseerde vector
-    bc_dirdiff_p1.n_y = n[1]/mag
-    bc_dirdiff_p2.n_x = n[0]/mag # genormaliseerde vector
-    bc_dirdiff_p2.n_y = n[1]/mag
-    bc_dirdiff_p4.n_x = n[0]/mag # genormaliseerde vector
-    bc_dirdiff_p4.n_y = n[1]/mag
-    bc_dirdiff_p5.n_x = n[0]/mag # genormaliseerde vector
-    bc_dirdiff_p5.n_y = n[1]/mag
-    print 'simulating for point', p, 'with normal x component', bc_dirdiff_p1.n_x
-    print 'simulating for point', p, 'with normal y component', bc_dirdiff_p1.n_y
-
-    # DirectDifferentiation oplossing
-    time = model.create_time()
-    time.time_step = 0.01
-    time.end_time += 100. * time.time_step
-
-    model.simulate()
-
-    domain.write_mesh(cf.URI('parab-output-dirdiff-{p}.pvtu'.format(p=p)))
-    model.print_timing_tree()

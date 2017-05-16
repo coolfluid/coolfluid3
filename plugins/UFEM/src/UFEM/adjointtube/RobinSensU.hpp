@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_RobinUt_hpp
-#define cf3_UFEM_RobinUt_hpp
+#ifndef cf3_UFEM_RobinSensU_hpp
+#define cf3_UFEM_RobinSensU_hpp
 
 
 #include "solver/Action.hpp"
@@ -26,18 +26,18 @@ namespace adjointtube{
 /// The "gradient_region" option determines the region in which the temperature gradient is calculated
 /// The "lss" option determines the linear system to which the boundary condition is applied
 /// The "temperature_field_tag" option determines the tag to use when looking for the temperature field
-class UFEM_API RobinUt : public solver::Action
+class UFEM_API RobinSensU : public solver::Action
 {
 public:
 
   /// Contructor
   /// @param name of the component
-  RobinUt ( const std::string& name );
+  RobinSensU ( const std::string& name );
 
-  virtual ~RobinUt();
+  virtual ~RobinSensU();
 
   /// Get the class name
-  static std::string type_name () { return "RobinUt"; }
+  static std::string type_name () { return "RobinSensU"; }
 
   /// Execute the control of heat transfer coefficient usage (dynamic or static)
   virtual void execute();
@@ -46,7 +46,7 @@ private:
   /// Called when the boundary regions are set
   virtual void on_regions_set();
 
-  
+
   Handle<math::LSS::System> m_lss;
   cf3::solver::actions::Proto::SystemRHS system_rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;

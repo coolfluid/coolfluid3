@@ -25,7 +25,7 @@
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/Line.hpp"
 
-#include "RobinUt.hpp"
+#include "RobinSensU.hpp"
 #include "../AdjacentCellToFace.hpp"
 #include "../Tags.hpp"
 
@@ -44,14 +44,50 @@ using namespace solver::actions::Proto;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < RobinUt, common::Action, LibUFEMAdjointTube > RobinUt_Builder;
+common::ComponentBuilder < RobinSensU, common::Action, LibUFEMAdjointTube > RobinSensU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 using boost::proto::lit;
 
+namespace detail
+{
 
-RobinUt::RobinUt(const std::string& name) :
+struct ComputeDivn
+{
+  typedef Real result_type;
+
+  template<typename NodalNormalT>
+  Real operator()(const NodalNormalT& n) const
+  {
+    const RealVector1 mapped_coords(0.0); // xi
+    typedef typename NodalNormalT::EtypeT EtypeT;
+    typename EtypeT::SF::GradientT mapped_gradient_matrix;
+    std::cout << "n:" << n.value() << std::endl;
+    auto normalized_n = n.value();
+    normalized_n.row(0) /= normalized_n.row(0).norm();
+    normalized_n.row(1) /= normalized_n.row(1).norm();
+    std::cout << "normalized n:" << normalized_n << std::endl;
+    std::cout << "mapped gradient matrix:" << mapped_gradient_matrix << std::endl;
+    EtypeT::SF::compute_gradient(mapped_coords, mapped_gradient_matrix);
+    //const auto d_n_d_xi = mapped_gradient_matrix*normalized_n; // [dnx/dxi dny/dxi]
+    const auto d_n_d_xi_0 = mapped_gradient_matrix[0]; // [dnx/dxi dny/dxi]
+    const auto d_n_d_xi_1 = mapped_gradient_matrix[1];
+    std::cout << "Dn / Dxi:" << d_n_d_xi_0 << std::endl;
+    const auto jacobian = n.support().jacobian(mapped_coords);
+    std::cout << "jacobiaan:" << jacobian << std::endl;
+    const auto Res1 = d_n_d_xi_0 / jacobian[0];
+    std::cout << "1ste term:" << Res1 << std::endl;
+    return  d_n_d_xi_1 / jacobian[1];
+
+  }
+};
+
+static MakeSFOp<ComputeDivn>::type const divn = {};
+
+}
+
+RobinSensU::RobinSensU(const std::string& name) :
   Action(name),
   system_rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
@@ -60,13 +96,6 @@ RobinUt::RobinUt(const std::string& name) :
 
 
 {
-    options().add("u_index1", m_u_index1)
-      .pretty_name("first tangential component")
-      .description("first tangential component")
-      .link_to(&m_u_index1)
-      .mark_basic();
-
-
 
    const auto dimension = make_lambda([](const RealVector& u)
    {
@@ -83,10 +112,9 @@ RobinUt::RobinUt(const std::string& name) :
     auto robincondition = create_static_component<ProtoAction>("Robincondition");
 
     // Represents the temperature field, as calculated
-    FieldVariable<0, VectorField> U("AdjVelocity","adjoint_solution");
-    FieldVariable<1, VectorField> u("Velocity", "navier_stokes_solution");
-    FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity","navier_stokes_viscosity");
-    FieldVariable<3, ScalarField> q("AdjPressure","adjoint_solution");
+    FieldVariable<0, VectorField> SensU("SensU","sensitivity_solution");
+    FieldVariable<1, ScalarField> SensP("SensP","sensitivity_solution");
+    FieldVariable<2, VectorField> n("NodalNormal", "nodal_normals");
 
         robincondition->set_expression(elements_expression
         (
@@ -95,11 +123,10 @@ RobinUt::RobinUt(const std::string& name) :
                              >(), // Valid for surface element types
          group
          (
-         _A(U) = _0, _A(q) = _0,
+         _A(SensU) = _0, _A(SensP) = _0,
          //compute_tau.apply(lit(tau_su))
-         _A(U[lit(m_u_index1)],U[lit(m_u_index1)]) = integral<2>(transpose(N(U)-_norm(normal)*u[0]*nabla(U))*N(U)*(u*normal)[0]/nu_eff),// p 39 paper Pierre
-       // integral<2>(transpose(N(U)- _norm(normal)*u*nabla(U))*N(U)*(u*normal)[0]/nu_eff),
-        //  transpose(N(U) - tau_su*u*nabla(U))
+         _A(SensU[_i],SensU[_i]) = integral<2>(transpose(N(SensU))*N(SensU)*detail::divn(n)*_norm(normal)),//
+         //
                 system_matrix+=_A,
                 system_rhs += -_A*_x
         )));
@@ -108,12 +135,12 @@ RobinUt::RobinUt(const std::string& name) :
 
 }
 
-RobinUt::~RobinUt()
+RobinSensU::~RobinSensU()
 {
 }
 
 
-void RobinUt::on_regions_set()
+void RobinSensU::on_regions_set()
 {
   get_child("Robincondition")->options().set("regions", options()["regions"].value());
 
@@ -122,7 +149,7 @@ void RobinUt::on_regions_set()
 
 
 
-void RobinUt::execute(){
+void RobinSensU::execute(){
 
     Handle<ProtoAction> robincondition(get_child("Robincondition"));
     robincondition->execute();
