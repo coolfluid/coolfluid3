@@ -1459,7 +1459,11 @@ void MeshAdaptor::combine_mesh(const Mesh& other_mesh)
     {
       if ( is_null (dict->get_child(other_field->name())) )
       {
-        dict->create_field(other_field->name(),other_field->descriptor().description());
+        Field& new_field = dict->create_field(other_field->name(),other_field->descriptor().description());
+        for(const auto& tag : other_field->get_tags())
+        {
+          new_field.add_tag(tag);
+        }
       }
     }
 
