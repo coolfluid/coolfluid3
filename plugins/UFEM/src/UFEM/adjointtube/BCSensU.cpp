@@ -49,33 +49,42 @@ BCSensU::BCSensU(const std::string& name) :
   ProtoAction(name),
   m_dirichlet(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
 {
-
-    options().add("turbulence", m_turbulence)
-      .pretty_name("Adjoint of Adjoint ke")
-      .description("Adjoint of Adjoint ke")
-      .link_to(&m_turbulence) //0 if frozen turbulence
-      .mark_basic(); // is this is enabled, the option can be accessed directly from Python, otherwise .options is needed
-
-
   FieldVariable<0, VectorField> grad_ux("grad_ux", "velocity_gradient");
   FieldVariable<1, VectorField> SensU("SensU", "sensitivity_solution");
   FieldVariable<2, VectorField> grad_uy("grad_uy", "velocity_gradient");
   FieldVariable<3, VectorField> n("NodalNormal", "nodal_normals");
+  FieldVariable<4, ScalarField> node_filter("node_filter", "node_filter");
 
 
-  // set_expression(nodes_expression(m_dirichlet(SensU)  = (transpose(grad_ux))));
-  // Deze randvoorwaarde moet elementsgewijs gedefinieerd worden.
+  set_expression(nodes_expression(group
+  (
+    m_dirichlet(SensU[0])  = -(grad_ux[0]*n[0] + grad_ux[1]*n[1])*node_filter,
+    m_dirichlet(SensU[1])  = -(grad_uy[0]*n[0] + grad_uy[1]*n[1])*node_filter
+  )));
 
-  set_expression(nodes_expression(m_dirichlet(SensU[0])  = (grad_ux[0])));//*n[0]+grad_ux[1]*n[1])));
-  //set_expression(nodes_expression(m_dirichlet(SensU[1])  = (grad_uy[0])));//*n[0]+grad_uy[1]*n[1])));
+  // FieldVariable<0, VectorField> grad_ux2x("grad_ux2x", "ux_hessian");
+  // FieldVariable<1, VectorField> grad_ux2y("grad_ux2y", "ux_hessian");
+  // FieldVariable<2, VectorField> grad_uy2x("grad_uy2x", "uy_hessian");
+  // FieldVariable<3, VectorField> grad_uy2y("grad_uy2y", "uy_hessian");
+  // FieldVariable<4, ScalarField> SensP("SensP", "sensitivity_solution");
+  // FieldVariable<5, ScalarField> node_filter("node_filter", "node_filter");
+  // FieldVariable<6, VectorField> SensU("SensU", "sensitivity_solution");
+  // FieldVariable<7, VectorField> n("NodalNormal", "nodal_normals");
 
-  // detail::set_result(SensU, n, grad_ux,grad_uy)
-
-
-
-
-
-
+  // set_expression(elements_expression
+  // (
+  //   boost::mpl::vector1 <mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+  //   group
+  //   (
+  //     _A(SensU) = _0, _A(SensP) = _0, _a[SensU] = _0, _a[SensP] = _0,
+  //     element_quadrature
+  //     (
+  //       _a[SensU[0]] += transpose(N(SensU)) * ((grad_ux2x*normal)[0]*n[0] + (grad_ux2y*normal)[0]*n[1]) * node_filter,
+  //       _a[SensU[1]] += transpose(N(SensU)) * ((grad_uy2x*normal)[0]*n[0] + (grad_uy2y*normal)[0]*n[1]) * node_filter
+  //     ),
+  //     m_rhs += _a
+  //   )
+  // ));
 }
 
 BCSensU::~BCSensU()

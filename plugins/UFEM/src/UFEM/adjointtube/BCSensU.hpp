@@ -7,6 +7,7 @@
 #ifndef cf3_UFEM_BCSensU_hpp
 #define cf3_UFEM_BCSensU_hpp
 
+#include "solver/actions/Proto/BlockAccumulator.hpp"
 #include "solver/actions/Proto/DirichletBC.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 
@@ -33,11 +34,8 @@ public:
 
 
 private:
+  //cf3::solver::actions::Proto::SystemRHS m_rhs;
   cf3::solver::actions::Proto::DirichletBC m_dirichlet;
-  Uint m_turbulence = 0;
-  Real m_c_epsilon_1 = 1.44;
-  Real m_c_mu = 0.09;
-
 };
 } // adjoint
 } // UFEM

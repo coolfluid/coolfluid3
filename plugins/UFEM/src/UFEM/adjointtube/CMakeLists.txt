@@ -1,15 +1,17 @@
 coolfluid3_add_library(TARGET coolfluid_ufem_adjointtube
   SOURCES
+    AdjointSensitivity.hpp
+    AdjointSensitivity.cpp
     AdjointTube.hpp
     AdjointTube.cpp
     DirectDifferentiation.hpp
     DirectDifferentiation.cpp
+    DirectDifferentiationSensitivity.hpp
+    DirectDifferentiationSensitivity.cpp
+    BCSensP.hpp
+    BCSensP.cpp
     BCSensU.hpp
     BCSensU.cpp
-    BCSensUx.hpp
-    BCSensUx.cpp
-    BCSensUy.hpp
-    BCSensUy.cpp
     BCAdjointpressurex.hpp
     BCAdjointpressurex.cpp
     BCAdjointpressurey.hpp

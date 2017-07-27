@@ -7,7 +7,6 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
@@ -35,8 +34,6 @@
 #include "Tags.hpp"
 
 #include "solver/actions/Proto/SurfaceIntegration.hpp"
-
-// #include "../UFEM/adjointtube/AdjointTube.hpp" // om te kunnen integreren voor sensitivity derivatives
 
 namespace cf3
 {
@@ -93,29 +90,17 @@ void SurfaceIntegral::execute()
   const std::string tag = options().value<std::string>("field_tag");
   const std::string variable_name = options().value<std::string>("variable_name");
   math::VariablesDescriptor& descriptor = common::find_component_with_tag<math::VariablesDescriptor>(physical_model().variable_manager(), tag);
+  if(descriptor.dimensionality(variable_name) == math::VariablesDescriptor::Dimensionalities::SCALAR)
   {
-//   if(descriptor.dimensionality(variable_name) == math::VariablesDescriptor::Dimensionalities::SCALAR)
-//   {
-//     FieldVariable<0, ScalarField> s(variable_name, tag);
-//     surface_integral(m_integral_value, m_loop_regions, s*normal); // (u*grad_Ux[0]-q)*normal*grad_ux*normal
-//   }
-//   else
-//   {
-//     FieldVariable<0, VectorField> v(variable_name, tag);
-//     surface_integral(m_integral_value, m_loop_regions, v*normal);
-//   }
-// }
-  FieldVariable<1, ScalarField> q("AdjPressure", "adjoint_solution");
-  FieldVariable<2, VectorField> U("AdjVelocity", "adjoint_solution");
-  FieldVariable<3, VectorField> u("Velocity", "navier_stokes_solution");
-  FieldVariable<4, VectorField> grad_Ux("grad_Ux", "Adjvelocity_gradient");
-  FieldVariable<5, VectorField> grad_ux("grad_ux", "velocity_gradient");
-  // FieldVariable<6,ScalarField> J("SensDer", "sensitivity_derivative");
+    FieldVariable<0, ScalarField> s(variable_name, tag);
+    surface_integral(m_integral_value, m_loop_regions, s*normal);
+  }
+  else
+  {
+    FieldVariable<0, VectorField> v(variable_name, tag);
+    surface_integral(m_integral_value, m_loop_regions, v*normal);
+  }
 
-   FieldVariable<0, ScalarField> J(variable_name, tag);
-
-  surface_integral(m_integral_value, m_loop_regions, (transpose(u)*grad_Ux*normal-transpose(q)*normal)*grad_ux*normal); // (u*grad_Ux[0]-q)*normal*grad_ux*normal
-}
   std::vector<Real> vec_result(dim);
   for(Uint i = 0; i != dim; ++i)
     vec_result[i] = m_integral_value[i];

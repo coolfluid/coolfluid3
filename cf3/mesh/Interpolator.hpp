@@ -102,7 +102,8 @@ public:
   /// @param name of the component
   InterpolatorT<POINTINTERPOLATOR> ( const std::string& name ) : Interpolator(name)
   {
-    remove_component(*m_point_interpolator);
+    Component& to_remove = *m_point_interpolator;
+    remove_component(to_remove);
     m_point_interpolator = Handle<APointInterpolator>( create_component<POINTINTERPOLATOR>("point_interpolator") );
   }
 

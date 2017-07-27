@@ -8,6 +8,7 @@
 #define cf3_UFEM_BCAdjointpressurex_hpp
 
 #include "solver/actions/Proto/DirichletBC.hpp"
+#include <solver/actions/Proto/BlockAccumulator.hpp>
 #include "solver/actions/Proto/ProtoAction.hpp"
 
 
@@ -26,18 +27,22 @@ public:
   /// Contructor
   /// @param name of the component
   BCAdjointpressurex ( const std::string& name );
-  
+
   virtual ~BCAdjointpressurex();
 
   /// Get the class name
   static std::string type_name () { return "BCAdjointpressurex"; }
-  
+
 
 private:
-  cf3::solver::actions::Proto::DirichletBC m_dirichlet;
+  //cf3::solver::actions::Proto::DirichletBC m_dirichlet;
   Uint m_turbulence = 0;
   Real m_c_epsilon_1 = 1.44;
   Real m_c_mu = 0.09;
+
+  Handle<math::LSS::System> m_lss;
+  cf3::solver::actions::Proto::SystemRHS system_rhs;
+  cf3::solver::actions::Proto::SystemMatrix system_matrix;
 
 };
 } // adjoint

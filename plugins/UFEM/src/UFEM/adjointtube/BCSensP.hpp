@@ -4,9 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_BCSensUx_hpp
-#define cf3_UFEM_BCSensUx_hpp
+#ifndef cf3_UFEM_BCSensP_hpp
+#define cf3_UFEM_BCSensP_hpp
 
+#include "solver/actions/Proto/BlockAccumulator.hpp"
 #include "solver/actions/Proto/DirichletBC.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 
@@ -18,24 +19,23 @@ namespace cf3 {
 namespace UFEM {
 namespace adjointtube {
 /// Boundary condition to hold the value of a field at a value given by another (or the same) field
-class UFEM_API BCSensUx: public solver::actions::Proto::ProtoAction
+class UFEM_API BCSensP: public solver::actions::Proto::ProtoAction
 {
 public:
 
   /// Contructor
   /// @param name of the component
-  BCSensUx ( const std::string& name );
+  BCSensP ( const std::string& name );
 
-  virtual ~BCSensUx();
+  virtual ~BCSensP();
 
   /// Get the class name
-  static std::string type_name () { return "BCSensUx"; }
+  static std::string type_name () { return "BCSensP"; }
 
 
 private:
+  //cf3::solver::actions::Proto::SystemRHS m_rhs;
   cf3::solver::actions::Proto::DirichletBC m_dirichlet;
-  Real m_n_x = 0.0;
-  Real m_n_y = 0.0;
 
 };
 } // adjoint

@@ -162,7 +162,7 @@ void Adjoint::trigger_assembly()
           compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
           element_quadrature
           (
-                  _A(q    , U[_i]) += transpose(N(q) /*- tau_ps*u*nabla(q)*0.5*/) * nabla(U)[_i], //- tau_ps * transpose(nabla(q)[_i]) * u*nabla(U), // Standard continuity + PSPG for advection
+                  _A(q    , U[_i]) += transpose(N(q) /*- tau_ps*u*nabla(q)*0.5*/) * nabla(U)[_i] - tau_ps * transpose(nabla(q)[_i]) * u*nabla(U), // Standard continuity + PSPG for advection
                   _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
                   _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U), // Diffusion + advection
                   _A(U[_i], q)     += transpose(N(U) - tau_su*u*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)

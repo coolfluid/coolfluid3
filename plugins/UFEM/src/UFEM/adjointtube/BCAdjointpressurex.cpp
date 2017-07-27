@@ -47,7 +47,11 @@ common::ComponentBuilder < BCAdjointpressurex, common::Action, LibUFEMAdjointTub
 
 BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
   ProtoAction(name),
-  m_dirichlet(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
+  system_rhs(options().add("lss", Handle<math::LSS::System>())
+    .pretty_name("LSS")
+    .description("The linear system for which the boundary condition is applied")),
+  system_matrix(options().option("lss"))
+  //m_dirichlet(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
 {
 
     options().add("turbulence", m_turbulence)
@@ -66,11 +70,11 @@ BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
     FieldVariable<7, ScalarField> epsilon("epsilon", "ke_solution");
     FieldVariable<8, ScalarField> k("k", "ke_solution");
     FieldVariable<9, VectorField> grad_ux("grad_ux", "velocity_gradient");
-    FieldVariable<10,VectorField> n("NodalNormal", "nodal_normals");
+    //FieldVariable<10,VectorField> n("NodalNormal", "nodal_normals");
 
 
-    set_expression(nodes_expression(m_dirichlet(q) = (u[1]*U[1]) + (u[0]*U[0])+ (U[0]*n[0]+U[1]*n[1])*(u[0]*n[0]+u[1]*n[1]) + (nu_eff*grad_Ux[0]*n[0])+(nu_eff*grad_Ux[1]*n[1])-0.5*(u[0]*u[0]+u[1]*u[1])
-    -(u[0]*n[0]+u[1]*n[1])*(u[0]*n[0]+u[1]*n[1])));
+    // set_expression(nodes_expression(m_dirichlet(q) = (u[1]*U[1]) + (u[0]*U[0])+ (U[0]*n[0]+U[1]*n[1])*(u[0]*n[0]+u[1]*n[1]) + (nu_eff*grad_Ux[0]*n[0])+(nu_eff*grad_Ux[1]*n[1])-0.5*(u[0]*u[0]+u[1]*u[1])
+    // -(u[0]*n[0]+u[1]*n[1])*(u[0]*n[0]+u[1]*n[1])));
     //-(u[0]*n[0]+u[1]*n[1])*(u[0]*n[0]+u[1]*n[1])-0.5*(u[0]*u[0]+u[1]*u[1])));
     //set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (transpose(u)*U)[1] + (u[0]*U[0]) + nu_eff*grad_Ux[0]*normal[0]+(nu_eff*grad_Ux[1])-(u[0]*u[0])-(u[1]*u[1])-0.5*(u[0]*u[0]+u[1]*u[1])));
     //
@@ -78,6 +82,22 @@ BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
 
 
     //set_expression(nodes_expression(m_dirichlet(q)  = (transpose(u)*U)[0] + (u[0]*U[0]) + (nu_eff*grad_Ux[0])));
+    set_expression(elements_expression
+    (
+      boost::mpl::vector<mesh::LagrangeP1::Line2D>(),
+      group
+      (
+        _A(U) = _0, _A(q) = _0, _a[U] = _0, _a[q] = _0,
+        element_quadrature
+        (
+          _A(U[_i],U[_j]) += transpose(N(U))*N(U)*(u[_j]*normal[_i]) / nu_eff, // Uj*uj*ni
+          _A(U[_i],U[_i]) += transpose(N(U))*N(U)*((u*normal)[0]) / nu_eff, // Ui*uj*nj
+          _A(U[_i], q) += -transpose(N(U))*N(q)*normal[_i] / nu_eff, // -q*ni
+          _a[U[_i]] += transpose(N(U))*((0.5*(u*transpose(u))[0])*normal[_i] + (u*normal)[0]*u[_i]) / nu_eff //0.5 u^2*ni + uj*nj*ui
+        ),
+        system_matrix+=_A,
+        system_rhs += -_A*_x + _a
+    )));
 
 
 

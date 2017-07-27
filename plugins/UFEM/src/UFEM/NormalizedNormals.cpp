@@ -52,9 +52,9 @@ struct SetNormals
   void operator()(const NormalT& n, NodalNormalsT& n_out) const
   {
     typename NodalNormalsT::ValueT node_normals;
-    for(int column = 0; column != NodalNormalsT::ValueT::ColsAtCompileTime; ++column)
+    for(int row = 0; row != NodalNormalsT::ValueT::RowsAtCompileTime; ++row)
     {
-      node_normals.col(column).setConstant(n[column]);
+      node_normals.row(row) = n;
     }
     n_out.add_nodal_values(node_normals);
   }
@@ -65,8 +65,10 @@ static MakeSFOp<SetNormals>::type const set_normal = {};
 }
 
 NormalizedNormals::NormalizedNormals(const std::string& name) :
-  ProtoAction(name)
+  ProtoAction(name),m_normal(2)
 {
+  m_normal[0] = 0.0;
+  m_normal[1] = 0.0;
   m_zero_fields = create_component<ProtoAction>("ZeroFields");
   m_normalize = create_component<ProtoAction>("Normalize");
 
@@ -79,7 +81,7 @@ NormalizedNormals::NormalizedNormals(const std::string& name) :
   ));
 
   m_zero_fields->set_expression(nodes_expression(n_out[_i]=0));
-  m_normalize->set_expression(nodes_expression(n_out = n_out / _norm(n_out)));
+  m_normalize->set_expression(nodes_expression(n_out /= _norm(n_out)));
 }
 
 void NormalizedNormals::execute()

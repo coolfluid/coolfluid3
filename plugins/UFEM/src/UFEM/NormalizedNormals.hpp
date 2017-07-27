@@ -35,6 +35,7 @@ private:
   Handle<InitialConditions> m_initial_conditions;
   Handle<solver::actions::Proto::ProtoAction> m_zero_fields;
   Handle<solver::actions::Proto::ProtoAction> m_normalize;
+  RealVector m_normal;
 };
 
 } // UFEM

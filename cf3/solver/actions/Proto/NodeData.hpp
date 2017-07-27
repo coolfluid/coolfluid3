@@ -162,6 +162,13 @@ struct NodeVarData< ScalarField >
     m_field[m_idx][m_var_begin] = m_value;
   }
 
+  void set_value(boost::proto::tag::divides_assign, const Real v)
+  {
+    m_need_synchronization = true;
+    m_value /= v;
+    m_field[m_idx][m_var_begin] = m_value;
+  }
+
   /// Offset for the variable in the field
   Uint offset;
 
@@ -253,6 +260,14 @@ struct NodeVarData<VectorField, Dim>
       m_field[m_idx][m_var_begin + i] -= v[i];
   }
 
+  void set_value(boost::proto::tag::divides_assign, const Real& v)
+  {
+    m_need_synchronization = true;
+    m_value /= v;
+    for(Uint i = 0; i != Dim; ++i)
+      m_field[m_idx][m_var_begin + i] /= v;
+  }
+
   void set_value_component(boost::proto::tag::assign, const Real& v, const Uint i)
   {
     m_need_synchronization = true;
@@ -272,6 +287,13 @@ struct NodeVarData<VectorField, Dim>
     m_need_synchronization = true;
     m_value[i] -= v;
     m_field[m_idx][m_var_begin + i] -= v;
+  }
+
+  void set_value_component(boost::proto::tag::divides_assign, const Real& v, const Uint i)
+  {
+    m_need_synchronization = true;
+    m_value[i] /= v;
+    m_field[m_idx][m_var_begin + i] /= v;
   }
 
   /// Offset for the variable in the field
@@ -364,7 +386,7 @@ public:
     m_node_idx = idx;
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(SetNode(m_variables_data, m_node_idx));
   }
-  
+
   inline Uint node_idx() const
   {
     return m_node_idx;

@@ -55,12 +55,10 @@ struct SetGradient
     typedef mesh::Integrators::GaussMappedCoords<1, ElementT::shape> GaussT;
 
     const RealVector2 grad_mat = p.nabla(GaussT::instance().coords.col(0))*p.value();
-
+    
     const Eigen::Matrix<Real, ElementT::nb_nodes, 1> inverse_valence = valence.value().array().inverse();
-    grad_p.add_nodal_values_component(grad_mat(XX, XX)*inverse_valence, XX);
-    grad_p.add_nodal_values_component(grad_mat(YY, XX)*inverse_valence, YY);
-
-
+    grad_p.add_nodal_values_component(grad_mat[XX]*inverse_valence, XX);
+    grad_p.add_nodal_values_component(grad_mat[YY]*inverse_valence, YY);
   }
 
 };

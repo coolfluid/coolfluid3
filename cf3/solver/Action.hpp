@@ -75,6 +75,9 @@ protected: // data
   /// Called after the regions have been set
   virtual void on_regions_set();
 
+  /// Called after the physical model was set
+  virtual void on_physical_model_changed();
+
 private:
   void trigger_physics();
   void clear_triggers();

@@ -193,6 +193,13 @@ void Action::trigger_physics()
     m_trigger_ids[name] = m_physical_model->options().option(name).attach_trigger_tracked(option_trigger);
     option_trigger();
   }
+
+  // Run custom action
+  on_physical_model_changed();
+}
+
+void Action::on_physical_model_changed()
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -140,6 +140,7 @@ struct NodeAssignmentCases
   template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign<FieldTypes, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<FieldTypes, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::minus_assign, Dummy> : boost::proto::minus_assign<FieldTypes, GrammarT> {};
+  template<int Dummy> struct case_<boost::proto::tag::divides_assign, Dummy> : boost::proto::divides_assign<FieldTypes, GrammarT> {};
 };
 
 template<typename GrammarT, typename IndexGrammarT>
@@ -150,6 +151,7 @@ struct IndexedNodeAssignmentCases
   template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign< boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::minus_assign, Dummy> : boost::proto::minus_assign<boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
+  template<int Dummy> struct case_<boost::proto::tag::divides_assign, Dummy> : boost::proto::divides_assign<boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
 };
 
 
