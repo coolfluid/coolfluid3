@@ -103,6 +103,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/SurfaceIntegration.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp
+    Proto/VolumeIntegration.hpp
     Proto/ZeroLSSRow.hpp
 
     # Actions using Proto

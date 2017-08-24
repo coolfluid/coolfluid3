@@ -22,6 +22,8 @@ list( APPEND coolfluid_ufem_files
   AdjustForceTerm.cpp
   BCDirichletFunction.hpp
   BCDirichletFunction.cpp
+  BCFeedback.hpp
+  BCFeedback.cpp
   BCHoldValue.hpp
   BCHoldValue.cpp
   BCNeumannConstant.cpp
@@ -132,6 +134,8 @@ list( APPEND coolfluid_ufem_files
   UnsteadyAction.cpp
   VelocityGradient.hpp
   VelocityGradient.cpp
+  VolumeIntegral.hpp
+  VolumeIntegral.cpp
   WriteRestartManager.hpp
   WriteRestartManager.cpp
 

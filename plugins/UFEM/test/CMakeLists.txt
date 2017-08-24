@@ -164,6 +164,10 @@ coolfluid_add_test(UTEST utest-ufem-surfaceintegral
                    PYTHON utest-ufem-surfaceintegral.py
                    MPI 4)
 
+coolfluid_add_test(UTEST utest-ufem-volumeintegral
+                   PYTHON utest-ufem-volumeintegral.py
+                   MPI 4)
+
 coolfluid_add_test( ATEST atest-ufem-navier-stokes-mlaux
                     PYTHON atest-ufem-navier-stokes-mlaux.py
                     MPI 2)
@@ -187,6 +191,10 @@ coolfluid_add_test( ATEST atest-ufem-abl-boussinesqconcentration
 
 coolfluid_add_test( ATEST atest-unsteady-bodyforce
                     PYTHON atest-unsteady-bodyforce.py)
+
+coolfluid_add_test(UTEST utest-ufem-bcfeedback
+                   PYTHON utest-ufem-bcfeedback.py
+                   MPI 4)
 
 add_subdirectory(demo)
 add_subdirectory(les)
