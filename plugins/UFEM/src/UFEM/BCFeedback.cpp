@@ -47,7 +47,7 @@ BCFeedback::BCFeedback(const std::string& name) :
   Action(name),
   m_dirichlet(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
 {
-
+  options().option("regions").add_tag("norecurse");
   options().add("field_tag", m_field_tag)
     .pretty_name("Field Tag")
     .description("Tag of the field to set a feedback on")
@@ -66,7 +66,7 @@ BCFeedback::BCFeedback(const std::string& name) :
     .link_to(&m_factor)
     .mark_basic();
 
-  create_static_component<ProtoAction>("BC")->mark_basic();
+  create_static_component<ProtoAction>("BC")->mark_basic().add_tag("norecurse");
 }
 
 BCFeedback::~BCFeedback()
