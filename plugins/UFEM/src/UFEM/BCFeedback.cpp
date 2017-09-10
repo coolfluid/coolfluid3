@@ -66,7 +66,7 @@ BCFeedback::BCFeedback(const std::string& name) :
     .link_to(&m_factor)
     .mark_basic();
 
-  create_static_component<ProtoAction>("BC")->mark_basic().add_tag("norecurse");
+  create_static_component<ProtoAction>("BC")->mark_basic().options().option("regions").add_tag("norecurse");
 }
 
 BCFeedback::~BCFeedback()
@@ -77,11 +77,23 @@ void BCFeedback::execute()
 {
   FieldVariable<0, ScalarField> phi(m_variable_name, m_field_tag);
 
+  m_integral_result = 0.0;
+
   surface_integral(m_integral_result, m_loop_regions, phi * _norm(normal));
-  m_integral_result /= compute_area(m_loop_regions);
+  Real area = compute_area(m_loop_regions);
+  m_integral_result /= area;
+
+  std::string regions;
+  for(auto r : m_loop_regions)
+  {
+    regions += " " + r->uri().path();
+  }
+
+  std::cout << "setting Feedback to " << m_integral_result <<  " with area " << area <<  " over regions" << regions << " with factor " << m_factor << std::endl;
 
   Handle<ProtoAction> bc(get_child("BC"));
   bc->set_expression(nodes_expression(group(m_dirichlet(phi) = lit(m_factor)*lit(m_integral_result))));
+  bc->execute();
 }
 
 } // namespace UFEM
