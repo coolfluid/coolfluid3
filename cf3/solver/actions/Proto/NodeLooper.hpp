@@ -156,7 +156,7 @@ private:
       used_entities.push_back(entities.handle<mesh::Entities>());
     }
 
-    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = mesh::build_used_nodes_list(used_entities, dict, false);
+    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = mesh::build_used_nodes_list(used_entities, dict, true);
 
     const common::List<Uint>& nodes = *used_nodes_ptr;
     const Uint nb_nodes = nodes.size();
