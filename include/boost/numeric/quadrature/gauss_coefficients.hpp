@@ -17,7 +17,6 @@
 */
 
 #include "boost/numeric/quadrature/quadrature_config.hpp"
-#include <boost/tr1/array.hpp>
 
 #define SC_(x) static_cast<T>(BOOST_JOIN(x, L))
 
@@ -34,7 +33,7 @@ namespace boost
       struct gauss_coefficients
 #ifdef BOOST_QUADRATURE_DOXYGEN
         {
-          typedef std::tr1::array<T,N/2+1> value_type;
+          typedef std::array<T,N/2+1> value_type;
           //! Weights for integrand values
           static const value_type& weights();
         }
@@ -45,7 +44,7 @@ namespace boost
       template <typename T>
       struct gauss_coefficients<T,7>
       {
-        typedef std::tr1::array<T,4> value_type;
+        typedef std::array<T,4> value_type;
 
         static const value_type& weights()
         {
@@ -62,7 +61,7 @@ namespace boost
       template <typename T>
       struct gauss_coefficients<T,10>
       {
-        typedef std::tr1::array<T,5> value_type;
+        typedef std::array<T,5> value_type;
 
         static const value_type& weights()
         {
@@ -80,7 +79,7 @@ namespace boost
       template <typename T>
       struct gauss_coefficients<T,15>
       {
-        typedef std::tr1::array<T,8> value_type;
+        typedef std::array<T,8> value_type;
 
         static const value_type& weights()
         {
@@ -101,7 +100,7 @@ namespace boost
       template <typename T>
       struct gauss_coefficients<T,20>
       {
-        typedef std::tr1::array<T,10> value_type;
+        typedef std::array<T,10> value_type;
 
         static const value_type& weights()
         {
@@ -124,7 +123,7 @@ namespace boost
       template <typename T>
       struct gauss_coefficients<T,25>
       {
-        typedef std::tr1::array<T,13> value_type;
+        typedef std::array<T,13> value_type;
 
         static const value_type& weights()
         {

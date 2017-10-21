@@ -20,7 +20,6 @@
 #include <boost/numeric/quadrature/is_arithmetic_scalar.hpp>
 
 #include <boost/array.hpp>
-#include <boost/tr1/array.hpp>
 
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
@@ -48,7 +47,7 @@ namespace boost
       };
 
       template <typename Value, std::size_t N>
-      struct arithmetic_vector_value<std::tr1::array<Value,N> >
+      struct arithmetic_vector_value<std::array<Value,N> >
       {
         typedef Value type;
       };
@@ -66,7 +65,7 @@ namespace boost
       };
 
       template <typename Value, std::size_t N>
-      struct arithmetic_vector_size< std::tr1::array<Value,N> >
+      struct arithmetic_vector_size< std::array<Value,N> >
       {
         BOOST_STATIC_CONSTANT(int, value=N);
       };
@@ -76,14 +75,14 @@ namespace boost
         template <typename Value, typename Required>
         struct storage_for_vector_type
         {
-          typedef std::tr1::array<Required,
+          typedef std::array<Required,
               arithmetic_vector_size<Value>::value > type;
         };
 
         template <typename Value>
         struct storage_for_vector_type<Value,Value>
         {
-          typedef std::tr1::array<
+          typedef std::array<
               typename arithmetic_vector_value<Value>::type,
               arithmetic_vector_size<Value>::value > type;
         };

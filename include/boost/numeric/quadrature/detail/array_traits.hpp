@@ -14,11 +14,12 @@
   @date   2007-11-21
 */
 
+#include <array>
+
 #include <boost/numeric/quadrature/arithmetic_vector_traits.hpp>
 #include <boost/numeric/quadrature/is_arithmetic_scalar.hpp>
 #include <boost/numeric/quadrature/detail/local_traits.hpp>
 #include <boost/mpl/identity.hpp>
-#include <boost/tr1/array.hpp>
 
 namespace boost
 {
@@ -31,14 +32,14 @@ namespace boost
         template <typename Value, std::size_t N>
         struct array_storage_for_scalar_type
         {
-          typedef typename std::tr1::array<
+          typedef typename std::array<
               typename storage_for_scalar_type<Value>::type, N> type;
         };
 
         template <typename Value, std::size_t N>
         struct array_storage_for_vector_type
         {
-          typedef typename std::tr1::array<
+          typedef typename std::array<
               typename arithmetic_vector_value<Value>::type, N > arithmetic_array_type;
           typedef typename boost::array<
               arithmetic_array_type,arithmetic_vector_size<Value>::value > type;

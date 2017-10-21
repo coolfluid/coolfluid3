@@ -123,7 +123,7 @@ namespace boost
         bool implementation(
           const Value2& value, Result& result, Abserr& abserr,
           std::vector<scalar_type>& epstab,
-          std::tr1::array<scalar_type,3>& history);
+          std::array<scalar_type,3>& history);
 
         template <typename Value2, typename Result, typename Abserr,
             typename Epstab, typename History>
@@ -189,7 +189,7 @@ namespace boost
         Result& result,
         Abserr& abserr,
         std::vector<scalar_type>& epstab,
-        std::tr1::array<scalar_type,3>& history)
+        std::array<scalar_type,3>& history)
       {
         // smallest relative spacing.
         const scalar_type epmach = boost::math::tools::epsilon<scalar_type>();
