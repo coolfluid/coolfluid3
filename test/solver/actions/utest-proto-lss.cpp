@@ -7,11 +7,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for proto operators"
 
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/mean.hpp>
-#include <boost/accumulators/statistics/max.hpp>
-
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -61,6 +56,7 @@
 
 #include "solver/actions/Proto/ComponentWrapper.hpp"
 #include "solver/actions/Proto/ConfigurableConstant.hpp"
+#include "solver/actions/Proto/DirichletBC.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 #include "solver/actions/Proto/Terminals.hpp"
@@ -86,13 +82,15 @@ struct ProtoLSSFixture
       common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
 
       common::Core::instance().environment().options().set("log_level", 4);
+      common::Core::instance().environment().options().set("exception_outputs", false);
+      common::Core::instance().environment().options().set("exception_backtrace", false);
       model = Core::instance().root().create_component<Model>("Model");
       physical_model = Handle<physics::PhysModel>(model->create_physics("cf3.physics.DynamicModel").handle());
       Domain& dom = model->create_domain("Domain");
       mesh = dom.create_component<Mesh>("mesh");
       //Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
       //Tools::MeshGeneration::create_line(*mesh, 3.,3);
-      Tools::MeshGeneration::create_rectangle_tris(*mesh, 1., 1., 1, 1);
+      Tools::MeshGeneration::create_rectangle_tris(*mesh, 4., 4., 4, 4);
 
       field_manager = model->create_component<FieldManager>("FieldManager");
       field_manager->options().set("variable_manager", model->physics().variable_manager().handle<math::VariableManager>());
@@ -524,7 +522,7 @@ BOOST_AUTO_TEST_CASE( MassMatrix )
       _A = _0,
       element_quadrature
       (
-        _A(T,T) += transpose(N(T)) * N(T)
+        _A(T,T) += 6*transpose(N(T)) * N(T)
       ),
       matrix += _A
     )
@@ -540,12 +538,205 @@ BOOST_AUTO_TEST_CASE( MassMatrix )
   lss->matrix()->print(std::cout);
 }
 
-BOOST_AUTO_TEST_CASE( CleanUp )
+BOOST_AUTO_TEST_CASE( DirichletMatrix )
 {
-  root.remove_component("scalar_lss");
-  root.remove_component("vector_lss");
+  // set up a scalar problem
+  Handle<math::LSS::System> lss = root.create_component<math::LSS::System>("dirichlet_lss");
+  lss->options().set("matrix_builder", std::string("cf3.math.LSS.TrilinosCrsMatrix"));
+  lss->create(mesh->geometry_fields().comm_pattern(), 1, node_connectivity, starting_indices);
+
+  Handle<ProtoAction> assembly_action = root.create_component<ProtoAction>("DirichletAssembly");
+  Handle<ProtoAction> dirichlet_action = root.create_component<ProtoAction>("DirichletBC");
+
+  FieldVariable<0, ScalarField> T("dirvar", "dirvar");
+  SystemMatrix matrix(*lss);
+
+  boost::mpl::vector1<mesh::LagrangeP1::Triag2D> etype;
+
+  // Run the matrix assembly expression
+  assembly_action->set_expression(elements_expression(etype,
+    group
+    (
+      _A = _0,
+      element_quadrature
+      (
+        _A(T,T) += 6*transpose(N(T)) * N(T)
+      ),
+      matrix += _A
+    )
+  ));
+
+  assembly_action->options().set("physical_model", physical_model);
+  assembly_action->options().set(solver::Tags::regions(), loop_regions);
+
+  field_manager->create_field("dirvar", mesh->geometry_fields());
+
+  assembly_action->execute();
+
+  // Manually compute dirichlet conditions for reference
+  const Uint nb_nodes = mesh->geometry_fields().size();
+  std::set<Uint> boundary_nodes;
+  std::set<Uint> diri_nodes;
+
+  for (const Entities &elements : common::find_components_recursively_with_filter<Entities>(*mesh, IsElementsSurface()))
+  {
+    const std::string parname = elements.parent()->name();
+    const Connectivity &connectivity = elements.geometry_space().connectivity();
+    const Uint nb_elems = connectivity.size();
+    const Uint nb_elem_nodes = connectivity.row_size();
+    for (Uint elem = 0; elem != nb_elems; ++elem)
+    {
+      for (const Uint node : connectivity[elem])
+      {
+        boundary_nodes.insert(node);
+        if (parname == "left" || parname == "bottom")
+        {
+          diri_nodes.insert(node);
+        }
+      }
+    }
+  }
+
+  Handle<math::LSS::Matrix> op(lss->matrix());
+  Handle<math::LSS::Vector> rhs(lss->rhs());
+  Real val = 0.0;
+  const Real diri_val = 5.0;
+
+  std::vector<Real> rhs_values(nb_nodes, 0.0);
+  for (const Uint i : diri_nodes)
+  {
+    for(Uint j = 0; j != nb_nodes; ++j)
+    {
+      if(i == j)
+      {
+        rhs_values[j] = diri_val;
+      }
+      else
+      {
+        if(diri_nodes.count(j))
+          continue;
+
+        try
+        {
+          op->get_value(j, i, val);
+          rhs_values[j] -= val * diri_val;
+        }
+        catch(common::BadValue&) {}
+      }
+    }
+  }
+
+  // Apply dirichlet using Proto
+  DirichletBC dirichlet(*lss);
+  dirichlet_action->set_expression(nodes_expression(dirichlet(T) = diri_val));
+  dirichlet_action->options().set("physical_model", physical_model);
+  dirichlet_action->options().set(solver::Tags::regions(), std::vector<URI>({mesh->topology().uri() / URI("left"), mesh->topology().uri() / URI("bottom")}));
+  dirichlet_action->execute();
+
+  // Check matrix values
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    for(Uint j = 0; j != nb_nodes; ++j)
+    {
+      if(boundary_nodes.count(i) || boundary_nodes.count(j))
+      {
+        continue;
+      }
+      try
+      {
+        op->get_value(i, j, val);
+        if(i == j)
+        {
+          BOOST_CHECK_CLOSE(val, 3.0, 1e-6);
+        }
+        else
+        {
+          BOOST_CHECK_CLOSE(val, 0.5, 1e-6);
+        }
+      }
+      catch(const common::BadValue&) {}
+    }
+  }
+
+  for (Uint i = 0; i != nb_nodes; ++i)
+  {
+    for (Uint j = 0; j != nb_nodes; ++j)
+    {
+      if (!diri_nodes.count(i) || !diri_nodes.count(j))
+      {
+        continue;
+      }
+
+      try
+      {
+        op->get_value(i, j, val);
+        if (i == j)
+        {
+          BOOST_CHECK_CLOSE(val, 1.0, 1e-6);
+        }
+        else
+        {
+          BOOST_CHECK_CLOSE(val, 0.0, 1e-6);
+        }
+      }
+      catch(const common::BadValue&) {}
+    }
+  }
+
+  for (Uint i = 0; i != nb_nodes; ++i)
+  {
+    for (Uint j = 0; j != nb_nodes; ++j)
+    {
+      if (!boundary_nodes.count(i) || !boundary_nodes.count(j) || diri_nodes.count(i) || diri_nodes.count(j))
+      {
+        continue;
+      }
+
+      try
+      {
+        op->get_value(i, j, val);
+        if(val < 0.3)
+        {
+          BOOST_CHECK_CLOSE(val, 0.25, 1e-6);
+        }
+        else if(val < 0.6)
+        {
+          BOOST_CHECK_CLOSE(val, 0.5, 1e-6);
+        }
+        else if (val < 1.2)
+        {
+          BOOST_CHECK_CLOSE(val, 1.0, 1e-6);
+        }
+        else if(val < 2.0)
+        {
+          BOOST_CHECK_CLOSE(val, 1.5, 1e-6);
+        }
+        else
+        {
+          BOOST_CHECK_CLOSE(val, 3.0, 1e-6);
+        }
+      }
+      catch (const common::BadValue &)
+      {
+      }
+    }
+  }
+
+  // Check RHS values
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    rhs->get_value(i, val);
+    BOOST_CHECK_CLOSE(val, rhs_values[i], 1e-6);
+  }
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+    BOOST_AUTO_TEST_CASE(CleanUp)
+    {
+      root.remove_component("scalar_lss");
+      root.remove_component("vector_lss");
+      common::PE::Comm::instance().finalize();
+    }
 
-////////////////////////////////////////////////////////////////////////////////
+    BOOST_AUTO_TEST_SUITE_END()
+
+  ////////////////////////////////////////////////////////////////////////////////
