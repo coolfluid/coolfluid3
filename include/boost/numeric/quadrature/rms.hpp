@@ -80,7 +80,7 @@ namespace boost
 
           typedef typename scalar_component<Image>::type scalar_type;
           typedef typename detail::storage_for_type<Image>::type image;
-          typedef std::tr1::array<image, N/2> array;
+          typedef std::array<image, N/2> array;
 
           array m_lower_values;
           array m_upper_values;

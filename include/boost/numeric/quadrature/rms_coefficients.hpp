@@ -17,7 +17,6 @@
 */
 
 #include "boost/numeric/quadrature/quadrature_config.hpp"
-#include <boost/tr1/array.hpp>
 
 #define SC_(x) static_cast<T>(BOOST_JOIN(x, L))
 
@@ -35,7 +34,7 @@ namespace boost
       struct rms_coefficients
 #ifdef BOOST_QUADRATURE_DOXYGEN
       {
-        typedef std::tr1::array<T,N/2+1> value_type;
+        typedef std::array<T,N/2+1> value_type;
         // Weights
         static const value_type& weights();
         // Abscissa
@@ -47,7 +46,7 @@ namespace boost
       template <typename T>
       struct rms_coefficients<T,13>
       {
-        typedef std::tr1::array<T,7> value_type;
+        typedef std::array<T,7> value_type;
 
         static const value_type& weights()
         {
@@ -82,7 +81,7 @@ namespace boost
       template <typename T>
       struct rms_coefficients<T,19>
       {
-        typedef std::tr1::array<T,10> value_type;
+        typedef std::array<T,10> value_type;
 
         static const value_type& weights()
         {
@@ -118,7 +117,7 @@ namespace boost
           return x;
         }
 
-        typedef std::tr1::array<bool,9> flags_type;
+        typedef std::array<bool,9> flags_type;
         static const flags_type& crossed_flags()
         {
           static const flags_type crossed_values={
@@ -141,7 +140,7 @@ namespace boost
       template <typename T>
       struct rms_coefficients<T,27>
       {
-        typedef std::tr1::array<T,14> value_type;
+        typedef std::array<T,14> value_type;
 
         static const value_type& weights()
         {
@@ -185,7 +184,7 @@ namespace boost
           return x;
         }
 
-        typedef std::tr1::array<bool,13> flags_type;
+        typedef std::array<bool,13> flags_type;
         static const flags_type& crossed_flags()
         {
           static const flags_type crossed_values={
@@ -209,7 +208,7 @@ namespace boost
       template <typename T>
       struct rms_coefficients<T,41>
       {
-        typedef std::tr1::array<T,21> value_type;
+        typedef std::array<T,21> value_type;
 
         static const value_type& weights()
         {
@@ -267,7 +266,7 @@ namespace boost
           return x;
         }
 
-        typedef std::tr1::array<bool,20> flags_type;
+        typedef std::array<bool,20> flags_type;
         static const flags_type& crossed_flags()
         {
           static const flags_type crossed_values={

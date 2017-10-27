@@ -17,7 +17,6 @@
 */
 
 #include <boost/numeric/quadrature/quadrature_config.hpp>
-#include <boost/tr1/array.hpp>
 
 // taken from math toolkit
 #define SC_(x) static_cast<T>(BOOST_JOIN(x, L))
@@ -40,7 +39,7 @@ namespace boost
       struct kronrod_coefficients
 #ifdef BOOST_QUADRATURE_DOXYGEN
       {
-        typedef std::tr1::array<T,N/2+1> value_type;
+        typedef std::array<T,N/2+1> value_type;
         //! Weights for each integrand value
         static const value_type& weights();
         // Abscissa for evaluating the integrand
@@ -55,7 +54,7 @@ namespace boost
       template <typename T>
       struct kronrod_coefficients<T,15>
       {
-        typedef std::tr1::array<T,8> value_type;
+        typedef std::array<T,8> value_type;
 
         static const value_type& weights()
         {
@@ -92,7 +91,7 @@ namespace boost
       template <typename T>
       struct kronrod_coefficients<T,21>
       {
-        typedef std::tr1::array<T,11> value_type;
+        typedef std::array<T,11> value_type;
 
         static const value_type& weights()
         {
@@ -136,7 +135,7 @@ namespace boost
       template <typename T>
       struct kronrod_coefficients<T,31>
       {
-        typedef std::tr1::array<T,16> value_type;
+        typedef std::array<T,16> value_type;
         static const value_type& weights()
         {
           static const value_type w={
@@ -188,7 +187,7 @@ namespace boost
       template <typename T>
       struct kronrod_coefficients<T,41>
       {
-        typedef std::tr1::array<T,21> value_type;
+        typedef std::array<T,21> value_type;
         static const value_type& weights()
         {
           static const value_type w={
@@ -250,7 +249,7 @@ namespace boost
       template <typename T>
       struct kronrod_coefficients<T,51>
       {
-        typedef std::tr1::array<T,26> value_type;
+        typedef std::array<T,26> value_type;
         static const value_type& weights()
         {
           static const value_type w={
