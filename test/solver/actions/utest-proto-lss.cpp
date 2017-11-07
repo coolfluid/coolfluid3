@@ -633,6 +633,8 @@ BOOST_AUTO_TEST_CASE( DirichletMatrix )
   dirichlet_action->options().set(solver::Tags::regions(), std::vector<URI>({mesh->topology().uri() / URI("left"), mesh->topology().uri() / URI("bottom")}));
   dirichlet_action->execute();
 
+  lss->solve();
+  
   // Check matrix values
   for(Uint i = 0; i != nb_nodes; ++i)
   {

@@ -109,6 +109,7 @@ public:
   /// Apply dirichlet-type boundary conditions.
   /// When preserve_symmetry is true than blockrow*numequations+eq column is is zeroed by moving it to the right hand side (however this usually results in performance penalties).
   void dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry=false);
+  void dirichlet_apply(const bool preserve_symmetry);
 
   /// Applying periodicity by adding one line to another and dirichlet-style fixing it to
   /// Note that prerequisite for this is to work that the matrix sparsity should be compatible (same nonzero pattern for the two block rows).
@@ -187,6 +188,11 @@ private:
 
   /// Strategy for the solution
   Handle<LSS::SolutionStrategy> m_solution_strategy;
+
+  /// vector with dirichlet values per node
+  typedef   std::map<uint, std::map<uint, Real>> DirichletMapT; // iblockrow, ieq nb, value
+  DirichletMapT m_symmetric_dirichlet_values_buffer;
+  bool m_preserve_symmetry = true;
 
 }; // end of class System
 
