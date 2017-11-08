@@ -29,24 +29,11 @@ blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 1)[0] = [0, 1]
 blocks.create_patch_nb_faces(name = 'right', nb_faces = 1)[0] = [1, 2]
 blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [2, 3]
 blocks.create_patch_nb_faces(name = 'left', nb_faces = 1)[0] = [3, 0]
-blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
+
+blocks.periodic_x = ["left", "right"]
+blocks.periodic_y = ["bottom", "top"]
+
 blocks.create_mesh(mesh.uri())
-
-periodic_partitioner = domain.create_component('Partitioner', 'cf3.mesh.actions.PeriodicMeshPartitioner')
-periodic_partitioner.mesh = mesh
-periodic_partitioner.load_balance = False
-
-link_horizontal = periodic_partitioner.create_link_periodic_nodes()
-link_horizontal.source_region = mesh.topology.right
-link_horizontal.destination_region = mesh.topology.left
-link_horizontal.translation_vector = [-1., 0.]
-
-link_vertical = periodic_partitioner.create_link_periodic_nodes()
-link_vertical.source_region = mesh.topology.top
-link_vertical.destination_region = mesh.topology.bottom
-link_vertical.translation_vector = [0., -1.]
-
-periodic_partitioner.execute()
 
 # Create a field
 velocity = mesh.geometry.create_field(name = 'velocity', variables='Velocity[vector]')
