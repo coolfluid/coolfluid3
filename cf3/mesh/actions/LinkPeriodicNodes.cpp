@@ -156,15 +156,15 @@ void LinkPeriodicNodes::execute()
   {
     periodic_links_nodes.resize(mesh.geometry_fields().size());
     periodic_links_active.resize(mesh.geometry_fields().size());
-  }
 
-  for(bool& b : periodic_links_active.array())
-  {
-    b = false;
-  }
-  for(Uint& n : periodic_links_nodes.array())
-  {
-    n = 0;
+    for (bool &b : periodic_links_active.array())
+    {
+      b = false;
+    }
+    for (Uint &n : periodic_links_nodes.array())
+    {
+      n = 0;
+    }
   }
 
   cf3_assert(periodic_links_nodes.size() == mesh.geometry_fields().size());
