@@ -199,8 +199,8 @@ void ComputeCFL::execute()
   if(is_null(m_time))
     throw common::SetupError(FromHere(), "No time component configured for ComputeCFL");
   
-  m_dt = m_time->dt();
-
+  m_dt = m_time->current_time();
+  
   m_max_computed_cfl = 0.;
   ProtoAction::execute();
 
