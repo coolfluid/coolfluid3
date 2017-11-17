@@ -206,7 +206,7 @@ void LSS::System::solve()
 {
   cf3_assert(is_created());
   dirichlet_apply(m_preserve_symmetry);
-  m_solution_strategy->solve();  
+  m_solution_strategy->solve();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,6 +275,7 @@ void LSS::System::dirichlet_apply(const bool preserve_symmetry)
       m_sol->set_value(iblockrow,ieq,value);
     }
   }
+  m_symmetric_dirichlet_values_buffer.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
