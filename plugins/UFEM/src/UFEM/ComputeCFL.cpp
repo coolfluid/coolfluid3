@@ -199,8 +199,8 @@ void ComputeCFL::execute()
   if(is_null(m_time))
     throw common::SetupError(FromHere(), "No time component configured for ComputeCFL");
   
-  m_dt = m_time->current_time();
-  
+  m_dt = m_time->dt();
+
   m_max_computed_cfl = 0.;
   ProtoAction::execute();
 
@@ -210,7 +210,7 @@ void ComputeCFL::execute()
     common::PE::Comm::instance().all_reduce(common::PE::max(), &m_max_computed_cfl, 1, &global_max_cfl);
   }
 
-  CFinfo << "CFL for time step " << m_dt << " is " << global_max_cfl << CFendl;
+  CFinfo << "CFL for time step " << m_dt << " at time " << m_time->current_time() << " is " << global_max_cfl << CFendl;
 }
 
 
