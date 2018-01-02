@@ -146,7 +146,7 @@ struct VariablesDescriptor::Implementation
 
   bool has_variable(const std::string& vname) const
   {
-    return std::find(m_user_names.begin(), m_user_names.end(), vname) != m_user_names.end();
+    return m_indices.find(vname) != m_indices.end();
   }
 
   Uint var_length(const Uint var_number) const
