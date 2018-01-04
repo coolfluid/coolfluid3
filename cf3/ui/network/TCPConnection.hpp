@@ -9,6 +9,7 @@
 
 #include <boost/asio/ip/tcp.hpp>           // TCP related classes
 #include <boost/asio/placeholders.hpp>     // for placholder::error_code
+#include <boost/asio/io_service.hpp>
 #include <boost/asio/read.hpp>             // for async_read()
 #include <boost/asio/write.hpp>            // for async_write()
 #include <boost/bind/bind.hpp>             // for boost::bind()
