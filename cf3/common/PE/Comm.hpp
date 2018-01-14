@@ -80,7 +80,7 @@ public:
   bool is_finalized() const;
   /// Checks if the PE is in valid state
   /// should be initialized and Communicator pointer is set
-  bool is_active() const { return is_initialized() && !is_finalized() && is_not_null(m_comm); }
+  bool is_active() const { return is_initialized() && !is_finalized() && m_comm != MPI_COMM_NULL; }
 
   /// overload the barrier function
   void barrier();
