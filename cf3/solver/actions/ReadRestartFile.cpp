@@ -56,8 +56,8 @@ ReadRestartFile::ReadRestartFile ( const std::string& name ) :
     .description("Time component, filled with the timing info from the file")
     .mark_basic();
 
-  options().add("read_time_step", true)
-    .pretty_name("Read  Time Step")
+  options().add("read_time_settings", true)
+    .pretty_name("Read  Time Settings")
     .description("Use the time step from the restart file")
     .mark_basic();
 }
@@ -81,7 +81,7 @@ void ReadRestartFile::execute()
   if(!restart_node.is_valid())
     throw common::FileFormatError(FromHere(), "File  " + filepath.path() + " has no restart node");
   
-  if(options().value<bool>("read_time_step"))
+  if(options().value<bool>("read_time_settings"))
   {
     time->options().set("time_step", common::from_str<Real>(restart_node.attribute_value("time_step")));
     time->options().set("current_time", common::from_str<Real>(restart_node.attribute_value("current_time")));
