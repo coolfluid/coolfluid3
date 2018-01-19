@@ -36,6 +36,8 @@ list( APPEND coolfluid_ufem_files
   BCWallEpsilonABL.cpp
   BCWallFunctionABL.hpp
   BCWallFunctionABL.cpp
+  BCWallFunctionABLGoit.hpp
+  BCWallFunctionABLGoit.cpp
   BCWallFunctionNSImplicit.hpp
   BCWallFunctionNSImplicit.cpp
   BoundaryConditions.hpp
