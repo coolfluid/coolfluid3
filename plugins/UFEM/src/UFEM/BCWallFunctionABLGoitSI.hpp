@@ -4,11 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_BCWallFunctionABLGoit_hpp
-#define cf3_UFEM_BCWallFunctionABLGoit_hpp
+#ifndef cf3_UFEM_BCWallFunctionABLGoitSI_hpp
+#define cf3_UFEM_BCWallFunctionABLGoitSI_hpp
 
 
-#include "solver/Action.hpp"
+#include "UnsteadyAction.hpp"
+// #include "solver/Action.hpp"
 #include <solver/actions/Proto/BlockAccumulator.hpp>
 
 #include "LibUFEM.hpp"
@@ -26,18 +27,21 @@ namespace UFEM {
 /// The "gradient_region" option determines the region in which the temperature gradient is calculated
 /// The "lss" option determines the linear system to which the boundary condition is applied
 /// The "temperature_field_tag" option determines the tag to use when looking for the temperature field
-class UFEM_API BCWallFunctionABLGoit : public solver::Action
+
+// class UFEM_API BCWallFunctionABLGoitSI : public solver::Action
+/// UnsteadyAction, allowing direct access to the time step
+class UFEM_API BCWallFunctionABLGoitSI : public UnsteadyAction
 {
 public:
 
   /// Contructor
   /// @param name of the component
-  BCWallFunctionABLGoit ( const std::string& name );
+  BCWallFunctionABLGoitSI ( const std::string& name );
 
-  virtual ~BCWallFunctionABLGoit();
+  virtual ~BCWallFunctionABLGoitSI();
 
   /// Get the class name
-  static std::string type_name () { return "BCWallFunctionABLGoit"; }
+  static std::string type_name () { return "BCWallFunctionABLGoitSI"; }
 
   /// Execute the control of heat transfer coefficient usage (dynamic or static)
   virtual void execute();

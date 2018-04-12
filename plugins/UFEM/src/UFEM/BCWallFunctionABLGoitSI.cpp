@@ -24,7 +24,7 @@
 #include "mesh/LagrangeP0/Quad.hpp"
 #include "mesh/LagrangeP0/Line.hpp"
 
-#include "BCWallFunctionABLGoit.hpp"
+#include "BCWallFunctionABLGoitSI.hpp"
 #include "AdjacentCellToFace.hpp"
 #include "Tags.hpp"
 
@@ -44,12 +44,12 @@ using boost::proto::lit;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < BCWallFunctionABLGoit, common::Action, LibUFEM > BCWallFunctionABLGoit_Builder;
+common::ComponentBuilder < BCWallFunctionABLGoitSI, common::Action, LibUFEM > BCWallFunctionABLGoitSI_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-BCWallFunctionABLGoit::BCWallFunctionABLGoit(const std::string& name) :
-  Action(name),
+BCWallFunctionABLGoitSI::BCWallFunctionABLGoitSI(const std::string& name) :
+  UnsteadyAction(name),
   rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
     .description("The linear system for which the boundary condition is applied")),
@@ -71,38 +71,36 @@ BCWallFunctionABLGoit::BCWallFunctionABLGoit(const std::string& name) :
   // link_physics_constant("dynamic_viscosity", m_mu);
   // link_physics_constant("uref", uref);
   // link_physics_constant("href", href);
-  // std::cout << "yop: Goit: mu: " << m_mu << "; kappa: " << m_kappa << "; zwall: " << m_zwall << "; z0: " << m_z0 << "; href: " << href << "; uref: " << uref << std::endl;
+  // std::cout << "yop: GoitSI: mu: " << m_mu << "; kappa: " << m_kappa << "; zwall: " << m_zwall << "; z0: " << m_z0 << "; href: " << href << "; uref: " << uref << std::endl;
 
   trigger_setup();
 }
 
-BCWallFunctionABLGoit::~BCWallFunctionABLGoit()
+BCWallFunctionABLGoitSI::~BCWallFunctionABLGoitSI()
 {
 }
 
 
-void BCWallFunctionABLGoit::on_regions_set()
+void BCWallFunctionABLGoitSI::on_regions_set()
 {
   get_child("WallLaw")->options().set("regions", options()["regions"].value());
 }
 
-void BCWallFunctionABLGoit::trigger_setup()
+void BCWallFunctionABLGoitSI::trigger_setup()
 {
   Handle<ProtoAction> wall_law(get_child("WallLaw"));
   
-  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
-  FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
+  FieldVariable<0, VectorField> u("Velocity", "navier_stokes_u_solution");
+  // FieldVariable<1, ScalarField> p("Pressure", "navier_stokes_solution");
   FieldVariable<2, ScalarField> k("k", "ke_solution");
   FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
   FieldVariable<4, VectorField> u_adv("AdvectionVelocity", "linearized_velocity");
 
-  const auto ABL_factor = make_lambda([&](const Real nu_eff)
+  const auto ABL_factor = make_lambda([&]()
+  // const auto ABL_factor = make_lambda([&](const Real nu_eff)
   {
-    // Real factor = ::pow(m_kappa/::log(m_zwall/m_z0),2)/nu_eff;
-    Real factor = ::pow(m_kappa/::log(m_zwall/m_z0),2);
-    // Real factor = 1;
-    std::cout << "yop: abl factor: " << factor << "; nu_eff: " << nu_eff << "; kappa: " << m_kappa << "; zwall: " << m_zwall << "; z0: " << m_z0 << "; theta: " << m_theta << std::endl;
-
+    Real factor = ::pow(m_kappa/::log(m_zwall/m_z0),2); // /nu_eff; // nu_eff induces a dimension error
+    // std::cout << "yop: abl factor: " << factor << "; nu_eff: " << nu_eff << "; kappa: " << m_kappa << "; zwall: " << m_zwall << "; z0: " << m_z0 << "; theta: " << m_theta << std::endl;
     return factor;
   });
 
@@ -113,21 +111,24 @@ void BCWallFunctionABLGoit::trigger_setup()
     boost::mpl::vector<mesh::LagrangeP1::Line2D>(), //mesh::LagrangeP1::Triag3D, mesh::LagrangeP1::Quad3D>(), // Valid for surface element types
     group
     (
-      _A(u) = _0, _A(p) = _0,
+      // _A(u) = _0, //_A(p) = _0, // A version
+      _a[u] = _0, // rhs version
       element_quadrature
       (
         // _A(p, u[_i]) += -transpose(N(p)) * N(u) * normal[_i], // no-penetration condition
-        _A(u[_i], u[_i]) += ABL_factor(nu_eff) * _norm(u) * transpose(N(u)) * N(u) * _norm(normal) // Goit p. 19 
-        // _A(u[_i], u[_i]) +=  ABL_factor(nu_eff) * _norm(u) * transpose(N(u) + 0.437995*u_adv[0]*nabla(u)) * N(u) * _norm(normal) // N(u) + tau_su*u_adv*nabla(u)
+        _a[u[_i]] += ABL_factor() * _norm(u) * transpose(N(u)) * u[_i] * _norm(normal) * lit(dt()) // rhs version 
+        // _A(u[_i], u[_i]) += ABL_factor(nu_eff) * _norm(u) * transpose(N(u)) * N(u) * _norm(normal) * lit(dt()) // Goit p. 19  // A version 
       ),
       system_matrix += m_theta * _A,
-      rhs += -_A * _x,
-      _cout << _A << "\n"
+      rhs += -_a, // rhs version
+      // rhs += -_A * _x // A version
+      _cout << "yop: lit(dt)=" << lit(dt()) << "\n",
+      _cout << "yop: dt=" << dt() << "\n"
     )
   ));
 }
 
-void BCWallFunctionABLGoit::execute()
+void BCWallFunctionABLGoitSI::execute()
 {
   Handle<ProtoAction> wall_law(get_child("WallLaw"));
 

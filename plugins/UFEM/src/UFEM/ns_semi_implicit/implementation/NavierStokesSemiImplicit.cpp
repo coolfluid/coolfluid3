@@ -135,6 +135,9 @@ struct InnerLoop : solver::Action
           u_lss->rhs()->set_value(diri_idx.first, diri_idx.second, 0.);
         }
       }
+
+      inner_bc->execute(); // yop: Inner Boundary Condition
+
       u_lss->solution()->reset(0.);
       CFdebug << "Solving velocity LSS..." << CFendl;
       solve_u_lss->execute();
@@ -167,7 +170,7 @@ struct InnerLoop : solver::Action
       }
       solve_p_lss->execute();
       p_lss->solution()->sync();
-
+      
       // Compute delta_a
       u_lss->rhs()->reset(0.);
       m_apply_aup->execute(); // Compute Aup*delta_p (stored in u_lss RHS)
@@ -178,7 +181,7 @@ struct InnerLoop : solver::Action
       }
       Thyra::apply(*lumped_m_op, Thyra::NOTRANS, *aup_delta_p, delta_a.ptr(), -1., 1.); // delta_a = delta_a_star - Ml_inv*Aup*delta_p
       u_lss->solution()->sync(); // delta_a is a link to u_lss->solution(), so it needs a sync after matrix apply
-      
+
       const math::LSS::Vector& da = *u_lss->solution();
       const math::LSS::Vector& dp = *p_lss->solution();
       
@@ -203,6 +206,7 @@ struct InnerLoop : solver::Action
   
   Handle<common::Action> pressure_bc;
   Handle<common::Action> velocity_bc;
+  Handle<common::Action> inner_bc;
 
   int nb_iterations;
 
@@ -388,7 +392,10 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   Handle<BoundaryConditions> velocity_bc =  m_u_lss->create_component<BoundaryConditions>("BC");
   velocity_bc->mark_basic();
   velocity_bc->set_solution_tag("navier_stokes_u_solution");
-  m_u_lss->options().set("disabled_actions", std::vector<std::string>(1, "BC")); // Disabled because we execute it from the inner loop
+  Handle<BoundaryConditions> inner_bc =  m_u_lss->create_component<BoundaryConditions>("InnerBC");
+  inner_bc->mark_basic();
+  inner_bc->set_solution_tag("navier_stokes_u_solution");
+  m_u_lss->options().set("disabled_actions", std::vector<std::string>({"BC", "InnerBC"})); // Disabled because we execute it from the inner loop
 
   // Copy the current solution to the solution vectors
   create_component<ProtoAction>("SetSolution")->set_expression(nodes_expression(group(m_u_lss->solution(u) = u, m_p_lss->solution(p) = p)));
@@ -400,6 +407,7 @@ NavierStokesSemiImplicit::NavierStokesSemiImplicit(const std::string& name) :
   m_inner_loop->add_tag(detail::my_tag());
   Handle<InnerLoop>(m_inner_loop)->pressure_bc = pressure_bc;
   Handle<InnerLoop>(m_inner_loop)->velocity_bc = velocity_bc;
+  Handle<InnerLoop>(m_inner_loop)->inner_bc = inner_bc;
 
   // Update the solution
   create_component<ProtoAction>("Update")->set_expression(nodes_expression(group(u3 = u2, u2 = u1, u1 = u, u = m_u_lss->solution(u), p = m_p_lss->solution(p))));
