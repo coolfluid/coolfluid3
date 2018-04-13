@@ -120,7 +120,7 @@ void BCWallFunctionABLGoitSI::trigger_setup()
         // _A(u[_i], u[_i]) += ABL_factor(nu_eff) * _norm(u) * transpose(N(u)) * N(u) * _norm(normal) * lit(dt()) // Goit p. 19  // A version 
       ),
       system_matrix += m_theta * _A,
-      rhs += -_a, // rhs version
+      rhs += -_a // rhs version
       // rhs += -_A * _x // A version
       // _cout << "yop: lit(dt)=" << lit(dt()) << "\n",
     )
