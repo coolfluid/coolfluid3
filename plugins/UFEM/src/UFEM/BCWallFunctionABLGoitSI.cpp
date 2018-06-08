@@ -97,32 +97,28 @@ void BCWallFunctionABLGoitSI::trigger_setup()
   FieldVariable<4, VectorField> u_adv("AdvectionVelocity", "linearized_velocity");
 
   const auto ABL_factor = make_lambda([&]()
-  // const auto ABL_factor = make_lambda([&](const Real nu_eff)
   {
-    Real factor = ::pow(m_kappa/::log(m_zwall/m_z0),2); // /nu_eff; // nu_eff induces a dimension error
-    // std::cout << "yop: abl factor: " << factor << "; nu_eff: " << nu_eff << "; kappa: " << m_kappa << "; zwall: " << m_zwall << "; z0: " << m_z0 << "; theta: " << m_theta << std::endl;
+    Real factor = ::pow(m_kappa/::log(m_zwall/m_z0),2); // divided by nu_eff induces a dimension error and therefore not done.
     return factor;
   });
 
   // Set normal component to zero and tangential component to the wall-law value
   wall_law->set_expression(elements_expression
   (
-    boost::mpl::vector3<mesh::LagrangeP1::Line2D, mesh::LagrangeP1::Triag3D, mesh::LagrangeP1::Quad3D>(), // Valid for surface element types
-    // boost::mpl::vector<mesh::LagrangeP1::Line2D>(), //mesh::LagrangeP1::Triag3D, mesh::LagrangeP1::Quad3D>(), // Valid for surface element types
+    boost::mpl::vector3<mesh::LagrangeP1::Line2D, mesh::LagrangeP1::Triag3D, mesh::LagrangeP1::Quad3D>(),
     group
     (
-      // _A(u) = _0, //_A(p) = _0, // A version
-      _a[u] = _0, // rhs version
+      _A(u) = _0, //_A(p) = _0, // Assembly version
+                  // _a[u] = _0, // rhs version
       element_quadrature
       (
         // _A(p, u[_i]) += -transpose(N(p)) * N(u) * normal[_i], // no-penetration condition
-        _a[u[_i]] += ABL_factor() * _norm(u) * transpose(N(u)) * u[_i] * _norm(normal) * lit(dt()) // rhs version 
-        // _A(u[_i], u[_i]) += ABL_factor(nu_eff) * _norm(u) * transpose(N(u)) * N(u) * _norm(normal) * lit(dt()) // Goit p. 19  // A version 
+        // _a[u[_i]] += ABL_factor() * _norm(u) * transpose(N(u)) * u[_i] * _norm(normal) * lit(dt()) // rhs version 
+        _A(u[_i], u[_i]) += _norm(u) * transpose(N(u)) * N(u) * _norm(normal) * lit(dt()) * ABL_factor() // Goit p. 19  // Assembly version 
       ),
       system_matrix += m_theta * _A,
-      rhs += -_a // rhs version
-      // rhs += -_A * _x // A version
-      // _cout << "yop: lit(dt)=" << lit(dt()) << "\n",
+      // rhs += -_a // rhs version
+      rhs += -_A * _x // Assembly version
     )
   ));
 }

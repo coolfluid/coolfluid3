@@ -109,8 +109,9 @@ public:
   /// Apply dirichlet-type boundary conditions.
   /// When preserve_symmetry is true than blockrow*numequations+eq column is is zeroed by moving it to the right hand side (however this usually results in performance penalties).
   void dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry=false);
-  void dirichlet_apply(const bool preserve_symmetry);
-
+  void dirichlet_apply(const bool preserve_symmetry, const bool use_zero = false);
+  /// The second true argt will set the dirichlet values to 0. Used for the solver iterations > 1.
+  
   /// Applying periodicity by adding one line to another and dirichlet-style fixing it to
   /// Note that prerequisite for this is to work that the matrix sparsity should be compatible (same nonzero pattern for the two block rows).
   /// Note that only structural symmetry can be preserved (again, if sparsity input was symmetric).

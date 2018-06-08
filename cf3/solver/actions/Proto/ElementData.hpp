@@ -716,7 +716,7 @@ public:
   }
 
   // Dummy types for compatibility with higher order elements
-  RealMatrix& nabla(RealMatrix mapped_coords = RealMatrix()) const
+  const RealMatrix& nabla(RealMatrix mapped_coords = RealMatrix()) const
   {
     cf3_assert(false); // should not be used
     return m_dummy_result;
