@@ -250,7 +250,7 @@ void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, const Real val
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void LSS::System::dirichlet_apply(const bool preserve_symmetry)
+void LSS::System::dirichlet_apply(const bool preserve_symmetry, const bool use_zero)
 {
   cf3_assert(is_created());
 
@@ -259,8 +259,8 @@ void LSS::System::dirichlet_apply(const bool preserve_symmetry)
     Uint iblockrow = ent1.first;
     for(auto const &ent2 : ent1.second)
     {
-      Uint ieq = ent2.first;
-      Real value = ent2.second;
+      const Uint ieq = ent2.first;
+      const Real value = use_zero ? 0.0 : ent2.second;
 
       if (preserve_symmetry)
       {
