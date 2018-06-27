@@ -7,7 +7,7 @@ set( CF3_Boost_MINIMAL_VERSION "1.46.1" )
 set( Boost_ADDITIONAL_VERSIONS "1.49" "1.48" "1.47" "1.46" )
 
 #disable looking in system paths
-set(Boost_NO_SYSTEM_PATHS ON)
+set(Boost_NO_SYSTEM_PATHS OFF)
 
 # components to search for
 list( APPEND CF3_Boost_CORE_COMPONENTS thread iostreams filesystem system regex date_time program_options )
