@@ -90,7 +90,6 @@ bool CriterionConvergence::operator()()
 
   Handle<Iterate> iterate(m_iter_comp);
 
-
   Handle<common::Action>(get_child("ComputeMinError"))->execute();
   Handle<common::Action>(get_child("ComputeMaxError"))->execute();
   Handle<common::Action>(get_child("GetMaxFluidTemperature"))->execute();

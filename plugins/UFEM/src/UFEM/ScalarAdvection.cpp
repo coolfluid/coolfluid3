@@ -45,18 +45,36 @@ ComponentBuilder < ScalarAdvection, LSSActionUnsteady, LibUFEM > ScalarAdvection
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ScalarAdvection::ScalarAdvection(const std::string& name) :
-  LSSActionUnsteady(name)
+  LSSActionUnsteady(name),
+  m_theta(0.5),
+  m_pr(1.),
+  m_pr_t(1.)
 {
-  // TODO: Move this to the physical model
-  options().add("scalar_coefficient", 1.)
-    .description("Scalar coefficient ")
-    .pretty_name("Scalar coefficient")
-    .link_to(&m_alpha)
+  options().add("pr", m_pr)
+    .description("Pr")
+    .pretty_name("Prandtl number")
+    .link_to(&m_pr)
     .mark_basic();
 
-  options().add("scalar_name", "Scalar")
+  options().add("pr_t", m_pr_t)
+    .description("Pr_t")
+    .pretty_name("Turbulent Prandtl number")
+    .link_to(&m_pr_t)
+    .mark_basic();
+
+  options().add("theta", m_theta)
+    .pretty_name("Theta")
+    .description("Theta coefficient for the theta-method.")
+    .link_to(&m_theta);
+
+  options().add("scalar_name", "Temperature")
     .pretty_name("Scalar Name")
     .description("Internal (and default visible) name to use for the scalar")
+    .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
+
+  options().add("velocity_tag", "navier_stokes_solution")
+    .pretty_name("Velocity Tag")
+    .description("Tag for the velocity field")
     .attach_trigger(boost::bind(&ScalarAdvection::trigger_scalar_name, this));
 
   set_solution_tag("scalar_advection_solution");
@@ -82,13 +100,24 @@ void ScalarAdvection::trigger_scalar_name()
       m_physical_model->variable_manager().remove_component(solution_tag());
   }
 
-  // The code will only be active for these element types
-  boost::mpl::vector2<mesh::LagrangeP1::Line1D,mesh::LagrangeP1::Quad2D> allowed_elements;
+  // List of applicable elements
+  typedef boost::mpl::vector5<
+    mesh::LagrangeP1::Quad2D,
+    mesh::LagrangeP1::Triag2D,
+    mesh::LagrangeP1::Hexa3D,
+    mesh::LagrangeP1::Tetra3D,
+    mesh::LagrangeP1::Prism3D
+  > AllowedElementTypesT;
 
   // Scalar name is obtained from an option
-  FieldVariable<0, ScalarField> Phi(options().value<std::string>("scalar_name"), solution_tag());
-  FieldVariable<1, VectorField> u_adv("AdvectionVelocity","linearized_velocity");
+  FieldVariable<0, ScalarField> phi(options().value<std::string>("scalar_name"), solution_tag());
+  FieldVariable<1, VectorField> u("Velocity",options().value<std::string>("velocity_tag"));
   FieldVariable<2, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
+  FieldVariable<3, ScalarField> temperature1_sa("TemperatureHistorySA1", "temperature_history_sa");
+  FieldVariable<4, ScalarField> temperature2_sa("TemperatureHistorySA2", "temperature_history_sa");
+  FieldVariable<5, ScalarField> temperature3_sa("TemperatureHistorySA3", "temperature_history_sa");
+
+  PhysicsConstant nu_lam("kinematic_viscosity");
 
   ConfigurableConstant<Real> relaxation_factor_scalar("relaxation_factor_scalar", "factor for relaxation in case of coupling", 1.);
 
@@ -96,30 +125,24 @@ void ScalarAdvection::trigger_scalar_name()
   Handle<ProtoAction>(get_child("Assembly"))->set_expression(
     elements_expression
     (
-      // specialized_elements,
-      allowed_elements,
-     group
-     (
-       _A = _0, _T = _0,
-      compute_tau.apply(u_adv, nu_eff, lit(dt()), lit(tau_su)),
-      element_quadrature
+      AllowedElementTypesT(),
+      group
       (
-        _A(Phi) += transpose(N(Phi)) * u_adv * nabla(Phi) + tau_su * transpose(u_adv*nabla(Phi))  * u_adv * nabla(Phi) +  m_alpha * transpose(nabla(Phi)) * nabla(Phi) ,
-       _T(Phi,Phi) +=  transpose(N(Phi) + tau_su * u_adv * nabla(Phi)) * N(Phi)
-      ),
-      system_matrix += invdt() * _T + 1.0 * _A,
-      system_rhs += -_A * _x
-     )
+        _A(phi) = _0, _T(phi) = _0,
+        compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_su)),
+        element_quadrature
+        (
+          _A(phi) += transpose(N(phi) + (tau_su*u + cw.apply(u, phi))*nabla(phi)) * u * nabla(phi) +  (nu_lam / lit(m_pr) + (nu_eff - nu_lam) / lit(m_pr_t)) * transpose(nabla(phi)) * nabla(phi),
+          _T(phi,phi) +=  transpose(N(phi) + (tau_su*u + cw.apply(u, phi))*nabla(phi)) * N(phi)
+        ),
+        system_matrix += invdt() * _T + m_theta * _A,
+        system_rhs += -_A * _x
+      )
     )
   );
 
   // Set the proto expression for the update step
-  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(Phi += relaxation_factor_scalar * solution(Phi)) );
-}
-
-void ScalarAdvection::on_initial_conditions_set ( InitialConditions& initial_conditions )
-{
-  initial_conditions.create_initial_condition(solution_tag());
+  Handle<ProtoAction>(get_child("Update"))->set_expression( nodes_expression(phi += relaxation_factor_scalar * solution(phi)) );
 }
 
 } // UFEM

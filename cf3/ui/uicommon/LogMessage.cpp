@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include <boost/assign/list_of.hpp> // for map_list_of
+#include "common/BoostAssign.hpp" // for map_list_of
 
 #include "ui/uicommon/LogMessage.hpp"
 

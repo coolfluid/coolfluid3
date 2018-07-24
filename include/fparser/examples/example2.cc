@@ -21,7 +21,7 @@ step: 1
 #include <string>
 
 template<typename Parser>
-inline void runExample(const char* valueTypeName)
+void runExample(const char* valueTypeName)
 {
     typedef typename Parser::value_type Value_t;
 

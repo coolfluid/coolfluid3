@@ -105,12 +105,16 @@ phi_wall = 200
 
 #initial conditions
 ic.navier_stokes_solution.Velocity = u_in
-ic.scalar_advection_solution.Scalar = phi_in
+
+ic_scalar = solver.InitialConditions.create_initial_condition(builder_name = 'cf3.UFEM.InitialConditionFunction', field_tag = 'scalar_advection_solution')
+ic_scalar.variable_name = 'Temperature'
+ic_scalar.value = [str(phi_in)]
+ic_scalar.regions = [mesh.topology.uri()]
 
 #properties for Navier-Stokes
 physics.options().set('density', 1.2)
 physics.options().set('dynamic_viscosity', 1.7894e-5)
-scalaradv.options().set('scalar_coefficient', 1.)
+scalaradv.pr = 1./physics.kinematic_viscosity
 
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
@@ -121,11 +125,11 @@ bc.add_constant_component_bc(region_name = 'bottom3', variable_name = 'Velocity'
 bc.add_constant_bc(region_name = 'outlet', variable_name = 'Pressure').options().set('value', 1.)
 bc.add_constant_bc(region_name = 'top', variable_name = 'Velocity').options().set('value', u_in)
 
-scalaradv.BoundaryConditions.add_constant_bc(region_name = 'inlet', variable_name = 'Scalar').options().set('value', phi_in)
-scalaradv.BoundaryConditions.add_constant_bc(region_name = 'bottom1', variable_name = 'Scalar').options().set('value',  phi_wall)
-scalaradv.BoundaryConditions.add_constant_bc(region_name = 'bottom2', variable_name = 'Scalar').options().set('value',  phi_in)
-scalaradv.BoundaryConditions.add_constant_bc(region_name = 'bottom3', variable_name = 'Scalar').options().set('value',  phi_in)
-scalaradv.BoundaryConditions.add_constant_bc(region_name = 'top', variable_name = 'Scalar').options().set('value', phi_in)
+scalaradv.BoundaryConditions.add_constant_bc(region_name = 'inlet', variable_name = 'Temperature').options().set('value', phi_in)
+scalaradv.BoundaryConditions.add_constant_bc(region_name = 'bottom1', variable_name = 'Temperature').options().set('value',  phi_wall)
+scalaradv.BoundaryConditions.add_constant_bc(region_name = 'bottom2', variable_name = 'Temperature').options().set('value',  phi_in)
+scalaradv.BoundaryConditions.add_constant_bc(region_name = 'bottom3', variable_name = 'Temperature').options().set('value',  phi_in)
+scalaradv.BoundaryConditions.add_constant_bc(region_name = 'top', variable_name = 'Temperature').options().set('value', phi_in)
 # Time setup
 time = model.create_time()
 time.options().set('time_step', 0.01)

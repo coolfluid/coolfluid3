@@ -8,6 +8,7 @@
 #define BOOST_TEST_MODULE
 
 #include <iomanip>
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"

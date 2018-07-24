@@ -9,41 +9,31 @@
 
 #include "solver/History.hpp"
 
-#include "solver/actions/Proto/DirichletBC.hpp"
-#include "solver/actions/Proto/ProtoAction.hpp"
-
+#include "solver/Action.hpp"
 
 #include "LibUFEM.hpp"
 
 namespace cf3 {
-  namespace math { namespace LSS { class System; } }
-  namespace mesh { class Region; }
 namespace UFEM {
 
 /// Calculates the surface integral of a variable.
 /// The result of the integral is returned through the result option
 /// A History component can be set to log the value.
-class UFEM_API SurfaceIntegral : public solver::actions::Proto::ProtoAction
+class UFEM_API SurfaceIntegral : public solver::Action
 {
 public:
 
   /// Contructor
   /// @param name of the component
   SurfaceIntegral ( const std::string& name );
-  
+
   virtual ~SurfaceIntegral();
 
   /// Get the class name
   static std::string type_name () { return "SurfaceIntegral"; }
-  
-  /// Set up the field to use. This builds either a vector or a scalar expression, depending on the variable passed
-  void set_field(const std::string& variable_name, const std::string& tag);
-  
-  void signal_set_field(common::SignalArgs& args);
-  void signature_set_field(common::SignalArgs& args);
-  
+
   virtual void execute();
-  
+
   /// Return the result
   const RealVector& result()
   {
@@ -55,10 +45,10 @@ private:
 
   /// Name of the variable to use
   std::string m_variable_name;
-  
+
   /// Storage for the value of the surface integral
   RealVector m_integral_value;
-  
+
   Handle<solver::History> m_history;
   bool m_changing_result;
 };

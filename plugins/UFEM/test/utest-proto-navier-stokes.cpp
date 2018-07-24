@@ -143,10 +143,10 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     *lss_action
         << create_proto_action("AdvectionVel", nodes_expression(u_adv = u))
         << create_proto_action("InitNu", nodes_expression(nu_eff = nu))
-        << allocate_component<math::LSS::ZeroLSS>("ZeroLSS")
+        << (common::allocate_component<cf3::math::LSS::ZeroLSS>("ZeroLSS"))
         << factories[i](*lss_action)
         << bc
-        << allocate_component<math::LSS::SolveLSS>("SolveLSS")
+        << (common::allocate_component<cf3::math::LSS::SolveLSS>("SolveLSS"))
         << create_proto_action("IncrementU", nodes_expression(u += lss_action->solution(u)))
         << create_proto_action("IncrementP", nodes_expression(p += lss_action->solution(p)));
     solver

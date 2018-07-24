@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 
 #include "common/BinaryDataReader.hpp"
 #include "common/BoostFilesystem.hpp"
@@ -65,11 +65,11 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
   common::XML::XmlNode mesh_node(doc->content->first_node("mesh"));
 
   common::PE::Comm& comm = common::PE::Comm::instance();
-  
+
   // Perform some checks of validity
   if(!mesh_node.is_valid())
     throw common::FileFormatError(FromHere(), "File " + path.path() + " has no mesh node");
-  
+
   if(mesh_node.attribute_value("version") != "1")
     throw common::FileFormatError(FromHere(), "File " + path.path() + " has incorrect version " + mesh_node.attribute_value("version") + "(expected 1)");
 
@@ -106,6 +106,13 @@ void Reader::do_read_mesh_into(const common::URI& path, Mesh& mesh)
     mesh_adaptor.remove_duplicate_elements_and_nodes();
     mesh_adaptor.fix_node_ranks();
     mesh_adaptor.finish();
+    for(const auto& elements : mesh.elements())
+    {
+      for(auto& rank : elements->rank().array())
+      {
+        rank = 0;
+      }
+    }
   }
 
   mesh.raise_mesh_loaded();
@@ -194,7 +201,10 @@ void Reader::read_mesh_part(const XmlNode& topology_node, const XmlNode& diction
       Field& field = dictionary.create_field(field_node.attribute_value("name"), field_node.attribute_value("description"));
       common::XML::XmlNode tag_node = field_node.content->first_node("tag");
       for(; tag_node.is_valid(); tag_node.content = tag_node.content->next_sibling("tag"))
+      {
+        std::cout << "adding field tag " << tag_node.attribute_value("name") << " to field " << field.name() << std::endl;
         field.add_tag(tag_node.attribute_value("name"));
+      }
 
       data_reader->read_table(field, table_idx);
     }

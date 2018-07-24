@@ -167,17 +167,17 @@ void PeriodicMeshPartitioner::execute()
   m_make_boundary_global->execute();
   m_periodic_boundary_linkers->execute();
 
-  boost::shared_ptr<CNodeConnectivity> node_connectivity = common::allocate_component<CNodeConnectivity>("node_connectivity");
+  boost::shared_ptr<NodeConnectivity> node_connectivity = common::allocate_component<NodeConnectivity>("node_connectivity");
   node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Elements>(mesh.topology(), IsElementsSurface()));
   
   // For each surface elements, a vector containing a sequence of  [surface element GID] , [adjacent volume element GID] for all volume elements on the current rank
-  std::map< const Elements*, std::vector<Uint> > gids_to_send;
+  std::map< const Entities*, std::vector<Uint> > gids_to_send;
   
   // Create volume-to-surface connectivity and ensure each surface element has the same rank as its adjacent volume element
   BOOST_FOREACH(Elements& elements, common::find_components_recursively_with_filter<Elements>(mesh.topology(), IsElementsVolume()))
   {
     cf3_always_assert(is_null(elements.get_child("face_connectivity")));
-    CFaceConnectivity& face_connectivity = *elements.create_component<CFaceConnectivity>("face_connectivity");
+    FaceConnectivity& face_connectivity = *elements.create_component<FaceConnectivity>("face_connectivity");
     face_connectivity.initialize(*node_connectivity);
     const Uint nb_elements = elements.size();
     const Uint nb_faces = elements.element_type().nb_faces();
@@ -188,8 +188,8 @@ void PeriodicMeshPartitioner::execute()
       {
         if(face_connectivity.has_adjacent_element(elem, face))
         {
-          CFaceConnectivity::ElementReferenceT connected = face_connectivity.adjacent_element(elem, face);
-          const Elements* connected_elements = connected.first;
+          FaceConnectivity::ElementReferenceT connected = face_connectivity.adjacent_element(elem, face);
+          const Entities* connected_elements = node_connectivity->entities()[connected.first].get();
           const Uint connected_idx = connected.second;
           std::vector<Uint>& my_gids_to_send = gids_to_send[connected_elements];
           my_gids_to_send.push_back(connected_elements->glb_idx()[connected_idx]);
@@ -254,7 +254,7 @@ void PeriodicMeshPartitioner::execute()
 #ifndef NDEBUG
   BOOST_FOREACH(Elements& elements, common::find_components_recursively_with_filter<Elements>(mesh.topology(), IsElementsVolume()))
   {
-    Handle<CFaceConnectivity> face_connectivity(elements.get_child("face_connectivity"));
+    Handle<FaceConnectivity> face_connectivity(elements.get_child("face_connectivity"));
     cf3_assert(is_not_null(face_connectivity));
     const Uint nb_elements = elements.geometry_space().connectivity().array().size();
     const Uint nb_faces = elements.element_type().nb_faces();
@@ -264,8 +264,9 @@ void PeriodicMeshPartitioner::execute()
       {
         if(face_connectivity->has_adjacent_element(elem, face))
         {
-          CFaceConnectivity::ElementReferenceT connected = face_connectivity->adjacent_element(elem, face);
-          cf3_assert(connected.first->rank()[connected.second] == elements.rank()[elem]);
+          FaceConnectivity::ElementReferenceT connected = face_connectivity->adjacent_element(elem, face);
+          const Entities& connected_ent = *face_connectivity->node_connectivity().entities()[connected.first];
+          cf3_assert(connected_ent.rank()[connected.second] == elements.rank()[elem]);
         }
       }
     } 

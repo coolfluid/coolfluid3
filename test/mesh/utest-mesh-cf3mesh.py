@@ -39,6 +39,10 @@ make_par_data = root.create_component('MakeParData', 'cf3.solver.actions.Paralle
 make_par_data.mesh = mesh
 make_par_data.execute()
 
+p2space = mesh.create_continuous_space(name = 'TestP2Space', shape_function = 'cf3.mesh.LagrangeP2')
+
+mesh.print_tree()
+
 outfile = cf.URI('cf3test.cf3mesh')
 domain.write_mesh(outfile)
 

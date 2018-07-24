@@ -24,7 +24,7 @@ class UFEM_API BCHoldValue : public solver::actions::Proto::ProtoAction
 {
 public:
 
-  /// Contructor
+  /// Constructor
   /// @param name of the component
   BCHoldValue ( const std::string& name );
   

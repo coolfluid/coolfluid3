@@ -49,36 +49,38 @@ namespace detail
 /// Helper struct to handle projection to the wall near a given surface node
 struct WallProjection
 {
-  WallProjection(const Field& coordinates, const CNodeConnectivity& node_connectivity) :
+  WallProjection(const Field& coordinates, const NodeConnectivity& node_connectivity, const std::vector<std::vector<RealVector>>& normals) :
     m_coords(coordinates),
-    m_node_connectivity(node_connectivity)
+    m_node_connectivity(node_connectivity),
+    m_normals(normals)
   {
   }
 
   // Get the wall distance for an inner node, looking at the elements that are adjacent to the given surface node
   Real operator()(const Uint inner_node_idx, const Uint surface_node_idx)
   {
+    m_has_nearest_element = false;
     RealMatrix elem_coords;
     const Uint dim = m_coords.row_size();
     const RealVector inner_coord = to_vector(m_coords[inner_node_idx]);
     std::vector<Uint> neighbor_nodes; // Collect neighboring nodes, so we can project onto a sharp corner in 3D if needed (i.e. near a step)
     // Loop over all surface elements around the given node
-    BOOST_FOREACH(const Uint elem_idx, m_node_connectivity.node_element_range(surface_node_idx))
+    BOOST_FOREACH(const NodeConnectivity::ElementReferenceT& element_ref, m_node_connectivity.node_element_range(surface_node_idx))
     {
       // Get the element coordinates
-      const CNodeConnectivity::ElementReferenceT element_ref = m_node_connectivity.element(elem_idx);
-      const ElementType& etype = element_ref.first->element_type();
+      const Entities& elem_entities = *m_node_connectivity.entities()[element_ref.first];
+      const ElementType& etype = elem_entities.element_type();
       const Uint element_nb_nodes = etype.nb_nodes();
       elem_coords.resize(element_nb_nodes, dim);
-      const Connectivity::ConstRow conn_row = element_ref.first->geometry_space().connectivity()[element_ref.second];
+      const Connectivity::ConstRow conn_row = elem_entities.geometry_space().connectivity()[element_ref.second];
       fill(elem_coords, m_coords, conn_row);
 
       // We consider lines, triangles and quads as viable surface elements
       if(element_nb_nodes < 2 || element_nb_nodes > 4 || etype.order() != 1)
       {
-        throw common::SetupError(FromHere(), "Unsupported surface element of type " + etype.name() + " in surface region " + element_ref.first->uri().path());
+        throw common::SetupError(FromHere(), "Unsupported surface element of type " + etype.name() + " in surface region " + elem_entities.uri().path());
       }
-      
+
       bool in_element = false;
 
       if(element_nb_nodes == 2) // line segment
@@ -90,7 +92,7 @@ struct WallProjection
         e1 /= e1_len;
         const Real projection = e1.dot(inner_coord - elem_coords.row(0).transpose());
         // If the projection of the node along the normal fits inside the element, we can take the normal distance
-        in_element = projection > 0 && projection < e1_len;
+        in_element = projection >= 0 && projection <= e1_len;
       }
       if(element_nb_nodes == 3)
       {
@@ -100,7 +102,7 @@ struct WallProjection
         RealVector3 en = elem_coords.row(2) - elem_coords.row(0);
         RealVector3 e2 = (e1.cross(en)).cross(e1).normalized();
         RealVector3 p = inner_coord - elem_coords.row(0).transpose();
-        
+
         // Construct 2D coordinates for the boundary element
         Eigen::Matrix<Real, 3, 2> triag_coords_2d;
         triag_coords_2d.row(0).setZero();
@@ -108,11 +110,11 @@ struct WallProjection
         triag_coords_2d(1,1) = 0.;
         triag_coords_2d(2,0) = e1.dot(elem_coords.row(2) - elem_coords.row(0));
         triag_coords_2d(2,1) = e2.dot(elem_coords.row(2) - elem_coords.row(0));
-        
+
         RealVector2 p_proj(2);
         p_proj[0] = p.dot(e1);
         p_proj[1] = p.dot(e2);
-        
+
         in_element = LagrangeP1::Triag2D::is_coord_in_element(p_proj, triag_coords_2d);
         const Uint origin_corner = std::find(conn_row.begin(), conn_row.end(), surface_node_idx) - conn_row.begin();
         if(origin_corner == 0)
@@ -166,13 +168,13 @@ struct WallProjection
           neighbor_nodes.push_back(conn_row[2]);
         }
       }
-      
+
       // If the projection was in an element, we can just proceed to compute the normal distance
       if(in_element)
       {
-        RealVector n(dim); // normal vector
-        etype.compute_normal(elem_coords, n);
-        return fabs((n/n.norm()).dot(inner_coord - elem_coords.row(0).transpose()));
+        m_last_nearest_element = element_ref;
+        m_has_nearest_element = true;
+        return fabs(m_normals[element_ref.first][element_ref.second].dot(inner_coord - elem_coords.row(0).transpose()));
       }
     }
     // If we got here, no projections on the elements gave a result
@@ -194,7 +196,10 @@ struct WallProjection
   }
 
   const Field& m_coords;
-  const CNodeConnectivity& m_node_connectivity;
+  const NodeConnectivity& m_node_connectivity;
+  const std::vector<std::vector<RealVector>>& m_normals;
+  bool m_has_nearest_element = false;
+  NodeConnectivity::ElementReferenceT m_last_nearest_element;
 };
 }
 
@@ -211,28 +216,64 @@ void WallDistance::execute()
 {
   Mesh& mesh = *m_mesh;
 
-  Field& d = mesh.geometry_fields().create_field("WallDistance", "wall_distance");
-  d.add_tag("wall_distance");
   const Field& coords = mesh.geometry_fields().coordinates();
   const Uint nb_nodes = coords.size();
+  const Uint dim = coords.row_size();
 
-  boost::shared_ptr<CNodeConnectivity> node_connectivity = common::allocate_component<CNodeConnectivity>("NodeConnectivity");
-  std::vector< Handle<Entities const> > surface_entities;
-  BOOST_FOREACH(const Handle<Region const>& region, m_regions)
+  Handle<NodeConnectivity> node_connectivity = mesh.create_component<NodeConnectivity>("wall_node_connectivity");
+  std::vector< Handle<Entities> > surface_entities;
+  std::vector< Handle<Entities const> > const_surface_entities;
+  for(const Handle<Region>& region : m_regions)
   {
-    BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively_with_filter<mesh::Elements>(*region, IsElementsSurface()))
+    for(mesh::Elements& elements : common::find_components_recursively_with_filter<mesh::Elements>(*region, IsElementsSurface()))
     {
-      surface_entities.push_back(elements.handle<Entities const>());
+      surface_entities.push_back(elements.handle<Entities>());
+      const_surface_entities.push_back(elements.handle<Entities const>());
     }
   }
 
-  node_connectivity->initialize(nb_nodes, surface_entities);
+  node_connectivity->initialize(nb_nodes, const_surface_entities);
 
-  boost::shared_ptr< common::List< Uint > > surface_nodes_ptr = build_used_nodes_list(surface_entities, mesh.geometry_fields(), true);
+  // Wall distance field
+  Field& d = mesh.geometry_fields().create_field("wall_distance");
+  d.add_tag("wall_distance");
+
+  std::vector<std::vector<RealVector>> normals;
+
+  for(const auto& wall_entity : surface_entities)
+  {
+    const Uint nb_elems = wall_entity->size();
+    const auto& geom_conn = wall_entity->geometry_space().connectivity();
+    const ElementType& etype = wall_entity->element_type();
+    const Uint element_nb_nodes = etype.nb_nodes();
+
+    normals.push_back(std::vector<RealVector>(nb_elems, RealVector(dim)));
+
+    RealMatrix elem_coords(element_nb_nodes, dim);
+    for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
+    {
+      const Connectivity::ConstRow conn_row = geom_conn[elem_idx];
+      fill(elem_coords, coords, conn_row);
+      RealVector normal(dim);
+      etype.compute_normal(elem_coords, normals.back()[elem_idx]);
+      normals.back()[elem_idx] /= normals.back()[elem_idx].norm();
+    }
+  }
+
+  boost::shared_ptr< common::List< Uint > > surface_nodes_ptr = build_used_nodes_list(const_surface_entities, mesh.geometry_fields(), true);
   const common::List<Uint>& surface_nodes = *surface_nodes_ptr;
   const Uint nb_surface_nodes = surface_nodes.size();
 
-  detail::WallProjection normal_distance(coords, *node_connectivity);
+  detail::WallProjection normal_distance(coords, *node_connectivity, normals);
+
+  // Link each node to a wall element. First column: 1 if a wall element exists. Second column: index to the entities in the node connectivity. Last column: element index
+  auto& node_to_wall_element = *mesh.create_component<common::Table<Uint>>("node_to_wall_element");
+  node_to_wall_element.set_row_size(3);
+  node_to_wall_element.resize(nb_nodes);
+  for(auto&& row : node_to_wall_element.array())
+  {
+    std::fill(row.begin(), row.end(), 0);
+  }
 
   for(Uint inner_node_idx = 0; inner_node_idx != nb_nodes; ++inner_node_idx)
   {
@@ -255,9 +296,28 @@ void WallDistance::execute()
       }
     }
 
-    d[inner_node_idx][0] = is_surface_node ? 0. : normal_distance(inner_node_idx, closest_surface_node);
+    if(is_surface_node)
+    {
+      d[inner_node_idx][0] = 0.;
+      // Eigen::Map<RealVector> node_normal(&nodal_normals[inner_node_idx][0], dim);
+      // node_normal /= node_normal.norm();
+    }
+    else
+    {
+      d[inner_node_idx][0] = normal_distance(inner_node_idx, closest_surface_node);
+      if(normal_distance.m_has_nearest_element)
+      {
+        node_to_wall_element[inner_node_idx][0] = 1;
+        node_to_wall_element[inner_node_idx][1] = normal_distance.m_last_nearest_element.first;
+        node_to_wall_element[inner_node_idx][2] = normal_distance.m_last_nearest_element.second;
+      }
+      else
+      {
+        node_to_wall_element[inner_node_idx][0] = 0;
+        node_to_wall_element[inner_node_idx][1] = closest_surface_node;
+      }
+    }
   }
-
 }
 
 //////////////////////////////////////////////////////////////////////////////

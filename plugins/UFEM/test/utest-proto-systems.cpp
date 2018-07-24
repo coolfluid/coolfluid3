@@ -88,8 +88,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   // build up the solver out of different actions
   *ic << create_proto_action("Initialize", nodes_expression(v = initial_temp));
   
-  *lss_action
-    << allocate_component<math::LSS::ZeroLSS>("ZeroLSS")
+  (*lss_action)
+    << (common::allocate_component<cf3::math::LSS::ZeroLSS>("ZeroLSS"))
     << create_proto_action
     (
       "Assembly",
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
       )
     )
     << bc
-    << allocate_component<math::LSS::SolveLSS>("SolveLSS")
+    << (common::allocate_component<cf3::math::LSS::SolveLSS>("SolveLSS"))
     << create_proto_action("Increment", nodes_expression(v += lss_action->solution(v)));
 
   // Setup physics

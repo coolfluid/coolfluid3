@@ -25,9 +25,9 @@
 #include "SUPG.hpp"
 
 namespace cf3 {
-  
+
   namespace solver { class ActionDirector; }
-  
+
 namespace UFEM {
 
 /// solver for the unsteady incompressible Navier-Stokes equations
@@ -38,7 +38,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   NavierStokes ( const std::string& name );
-  
+
   virtual ~NavierStokes();
 
   /// Get the class name
@@ -55,16 +55,6 @@ private:
   /// Implemented in NavierStokesAssembly.hpp
   template<typename GenericElementsT, typename SpecializedElementsT>
   void set_assembly_expression(const std::string& action_name);
-  
-  /// Helper function to set the expression, taking into account the user's option to use specializations or not.
-  /// Implemented in BoussinesqAssembly.hpp
-  template<typename GenericElementsT, typename SpecializedElementsT>
-  void set_boussinesq_assembly_expression(const std::string& action_name);
-
-  /// Helper function to set the expression, taking into account the user's option to use specializations or not.
-  /// Implemented in BoussinesqAssemblyExtended.hpp
-  template<typename GenericElementsT, typename SpecializedElementsT>
-  void set_boussinesq_assembly_extended_expression(const std::string& action_name);
 
   /// Helper functions to split the compilation over multiple units, to save memory. Each one is in a different cpp file.
   void set_triag_assembly(const bool use_specialization);
@@ -72,7 +62,7 @@ private:
   void set_tetra_assembly(const bool use_specialization);
   void set_hexa_assembly();
   void set_prism_assembly();
-  
+
 
   /// The velocity solution field
   FieldVariable<0, VectorField> u;
@@ -90,26 +80,18 @@ private:
   FieldVariable<6, ScalarField> nu_eff;
 
   /// Temperature field
-  FieldVariable<7, ScalarField> Temp;
-  
+  FieldVariable<7, ScalarField> density_ratio;
+
   // Body force
   FieldVariable<8, VectorField> g;
-
 
   /// Access to the physics
   PhysicsConstant rho;
   PhysicsConstant nu;
 
-  PhysicsConstant temp_ref;
-  PhysicsConstant rho_ref;
-  PhysicsConstant betha;
-  PhysicsConstant cp_heat_capacity;
-  PhysicsConstant kappa_heat_cond;
-  // PhysicsConstant g_acceleration;
-
   /// Storage of the stabilization coefficients
   Real tau_ps, tau_su, tau_bulk;
-  
+
   Handle<solver::ActionDirector> m_assembly;
   Handle<solver::ActionDirector> m_update;
   Handle<common::Action> m_initial_conditions;

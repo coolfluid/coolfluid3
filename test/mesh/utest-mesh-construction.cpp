@@ -39,7 +39,7 @@ using namespace cf3::common;
 class ElementIterator :
     public boost::iterator_facade<ElementIterator,  // iterator
                                   Entity,                     // Value
-                                  boost::bidirectional_traversal_tag, // search direction
+                                  boost::random_access_traversal_tag, // search direction
                                   Entity                     // return type of dereference
                                  >
 {

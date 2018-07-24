@@ -78,13 +78,13 @@ void ShortestEdge::execute()
     RealRowVector sf_origin_value(sf.nb_nodes());
     RealRowVector sf_other_value(sf.nb_nodes());
     RealRowVector origin_real;
-    
+
     for(Uint row_idx = 0; row_idx != nb_elems; ++row_idx)
     {
       fill(element_coords, coords, conn[row_idx]);
       sf.compute_value(origin, sf_origin_value);
       origin_real = sf_origin_value*element_coords;
-      
+
       for(Uint i = 0; i != dimension; ++i)
       {
         sf.compute_value(end_coords.row(i), sf_other_value);
@@ -96,12 +96,12 @@ void ShortestEdge::execute()
   }
 
   RealVector global_min_h = min_h;
-  
+
   if(PE::Comm::instance().is_active())
   {
     PE::Comm::instance().all_reduce(PE::min(), min_h.data(), 3, global_min_h.data());
   }
-  
+
   properties()["h_xi"] = sqrt(global_min_h[0]);
   properties()["h_eta"] = sqrt(global_min_h[1]);
   properties()["h_zeta"] = sqrt(global_min_h[2]);

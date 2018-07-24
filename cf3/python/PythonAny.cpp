@@ -8,7 +8,7 @@
 #include "PythonAny.hpp"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
 
@@ -95,7 +95,6 @@ struct AnyToPython
     m_result = boost::python::object( wrap_component(boost::any_cast< Handle<common::Component> >(m_value)));
   }
 
-  // TODO: const-correctness for python? This would require a second componentwrapper, for const components...
   void operator()(const Handle<common::Component const>&) const
   {
     if(m_found || typeid(Handle<common::Component const>) != m_value.type())
@@ -105,8 +104,8 @@ struct AnyToPython
 
     m_found = true;
 
-    common::Component* comp = const_cast<common::Component*>(boost::any_cast< Handle<common::Component const> >(m_value).get());
-    m_result = boost::python::object(wrap_component(is_null(comp) ? Handle<common::Component>() : comp->handle()));
+    const common::Component* comp = boost::any_cast< Handle<common::Component const> >(m_value).get();
+    m_result = boost::python::object(wrap_component(is_null(comp) ? Handle<common::Component const>() : comp->handle()));
   }
 
   const boost::any& m_value;
@@ -284,15 +283,17 @@ std::string type_name(const boost::python::api::object& python_object)
 {
   // Mapping between the python type name and the coolfluid type
   typedef std::map<std::string, std::string> TypeMapT;
-  static const TypeMapT python_type_map =
-    boost::assign::map_list_of(std::string(PyBool_Type.tp_name), common::class_name<bool>())
-                              (std::string(PyInt_Type.tp_name), common::class_name<int>())
-                              (std::string(PyString_Type.tp_name), common::class_name<std::string>())
-                              (std::string(PyFloat_Type.tp_name), common::class_name<Real>())
-                              (std::string(PyList_Type.tp_name), "array") // Special indication of lists
-                              (std::string("URI"), common::class_name<common::URI>()) // "URI" as passed in the boost::python::class_ definition
-                              (std::string("UUCount"), common::class_name<common::UUCount>()) // Same as URI
-                              (std::string("Component"), "component"); // Same as URI, but needs special treatment afterwards
+  static const TypeMapT python_type_map = {
+    {std::string(PyBool_Type.tp_name), common::class_name<bool>()},
+    {std::string(PyInt_Type.tp_name), common::class_name<int>()},
+    {std::string(PyString_Type.tp_name), common::class_name<std::string>()},
+    {std::string(PyFloat_Type.tp_name), common::class_name<Real>()},
+    {std::string(PyList_Type.tp_name), "array"},                     // Special indication of lists
+    {std::string("URI"), common::class_name<common::URI>()},         // "URI" as passed in the boost::python::class_ definition
+    {std::string("UUCount"), common::class_name<common::UUCount>()}, // Same as URI
+    {std::string("Component"), "component"},
+    {std::string("Table_real"), "component"}
+  };
 
   // Look up the type in the map
   const PyTypeObject& python_type = *python_object.ptr()->ob_type;

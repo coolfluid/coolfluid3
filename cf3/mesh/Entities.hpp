@@ -75,7 +75,7 @@ public: // functions
 
   /// return the number of elements
   Uint size() const;
-  
+
   /// return the number of elements across all processes;
   Uint glb_size() const;
 

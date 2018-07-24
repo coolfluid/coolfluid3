@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/test/unit_test.hpp>
 
 #include "common/TypeInfo.hpp"

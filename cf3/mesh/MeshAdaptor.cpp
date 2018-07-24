@@ -625,12 +625,21 @@ void MeshAdaptor::send_elements(const std::vector< std::vector< std::vector<Uint
   cf3_assert(exported_elements_loc_id.size() == PE::Comm::instance().size());
   const Uint nb_dicts = m_mesh->dictionaries().size();
   const Uint nb_entities = m_mesh->elements().size();
-  rebuild_node_glb_to_loc_map();
+  bool need_rebuild = false;
   for (Uint dict_idx=0; dict_idx<nb_dicts; ++dict_idx)
   {
     Dictionary& dict = *m_mesh->dictionaries()[dict_idx];
-    cf3_assert(dict.glb_to_loc().size() == dict.size());
+    if(dict.glb_to_loc().size() != dict.size())
+    {
+      need_rebuild = true;
+      break;
+    }
   }
+  if(need_rebuild)
+  {
+    node_glb_to_loc_needs_rebuild = true;
+  }
+  rebuild_node_glb_to_loc_map();
 
   // Declaration of send/receive buffers
   PE::Buffer send_buffer, receive_buffer;
@@ -1179,7 +1188,7 @@ void MeshAdaptor::grow_overlap()
 {
 
   PE::Comm& comm = PE::Comm::instance();
-  
+
   flush_nodes();
   flush_elements();
 
@@ -1245,7 +1254,7 @@ void MeshAdaptor::grow_overlap()
       }
     }
   }
-  
+
   //////PECheckArrivePoint(100, "boundary nodes found");
 
   // Copy set into vector and convert to global indices
@@ -1450,7 +1459,11 @@ void MeshAdaptor::combine_mesh(const Mesh& other_mesh)
     {
       if ( is_null (dict->get_child(other_field->name())) )
       {
-        dict->create_field(other_field->name(),other_field->descriptor().description());
+        Field& new_field = dict->create_field(other_field->name(),other_field->descriptor().description());
+        for(const auto& tag : other_field->get_tags())
+        {
+          new_field.add_tag(tag);
+        }
       }
     }
 

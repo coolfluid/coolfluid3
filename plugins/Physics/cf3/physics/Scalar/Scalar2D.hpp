@@ -70,9 +70,9 @@ public: // functions
   /// @return the physical model type
   virtual std::string type() const { return type_name(); }
   /// create a physical properties
-  virtual std::auto_ptr<physics::Properties> create_properties()
+  virtual boost::shared_ptr<physics::Properties> create_properties()
   {
-    return std::auto_ptr<physics::Properties>( new Scalar2D::Properties() );
+    return boost::shared_ptr<physics::Properties>( new Scalar2D::Properties() );
   }
 
   /// Create a Variables component

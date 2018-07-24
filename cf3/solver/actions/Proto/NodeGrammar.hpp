@@ -14,10 +14,12 @@
 #include "Functions.hpp"
 #include "SetRHS.hpp"
 #include "SetSolution.hpp"
+#include "NodalMatrixManipulation.hpp"
 #include "NodeData.hpp"
 #include "RHSVector.hpp"
 #include "SolutionVector.hpp"
 #include "Transforms.hpp"
+#include "ZeroLSSRow.hpp"
 
 /// @file
 /// Grammar for node-based expressions
@@ -57,7 +59,7 @@ struct CoordsTerminals :
 struct GetNodeIdx : boost::proto::callable
 {
   typedef Uint result_type;
-  
+
   template<typename DataT>
   Uint operator()(const DataT& data) const
   {
@@ -138,6 +140,7 @@ struct NodeAssignmentCases
   template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign<FieldTypes, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<FieldTypes, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::minus_assign, Dummy> : boost::proto::minus_assign<FieldTypes, GrammarT> {};
+  template<int Dummy> struct case_<boost::proto::tag::divides_assign, Dummy> : boost::proto::divides_assign<FieldTypes, GrammarT> {};
 };
 
 template<typename GrammarT, typename IndexGrammarT>
@@ -148,6 +151,7 @@ struct IndexedNodeAssignmentCases
   template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign< boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::minus_assign, Dummy> : boost::proto::minus_assign<boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
+  template<int Dummy> struct case_<boost::proto::tag::divides_assign, Dummy> : boost::proto::divides_assign<boost::proto::subscript<FieldTypes, IndexGrammarT>, GrammarT> {};
 };
 
 
@@ -196,7 +200,6 @@ struct NodeMath :
     NodeMathBase,
     NodeAssignGrammar<NodeMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >,
     EigenMath<NodeMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >
-    
   >
 {
 };
@@ -209,7 +212,7 @@ boost::proto::or_
   NodeMathBase,
   NodeAssignGrammar<boost::proto::call< NodeMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >,
   EigenMath<boost::proto::call< NodeMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >
-  
+
 >
 {
 };
@@ -223,8 +226,10 @@ struct NodeStreamOutputIndexed : StreamOutput< NodeMathIndexed<I, J> >
 struct SingleExprNodeGrammar :
   boost::proto::or_
   <
+    NodalMatrixGrammar<NodeMath>,
     DirichletBCGrammar<NodeMath>,
     SetRHSGrammar<NodeMath>,
+    ZeroLSSRowGrammar,
     SetSolutionGrammar<NodeMath>,
     boost::proto::when
     <

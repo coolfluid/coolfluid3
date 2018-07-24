@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 
 #include "common/Builder.hpp"
 #include "common/Signal.hpp"

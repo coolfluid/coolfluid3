@@ -1,0 +1,4 @@
+#!/bin/bash
+
+module load gmsh
+gmsh -3 GeplooideBuis.geo

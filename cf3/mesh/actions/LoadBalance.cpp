@@ -37,7 +37,7 @@ LoadBalance::LoadBalance( const std::string& name ) :
 #if (defined CF3_HAVE_PTSCOTCH)
   ,m_partitioner(create_component("partitioner", "cf3.mesh.ptscotch.Partitioner"))
 #elif (defined CF3_HAVE_ZOLTAN)
-  ,m_partitioner(create_component("partitioner", "cf3.mesh.zoltan.Partitioner"))
+  ,m_partitioner(create_component("partitioner", "cf3.zoltan.PHG"))
 #endif
 
 #if ( !defined CF3_HAVE_PTSCOTCH ) && ( !defined CF3_HAVE_ZOLTAN )
@@ -51,12 +51,6 @@ LoadBalance::LoadBalance( const std::string& name ) :
   desc =
     "  Usage: LoadBalance Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
-
-#if (defined CF3_HAVE_PTSCOTCH)
-  // no configuration necessary
-#elif (defined CF3_HAVE_ZOLTAN)
-  m_partitioner->options().set("graph_package", std::string("PHG"));
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -95,10 +89,12 @@ void LoadBalance::execute()
     m_partitioner->transform(mesh);
     CFinfo << "  + partitioning and migrating ... done" << CFendl;
 #endif
+#ifndef CF3_HAVE_ZOLTAN
     Comm::instance().barrier();
     CFinfo << "  + growing overlap layer ..." << CFendl;
     build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GrowOverlap","grow_overlap")->transform(mesh);
     CFinfo << "  + growing overlap layer ... done" << CFendl;
+#endif
     Comm::instance().barrier();
     CFinfo << "  + deallocating unused connectivity ..." << CFendl;
     /// @todo check that this actually frees the memory

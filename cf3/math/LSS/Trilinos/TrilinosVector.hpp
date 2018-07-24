@@ -139,7 +139,7 @@ public:
   /// Print to file given by filename
   void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out );
   
-  void print_native(ostream& stream);
+  void print_native(std::ostream& stream);
 
   /// Accessor to the state of create
   const bool is_created() { return m_is_created; };
@@ -165,7 +165,7 @@ public:
 
   void sync();
   
-  virtual void read_native(const common::URI& filename, const string type = "");
+  virtual void read_native(const common::URI& filename, const std::string type = "");
   
   //@} END MISCELLANEOUS
 

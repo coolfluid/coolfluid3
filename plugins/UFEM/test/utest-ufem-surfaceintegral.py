@@ -58,8 +58,6 @@ right_patch = blocks.create_patch_nb_faces(name = 'right', nb_faces = 2)
 right_patch[0] = [1, 3]
 right_patch[1] = [3, 5]
 
-blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 1)
-
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
 
@@ -75,7 +73,8 @@ solver.InitialConditions.navier_stokes_solution.Pressure = 1.
 solver.InitialConditions.execute()
 
 pressure_integral = solver.add_unsteady_solver('cf3.UFEM.SurfaceIntegral')
-pressure_integral.set_field(variable_name = 'Pressure', field_tag = 'navier_stokes_solution')
+pressure_integral.variable_name = 'Pressure'
+pressure_integral.field_tag = 'navier_stokes_solution'
 pressure_integral.regions = [mesh.topology.access_component('right').uri()]
 pressure_integral.execute()
 
@@ -83,9 +82,9 @@ if abs(pressure_integral.result[0] - 1.) > 1e-10:
   raise Exception('Wrong integration result: ' + str(pressure_integral.result[0]) + ', expected 1')
 
 velocity_integral = solver.add_unsteady_solver('cf3.UFEM.SurfaceIntegral')
-velocity_integral.set_field(variable_name = 'Velocity', field_tag = 'navier_stokes_solution')
+velocity_integral.variable_name = 'Velocity'
+velocity_integral.field_tag = 'navier_stokes_solution'
 velocity_integral.regions = [mesh.topology.access_component('left').uri(), mesh.topology.access_component('bottom').uri()]
 velocity_integral.execute()
 
 print pressure_integral.result, velocity_integral.result
-

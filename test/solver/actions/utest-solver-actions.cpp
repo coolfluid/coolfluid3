@@ -11,7 +11,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 
 #include "common/LibCommon.hpp"
 
@@ -71,7 +71,7 @@ struct CoreInit {
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( CoreInit )
+BOOST_GLOBAL_FIXTURE( CoreInit );
 
 //////////////////////////////////////////////////////////////////////////////
 

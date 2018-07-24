@@ -7,7 +7,8 @@ option(WITH_STATIC    "Build static growl library"           OFF)
 include_directories ( ./headers )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS                  "${CMAKE_CXX_FLAGS}  -Wall -Wextra -Wnon-virtual-dtor -fno-strict-aliasing")
+  set(CMAKE_CXX_FLAGS                  "${CMAKE_CXX_FLAGS}  -Wall -Wextra -Wnon-virtual-dtor -fno-strict-aliasing -fPIC")
+  set(CMAKE_C_FLAGS                  "${CMAKE_C_FLAGS} -fPIC")
   set(CMAKE_CXX_FLAGS_RELEASE          "-O2 ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS_RELWITHDEBUGINFO "-g -O2 ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS_DEBUG            "-g -ggdb -fno-reorder-blocks -fno-schedule-insns -fno-inline ${CMAKE_CXX_FLAGS}")
@@ -46,4 +47,3 @@ target_link_libraries ( gntp-send growl)
 
 add_executable( gntp-send++ source/gntp-send++.cpp )
 target_link_libraries ( gntp-send++ growl growl++)
-

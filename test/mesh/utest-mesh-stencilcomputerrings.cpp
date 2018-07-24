@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Tests mesh octtree"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/assign/list_of.hpp>
+#include "common/BoostAssign.hpp"
 #include <boost/assign/std/vector.hpp>
 
 #include "common/Core.hpp"

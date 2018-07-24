@@ -8,6 +8,7 @@
 #define cf3_solver_Action_hpp
 
 #include "common/Action.hpp"
+#include "common/Option.hpp"
 
 #include "solver/LibSolver.hpp"
 
@@ -57,6 +58,8 @@ protected: // functions
 
   void config_regions();
 
+  // Link a physics constant to the given variable
+  void link_physics_constant(const std::string& name, Real& value);
 protected: // data
 
   /// link back to the solver
@@ -72,6 +75,15 @@ protected: // data
   /// Called after the regions have been set
   virtual void on_regions_set();
 
+  /// Called after the physical model was set
+  virtual void on_physical_model_changed();
+
+private:
+  void trigger_physics();
+  void clear_triggers();
+
+  std::map<const std::string, common::Option::TriggerID> m_trigger_ids;
+  std::map<const std::string, Real*> m_physics_links;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

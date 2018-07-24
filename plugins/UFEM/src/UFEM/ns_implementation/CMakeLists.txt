@@ -15,5 +15,5 @@ add_library(cf3_ufem_ns_implementation OBJECT ${ns_implementation_files})
 
 coolfluid_mark_not_orphan(${ns_implementation_files})
 
-set_source_files_properties(${ns_implementation_files_with_debug} PROPERTIES COMPILE_FLAGS "-fPIC")
-set_source_files_properties(${ns_implementation_files_no_debug} PROPERTIES COMPILE_FLAGS "-g0 -fPIC")
+set_source_files_properties(${ns_implementation_files_with_debug} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+set_source_files_properties(${ns_implementation_files_no_debug} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -g0 -fPIC")

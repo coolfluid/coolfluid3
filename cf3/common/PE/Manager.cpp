@@ -103,7 +103,7 @@ Manager::Manager ( const std::string & name )
   signal("message")->hidden(true);
   signal("signal_to_forward")->hidden(true);
 
-  m_listener->new_signal.connect( boost::bind(&Manager::new_signal, this, _1, _2) );
+  m_listener->new_signal.connect( boost::bind(&Manager::new_signal, this, _2) );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ Manager::~Manager ()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void Manager::new_signal ( const ::MPI::Intercomm&, boost::shared_ptr<XML::XmlDoc> sig)
+void Manager::new_signal (boost::shared_ptr<XML::XmlDoc> sig)
 {
   if( Comm::instance().instance().get_parent() == MPI_COMM_NULL )
   {

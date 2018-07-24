@@ -152,7 +152,7 @@ private:
 protected:
 
   /// Store a copy of the expression
-  typedef typename boost::result_of< DeepCopy(typename boost::result_of<ReplaceConfigurableConstants(typename boost::result_of<ReplacePhysicsConstants(ExprT, PhysicsConstantStorage)>::type, ConstantStorage)>::type) >::type CopiedExprT;
+  typedef typename boost::tr1_result_of< DeepCopy(typename boost::tr1_result_of<ReplaceConfigurableConstants(typename boost::tr1_result_of<ReplacePhysicsConstants(ExprT, PhysicsConstantStorage)>::type, ConstantStorage)>::type) >::type CopiedExprT;
   CopiedExprT m_expr;
 
   // Number of variables
@@ -273,7 +273,7 @@ public:
 
   void loop(mesh::Region& region)
   {
-    // IF COMPILATION FAILS HERE: the espression passed is invalid
+    // IF COMPILATION FAILS HERE: the expression passed is invalid
     BOOST_MPL_ASSERT_MSG(
       (boost::proto::matches<typename BaseT::CopiedExprT, NodeGrammar>::value),
       INVALID_NODE_EXPRESSION,

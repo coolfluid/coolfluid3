@@ -17,27 +17,25 @@ namespace cf3 {
 
 namespace UFEM {
 
-/// Special case of steady FEM problems: only one LSS solve is needed to get the solution of the problem
-/// Useful for i.e. linear heat conduction
+/// Steady, linear heat conduction
 class UFEM_API HeatConductionSteady : public LSSAction
 {
-public: // functions
-
-  /// Contructor
-  /// @param name of the component
+public:
+  // Component basics:
   HeatConductionSteady ( const std::string& name );
-
-  /// Get the class name
-  static std::string type_name () { return "HeatConductionSteady"; }
+  static std::string type_name () {return "HeatConductionSteady";}
 
 private:
+  // Set default initial conditions
   virtual void on_initial_conditions_set(InitialConditions& initial_conditions);
+  // Triggered on option changes
   void trigger();
+  // System assembly
   Handle<solver::actions::Proto::ProtoAction> m_assembly;
+  // Solution update
   Handle<solver::actions::Proto::ProtoAction> m_update;
-  PhysicsConstant heat_cond;
 
-
+  PhysicsConstant lambda_s;
 };
 
 } // UFEM

@@ -26,7 +26,7 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "VelocityGradient"; }
-  
+
   virtual void execute();
 
 private:

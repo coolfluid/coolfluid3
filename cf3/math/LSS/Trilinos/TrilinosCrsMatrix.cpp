@@ -637,7 +637,7 @@ void TrilinosCrsMatrix::print(const std::string& filename, std::ios_base::openmo
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosCrsMatrix::print_native(ostream& stream)
+void TrilinosCrsMatrix::print_native(std::ostream& stream)
 {
   m_mat->Print(stream);
 }

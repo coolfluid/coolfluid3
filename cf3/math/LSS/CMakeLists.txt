@@ -1,5 +1,7 @@
 coolfluid_find_orphan_files()
 
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Trilinos_CXX_COMPILER_FLAGS}" )
+
 list( APPEND coolfluid_math_lss_files
   LibLSS.hpp
   LibLSS.cpp

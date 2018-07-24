@@ -22,14 +22,26 @@ list( APPEND coolfluid_ufem_files
   AdjustForceTerm.cpp
   BCDirichletFunction.hpp
   BCDirichletFunction.cpp
+  BCFeedback.hpp
+  BCFeedback.cpp
   BCHoldValue.hpp
   BCHoldValue.cpp
   BCNeumannConstant.cpp
   BCNeumannConstant.hpp
+  BCSSTKOmega.hpp
+  BCSSTKOmega.cpp
+  BCWallEpsilon.hpp
+  BCWallEpsilon.cpp
+  BCWallEpsilonABL.hpp
+  BCWallEpsilonABL.cpp
+  BCWallFunctionABL.hpp
+  BCWallFunctionABL.cpp
+  BCWallFunctionNSImplicit.hpp
+  BCWallFunctionNSImplicit.cpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
-  BoussinesqAssembly.hpp
-  BoussinesqAssemblyExtended.hpp
+  BoussinesqConcentration.hpp
+  BoussinesqConcentration.cpp
   BulkVelocity.hpp
   BulkVelocity.cpp
   ComputeCFL.hpp
@@ -38,16 +50,25 @@ list( APPEND coolfluid_ufem_files
   CouplingIterationControl.hpp
   CriterionConvergence.cpp
   CriterionConvergence.hpp
+  CrossWindDiffusion.hpp
   HeatConductionSteady.hpp
   HeatConductionSteady.cpp
   HeatCouplingFlux.hpp
   HeatCouplingFlux.cpp
-  ComputeFlux.hpp
-  ComputeFlux.cpp
-  ComputeTfluid.hpp
-  ComputeTfluid.cpp
+  ChienKEpsilon.hpp
+  ChienKEpsilon.cpp
+  ComputeFluxFluid.hpp
+  ComputeFluxFluid.cpp
+  ComputeFluxSolid.hpp
+  ComputeFluxSolid.cpp
+  EersteStap.hpp
+  EersteStap.cpp
+  GradPressureGradient.hpp
+  GradPressureGradient.cpp
   HeatCouplingRobin.hpp
   HeatCouplingRobin.cpp
+  HeatCouplingRobinFluid.hpp
+  HeatCouplingRobinFluid.cpp
   ICNSImplicitToSemi.hpp
   ICNSImplicitToSemi.cpp
   ICNSSemiToImplicit.hpp
@@ -58,6 +79,10 @@ list( APPEND coolfluid_ufem_files
   InitialConditionFunction.cpp
   InitialConditions.hpp
   InitialConditions.cpp
+  KEpsilonBase.hpp
+  KEpsilonBase.cpp
+  KEpsilonPhysics.hpp
+  KEpsilonPhysics.cpp
   KineticEnergyIntegral.hpp
   KineticEnergyIntegral.cpp
   LibUFEM.cpp
@@ -73,16 +98,26 @@ list( APPEND coolfluid_ufem_files
   NavierStokesSpecializations.hpp
   NavierStokesPhysics.hpp
   NavierStokesPhysics.cpp
+  NormalizedNormals.hpp
+  NormalizedNormals.cpp
   NSResidual.hpp
   NSResidual.cpp
   ParsedFunctionExpression.hpp
   ParsedFunctionExpression.cpp
+  PressureGradient.hpp
+  PressureGradient.cpp
   ScalarAdvection.cpp
   ScalarAdvection.hpp
+  ScalarAdvectionCoupling.cpp
+  ScalarAdvectionCoupling.hpp
   SpalartAllmaras.cpp
   SpalartAllmaras.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
+  SSTKOmega.hpp
+  SSTKOmega.cpp
+  StandardKEpsilon.hpp
+  StandardKEpsilon.cpp
   StokesSteady.hpp
   StokesSteady.cpp
   SurfaceIntegral.hpp
@@ -93,8 +128,14 @@ list( APPEND coolfluid_ufem_files
   SUPGFields.cpp
   Tags.hpp
   Tags.cpp
+  TweedeStap.hpp
+  TweedeStap.cpp
+  UnsteadyAction.hpp
+  UnsteadyAction.cpp
   VelocityGradient.hpp
   VelocityGradient.cpp
+  VolumeIntegral.hpp
+  VolumeIntegral.cpp
   WriteRestartManager.hpp
   WriteRestartManager.cpp
 
@@ -103,20 +144,25 @@ list( APPEND coolfluid_ufem_files
   ns_semi_implicit/NavierStokesSemiImplicit.hpp
   ns_semi_implicit/PressureSystem.hpp
   ns_semi_implicit/PressureSystem.cpp
+
+  TemperatureHistoryScalarAdvection.cpp
+  TemperatureHistoryScalarAdvection.hpp
+  TemperatureHistoryHeatConduction.cpp
+  TemperatureHistoryHeatConduction.hpp
 )
 
 set(coolfluid_ufem_RCC $<TARGET_OBJECTS:cf3_ufem_ns_implementation> $<TARGET_OBJECTS:cf3_ufem_ns_semi_implicit_implementation>)
 
-coolfluid3_add_library( TARGET     coolfluid_ufem 
-            SOURCES    
-              ${coolfluid_ufem_files} 
-            RCC 
+coolfluid3_add_library( TARGET     coolfluid_ufem
+            SOURCES
+              ${coolfluid_ufem_files}
+            RCC
               ${coolfluid_ufem_RCC}
-            LIBS     
-              coolfluid_mesh_lagrangep1 
-              coolfluid_mesh_lagrangep2 
-              coolfluid_solver_actions 
-              coolfluid_physics 
+            LIBS
+              coolfluid_mesh_lagrangep1
+              coolfluid_mesh_lagrangep2
+              coolfluid_solver_actions
+              coolfluid_physics
               coolfluid_mesh
               CONDITION  CF3_ENABLE_PROTO )
 
@@ -130,3 +176,6 @@ PROPERTIES COMPILE_FLAGS "-g0")
 add_subdirectory(demo)
 add_subdirectory(les)
 add_subdirectory(particles)
+add_subdirectory(adjoint)
+add_subdirectory(adjointtube)
+add_subdirectory(compressible)

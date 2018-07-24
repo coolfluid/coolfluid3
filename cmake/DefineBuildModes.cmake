@@ -41,12 +41,12 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
 
   if(CMAKE_COMPILER_IS_GNUCC)
 
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
+    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpfullversion
                     OUTPUT_VARIABLE GCC_VERSION)
     string(REGEX MATCHALL "[0-9]+" GCC_VERSION_COMPONENTS ${GCC_VERSION})
     list(GET GCC_VERSION_COMPONENTS 0 GCC_MAJOR)
     list(GET GCC_VERSION_COMPONENTS 1 GCC_MINOR)
-    
+
     # A bug in GCC 4.1 prevents O3 from working with Eigen
     if(GCC_MAJOR EQUAL 4 AND GCC_MINOR EQUAL 1)
       set(CMAKE_C_FLAGS_RELEASE "-O2 -fomit-frame-pointer" CACHE STRING "" FORCE)
@@ -72,5 +72,3 @@ if( NOT CF3_BUILD_TYPE_OK )
 endif()
 
 #######################################################
-
-
