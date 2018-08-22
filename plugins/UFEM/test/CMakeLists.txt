@@ -176,6 +176,10 @@ coolfluid_add_test( ATEST atest-ufem-velocitygradient
                     PYTHON atest-ufem-velocitygradient.py
                     MPI 4 )
 
+coolfluid_add_test( ATEST atest-ufem-pressurenormalization
+                    PYTHON atest-ufem-pressurenormalization.py
+                    MPI 4 )
+
 coolfluid_add_test( ATEST utest-kepsilonphysics
                     PYTHON utest-kepsilonphysics.py)
 
