@@ -244,8 +244,8 @@ void LSS::System::get_values(LSS::BlockAccumulator& values)
 void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry)
 {
   cf3_assert(is_created());
-  
-    m_symmetric_dirichlet_values_buffer[iblockrow][ieq] = value;  
+  cf3_assert(iblockrow < m_rhs->blockrow_size());
+  m_symmetric_dirichlet_values_buffer[iblockrow][ieq] = value;  
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

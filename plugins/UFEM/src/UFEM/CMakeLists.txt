@@ -110,6 +110,8 @@ list( APPEND coolfluid_ufem_files
   ParsedFunctionExpression.cpp
   PressureGradient.hpp
   PressureGradient.cpp
+  PressureNormalization.hpp
+  PressureNormalization.cpp
   ScalarAdvection.cpp
   ScalarAdvection.hpp
   ScalarAdvectionCoupling.cpp
