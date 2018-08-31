@@ -216,7 +216,7 @@ writer.execute()
 # Plot simulation velocity
 try:
     import pylb as pl
-    if cf.Core.rank() == 0:
+    if cf.Core.rank() == 0 and os.environ.get('NOPLOT', '0') == '0':
         coords = np.array(mesh.geometry.coordinates)
         ns_sol = np.array(mesh.geometry.navier_stokes_solution)
         eff_visc = np.array(mesh.geometry.navier_stokes_viscosity)

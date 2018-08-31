@@ -160,6 +160,9 @@ model.simulate()
 try:
     import numpy as np
     import pylab as pl
+    import os
+    if os.environ.get('NOPLOT', '0') != '0':
+        raise Exception("no plots wanted")
 
     coords = np.array(mesh.geometry.coordinates)
     ns_sol = np.array(mesh.geometry.navier_stokes_solution)

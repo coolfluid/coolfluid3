@@ -43,6 +43,7 @@ gradient1.options.gradient_name = 'U'
 y_segs = 64
 x_size = 12*h
 s_start = x_size/3.0
+s_mid = 1.5*x_size/3.0
 s_end = 2.0*x_size/3.0
 x_segs1 = 10
 x_segs2 = 20
@@ -50,46 +51,53 @@ x_segs3 = x_segs1
 ungraded_h = float(y_segs)
 
 blocks = domain.create_component('blocks', 'cf3.mesh.BlockMesh.BlockArrays')
-points = blocks.create_points(dimensions = 2, nb_points = 8)
+points = blocks.create_points(dimensions = 2, nb_points = 10)
 points[0] = [0.0, 0.0]
 points[1] = [s_start, 0.0]
 points[2] = [s_start, ungraded_h]
 points[3] = [0.0, ungraded_h]
-points[4] = [s_end, 0.0]
-points[5] = [s_end, ungraded_h]
-points[6] = [x_size, 0.0]
-points[7] = [x_size, ungraded_h]
+points[4] = [s_mid, 0.0]
+points[5] = [s_mid, ungraded_h]
+points[6] = [s_end, 0.0]
+points[7] = [s_end, ungraded_h]
+points[8] = [x_size, 0.0]
+points[9] = [x_size, ungraded_h]
 
-block_nodes = blocks.create_blocks(3)
+block_nodes = blocks.create_blocks(4)
 block_nodes[0] = [0, 1, 2, 3] # before bend
-block_nodes[1] = [1, 4, 5 ,2] # the bend
-block_nodes[2] = [4, 6, 7, 5] # after the bend
+block_nodes[1] = [1, 4, 5 ,2] # the bend left
+block_nodes[2] = [4, 6, 7, 5] # the bend right
+block_nodes[3] = [6, 8, 9, 7] # after bend
 
 block_subdivs = blocks.create_block_subdivisions()
 block_subdivs[0] = [x_segs1, y_segs]
 block_subdivs[1] = [x_segs2, y_segs]
-block_subdivs[2] = [x_segs3, y_segs]
+block_subdivs[2] = [x_segs2, y_segs]
+block_subdivs[3] = [x_segs3, y_segs]
 
 gradings = blocks.create_block_gradings()
 gradings[0] = [1., 1., 1., 1.]
-gradings[1] = [1., 1., 1., 1.]
-gradings[2] = [1., 1., 1., 1.]
+gradings[1] = [0.2, 0.2, 1., 1.]
+gradings[2] = [5.0, 5.0, 1., 1.]
+gradings[3] = [1., 1., 1., 1.]
 
 left_patch = blocks.create_patch_nb_faces(name = 'inlet', nb_faces = 1)
 left_patch[0] = [3, 0]
 
-bottom_patch = blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 3)
+bottom_patch = blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 4)
 bottom_patch[0] = [0, 1]
 bottom_patch[1] = [1, 4]
 bottom_patch[2] = [4, 6]
+bottom_patch[3] = [6, 8]
 
-top_patch = blocks.create_patch_nb_faces(name = 'top', nb_faces = 3)
-top_patch[0] = [7, 5]
-top_patch[1] = [5, 2]
-top_patch[2] = [2, 3]
+top_patch = blocks.create_patch_nb_faces(name = 'top', nb_faces = 4)
+top_patch[0] = [9, 7]
+top_patch[1] = [7, 5]
+top_patch[2] = [5, 2]
+top_patch[3] = [2, 3]
 
 right_patch = blocks.create_patch_nb_faces(name = 'outlet', nb_faces = 1)
-right_patch[0] = [6, 7]
+right_patch[0] = [8, 9]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
@@ -117,6 +125,9 @@ for i in range(len(coords)):
   old_y = coords[i][1]
   x = coords[i][0]
   coords[i][1] = curve_equation(x) + old_y
+
+domain.write_mesh(cf.URI("meshed.pvtu"))
+exit()
 
 # Because of multi-region support, solvers do not automatically have a region assigned, so we must manually set the solvers to work on the whole mesh
 nstokes.regions = [mesh.topology.uri()]

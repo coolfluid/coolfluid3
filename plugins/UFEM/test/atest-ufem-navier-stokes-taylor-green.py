@@ -71,7 +71,7 @@ class TaylorGreen:
     right_patch[0] = [1, 3]
     right_patch[1] = [3, 5]
     
-    blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
+
     
     mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
     self.mesh = mesh

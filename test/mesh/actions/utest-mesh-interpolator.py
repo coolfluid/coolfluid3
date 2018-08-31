@@ -49,9 +49,9 @@ right_patch = blocks.create_patch_nb_faces(name = 'right', nb_faces = 2)
 right_patch[0] = [1, 3]
 right_patch[1] = [3, 5]
 blocks.extrude_blocks(positions=[z_size], nb_segments=[z_segs], gradings=[1.])
-blocks.partition_blocks(nb_partitions = 2, direction = 1)
-blocks.partition_blocks(nb_partitions = 2, direction = 0)
-blocks.partition_blocks(nb_partitions = 2, direction = 2)
+
+
+
 blocks.create_mesh(source_mesh.uri())
 
 source_coords = source_mesh.geometry.coordinates
@@ -95,9 +95,9 @@ right_patch = blocks.create_patch_nb_faces(name = 'right', nb_faces = 2)
 right_patch[0] = [1, 3]
 right_patch[1] = [3, 5]
 blocks.extrude_blocks(positions=[z_size], nb_segments=[z_segs], gradings=[1.])
-# blocks.partition_blocks(nb_partitions = 2, direction = 1)
-blocks.partition_blocks(nb_partitions = 8, direction = 0)
-# blocks.partition_blocks(nb_partitions = 2, direction = 2)
+
+
+
 blocks.create_mesh(target_mesh.uri())
 
 interpolator = root.create_component('Interpolator', 'cf3.mesh.actions.MeshInterpolator')

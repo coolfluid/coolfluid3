@@ -121,6 +121,9 @@ model.print_timing_tree()
 try:
     import numpy as np
     import pylab as pl
+    import os
+    if os.environ.get('NOPLOT', '0') != '0':
+        raise Exception("no plots wanted")
     ke_fd = mesh.geometry.ke_solution
     nu_eff_fd = mesh.geometry.navier_stokes_viscosity
 

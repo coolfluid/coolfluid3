@@ -65,14 +65,14 @@ class TestCase:
   def square_mesh_quads(self):
     self.mesh = self.domain.create_component('Mesh', 'cf3.mesh.Mesh')
     blocks=make_square(self.segments[0], self.segments[1])
-    blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
+
     blocks.create_mesh(self.mesh.uri())
     self.setup_lss()
 
   def square_mesh_triags(self):
     self.mesh = cf.Core.root().create_component('Mesh', 'cf3.mesh.Mesh')
     blocks=make_square(self.segments[0], self.segments[1])
-    blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
+
     blocks.create_mesh(self.mesh.uri())
     triangulator = self.domain.create_component('triangulator', 'cf3.mesh.MeshTriangulator')
     triangulator.options().set('mesh', self.mesh)
@@ -85,7 +85,7 @@ class TestCase:
     self.mesh = self.domain.create_component('Mesh', 'cf3.mesh.Mesh')
     blocks = make_square(self.segments[0], self.segments[1])
     blocks.extrude_blocks(positions=[1.], nb_segments=[self.segments[2]], gradings=[1.])
-    blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
+
     blocks.create_mesh(self.mesh.uri())
     self.setup_lss()
 
@@ -93,7 +93,7 @@ class TestCase:
     self.mesh = cf.Core.root().create_component('Mesh', 'cf3.mesh.Mesh')
     blocks = make_square(self.segments[0], self.segments[1])
     blocks.extrude_blocks(positions=[1.], nb_segments=[self.segments[2]], gradings=[1.])
-    blocks.partition_blocks(nb_partitions=self.nb_procs, direction=0)
+
     blocks.create_mesh(self.mesh.uri())
     triangulator = self.domain.create_component('triangulator', 'cf3.mesh.MeshTriangulator')
     triangulator.options().set('mesh', self.mesh)

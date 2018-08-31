@@ -92,9 +92,9 @@ blocks.extrude_blocks(positions=[z_size], nb_segments=[z_segs], gradings=[1.])
 
 nb_procs = cf.Core.nb_procs()
 
-blocks.partition_blocks(nb_partitions = 2, direction = 0)
-blocks.partition_blocks(nb_partitions = 2, direction = 2)
-# blocks.partition_blocks(nb_partitions = 2, direction = 2)
+
+
+
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.create_mesh(mesh.uri())
