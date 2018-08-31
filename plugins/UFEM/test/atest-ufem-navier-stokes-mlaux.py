@@ -64,11 +64,10 @@ def run_case(modeltype):
   right_patch[0] = [1, 3]
   right_patch[1] = [3, 5]
 
-  blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 1)
 
   mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
   blocks.create_mesh(mesh.uri())
-  
+
   if not implicit:
     link_horizontal = domain.create_component('LinkHorizontal', 'cf3.mesh.actions.LinkPeriodicNodes')
     link_horizontal.mesh = mesh
@@ -130,7 +129,7 @@ def run_case(modeltype):
   else:
     bc_u = ns_solver.VelocityLSS.BC
     bc_p = ns_solver.PressureLSS.BC
-    
+
   bc_u.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [0., 0.]
   bc_u.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0.]
 

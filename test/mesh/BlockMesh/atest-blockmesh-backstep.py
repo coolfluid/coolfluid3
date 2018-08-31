@@ -101,8 +101,8 @@ outlet_patch[3] = [11, 12]
 # Generate a channel mesh
 mesh = root.create_component('Mesh', 'cf3.mesh.Mesh')
 blocks.extrude_blocks(positions=[0.025, 0.05], nb_segments=[10, 10], gradings=[5., 0.2])
-blocks.partition_blocks(nb_partitions = x_parts, direction = 0)
-blocks.partition_blocks(nb_partitions = y_parts, direction = 1)
-blocks.partition_blocks(nb_partitions = z_parts, direction = 2)
+
+
+
 blocks.create_mesh(mesh.uri())
 mesh.write_mesh(file=cf.URI('backstep.pvtu'))

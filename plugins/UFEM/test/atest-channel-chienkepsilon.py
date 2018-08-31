@@ -169,6 +169,11 @@ wall_distance.mesh = mesh
 wall_distance.regions = [mesh.topology.bottom, mesh.topology.top]
 wall_distance.execute()
 
+# Needed for yplus to work
+conn = domain.create_component("SurfaceToVolumeConnectivity", "cf3.mesh.actions.SurfaceToVolumeConnectivity")
+conn.mesh = mesh
+conn.execute()
+
 # Boundary conditions for Navier-Stokes
 bc = nstokes.get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value =  u_wall
@@ -214,7 +219,8 @@ model.print_timing_tree()
 # Plot simulation velocity
 try:
     import pylab as pl
-    if cf.Core.rank() == 0:
+    import os
+    if cf.Core.rank() == 0 and os.environ.get('NOPLOT', '0') == '0':
         coords = np.array(mesh.geometry.coordinates)
         ns_sol = np.array(mesh.geometry.navier_stokes_solution)
         yplus_arr = np.array(mesh.geometry.yplus)

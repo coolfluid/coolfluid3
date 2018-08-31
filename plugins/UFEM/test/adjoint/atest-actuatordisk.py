@@ -212,11 +212,11 @@ solver.TimeLoop.options.disabled_actions = ['Adjoint','keAdjoint']
 model.simulate()
 
 # run adjoint, starting from converged NS solution
-solver.TimeLoop.options.disabled_actions = ['NavierStokes','StandardKEpsilon'] # NS disabled, adjoint enabled
-solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
-time.end_time += num_steps*tstep # add again the same number of steps as in the forward solution
-
-model.simulate()
+# solver.TimeLoop.options.disabled_actions = ['NavierStokes','StandardKEpsilon'] # NS disabled, adjoint enabled
+# solver.options.disabled_actions = ['InitialConditions'] # disable initial conditions
+# time.end_time += num_steps*tstep # add again the same number of steps as in the forward solution
+#
+# model.simulate()
 
 # lss.print_system("adjlss.tec")
 # run paraview output.pvtu to see the result

@@ -24,7 +24,7 @@ blocks.create_patch_nb_faces(name = 'right', nb_faces = 1)[0] = [1, 2]
 blocks.create_patch_nb_faces(name = 'top', nb_faces = 1)[0] = [2, 3]
 blocks.create_patch_nb_faces(name = 'left', nb_faces = 1)[0] = [3, 0]
 blocks.extrude_blocks(positions=[1.], nb_segments=[4], gradings=[1.])
-blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 0)
+
 blocks.create_mesh(mesh.uri())
 
 coords = mesh.geometry.coordinates

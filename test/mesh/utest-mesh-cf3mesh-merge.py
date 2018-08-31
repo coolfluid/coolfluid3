@@ -4,6 +4,7 @@ import coolfluid as cf
 env = cf.Core.environment()
 env.log_level = 4
 env.only_cpu0_writes = True
+env.assertion_throws = False
 
 root = cf.Core.root()
 domain = root.create_component('Domain', 'cf3.mesh.Domain')

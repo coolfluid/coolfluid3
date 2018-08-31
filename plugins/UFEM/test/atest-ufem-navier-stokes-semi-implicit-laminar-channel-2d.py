@@ -11,7 +11,7 @@ env.assertion_throws = False
 env.assertion_backtrace = False
 env.exception_backtrace = False
 env.regist_signal_handlers = False
-env.log_level = 1
+env.log_level = 4
 env.only_cpu0_writes = True
 
 # setup a model
@@ -28,9 +28,9 @@ ns_solver = solver.add_unsteady_solver('cf3.UFEM.NavierStokesSemiImplicit')
 ns_solver.options.theta = 0.5
 ns_solver.options.nb_iterations = 2
 ns_solver.enable_body_force = True
-ns_solver.options.pressure_rcg_solve = True
-ns_solver.options.alpha_su = 0.
-#ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.DirectStrategy'
+# ns_solver.options.pressure_rcg_solve = True
+ns_solver.options.alpha_su = 1.0
+ns_solver.PressureLSS.solution_strategy = 'cf3.math.LSS.DirectStrategy'
 refinement_level = 1
 
 supg_terms = solver.add_unsteady_solver('cf3.UFEM.SUPGFields')
@@ -72,56 +72,45 @@ right_patch = blocks.create_patch_nb_faces(name = 'right', nb_faces = 2)
 right_patch[0] = [1, 3]
 right_patch[1] = [3, 5]
 
-nb_procs = cf.Core.nb_procs()
-if block_subdivs[0][1] % nb_procs != 0:
-  raise Exception("Vertical slices can't be divided by the number of processors")
-
-blocks.partition_blocks(nb_partitions = nb_procs, direction = 1)
+blocks.periodic_x = ["left", "right"]
 
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
+
 blocks.create_mesh(mesh.uri())
 
-create_point_region = domain.create_component('CreatePointRegion', 'cf3.mesh.actions.AddPointRegion')
-create_point_region.coordinates = [5., 1.]
-create_point_region.region_name = 'center'
-create_point_region.mesh = mesh
-create_point_region.execute()
-
-link_horizontal = domain.create_component('LinkHorizontal', 'cf3.mesh.actions.LinkPeriodicNodes')
-link_horizontal.mesh = mesh
-link_horizontal.source_region = mesh.topology.right
-link_horizontal.destination_region = mesh.topology.left
-link_horizontal.translation_vector = [-10., 0.]
-link_horizontal.execute()
-
+# create_point_region = domain.create_component('CreatePointRegion', 'cf3.mesh.actions.AddPointRegion')
+# create_point_region.coordinates = [5., 1.]
+# create_point_region.region_name = 'center'
+# create_point_region.mesh = mesh
+# create_point_region.execute()
 
 # Physical constants
 physics.options().set('density', 1.)
 physics.options().set('dynamic_viscosity', 1.)
 
-tstep = 0.5
+tstep = 0.05
 
 ns_solver.regions = [mesh.topology.uri()]
 supg_terms.regions = [mesh.topology.uri()]
 residuals.regions = [mesh.topology.uri()]
 p_copy.regions = [mesh.topology.uri()]
 
-for strat in [ns_solver.children.FirstPressureStrategy, ns_solver.children.SecondPressureStrategy]:
-  strat.MLParameters.aggregation_type = 'Uncoupled'
-  strat.MLParameters.max_levels = 4
-  strat.MLParameters.smoother_sweeps = 2
-  strat.MLParameters.coarse_type = 'Amesos-KLU'
-  strat.MLParameters.add_parameter(name = 'repartition: start level', value = 0)
-  strat.MLParameters.add_parameter(name = 'repartition: max min ratio', value = 1.1)
-  #strat.SolverParameters.convergence_tolerance = 1e-6
+# for strat in [ns_solver.children.FirstPressureStrategy, ns_solver.children.SecondPressureStrategy]:
+#   strat.MLParameters.aggregation_type = 'Uncoupled'
+#   strat.MLParameters.max_levels = 4
+#   strat.MLParameters.smoother_sweeps = 2
+#   strat.MLParameters.coarse_type = 'Amesos-KLU'
+#   strat.MLParameters.add_parameter(name = 'repartition: start level', value = 0)
+#   strat.MLParameters.add_parameter(name = 'repartition: max min ratio', value = 1.1)
+#   #strat.SolverParameters.convergence_tolerance = 1e-6
 
-lss = ns_solver.VelocityLSS.LSS
-lss.SolutionStrategy.preconditioner_reset = 20000000
-lss.SolutionStrategy.Parameters.preconditioner_type = 'Ifpack'
-lss.SolutionStrategy.Parameters.PreconditionerTypes.Ifpack.overlap = 0
-lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block CG'
-lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.convergence_tolerance = 1e-6
-lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.maximum_iterations = 300
+# lss = ns_solver.VelocityLSS.LSS
+# lss.SolutionStrategy.preconditioner_reset = 20000000
+# lss.SolutionStrategy.Parameters.preconditioner_type = 'Ifpack'
+# lss.SolutionStrategy.Parameters.PreconditionerTypes.Ifpack.overlap = 0
+# lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.solver_type = 'Block CG'
+# lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.convergence_tolerance = 1e-6
+# lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockCG.maximum_iterations = 300
 #lss.SolutionStrategy.Parameters.LinearSolverTypes.Belos.SolverTypes.BlockGMRES.num_blocks = 100
 
 # Initial conditions
@@ -139,29 +128,29 @@ bc_u = ns_solver.VelocityLSS.BC
 bc_u.add_constant_bc(region_name = 'bottom', variable_name = 'Velocity').value = [0., 0.]
 bc_u.add_constant_bc(region_name = 'top', variable_name = 'Velocity').value = [0., 0.]
 # Pressure BC
-ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 10.
+#ns_solver.PressureLSS.BC.add_constant_bc(region_name = 'center', variable_name = 'Pressure').value = 10.
 
 solver.create_fields()
-supg_avg = solver.add_unsteady_solver('cf3.solver.actions.FieldTimeAverage')
-supg_avg.field = mesh.geometry.supg_terms
+# supg_avg = solver.add_unsteady_solver('cf3.solver.actions.FieldTimeAverage')
+# supg_avg.field = mesh.geometry.supg_terms
 
-res_avg = solver.add_unsteady_solver('cf3.solver.actions.FieldTimeAverage')
-res_avg.field = mesh.geometry.navier_stokes_residual
+# res_avg = solver.add_unsteady_solver('cf3.solver.actions.FieldTimeAverage')
+# res_avg.field = mesh.geometry.navier_stokes_residual
 
 # Time setup
 time = model.create_time()
 time.time_step = tstep
-time.end_time = 50.*tstep
+time.end_time = 2.*tstep
 model.simulate()
 
 domain.write_mesh(cf.URI('semi-implicit-laminar-channel-2d.pvtu'))
 
-for ((x, y), (u, v)) in zip(mesh.geometry.coordinates, mesh.geometry.navier_stokes_u_solution):
-  u_ref = y*(2-y)
-  if abs(u_ref - u) > 1e-2:
-    raise Exception('Error in u component: {u} != {u_ref} at y = {y}'.format(u = u, u_ref = u_ref, y = y))
-  if abs(v) > 1e-3:
-    raise Exception('Non-zero v-component {v} at y = {y}'.format(v = v, y = y))
+# for ((x, y), (u, v)) in zip(mesh.geometry.coordinates, mesh.geometry.navier_stokes_u_solution):
+#   u_ref = y*(2-y)
+#   if abs(u_ref - u) > 1e-2:
+#     raise Exception('Error in u component: {u} != {u_ref} at y = {y}'.format(u = u, u_ref = u_ref, y = y))
+#   if abs(v) > 1e-3:
+#     raise Exception('Non-zero v-component {v} at y = {y}'.format(v = v, y = y))
 
 # print timings
 model.print_timing_tree()

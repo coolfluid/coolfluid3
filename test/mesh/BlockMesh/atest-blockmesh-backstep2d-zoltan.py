@@ -103,8 +103,8 @@ blocks.options.overlap = 0
 
 # Generate a channel mesh
 mesh = domain.create_component('Mesh', 'cf3.mesh.Mesh')
-blocks.partition_blocks(nb_partitions = x_parts, direction = 0)
-blocks.partition_blocks(nb_partitions = y_parts, direction = 1)
+
+
 blocks.create_mesh(mesh.uri())
 
 make_par_data = domain.create_component('MakeParData', 'cf3.solver.actions.ParallelDataToFields')

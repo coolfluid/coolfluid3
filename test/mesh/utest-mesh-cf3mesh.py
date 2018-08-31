@@ -25,15 +25,8 @@ blocks.create_patch_nb_faces(name = 'bottom', nb_faces = 1)[0] = [0, 1]
 blocks.create_patch_nb_faces(name = 'right',  nb_faces = 1)[0] = [1, 2]
 blocks.create_patch_nb_faces(name = 'top',    nb_faces = 1)[0] = [2, 3]
 blocks.create_patch_nb_faces(name = 'left',   nb_faces = 1)[0] = [3, 0]
-blocks.partition_blocks(nb_partitions = cf.Core.nb_procs(), direction = 1)
+blocks.periodic_x = ["left", "right"]
 blocks.create_mesh(mesh.uri())
-
-link_horizontal = domain.create_component('LinkHorizontal', 'cf3.mesh.actions.LinkPeriodicNodes')
-link_horizontal.mesh = mesh
-link_horizontal.source_region = mesh.topology.right
-link_horizontal.destination_region = mesh.topology.left
-link_horizontal.translation_vector = [-1., 0.]
-link_horizontal.execute()
 
 make_par_data = root.create_component('MakeParData', 'cf3.solver.actions.ParallelDataToFields')
 make_par_data.mesh = mesh
