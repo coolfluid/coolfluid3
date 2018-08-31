@@ -593,13 +593,82 @@ struct BlockArrays::Implementation
     }
   }
 
-  /// Create the block coordinates
   template<typename ET>
-  void fill_block_coordinates_3d(Table<Real>& mesh_coords, const Uint block_idx)
+  struct ApplySF
+  {
+    using SF = typename ET::SF;
+    using NodesT = typename ET::NodesT;
+    using CoordsT = typename ET::CoordsT;
+    using MappedCoordsT = typename ET::MappedCoordsT;
+
+    explicit ApplySF(const NodesT& nodes) : m_nodes(nodes)
+    {
+    }
+
+    template<typename MappedCoordsT>
+    CoordsT operator()(const MappedCoordsT& mapped_coords) const
+    {
+      typename SF::ValueT sf;
+      SF::compute_value(mapped_coords, sf);
+
+      // Transform to real coordinates
+      return sf * m_nodes;
+    }
+
+    const NodesT m_nodes;
+  };
+
+  template<typename ET>
+  struct RadialSF
+  {
+  };
+
+  template<typename ET>
+  struct ApplySF<RadialSF<ET>>
+  {
+    using SF = typename ET::SF;
+    using NodesT = typename ET::NodesT;
+    using CoordsT = typename ET::CoordsT;
+    using MappedCoordsT = typename ET::MappedCoordsT;
+
+    explicit ApplySF(const NodesT& block_nodes, const CoordsT& center = CoordsT(0,0,0)) : m_center(center)
+    {
+      // Store nodes in radial format
+      for(int i = 0; i != NodesT::RowsAtCompileTime; ++i)
+      {
+        m_nodes(i, 0) = atan2(block_nodes(i, 2), block_nodes(i, 0));
+        m_nodes(i, 1) = block_nodes(i, 1);
+        const Real dx = block_nodes(i,0)-m_center[0];
+        const Real dz = block_nodes(i,2)-m_center[2];
+        m_nodes(i, 2) = sqrt(dx*dx+dz*dz);
+      }
+    }
+
+    template <typename MappedCoordsT>
+    CoordsT operator()(const MappedCoordsT &mapped_coords) const
+    {
+      typename SF::ValueT sf;
+      SF::compute_value(mapped_coords, sf);
+
+      // Result in radial coordinates
+      CoordsT result = sf * m_nodes;
+      // Transform back to cartesian
+      const Real theta = result[0];
+      const Real r = result[2];
+      result[0] = r*cos(theta) + m_center[0];
+      result[2] = r*sin(theta) + m_center[2];
+      return result;
+    }
+
+    const CoordsT m_center;
+    NodesT m_nodes;
+  };
+
+  /// Create the block coordinates
+  template<typename ApplyT>
+  void fill_block_coordinates_3d(Table<Real>& mesh_coords, const Uint block_idx, const ApplyT& apply_sf)
   {
     const Uint rank = common::PE::Comm::instance().rank();
-    typename ET::NodesT block_nodes;
-    fill(block_nodes, *points, (*blocks)[block_idx]);
     const Table<Uint>::ConstRow& segments = (*block_subdivisions)[block_idx];
     const Table<Real>::ConstRow& gradings = (*block_gradings)[block_idx];
 
@@ -611,7 +680,7 @@ struct BlockArrays::Implementation
     Real w[4][3]; // weights for each edge
     Real w_mag[3]; // Magnitudes of the weights
 
-    for(const auto& ijk : needed_nodes_ijk[block_idx])
+    for (const auto &ijk : needed_nodes_ijk[block_idx])
     {
       const Uint i = ijk.second[0];
       const Uint j = ijk.second[1];
@@ -636,16 +705,12 @@ struct BlockArrays::Implementation
       w_mag[ZTA] = (w[0][ZTA] + w[1][ZTA] + w[2][ZTA] + w[3][ZTA]);
 
       // Get the mapped coordinates of the node to add
-      typename ET::MappedCoordsT mapped_coords;
+      typename ApplyT::MappedCoordsT mapped_coords;
       mapped_coords[KSI] = (w[0][KSI]*ksi[i][0] + w[1][KSI]*ksi[i][1] + w[2][KSI]*ksi[i][2] + w[3][KSI]*ksi[i][3]) / w_mag[KSI];
       mapped_coords[ETA] = (w[0][ETA]*eta[j][0] + w[1][ETA]*eta[j][1] + w[2][ETA]*eta[j][2] + w[3][ETA]*eta[j][3]) / w_mag[ETA];
       mapped_coords[ZTA] = (w[0][ZTA]*zta[k][0] + w[1][ZTA]*zta[k][1] + w[2][ZTA]*zta[k][2] + w[3][ZTA]*zta[k][3]) / w_mag[ZTA];
 
-      typename ET::SF::ValueT sf;
-      ET::SF::compute_value(mapped_coords, sf);
-
-      // Transform to real coordinates
-      typename ET::CoordsT coords = sf * block_nodes;
+      auto coords = apply_sf(mapped_coords);
 
       // Store the result
       const Uint node_idx = ijk.first;
@@ -657,11 +722,9 @@ struct BlockArrays::Implementation
   }
 
   /// Create the block coordinates
-  template<typename ET>
-  void fill_block_coordinates_2d(Table<Real>& mesh_coords, const Uint block_idx)
+  template <typename ApplyT>
+  void fill_block_coordinates_2d(Table<Real> &mesh_coords, const Uint block_idx, const ApplyT &apply_sf)
   {
-    typename ET::NodesT block_nodes;
-    fill(block_nodes, *points, (*blocks)[block_idx]);
     const Table<Uint>::ConstRow& segments = (*block_subdivisions)[block_idx];
     const Table<Real>::ConstRow& gradings = (*block_gradings)[block_idx];
 
@@ -686,15 +749,12 @@ struct BlockArrays::Implementation
       w_mag[ETA] = (w[0][ETA] + w[1][ETA]);
 
       // Get the mapped coordinates of the node to add
-      typename ET::MappedCoordsT mapped_coords;
+      typename ApplyT::MappedCoordsT mapped_coords;
       mapped_coords[KSI] = (w[0][KSI]*ksi[i][0] + w[1][KSI]*ksi[i][1]) / w_mag[KSI];
       mapped_coords[ETA] = (w[0][ETA]*eta[j][0] + w[1][ETA]*eta[j][1]) / w_mag[ETA];
 
-      typename ET::SF::ValueT sf;
-      ET::SF::compute_value(mapped_coords, sf);
-
       // Transform to real coordinates
-      typename ET::CoordsT coords = sf * block_nodes;
+      auto coords = apply_sf(mapped_coords);
 
       // Store the result
       const Uint node_idx = ijk.first;
@@ -801,6 +861,7 @@ struct BlockArrays::Implementation
   std::vector<std::string> block_regions;
   /// Keeps the indices that are needed on this rank, for each block
   std::vector< std::map < Uint, std::array<Uint, 3> > > needed_nodes_ijk;
+  std::vector<bool> block_is_arc;
 };
 
 BlockArrays::BlockArrays(const std::string& name) :
@@ -867,6 +928,12 @@ BlockArrays::BlockArrays(const std::string& name) :
     .attach_trigger(boost::bind(&Implementation::trigger_block_regions, m_implementation.get()))
     .mark_basic();
 
+  options().add("block_is_arc", std::vector<bool>())
+    .pretty_name("Block Arcs")
+    .description("For each block, indicate if it is an arc with y-axis as normal and (0,0,0) as centroid.")
+    .link_to(&m_implementation->block_is_arc)
+    .mark_basic();
+
   options().add("periodic_x", std::vector<std::string>())
     .pretty_name("Periodic X")
     .description("Make the mesh periodic in the X direction?")
@@ -913,6 +980,7 @@ Handle< Table< Uint > > BlockArrays::create_blocks(const Uint nb_blocks)
 
   m_implementation->blocks->set_row_size(dimensions == 3 ? 8 : 4);
   m_implementation->blocks->resize(nb_blocks);
+  m_implementation->block_is_arc.resize(nb_blocks, false);
 
   return m_implementation->blocks;
 }
@@ -1258,9 +1326,24 @@ void BlockArrays::create_mesh(Mesh& mesh)
   for(Uint block_idx = blocks_begin; block_idx != blocks_end; ++block_idx)
   {
     if(dimensions == 3)
-      m_implementation->fill_block_coordinates_3d<Hexa3D>(coordinates, block_idx);
+    {
+      Hexa3D::NodesT block_nodes;
+      fill(block_nodes, *m_implementation->points, (*m_implementation->blocks)[block_idx]);
+      if(m_implementation->block_is_arc[block_idx])
+      {
+        m_implementation->fill_block_coordinates_3d(coordinates, block_idx, Implementation::ApplySF<Implementation::RadialSF<Hexa3D>>(block_nodes));
+      }
+      else
+      {
+        m_implementation->fill_block_coordinates_3d(coordinates, block_idx, Implementation::ApplySF<Hexa3D>(block_nodes));
+      }
+    }
     if(dimensions == 2)
-      m_implementation->fill_block_coordinates_2d<Quad2D>(coordinates, block_idx);
+    {
+      Quad2D::NodesT block_nodes;
+      fill(block_nodes, *m_implementation->points, (*m_implementation->blocks)[block_idx]);
+      m_implementation->fill_block_coordinates_2d(coordinates, block_idx, Implementation::ApplySF<Quad2D>(block_nodes));
+    }
   }
 
   // Add surface patches
