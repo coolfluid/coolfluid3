@@ -104,17 +104,13 @@ endif()
 
 # python support
 if( CF3_ENABLE_PYTHON )
-
-  # Search for python executable if not provided
-  find_package( PythonInterp QUIET )
-
   # This package searches for python libraries and include dirs
-  find_package( PythonDev QUIET )
+  find_package (Python2 COMPONENTS Interpreter Development)
 
   coolfluid_set_package(PACKAGE Python DESCRIPTION "Python features"
                         PURPOSE "Creation and use of Python interface"
                         TYPE OPTIONAL
-                        VARS PYTHON_EXECUTABLE PYTHON_INCLUDE_DIR PYTHON_LIBRARIES Boost_PYTHON_FOUND
+                        VARS Python2_EXECUTABLE Python2_INCLUDE_DIRS Python2_LIBRARIES Python2_FOUND
                         QUIET)
 
   if( CF3_HAVE_PYTHON )
