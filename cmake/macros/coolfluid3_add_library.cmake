@@ -133,7 +133,7 @@ macro( coolfluid3_add_library )
         endif()
 
         # add the library target
-        add_library( ${_PAR_TARGET} ${_PAR_TYPE} ${_PAR_SOURCES} ${_gen_MOC} ${_PAR_RCC} )
+        add_library(${_PAR_TARGET} ${_PAR_TYPE} ${_PAR_SOURCES} ${_gen_MOC} ${_PAR_RCC})
 
         set_target_properties( ${_PAR_TARGET} PROPERTIES LINK_FLAGS "${CF3_LIBRARY_LINK_FLAGS}" )
         set_target_properties( ${_PAR_TARGET} PROPERTIES DEFINE_SYMBOL ${LIBNAME_CAPS}_EXPORTS )

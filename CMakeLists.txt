@@ -23,10 +23,8 @@ cmake_minimum_required( VERSION 2.8.8 FATAL_ERROR )
 cmake_policy( VERSION 2.8.3 )
 
 if(${CMAKE_MAJOR_VERSION} GREATER 3 OR ${CMAKE_MAJOR_VERSION} EQUAL 3)
-  cmake_policy(SET CMP0026 OLD)
-  cmake_policy(SET CMP0042 NEW)
-  cmake_policy(SET CMP0045 OLD)
-  cmake_policy(SET CMP0046 OLD)
+  cmake_policy(SET CMP0040 NEW)
+  cmake_policy(SET CMP0074 NEW)
 endif()
 
 ##############################################################################

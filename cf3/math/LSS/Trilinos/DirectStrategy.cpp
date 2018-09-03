@@ -19,8 +19,6 @@
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_XMLParameterListHelpers.hpp"
 
-#include "Teko_StratimikosFactory.hpp"
-
 #include "common/Builder.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OptionList.hpp"
