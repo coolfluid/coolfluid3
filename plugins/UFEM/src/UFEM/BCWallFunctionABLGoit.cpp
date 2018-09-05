@@ -101,7 +101,7 @@ void BCWallFunctionABLGoit::trigger_setup()
     // Real factor = ::pow(m_kappa/::log(m_zwall/m_z0),2)/nu_eff;
     Real factor = ::pow(m_kappa/::log(m_zwall/m_z0),2);
     // Real factor = 1;
-    std::cout << "yop: abl factor: " << factor << "; nu_eff: " << nu_eff << "; kappa: " << m_kappa << "; zwall: " << m_zwall << "; z0: " << m_z0 << "; theta: " << m_theta << std::endl;
+    //std::cout << "yop: abl factor: " << factor << "; nu_eff: " << nu_eff << "; kappa: " << m_kappa << "; zwall: " << m_zwall << "; z0: " << m_z0 << "; theta: " << m_theta << std::endl;
 
     return factor;
   });
@@ -121,8 +121,8 @@ void BCWallFunctionABLGoit::trigger_setup()
         // _A(u[_i], u[_i]) +=  ABL_factor(nu_eff) * _norm(u) * transpose(N(u) + 0.437995*u_adv[0]*nabla(u)) * N(u) * _norm(normal) // N(u) + tau_su*u_adv*nabla(u)
       ),
       system_matrix += m_theta * _A,
-      rhs += -_A * _x,
-      _cout << _A << "\n"
+      rhs += -_A * _x
+      // _cout << _A << "\n"
     )
   ));
 }
