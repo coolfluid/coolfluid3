@@ -1055,10 +1055,16 @@ Handle< Mesh > BlockArrays::create_block_mesh()
   const Uint nb_blocks  = m_implementation->blocks->size();
 
   // root region and coordinates
-  Region& block_mesh_region = m_implementation->block_mesh->topology().create_region("block_mesh_region");
   m_implementation->block_mesh->initialize_nodes(nb_nodes, dimensions);
   Dictionary& geometry_dict = m_implementation->block_mesh->geometry_fields();
   geometry_dict.coordinates().array() = m_implementation->points->array();
+
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    geometry_dict.glb_idx()[i] = i;
+  }
+
+  Region &block_mesh_region = m_implementation->block_mesh->topology().create_region("block_mesh_region");
 
   // Define the volume cells, i.e. the blocks
   Elements& block_elements = block_mesh_region.create_region("blocks").create_elements(dimensions == 3 ? "cf3.mesh.LagrangeP1.Hexa3D" : "cf3.mesh.LagrangeP1.Quad2D", geometry_dict);
@@ -1142,6 +1148,9 @@ Handle< Mesh > BlockArrays::create_block_mesh()
     block_elements.glb_idx()[i] = i;
   }
 
+  m_implementation->block_mesh->update_structures();
+  m_implementation->block_mesh->raise_mesh_loaded();
+  m_implementation->block_mesh->check_sanity();
   return m_implementation->block_mesh;
 }
 
