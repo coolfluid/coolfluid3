@@ -42,6 +42,8 @@ list( APPEND coolfluid_ufem_files
   BCWallFunctionABLGoitSI.cpp
   BCWallFunctionNSImplicit.hpp
   BCWallFunctionNSImplicit.cpp
+  BodyForceControl.cpp
+  BodyForceControl.hpp
   BoundaryConditions.hpp
   BoundaryConditions.cpp
   BoussinesqConcentration.hpp

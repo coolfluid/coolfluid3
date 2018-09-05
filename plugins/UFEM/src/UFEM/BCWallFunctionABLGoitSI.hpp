@@ -58,7 +58,7 @@ private:
 
   Real m_theta = 0.5;
 
-  /// Default from KEpsilonPhysics.cpp. Else, from the model:
+  /// Default from KEpsilonPhysics.cpp. Else, from the model
   Real m_c_mu = 0;
   Real m_kappa = 0;
   Real m_zwall = 0;
