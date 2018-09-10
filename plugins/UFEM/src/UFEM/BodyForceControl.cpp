@@ -118,6 +118,7 @@ void BodyForceControl::execute()
   /// uMean computation
   RealVector uMean(physical_model().ndim());
   uMean.setZero();
+  /* std::cout << "yop: mean:" << uMean << std::endl; */
   surface_integral(uMean, m_surface_regions, u);
   Real surface = 0.0;
   surface_integral(surface, m_surface_regions, lit(1.0));
@@ -129,13 +130,17 @@ void BodyForceControl::execute()
     uInteg.resize(physical_model().ndim()); /// Resize to speed dim(x, y, z)
     uInteg.setZero();                       /// Initialize to zero
   }
+  /* std::cout << "yop: uInteg:" << uInteg << ", mean:" << uMean << ", uref:" << uRef << std::endl; */
   uInteg += (uMean - uRef) * m_time->dt();
 
   /// Correction factor
   m_correction.resize(physical_model().ndim());
   /* m_correction = ((uRef - uMean)/uRef.norm()); /// basic correction */
   m_correction = aCoef * uInteg + bCoef * (uMean - uRef); /// Goldstein p.356
-  /* std::cout << "yop: uInteg:" << uInteg << ", mean:" << uMean << ", corr:" << m_correction << std::endl; */
+  std::cout << "yop: uInteg:" << uInteg << ", mean:" << uMean << ", corr:" << m_correction << std::endl;
+  m_correction(1) = 0.;
+  m_correction(2) = 0.;
+  std::cout << "yop: corr:" << m_correction << std::endl;
 
   ProtoAction::execute();
 }
