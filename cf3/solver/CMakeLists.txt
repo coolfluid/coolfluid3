@@ -84,7 +84,7 @@ coolfluid3_add_library( TARGET   coolfluid_solver
                         KERNEL
                         SOURCES  ${coolfluid_solver_files}
                         LIBS     ${coolfluid_solver_libs}
-                                 ${TRILINOS_LIBRARIES} ${SUPERLU_LIBRARIES}
-                        INCLUDES ${TRILINOS_INCLUDE_DIRS} ${SUPERLU_INCLUDE_DIRS} )
+                                 ${TRILINOS_LIBRARIES}
+                        INCLUDES ${TRILINOS_INCLUDE_DIRS})
 
 add_subdirectory( actions ) # actions the solver uses

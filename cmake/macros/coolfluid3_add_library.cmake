@@ -218,13 +218,13 @@ macro( coolfluid3_add_library )
             set_property( TARGET ${_PAR_TARGET} PROPERTY LINKER_LANGUAGE ${_PAR_LINKER_LANGUAGE} )
         endif()
 
+        get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
     endif()
 
   set( ${LIBNAME}_includedirs ${${LIBNAME}_includedirs} CACHE INTERNAL "" )
 
   # log some info about the library
 
-  get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
 
   coolfluid_log_file("${LIBNAME} user option     : [${CF3_BUILD_${LIBNAME}}]")
   coolfluid_log_file("${LIBNAME}_builds          : [${${LIBNAME}_builds}]")

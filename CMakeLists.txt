@@ -18,14 +18,10 @@
 # cmake behavior
 ##############################################################################
 
-cmake_minimum_required( VERSION 2.8.8 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.10 FATAL_ERROR )
 
-cmake_policy( VERSION 2.8.3 )
+cmake_policy( VERSION 3.10 )
 
-if(${CMAKE_MAJOR_VERSION} GREATER 3 OR ${CMAKE_MAJOR_VERSION} EQUAL 3)
-  cmake_policy(SET CMP0040 NEW)
-  cmake_policy(SET CMP0074 NEW)
-endif()
 
 ##############################################################################
 # project definition and versioning

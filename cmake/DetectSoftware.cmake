@@ -84,7 +84,7 @@ find_package(Parmetis)        # parallel domain decomposition
 find_package(Zoltan)          # parallel and serial domain decomposition using parmetis or pt-scotch
 find_package(Curl)            # curl downloads files on the fly
 find_package(CGNS)            # CGNS library
-find_package(SuperLU)         # SuperLU sparse sirect solver
+#find_package(SuperLU)         # SuperLU sparse sirect solver
 find_package(Trilinos)        # Trilinos sparse matrix library
 find_package(Gnuplot QUIET)   # Find gnuplot executable
 coolfluid_set_package(PACKAGE Gnuplot DESCRIPTION "Gnuplot executable" VARS GNUPLOT_EXECUTABLE )
@@ -105,12 +105,14 @@ endif()
 # python support
 if( CF3_ENABLE_PYTHON )
   # This package searches for python libraries and include dirs
-  find_package (Python2 COMPONENTS Interpreter Development)
+  find_package(PythonInterp 2 REQUIRED)
+  find_package(PythonLibs 2 REQUIRED)
+
 
   coolfluid_set_package(PACKAGE Python DESCRIPTION "Python features"
                         PURPOSE "Creation and use of Python interface"
                         TYPE OPTIONAL
-                        VARS Python2_EXECUTABLE Python2_INCLUDE_DIRS Python2_LIBRARIES Python2_FOUND
+                        VARS PYTHON_EXECUTABLE PYTHON_INCLUDE_DIRS PYTHON_LIBRARIES PYTHONLIBS_FOUND
                         QUIET)
 
   if( CF3_HAVE_PYTHON )

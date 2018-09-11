@@ -23,6 +23,7 @@
 #include "Thyra_VectorStdOps.hpp"
 
 #include "Stratimikos_DefaultLinearSolverBuilder.hpp"
+#include "Stratimikos_MueLuHelpers.hpp"
 
 #include "common/Builder.hpp"
 #include "common/EventHandler.hpp"
@@ -58,6 +59,7 @@ struct TrilinosStratimikosStrategy::Implementation
     m_iteration_count(0),
     m_xcoords(0)
   {
+    Stratimikos::enableMueLu(m_linear_solver_builder);
     Teko::addTekoToStratimikosBuilder(m_linear_solver_builder);
     m_linear_solver_builder.setParameterList(m_parameter_list);
 

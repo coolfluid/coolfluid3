@@ -141,11 +141,10 @@ macro( coolfluid_add_application APPNAME )
 
     endif()
 
+    get_target_property( ${APPNAME}_P_SOURCES        ${APPNAME} SOURCES )
+    get_target_property( ${APPNAME}_LINK_FLAGS       ${APPNAME} LINK_FLAGS )
+    get_target_property( ${APPNAME}_TYPE             ${APPNAME} TYPE )
   endif()
-
-  get_target_property( ${APPNAME}_P_SOURCES        ${APPNAME} SOURCES )
-  get_target_property( ${APPNAME}_LINK_FLAGS       ${APPNAME} LINK_FLAGS )
-  get_target_property( ${APPNAME}_TYPE             ${APPNAME} TYPE )
 
   # log some info about the app
   coolfluid_log_file("${APPNAME} user option     : [${CF3_BUILD_${APPNAME}}]")

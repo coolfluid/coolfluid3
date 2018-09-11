@@ -17,7 +17,9 @@ add_subdirectory( solver )
 add_subdirectory( python )
 
 # UI provides the user interface
-add_subdirectory( ui )
+if(CF3_ENABLE_GUI)
+    add_subdirectory( ui )
+endif()
 
 # tools harbours miscellaneous tools to support coolfluid development
 add_subdirectory( Tools )

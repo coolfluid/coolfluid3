@@ -1,7 +1,7 @@
 coolfluid_add_test( UTEST  utest-python-basics
                     PYTHON utest-python-basics.py )
 
-LIST( APPEND utest-python-scriptengine_includedirs ${Python2_INCLUDE_DIRS} )
+LIST( APPEND utest-python-scriptengine_includedirs ${PYTHON_INCLUDE_DIRS} )
 coolfluid_add_test( UTEST      utest-python-scriptengine
                     CPP        utest-python-scriptengine.cpp
                     ARGUMENTS  ${CMAKE_CURRENT_SOURCE_DIR}/utest-python-basics.py
