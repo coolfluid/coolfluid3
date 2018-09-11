@@ -135,7 +135,7 @@ coolfluid3_add_library( TARGET coolfluid_ui_graphics
 						RCC
                             ${coolfluid_ui_graphics_RCC}
                         INCLUDES
-                            ${PYTHON_INCLUDE_DIR}
+                            ${PYTHON_INCLUDE_DIRS}
                         LIBS
                             coolfluid_ui_core
                             ${Boost_PYTHON_LIBRARY}

@@ -40,7 +40,7 @@ if( CF3_HAVE_PYTHON )
                             PYTHON_MODULE
                             SOURCES  ${coolfluid_python_files}
                             INCLUDES
-                                ${PYTHON_INCLUDE_DIR}
+                                ${PYTHON_INCLUDE_DIRS}
                             LIBS coolfluid_common coolfluid_mesh
                                 ${Boost_PYTHON_LIBRARY}
                                 ${PYTHON_LIBRARIES} )

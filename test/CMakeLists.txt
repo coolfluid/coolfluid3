@@ -1,5 +1,3 @@
-coolfluid_find_orphan_files()
-
 include_directories( ${CMAKE_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
@@ -12,5 +10,7 @@ add_subdirectory( mesh )
 add_subdirectory( physics )
 add_subdirectory( solver )
 add_subdirectory( Tools )
-add_subdirectory( ui )
+if(CF3_ENABLE_GUI)
+  add_subdirectory( ui )
+endif()
 add_subdirectory( python )

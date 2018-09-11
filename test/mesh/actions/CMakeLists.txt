@@ -2,18 +2,15 @@
 coolfluid_add_test( UTEST   utest-mesh-actions-global-connectivity
                     CPP     utest-mesh-actions-global-connectivity.cpp
                     LIBS    coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1
-                    MPI     2
-                    DEPENDS copy_resources )
+                    MPI     2)
 
 coolfluid_add_test( UTEST   utest-mesh-actions-facebuilder
                     CPP     utest-mesh-actions-facebuilder.cpp
-                    LIBS    coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1
-                    DEPENDS copy_resources )
+                    LIBS    coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1)
 
 coolfluid_add_test( UTEST   utest-mesh-actions-facebuilder-mpi
                     CPP     utest-mesh-actions-facebuilder-mpi.cpp
                     LIBS    coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1
-                    DEPENDS copy_resources
                     MPI     2 )
 
 coolfluid_add_test( UTEST utest-mesh-actions-interpolate

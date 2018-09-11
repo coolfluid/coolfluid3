@@ -27,8 +27,3 @@ if(CF3_HAVE_CGNS)
 endif(CF3_HAVE_CGNS)
 
 coolfluid_add_application( coolfluid-meshdiff )
-
-# store the path for the acceptance tests
-get_property( coolfluid-meshdiff_path TARGET coolfluid-meshdiff PROPERTY LOCATION )
-set( coolfluid-meshdiff_path ${coolfluid-meshdiff_path} CACHE "Full path to coolfluid-meshdiff" INTERNAL )
-mark_as_advanced( coolfluid-meshdiff_path )

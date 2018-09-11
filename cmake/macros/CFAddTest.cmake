@@ -271,6 +271,9 @@ function( coolfluid_add_test )
       endif()
 
     endif( _PAR_CFSCRIPT )
+    get_target_property( ${_TEST_NAME}_P_SOURCES   ${_TEST_NAME} SOURCES )
+    get_target_property( ${_TEST_NAME}_LINK_FLAGS  ${_TEST_NAME} LINK_FLAGS )
+    get_target_property( ${_TEST_NAME}_TYPE        ${_TEST_NAME} TYPE )
   endif( _TEST_BUILDS )
 
   if(CF3_INSTALL_TESTS)  # add installation paths
@@ -287,10 +290,6 @@ function( coolfluid_add_test )
   if( DEFINED ${_TEST_NAME}_libs )
     list(REMOVE_DUPLICATES ${_TEST_NAME}_libs)
   endif()
-
-  get_target_property( ${_TEST_NAME}_P_SOURCES   ${_TEST_NAME} SOURCES )
-  get_target_property( ${_TEST_NAME}_LINK_FLAGS  ${_TEST_NAME} LINK_FLAGS )
-  get_target_property( ${_TEST_NAME}_TYPE        ${_TEST_NAME} TYPE )
 
   # Log summary
   coolfluid_log_file("${_TEST_PROFILE} ${_TEST_NAME}")
