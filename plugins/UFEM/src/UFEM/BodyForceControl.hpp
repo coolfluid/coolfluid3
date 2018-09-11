@@ -34,8 +34,9 @@ public:
 
 private:
   std::vector<Real> m_uRef;
+  std::vector<Real> m_uInteg;
+  RealVector uIntegTmp;
   RealVector m_correction;
-  RealVector uInteg;
   Handle<solver::Time> m_time;
   Real m_dt;
   Real aCoef;
