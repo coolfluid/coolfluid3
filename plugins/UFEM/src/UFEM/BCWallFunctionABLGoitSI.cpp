@@ -99,6 +99,7 @@ void BCWallFunctionABLGoitSI::trigger_setup()
   const auto ABL_factor = make_lambda([&]()
   {
     Real factor = ::pow(m_kappa/::log(m_zwall/m_z0),2); // divided by nu_eff induces a dimension error and therefore not done.
+    // std::cout << "yop: GOIT - kappa: " << m_kappa << "; zwall: " << m_zwall << "; z0: " << m_z0 << std::endl;
     return factor;
   });
 
