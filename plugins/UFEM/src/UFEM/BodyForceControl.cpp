@@ -95,12 +95,6 @@ BodyForceControl::BodyForceControl(const std::string& name) :
     .description("Time component for the simulation")
     .link_to(&m_time);
 
-  options().add("uInteg", m_uInteg)
-      .pretty_name("Controller speed integration")
-      .description("Restart the simulation with the previous speed integration value")
-      .link_to(&m_uInteg)
-      .mark_basic();
-
   FieldVariable<0, VectorField> bf("Force", "body_force");
   
   set_expression(nodes_expression
@@ -119,7 +113,6 @@ void BodyForceControl::execute()
   using boost::proto::lit;
   const std::string tag = options().option("velocity_field_tag").value<std::string>();
   Eigen::Map<RealVector> uRef(&m_uRef[0],m_uRef.size());
-  Eigen::Map<RealVector> uInteg(&m_uInteg[0],m_uInteg.size());
   FieldVariable<0, VectorField> u("Velocity", tag);
 
   /// uMean computation
@@ -131,26 +124,20 @@ void BodyForceControl::execute()
   surface_integral(surface, m_surface_regions, lit(1.0));
   uMean /= surface;
 
-  /// uIntegTmp computation
-  if(uIntegTmp.size() == 0)                    /// modify uIntegTmp only at 1st iter
+  /// uInteg computation
+  if(uInteg.size() == 0)                    /// modify uInteg only at 1st iter
   {
-    uIntegTmp.resize(physical_model().ndim()); /// Resize to speed dim(x, y, z)
-    if(uInteg.size() == 0)
-    {
-      uIntegTmp.setZero();                       /// Initialize to zero
-    } else {
-      uIntegTmp = uInteg;
-    }
+    uInteg.resize(physical_model().ndim()); /// Resize to speed dim(x, y, z)
+    uInteg.setZero();                       /// Initialize to zero
   } 
-  /* std::cout << "yop: uIntegTmp:" << uIntegTmp << ", mean:" << uMean << ", uref:" << uRef << std::endl; */
-  uIntegTmp += (uMean - uRef) * m_time->dt();
-  uInteg = uIntegTmp;
+  /* std::cout << "yop: uInteg:" << uInteg << ", mean:" << uMean << ", uref:" << uRef << std::endl; */
+  uInteg += (uMean - uRef) * m_time->dt();
 
   /// Correction factor
   m_correction.resize(physical_model().ndim());
   /* m_correction = ((uRef - uMean)/uRef.norm()); /// basic correction */
-  m_correction = aCoef * uIntegTmp + bCoef * (uMean - uRef); /// Goldstein p.356
-  std::cout << "yop: uIntegTmp:" << uIntegTmp << ", mean:" << uMean << ", corr:" << m_correction << std::endl;
+  m_correction = aCoef * uInteg + bCoef * (uMean - uRef); /// Goldstein p.356
+  std::cout << "yop: uInteg:" << uInteg << ", mean:" << uMean << ", corr:" << m_correction << std::endl;
   /* m_correction(1) = 0.; */
   /* m_correction(2) = 0.; */
   /* std::cout << "yop: corr:" << m_correction << std::endl; */
