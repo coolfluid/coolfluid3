@@ -1148,9 +1148,9 @@ Handle< Mesh > BlockArrays::create_block_mesh()
     block_elements.glb_idx()[i] = i;
   }
 
-  m_implementation->block_mesh->update_structures();
-  m_implementation->block_mesh->raise_mesh_loaded();
-  m_implementation->block_mesh->check_sanity();
+  // m_implementation->block_mesh->update_structures();
+  // m_implementation->block_mesh->raise_mesh_loaded();
+  //m_implementation->block_mesh->check_sanity();
   return m_implementation->block_mesh;
 }
 
