@@ -190,23 +190,35 @@ struct ComputeTauImpl : boost::noncopyable
     }
     else if(supg_type == SUPGTypes::CF2)
     {
-      const Real he = UT::dimension == 2 ? sqrt(4./3.141592654*u.support().volume()) : ::pow(3./4./3.141592654*u.support().volume(),1./3.);
-      const Real ree=u_ref*he/(2.*element_nu);
-      cf3_assert(ree > 0.);
-      const Real xi = ree < 3. ? ree/3. : 1.;
-      tau_ps = he*xi/(2.*u_ref);
-      tau_bulk = he*u_ref/xi;
+      // Get the maximal edge length
+      Real he = 0.0;
+      for (Uint i = 0; i != ElementT::nb_nodes; ++i)
+      {
+        for (Uint j = 0; j != ElementT::nb_nodes; ++j)
+        {
+          if (i != j)
+          {
+            he = std::max(he, (u.support().nodes().row(i) - u.support().nodes().row(j)).squaredNorm());
+          }
+        }
+      }
+      he = sqrt(he);
+
+      const Real tau_ps_diff = he*he/(4*element_nu);
+      const Real tau_ps_adv = he / (2*u_ref);
+      tau_ps = 1.0/sqrt(1.0/(tau_ps_diff*tau_ps_diff) + 1.0/(tau_ps_adv*tau_ps_adv));
       
-      tau_su = 0.;
+      tau_su = 0.0;
       const Real umag = detail::norm(u.eval());
       if(umag > 1e-10)
       {
-        const Real h = 2.*umag / (u.eval()*u.nabla()).sum();
+        const Real h = he;//2.*umag / (u.eval()*u.nabla()).sum();
         const Real tau_adv = h/(2.*umag);
         const Real tau_time = 0.5*dt;
-        const Real tau_diff = h*h/(4.*element_nu);
-        tau_su = 1./(1./tau_adv + 1./tau_time + 1./tau_diff);
+        const Real tau_diff = tau_ps_diff;
+        tau_su = 1.0/sqrt(1.0/(tau_adv*tau_adv) + 1.0/(tau_time*tau_time) + 1.0/(tau_diff*tau_diff));
       }
+      tau_bulk = tau_ps * std::max(umag*umag, u_ref*u_ref);
     }
     else
     {
