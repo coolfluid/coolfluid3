@@ -185,8 +185,8 @@ struct ComputeTauImpl : boost::noncopyable
       tau_ps = tau_su;
       
       // Use the standard SUPG factor to compute the bulk viscosity, or it goes up way too much
-      const Real tau_su_std = 1. / sqrt((4./(dt*dt)) + tau_adv_sq + 16.*tau_diff);
-      tau_bulk = (1./tau_su_std) / gij.trace();
+      // const Real tau_su_std = 1. / sqrt((4./(dt*dt)) + tau_adv_sq + 16.*tau_diff);
+      tau_bulk = (1./tau_su) / gij.trace();
     }
     else if(supg_type == SUPGTypes::CF2)
     {
