@@ -76,7 +76,17 @@ NavierStokes::NavierStokes(const std::string& name) :
     .description("Reference velocity for the CF2 SUPG method")
     .link_to(&(compute_tau.data.op.u_ref));
 
-  options().add("theta", 1.)
+  options().add("c1", compute_tau.data.op.c1)
+    .pretty_name("c1")
+    .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+    .link_to(&(compute_tau.data.op.c1));
+    
+  options().add("c2", compute_tau.data.op.c2)
+    .pretty_name("c2")
+    .description("Constant adjusting the time part of SUPG in the metric tensor formulation")
+    .link_to(&(compute_tau.data.op.c2));
+
+  options().add("theta", 0.5)
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
