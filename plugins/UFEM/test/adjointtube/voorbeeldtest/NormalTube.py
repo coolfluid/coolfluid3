@@ -5,9 +5,9 @@ u_wall = [0.,0.]
 initial_velocity = u_in
 #rho = 1.225
 #mu   = 0.0000178 # p 18
-# obv Re getal paper= 2*10⁴
+# obv Re getal paper= 2*10
 
-rho = 2*10⁴
+rho = 4.0e4
 mu = 1
 
 tstep = 1 #dit is stap in de tijd

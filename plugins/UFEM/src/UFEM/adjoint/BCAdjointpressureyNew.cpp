@@ -27,7 +27,7 @@
 #include "mesh/LagrangeP0/Line.hpp"
 #include "solver/actions/Proto/Partial.hpp"
 
-#include "BCAdjointpressurex.hpp"
+#include "BCAdjointpressureyNew.hpp"
 #include "../AdjacentCellToFace.hpp"
 #include "../Tags.hpp"
 
@@ -38,14 +38,14 @@ namespace cf3
 
 namespace UFEM
 {
-namespace adjointtube
+namespace adjoint
 {
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-common::ComponentBuilder < BCAdjointpressurex, common::Action, LibUFEMAdjointTube > BCAdjointpressurex_Builder;
+common::ComponentBuilder < BCAdjointpressureyNew, common::Action, LibUFEMAdjoint > BCAdjointpressureyNew_Builder;
 
-BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
+BCAdjointpressureyNew::BCAdjointpressureyNew(const std::string& name) :
   ProtoAction(name),
   system_rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
@@ -64,7 +64,7 @@ BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
     FieldVariable<1, VectorField> U("AdjVelocity", "adjoint_solution");
     FieldVariable<2, VectorField> u("Velocity", "navier_stokes_solution");
     FieldVariable<3, ScalarField> nu_eff("EffectiveViscosity", "navier_stokes_viscosity");
-    FieldVariable<4, VectorField> grad_Ux("grad_Ux", "Adjvelocity_gradient");
+    FieldVariable<4, VectorField> grad_Uy("grad_Uy", "Adjvelocity_gradient");
     FieldVariable<5, ScalarField> epsilona("epsilona", "keAdjoint_solution");
     FieldVariable<6, ScalarField> ka("ka", "keAdjoint_solution");
     FieldVariable<7, ScalarField> epsilon("epsilon", "ke_solution");
@@ -89,24 +89,27 @@ BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
           mesh::LagrangeP1::Line2D
           >(),
       group
-      (
-        _A(U) = _0, _A(q) = _0, _a[U] = _0, _a[q] = _0,
-        element_quadrature
         (
-          _A(U[_i],U[_j]) += transpose(N(U))*N(U)*(u[_j]*normal[_i]) / nu_eff, // Uj*uj*ni
-          _A(U[_i],U[_i]) += transpose(N(U))*N(U)*((u*normal)[0]) / nu_eff, // Ui*uj*nj
-          _A(U[_i], q) += -transpose(N(U))*N(q)*normal[_i] / nu_eff, // -q*ni
-          _a[U[_i]] += transpose(N(U))*((0.5*(u*transpose(u))[0])*normal[_i] + (u*normal)[0]*u[_i]) / nu_eff //0.5 u^2*ni + uj*nj*ui
-        ),
+         _A(U) = _0, _A(q) = _0, _a[U] = _0, _a[q] = _0,
+        element_quadrature
+            (
+            _A(U[_i],U[_j]) += transpose(N(U))*N(U)*(u[_j]*normal[_i]) / nu_eff, // Uj*uj*ni
+            _A(U[_i],U[_i]) += transpose(N(U))*N(U)*((u*normal)[1]) / nu_eff, // Ui*uj*nj
+            // _A(U[_i],U[_i]) += transpose(N(U))*_col((_row(partial(U[_i],_j),_j)*normal),_i), // Ui,j*nj
+            // _A(U[_i],U[_i]) += transpose(N(U))*(_row(partial(U[_i],_j),_j)*normal)[1],
+            _A(U[_i], q) += -transpose(N(U))*N(q)*normal[_i] / nu_eff // -q*ni
+            ),
         system_matrix+=_A,
-        system_rhs += -_A*_x + _a
-    )));
+        system_rhs += -_A*_x 
+        )
+    )
+    );
 
 
 
 }
 
-BCAdjointpressurex::~BCAdjointpressurex()
+BCAdjointpressureyNew::~BCAdjointpressureyNew()
 {
 }
 

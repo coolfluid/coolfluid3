@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Adjoint.hpp"
+#include "DirectDifferentiation.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -31,12 +31,13 @@
 #include "solver/Tags.hpp"
 
 #include "solver/actions/Proto/SurfaceIntegration.hpp"
+#include "../SurfaceIntegral.hpp"
 #include "../NavierStokesSpecializations.hpp"
 #include "../Tags.hpp"
 
 namespace cf3 {
 namespace UFEM {
-namespace adjoint{
+namespace adjoint {
 
 using namespace common;
 using namespace solver;
@@ -44,24 +45,21 @@ using namespace solver::actions;
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-ComponentBuilder < Adjoint, LSSActionUnsteady, LibUFEMAdjoint > Adjoint_Builder;
+ComponentBuilder < DirectDifferentiation, LSSActionUnsteady, LibUFEMAdjoint > DirectDifferentiation_Builder;
 
-Adjoint::Adjoint(const std::string& name) :
+DirectDifferentiation::DirectDifferentiation(const std::string& name) :
   LSSActionUnsteady(name),
   u("Velocity", "navier_stokes_solution"),
-  ka("ka", "keAdjoint_solution"),
-  epsilona("epsilona", "keAdjoint_solution"),
-  k("k", "ke_solution"),
-  epsilon("epsilon", "ke_solution"),
-  U("AdjVelocity", "adjoint_solution"),
-  q("AdjPressure", "adjoint_solution"),
+  SensU("SensU","sensitivity_solution"),
+  SensP("SensP","sensitivity_solution"),
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   density_ratio("density_ratio", "density_ratio"),
   g("Force", "body_force"),
   rho("density"),
   nu("kinematic_viscosity")
+  // J("sensitivity","sensitivity_derivative")
 {
-  const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("adjoint_solution")("adj_linearized_velocity")("navier_stokes_viscosity");
+  const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("adjoint_solution")("adj_linearized_velocity")("navier_stokes_viscosity")("sensitivity_solution");
   properties().add("restart_field_tags", restart_field_tags);
 
   options().add("supg_type", compute_tau.data.op.supg_type_str)
@@ -78,7 +76,7 @@ Adjoint::Adjoint(const std::string& name) :
   options().add("ct", m_ct)
     .pretty_name("trust coefficient")
     .description("trust coefficient")
-    .attach_trigger(boost::bind(&Adjoint::trigger_ct, this)) // the function trigger_ct is called whenever the ct option is changed
+    .attach_trigger(boost::bind(&DirectDifferentiation::trigger_ct, this)) // the function trigger_ct is called whenever the ct option is changed
     .mark_basic();
 
   options().add("area", m_area)
@@ -109,9 +107,10 @@ Adjoint::Adjoint(const std::string& name) :
       .description("Result of the integration (read-only)")
       .mark_basic();
 
+
   options().option("regions").add_tag("norecurse");
 
-  set_solution_tag("adjoint_solution");
+  set_solution_tag("sensitivity_solution");
 
   // This ensures that the linear system matrix is reset to zero each timestep
   create_component<math::LSS::ZeroLSS>("ZeroLSS")->options().set("reset_solution", false);
@@ -134,13 +133,14 @@ Adjoint::Adjoint(const std::string& name) :
   trigger_assembly();
 }
 
-Adjoint::~Adjoint()
+DirectDifferentiation::~DirectDifferentiation()
 {
 }
 
 
-void Adjoint::trigger_assembly()
+void DirectDifferentiation::trigger_assembly()
 {
+  Uint Nt = 0;
   m_assembly->clear();
   m_update->clear();
   m_assembly->add_component(create_proto_action
@@ -148,9 +148,8 @@ void Adjoint::trigger_assembly()
     "AdjointAssembly",
     elements_expression
     (
-      boost::mpl::vector2<
-          mesh::LagrangeP1::Triag2D,
-          mesh::LagrangeP1::Tetra3D
+      boost::mpl::vector2<mesh::LagrangeP1::Tetra3D,
+          mesh::LagrangeP1::Triag2D
           >(),
       group
       (
@@ -158,47 +157,78 @@ void Adjoint::trigger_assembly()
           compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
           element_quadrature
           (
-                  _A(q    , U[_i]) += transpose(N(q) /*- tau_ps*u*nabla(q)*0.5*/) * nabla(U)[_i] - tau_ps * transpose(nabla(q)[_i]) * u*nabla(U), // Standard continuity + PSPG for advection
-                  _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
-                  _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U), // Diffusion + advection
-                  _A(U[_i], q)     += transpose(N(U) - tau_su*u*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
-                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i])* nabla(U)[_j]-transpose(N(U) - tau_su*u*nabla(U)) * u[_j] * nabla(U)[_i], // Bulk viscosity + additional adjoint advection term
-                                      //+ 0.5*u[_i]*(N(U) - tau_su*u*nabla(U)) * nabla(U)[_j], //  skew symmetric part of advection (standard +SUPG)
-                  _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
-                  _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += -transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
-                            + m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
-                                            +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu*transpose(nabla(U))*_col(partial(u[_i],_j)+partial(u[_j],_i),_i)))
+            _A(SensP    , SensU[_i]) += transpose(N(SensP)) * nabla(SensU)[_i] + tau_ps * transpose(nabla(SensP)[_i]) * u*nabla(SensU), // Standard continuity + PSPG for advection
+            _A(SensP    , SensP)     += tau_ps * transpose(nabla(SensP)) * nabla(SensP), // Continuity, PSPG
+            _A(SensU[_i], SensU[_i]) += nu_eff * transpose(nabla(SensU)) * nabla(SensU) + transpose(N(u) + tau_su*u*nabla(SensU)) * u*nabla(SensU), // Diffusion + advection
+            _A(SensU[_i], SensP)     += transpose(N(SensU) + tau_su*u*nabla(SensU)) * nabla(SensP)[_i], // Pressure gradient (standard and SUPG)
+            _A(SensU[_i], SensU[_j]) += transpose(tau_bulk*nabla(SensU)[_i])*nabla(SensU)[_j] + transpose(N(SensU) + tau_su*u*nabla(SensU))*N(SensU)*_row(nabla(u)*nodal_values(u), _j)[_i],// + partial(u[_i],_j), // *(nabla(u)*partial(u[_i],_j)*transpose(nabla(u))),
+            _a[SensU[_i]] += transpose(N(SensU)) * g[_i] * density_ratio /(lit(m_a[Nt])*(lit(1.0)-lit(m_a[Nt]))),
+
+            _T(SensP    , SensU[_i]) += tau_ps * transpose(nabla(SensP)[_i]) * N(SensU), // Time, PSPG
+            _T(SensU[_i], SensU[_i]) += transpose(N(SensU) + tau_su*u*nabla(SensU)) * N(SensU)
           ),
         system_rhs += -_A * _x + _a,
-        _A(q) = _A(q) / theta,
+        _A(SensP) = _A(SensP) / theta,
         system_matrix += invdt() * _T + theta * _A
       )
     )
   ));
-  Uint Nt = 0.;
-  for(auto&& region : m_actuator_regions)
-  {
-      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<      mesh::LagrangeP1::Line2D,
-          mesh::LagrangeP1::Triag3D>(), group(
-                                                       // set element vector to zero Line2D Triag3D
-													  _A(q) = _0, _A(U) = _0,
 
-                            element_quadrature(_A(U[_i], U[_i]) += transpose(N(U))*N(U)*u[_i]* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i]), // integrate
-                            system_rhs +=-_A * _x, // update global system RHS with element vector
-													  system_matrix += theta * _A
-                                                   )));
-      m_assembly->add_component(region_action);
-      region_action->options().set("regions", std::vector<common::URI>({region->uri()}));
-      region_action->options().option("regions").add_tag("norecurse");
-      Nt+=1;
+  // Uint Nt = 0;
+  for (auto&& region : m_actuator_regions)
+  {
+    auto region_action = create_proto_action(region->name(), 
+    elements_expression
+    (
+      boost::mpl::vector</*mesh::LagrangeP1::Triag3D, */mesh::LagrangeP1::Line2D>(),
+      group
+      (
+        /*_A = _0,*/ _a[SensU] = _0, _a[SensP] = _0,
+        //compute_tau.apply(u, nu_eff, lit(dt()), lit(tau_ps), lit(tau_su), lit(tau_bulk)),
+        element_quadrature
+        (
+          //_A(SensU[_i], SensU[_i]) += lit(0.0) * transpose(N(SensU))*N(SensU),//*u[_i]* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i],
+          _a[SensU[_i]] += transpose(N(SensU) /*+ tau_su*u*nabla(SensU)*/) * normal[_i] * density_ratio  * lit(2) * u[0] * u[0] / (lit(1) - lit(m_a[Nt])) / (lit(1) - lit(m_a[Nt])) //* density_ratio * normal[_i]
+        ),
+        // element_quadrature(_A(SensU[_i], SensU[_i]) += transpose(N(SensU))*N(SensU)*u[_i]* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i]), // integrate
+        system_rhs += _a
+        //system_matrix += theta * _A
+      )
+    ));
+    m_assembly->add_component(region_action);
+    region_action->options().set("regions", std::vector<common::URI>({region->uri()}));
+    region_action->options().option("regions").add_tag("norecurse");
+    Nt+=1;
   }
 
-  m_update->add_component(create_proto_action("Update", nodes_expression(group
-  (
-    U += solution(U),
-    q += solution(q)
-  ))));
+  //   for(auto&& region : m_actuator_regions)
+  // {
+  //     auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<      mesh::LagrangeP1::Line2D,
+  //         mesh::LagrangeP1::Triag3D>(), group(
+  //                                                      // set element vector to zero Line2D Triag3D
+	// 												  _A = _0, _A = _0, _a = _0,
+
+  //                           element_quadrature( _a[SensU[_i]] += transpose(N(SensU) /*+ tau_su*u*nabla(SensU)*/) * normal[_i] * density_ratio  * lit(2) * u[_i] * u[_i] / (lit(1) - lit(m_a[Nt])) / (lit(1) - lit(m_a[Nt]))
+  //                           ), //* density_ratio * normal[_i]
+  //                           // element_quadrature(_A(SensU[_i], SensU[_i]) += transpose(N(SensU))*N(SensU)*u[_i]* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i]), // integrate
+  //                           system_rhs +=-_A * _x + _a, // update global system RHS with element vector
+	// 												  system_matrix += theta * _A
+  //                                                  )));
+  //     m_assembly->add_component(region_action);
+  //     region_action->options().set("regions", std::vector<common::URI>({region->uri()}));
+  //     region_action->options().option("regions").add_tag("norecurse");
+  //     Nt+=1;
+  // }
+
+  m_update->add_component(create_proto_action("Update", 
+    nodes_expression(
+      group
+        (
+        SensU += solution(SensU),
+        SensP += solution(SensP)
+      )
+    )
+  ));
 
   if(is_not_null(m_physical_model))
   {
@@ -210,8 +240,10 @@ void Adjoint::trigger_assembly()
     m_initial_conditions->options().set("field_tag", solution_tag());
 }
 
+
+
 //On region set actuator disk components
-void Adjoint::on_regions_set()
+void DirectDifferentiation::on_regions_set()
 {
 	if(m_updating == true){
 		return;
@@ -233,26 +265,13 @@ void Adjoint::on_regions_set()
   m_updating = false;
 }
 
-void Adjoint::on_initial_conditions_set(InitialConditions& initial_conditions)
+void DirectDifferentiation::on_initial_conditions_set(InitialConditions& initial_conditions)
 {
   m_initial_conditions = initial_conditions.create_initial_condition(solution_tag());
 }
-void Adjoint::execute(){
-	LSSActionUnsteady::execute();
-	Uint Nt1 = 0.;
-	  for(auto&& region : m_actuator_regions)
-  {
-	 FieldVariable<0, VectorField> U("AdjVelocity", "adjoint_solution");
-     m_U_mean_disk = 0;
-     surface_integral(m_U_mean_disk, std::vector<Handle<mesh::Region>>({region}), _abs((U*normal)[0]));
-     m_U_mean_disk /= m_area;
-	 options().set("result",m_U_mean_disk);
-     CFinfo << "Mean adjoint Velocity " << m_U_mean_disk << ", a: " << m_a[Nt1] << CFendl;
-	 Nt1 +=1;
-  }
-}
 
-void Adjoint::trigger_ct()
+
+void DirectDifferentiation::trigger_ct()
 {
   auto new_ct = options().value<std::vector<Real>>("ct");
   bool size_changed = new_ct.size() != m_ct.size(); // If the size changed, assembly needs to be ran again

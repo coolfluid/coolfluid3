@@ -10,10 +10,18 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjoint
     keAdjointbase.hpp
     BCAdjointpressurex.hpp
     BCAdjointpressurex.cpp
+    BCAdjointpressurexNew.hpp
+    BCAdjointpressurexNew.cpp
     BCAdjointpressurey.hpp
     BCAdjointpressurey.cpp
+    BCAdjointpressureyNew.hpp
+    BCAdjointpressureyNew.cpp
     BCAdjointpressurez.hpp
     BCAdjointpressurez.cpp
+    DirectDifferentiation.hpp
+    DirectDifferentiation.cpp
+    DirectDifferentiationSensitivityDisk.cpp
+    DirectDifferentiationSensitivityDisk.hpp
     keAdjoint.cpp
     keAdjoint.hpp
     kaRobinke.cpp
