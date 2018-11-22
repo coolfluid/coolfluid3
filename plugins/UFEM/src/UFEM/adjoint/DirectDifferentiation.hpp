@@ -99,6 +99,7 @@ private:
   Real m_U_mean_disk = 0.;
   Real m_area = 0.;
   bool m_updating = false;
+  bool m_first_call = true;
   Real m_turbulence = 0.;
   Real m_c_epsilon_1 = 1.44;
   Real m_c_mu = 0.09;

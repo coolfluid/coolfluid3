@@ -81,6 +81,12 @@ Adjoint::Adjoint(const std::string& name) :
     .attach_trigger(boost::bind(&Adjoint::trigger_ct, this)) // the function trigger_ct is called whenever the ct option is changed
     .mark_basic();
 
+  options().add("a", m_a)
+    .pretty_name("Axial induction coefficient")
+    .description("Axial induction coefficient")
+    .attach_trigger(boost::bind(&Adjoint::trigger_a, this))
+    .mark_basic();
+
   options().add("area", m_area)
     .pretty_name("area of the disk")
     .description("area of the disk")
@@ -166,8 +172,8 @@ void Adjoint::trigger_assembly()
                                       //+ 0.5*u[_i]*(N(U) - tau_su*u*nabla(U)) * nabla(U)[_j], //  skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += -transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio
-                            + m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
+                  _a[U[_i]] += /* -transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio */ + 
+                            m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
                                             +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu*transpose(nabla(U))*_col(partial(u[_i],_j)+partial(u[_j],_i),_i)))
           ),
         system_rhs += -_A * _x + _a,
@@ -179,13 +185,19 @@ void Adjoint::trigger_assembly()
   Uint Nt = 0.;
   for(auto&& region : m_actuator_regions)
   {
+    // CFinfo << "Test assembly" << CFendl;
       auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<      mesh::LagrangeP1::Line2D,
           mesh::LagrangeP1::Triag3D>(), group(
                                                        // set element vector to zero Line2D Triag3D
-													  _A(q) = _0, _A(U) = _0,
+													  _A(q) = _0, _A(U) = _0, _a[U] = _0, _a[q] = _0,
 
-                            element_quadrature(_A(U[_i], U[_i]) += transpose(N(U))*N(U)*u[_i]* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i]), // integrate
-                            system_rhs +=-_A * _x, // update global system RHS with element vector
+                            element_quadrature
+                            (
+                              _A(U[_i], U[_i]) += transpose(N(U))*N(U)*u[_i]* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i],
+                              _a[U[_i]] += transpose(N(U)) * lit(6.0) * u[0] * u[0] * lit(m_a[Nt])/(1 - lit(m_a[Nt])) / m_th * normal[_i] * density_ratio
+                              //_a[U[_i]] += transpose(N(U)) * -3 * g[_i] * normal[_i] * density_ratio
+                            ), // integrate
+                            system_rhs +=-_A * _x + _a, // update global system RHS with element vector
 													  system_matrix += theta * _A
                                                    )));
       m_assembly->add_component(region_action);
@@ -212,7 +224,7 @@ void Adjoint::trigger_assembly()
 
 //On region set actuator disk components
 void Adjoint::on_regions_set()
-{
+{  
 	if(m_updating == true){
 		return;
 	}
@@ -221,27 +233,36 @@ void Adjoint::on_regions_set()
     return; // no regions -> do nothing
   }
   m_updating = true;
+  // CFinfo << "Test on region set" << m_loop_regions.size() << CFendl;
   // Put all regions except the first one in m_actuator_regions
-  m_actuator_regions.clear();
-  m_actuator_regions.insert(m_actuator_regions.end(), m_loop_regions.begin()+1, m_loop_regions.end());
-
+  if (m_first_call == true)
+  {
+    m_actuator_regions.clear();
+    m_actuator_regions.insert(m_actuator_regions.end(), m_loop_regions.begin()+1, m_loop_regions.end());
+  }
   // Remove all except the first region from m_loop_regions
   m_loop_regions.resize(1);
 
   trigger_assembly();
   LSSActionUnsteady::on_regions_set();
   m_updating = false;
+  m_first_call = false;
 }
 
 void Adjoint::on_initial_conditions_set(InitialConditions& initial_conditions)
 {
   m_initial_conditions = initial_conditions.create_initial_condition(solution_tag());
 }
-void Adjoint::execute(){
+void Adjoint::execute()
+{
 	LSSActionUnsteady::execute();
 	Uint Nt1 = 0.;
 	  for(auto&& region : m_actuator_regions)
   {
+    // Real part1 = 0.0;
+    // surface_integral(part1, std::vector<Handle<mesh::Region>>({region}), 1);
+    // CFinfo << "Disk area = " << part1 << CFendl;
+    // CFinfo << "Test actuator" << CFendl;
 	 FieldVariable<0, VectorField> U("AdjVelocity", "adjoint_solution");
      m_U_mean_disk = 0;
      surface_integral(m_U_mean_disk, std::vector<Handle<mesh::Region>>({region}), _abs((U*normal)[0]));
@@ -268,6 +289,21 @@ void Adjoint::trigger_ct()
   std::transform(new_ct.begin(), new_ct.end(), m_a.begin(), [](Real ct) { return (1.-std::sqrt(1-ct))/2.; });
 
   if(size_changed)
+  {
+    trigger_assembly();
+  }
+}
+
+void Adjoint::trigger_a()
+{
+  auto new_a = options().value<std::vector<Real>>("a");
+  bool size_changed = new_a.size() != m_a.size();
+
+  m_a.resize(new_a.size());
+
+  std::copy(new_a.begin(), new_a.end(), m_a.begin());
+
+  if (size_changed)
   {
     trigger_assembly();
   }

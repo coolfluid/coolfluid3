@@ -53,6 +53,9 @@ private:
   // Update Ct list
   void trigger_ct();
 
+  // Update a list
+  void trigger_a();
+
   ///On region set
   virtual void on_regions_set();
 
@@ -109,6 +112,8 @@ private:
   Real m_turbulence = 0.;
   Real m_c_epsilon_1 = 1.44;
   Real m_c_mu = 0.09;
+
+  bool m_first_call = true;
 
   Handle<solver::ActionDirector> m_assembly;
   Handle<solver::ActionDirector> m_update;

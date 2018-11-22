@@ -124,13 +124,20 @@ void DirectDifferentiationSensitivityDisk::execute()
     surface_integral(duDisk, disk_region, SensU * normal);
     duDisk /= m_area;
 
+    CFinfo << "uDisk = " << uDisk << CFendl;
+    CFinfo << "duDisk = " << duDisk << CFendl;
     //auto part1 = -2 * pow3(uDisk)/m_th * m_area/(pow2(1-m_a));
     //auto part2 = -6 * pow2(uDisk)/m_th * m_area * m_a/(1 - m_a) * duDisk;
     Real part1 = 0.0;
+    surface_integral(part1, disk_region, 1 * normal[0]);
+    CFinfo << "Disk area = " << part1 << CFendl;
     Real part2 = 0.0;
-    surface_integral(part1, disk_region, -2 * pow3(uDisk)/m_th /(pow2(1-m_a)));
-    surface_integral(part2, disk_region, -6 * pow2(uDisk)/m_th * m_a/(1 - m_a) * duDisk);
-
+    surface_integral(part1, disk_region, -2 * pow3(uDisk)/m_th /(pow2(1-m_a)) * normal[0]);
+    surface_integral(part2, disk_region, -6 * pow2(uDisk)/m_th * m_a/(1 - m_a) * duDisk * normal[0]);
+    CFinfo << "m_th = " << m_th << CFendl;
+    CFinfo << "m_a = " << m_a << CFendl;
+    CFinfo << "part 1 " << part1 << CFendl;
+    CFinfo << "part 2 " << part2 << CFendl;
     // surface_integral(integral1, disk_region, -2*_abs(pow3((u*normal/_norm(normal))[0]))*_norm(normal) / (m_th * std::pow(m_a - 1, 2)));
     // surface_integral(integral2, disk_region, -6*pow2((u*normal/_norm(normal))[0])*_norm(normal) * m_a/(m_th*(m_a - 1)) * (SensU * normal)[0]);
     // properties().set("sensitivity", integral1 + integral2);
