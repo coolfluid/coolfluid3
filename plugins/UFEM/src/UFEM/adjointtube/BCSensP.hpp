@@ -34,8 +34,8 @@ public:
 
 
 private:
-  //cf3::solver::actions::Proto::SystemRHS m_rhs;
-  cf3::solver::actions::Proto::DirichletBC m_dirichlet;
+  cf3::solver::actions::Proto::SystemRHS m_rhs;
+  //cf3::solver::actions::Proto::DirichletBC m_dirichlet;
 
 };
 } // adjoint

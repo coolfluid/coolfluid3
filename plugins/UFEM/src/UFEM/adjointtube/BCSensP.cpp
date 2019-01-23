@@ -73,39 +73,38 @@ static MakeSFOp<FilterResult>::type const filter_result = {};
 
 BCSensP::BCSensP(const std::string& name) :
   ProtoAction(name),
-  m_dirichlet(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
+  m_rhs(options().add("lss", Handle<math::LSS::System>()).pretty_name("LSS").description("The linear system for which the boundary condition is applied"))
 {
-  // FieldVariable<0, VectorField> grad_p2x("grad_p2x", "pressure_hessian");
-  // FieldVariable<1, VectorField> grad_p2y("grad_p2y", "pressure_hessian");
-  // FieldVariable<2, ScalarField> SensP("SensP", "sensitivity_solution");
-  // FieldVariable<3, ScalarField> node_filter("node_filter", "node_filter");
-  // FieldVariable<4, VectorField> SensU("SensU", "sensitivity_solution");
-  // FieldVariable<5, VectorField> n("NodalNormal", "nodal_normals");
+  FieldVariable<0, VectorField> grad_p2x("grad_p2x", "pressure_hessian");
+  FieldVariable<1, VectorField> grad_p2y("grad_p2y", "pressure_hessian");
+  FieldVariable<2, ScalarField> SensP("SensP", "sensitivity_solution");
+  FieldVariable<3, ScalarField> node_filter("node_filter", "node_filter");
+  FieldVariable<4, VectorField> SensU("SensU", "sensitivity_solution");
+  FieldVariable<5, VectorField> n("NodalNormal", "nodal_normals");
 
-  // set_expression(elements_expression
-  // (
-  //   boost::mpl::vector1 <mesh::LagrangeP1::Line2D>(), // Valid for surface element types
-  //   group
-  //   (
-  //     _A(SensU) = _0, _A(SensP) = _0, _a[SensU] = _0, _a[SensP] = _0,
-  //     element_quadrature
-  //     (
-  //       _a[SensP] += transpose(N(SensP)) * ((grad_p2x*normal)[0]*n[0] + (grad_p2y*normal)[0]*n[1]) * node_filter
-  //     ),
-  //     //detail::filter_result(_a[SensP], node_filter),
-  //     m_rhs += _a
-  //   )
-  // ));
-
-  FieldVariable<0, VectorField> grad_p("grad_p", "pressure_gradient");
-  FieldVariable<1, ScalarField> SensP("SensP", "sensitivity_solution");
-  FieldVariable<2, ScalarField> node_filter("node_filter", "node_filter");
-  FieldVariable<3, VectorField> n("NodalNormal", "nodal_normals");
-
-  set_expression(nodes_expression(group
+  set_expression(elements_expression
   (
-    m_dirichlet(SensP)  = -(grad_p[0]*n[0] + grad_p[1]*n[1])*node_filter
-  )));
+    boost::mpl::vector1 <mesh::LagrangeP1::Line2D>(), // Valid for surface element types
+    group
+    (
+      _A(SensU) = _0, _A(SensP) = _0, _a[SensU] = _0, _a[SensP] = _0,
+      element_quadrature
+      (
+        _a[SensP] += transpose(N(SensP)) * ((grad_p2x*transpose(n))[0]*normal[0] + (grad_p2y*transpose(n))[0]*normal[1]) * node_filter
+      ),
+      m_rhs += _a
+    )
+  ));
+
+  // FieldVariable<0, VectorField> grad_p("grad_p", "pressure_gradient");
+  // FieldVariable<1, ScalarField> SensP("SensP", "sensitivity_solution");
+  // FieldVariable<2, ScalarField> node_filter("node_filter", "node_filter");
+  // FieldVariable<3, VectorField> n("NodalNormal", "nodal_normals");
+
+  // set_expression(nodes_expression(group
+  // (
+  //   m_dirichlet(SensP)  = -(grad_p[0]*n[0] + grad_p[1]*n[1])*node_filter
+  // )));
 
 
 }
