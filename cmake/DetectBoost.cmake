@@ -13,7 +13,7 @@ set(Boost_NO_SYSTEM_PATHS ON)
 list( APPEND CF3_Boost_CORE_COMPONENTS thread iostreams filesystem system regex date_time program_options )
 list( APPEND CF3_Boost_OTHER_COMPONENTS unit_test_framework)
 if(CF3_ENABLE_PYTHON)
-  list( APPEND CF3_Boost_OPTIONAL_COMPONENTS python )
+  list( APPEND CF3_Boost_OPTIONAL_COMPONENTS python python27 )
 endif()
 
 find_package( Boost ${CF3_Boost_MINIMAL_VERSION} COMPONENTS ${CF3_Boost_CORE_COMPONENTS} ${CF3_Boost_OTHER_COMPONENTS} ${CF3_Boost_OPTIONAL_COMPONENTS} QUIET )
