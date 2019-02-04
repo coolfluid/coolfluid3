@@ -19,10 +19,11 @@ if( NOT CF3_SKIP_TRILINOS )
 
     if( DEFINED TRILINOS_HOME )
         find_package(Trilinos PATHS ${TRILINOS_HOME}/lib/cmake/Trilinos ${TRILINOS_HOME}/include )
-    endif()
 
-    if( DEFINED DEPS_ROOT )
+    elseif( DEFINED DEPS_ROOT )
         find_package(Trilinos PATHS ${DEPS_ROOT}/lib/cmake/Trilinos ${DEPS_ROOT}/include )
+    else()
+        find_package(trilinos PATHS ${CMAKE_PREFIX_PATH})
     endif()
 
     if( Trilinos_FOUND )
