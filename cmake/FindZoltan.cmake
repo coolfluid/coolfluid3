@@ -1,8 +1,6 @@
 # this module looks for Zoltan library
 # it will define the following values
 #
-# Needs environmental variables
-#   ZOLTAN_HOME
 # Sets
 #   ZOLTAN_INCLUDE_DIRS
 #   ZOLTAN_LIBRARIES
@@ -12,22 +10,7 @@ option( CF3_SKIP_ZOLTAN "Skip search for Zoltan library" OFF )
 
 if( NOT CF3_SKIP_ZOLTAN )
 
-    # Try to find Zoltan using Trilinos recommendations
-    if( DEFINED TRILINOS_HOME AND NOT DEFINED ZOLTAN_HOME )
-        set( ZOLTAN_HOME ${TRILINOS_HOME} )
-    endif()
-
-    if( DEFINED Trilinos_DIR AND NOT DEFINED ZOLTAN_HOME )
-        set( ZOLTAN_HOME "${Trilinos_DIR}/../Zoltan" )
-    endif()
-
-    if( DEFINED ZOLTAN_HOME )
-        find_package(Zoltan PATHS ${ZOLTAN_HOME}/lib/cmake/Zoltan ${ZOLTAN_HOME}/include )
-    endif()
-
-    if( DEFINED DEPS_ROOT )
-        find_package(Zoltan PATHS ${DEPS_ROOT}/lib/cmake/Zoltan ${DEPS_ROOT}/include )
-    endif()
+    find_package(Zoltan PATHS ${Trilinos_DIR}/../Zoltan)
 
     if(Zoltan_FOUND)
 
