@@ -24,6 +24,8 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjoint
     DirectDifferentiationSensitivityDisk.hpp
     keAdjoint.cpp
     keAdjoint.hpp
+    keAdjoint2.cpp
+    keAdjoint2.hpp
     kaRobinke.cpp
     kaRobinke.hpp
     RobinUt.cpp
