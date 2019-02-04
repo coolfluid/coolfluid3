@@ -89,6 +89,9 @@ private:
   PhysicsConstant rho;
   PhysicsConstant nu;
 
+  /// Control activation of the skew-symmetric term
+  Real skew;
+
   /// Storage of the stabilization coefficients
   Real tau_ps, tau_su, tau_bulk;
 

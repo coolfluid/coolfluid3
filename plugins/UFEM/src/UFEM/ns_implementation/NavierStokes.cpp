@@ -55,7 +55,8 @@ NavierStokes::NavierStokes(const std::string& name) :
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   g("Force", "body_force"),
   rho("density"),
-  nu("kinematic_viscosity")
+  nu("kinematic_viscosity"),
+  skew(1.0)
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("linearized_velocity")("navier_stokes_viscosity");
   properties().add("restart_field_tags", restart_field_tags);
@@ -90,6 +91,11 @@ NavierStokes::NavierStokes(const std::string& name) :
     .pretty_name("Theta")
     .description("Theta coefficient for the theta-method.")
     .attach_trigger(boost::bind(&NavierStokes::trigger_assembly, this));
+
+  options().add("skew", skew)
+    .pretty_name("Skew symmetric")
+    .description("Control the skew symmetric term (0 = no skew symmetry, 1 = skew symmetry)")
+    .link_to(&skew);
 
   set_solution_tag("navier_stokes_solution");
 
