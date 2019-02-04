@@ -17,6 +17,10 @@ if( NOT CF3_SKIP_ZOLTAN )
         set( ZOLTAN_HOME ${TRILINOS_HOME} )
     endif()
 
+    if( DEFINED Trilinos_DIR AND NOT DEFINED ZOLTAN_HOME )
+        set( ZOLTAN_HOME "${Trilinos_DIR}/../Zoltan" )
+    endif()
+
     if( DEFINED ZOLTAN_HOME )
         find_package(Zoltan PATHS ${ZOLTAN_HOME}/lib/cmake/Zoltan ${ZOLTAN_HOME}/include )
     endif()
