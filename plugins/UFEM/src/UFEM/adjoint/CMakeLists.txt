@@ -2,6 +2,8 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjoint
   SOURCES
     ActuatorDisk.hpp
     ActuatorDisk.cpp
+    ActuatorDiskCt.hpp
+    ActuatorDiskCt.cpp
     ActuatorDisk3D.hpp
     ActuatorDisk3D.cpp
     Adjoint.hpp

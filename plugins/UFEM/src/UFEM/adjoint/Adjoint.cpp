@@ -194,7 +194,7 @@ void Adjoint::trigger_assembly()
                             element_quadrature
                             (
                               _A(U[_i], U[_i]) += transpose(N(U))*N(U)*u[_i]* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i],
-                              _a[U[_i]] += transpose(N(U)) * lit(6.0) * u[0] * u[0] * lit(m_a[Nt])/(1 - lit(m_a[Nt])) / m_th * normal[_i] * density_ratio
+                              _a[U[_i]] += transpose(N(U)) * lit(6.0) * u[0] * u[0] * lit(m_a[Nt])/(1 - lit(m_a[Nt])) * normal[_i] * density_ratio
                               //_a[U[_i]] += transpose(N(U)) * -3 * g[_i] * normal[_i] * density_ratio
                             ), // integrate
                             system_rhs +=-_A * _x + _a, // update global system RHS with element vector
