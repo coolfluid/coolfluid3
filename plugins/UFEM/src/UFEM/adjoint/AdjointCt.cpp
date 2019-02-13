@@ -60,7 +60,9 @@ AdjointCt::AdjointCt(const std::string& name) :
   density_ratio("density_ratio", "density_ratio"),
   g("Force", "body_force"),
   rho("density"),
-  nu("kinematic_viscosity")
+  nu("kinematic_viscosity"),
+  Ct("thrustCoefficient", "actuator_disk"),
+  uDisk("MeanDiskSpeed", "actuator_disk")
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("adjoint_solution")("adj_linearized_velocity")("navier_stokes_viscosity");
   properties().add("restart_field_tags", restart_field_tags);
@@ -169,13 +171,14 @@ void AdjointCt::trigger_assembly()
                   _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
                   _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U), // Diffusion + advection
                   _A(U[_i], q)     += transpose(N(U) - tau_su*u*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
-                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i])* nabla(U)[_j]-transpose(N(U) - tau_su*u*nabla(U)) * u[_j] * nabla(U)[_i], // Bulk viscosity + additional adjoint advection term
+                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i]) * nabla(U)[_j]-transpose(N(U) - tau_su*u*nabla(U)) * u[_j] * nabla(U)[_i], // Bulk viscosity + additional adjoint advection term
                                       //+ 0.5*u[_i]*(N(U) - tau_su*u*nabla(U)) * nabla(U)[_j], //  skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += /* -transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio */ + 
+                  _a[U[_i]] += -transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio + 
                             m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
-                                            +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu* transpose(nabla(U)) *_col(partial(u[_i],_j)+partial(u[_j],_i),_i)))
+                                            +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu* transpose(nabla(U)) *_col(partial(u[_i],_j)+partial(u[_j],_i),_i))),
+                  _A(U[_i], U[_i]) += transpose(N(U) - tau_su*nabla(U)) * N(U) * Ct * uDisk / lit(m_th)
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
@@ -187,18 +190,15 @@ void AdjointCt::trigger_assembly()
   for(auto&& region : m_actuator_regions)
   {
     // CFinfo << "Test assembly" << CFendl;
-      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<      mesh::LagrangeP1::Line2D,
+      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Line2D,
           mesh::LagrangeP1::Triag3D>(), group(
                                                        // set element vector to zero Line2D Triag3D
 													  _A(q) = _0, _A(U) = _0, _a[U] = _0, _a[q] = _0,
 
                             element_quadrature
                             (
-                                _A(U[_i], U[_i]) += transpose(N(U)) * N(U) * lit(m_ct) * u[0] / lit(m_th) * normal[_i],
-                                _a[U[_i]] += transpose(N(U)) * lit(3.0) / lit(2.0) * lit(m_ct) * u[0] * u[0] * normal[_i]
-                            //   _A(U[_i], U[_i]) += transpose(N(U))*N(U)*u[_i]* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i],
-                            //   _a[U[_i]] += transpose(N(U)) * lit(6.0) * u[0] * u[0] * lit(m_a[Nt])/(1 - lit(m_a[Nt])) * normal[_i] * density_ratio
-                              //_a[U[_i]] += transpose(N(U)) * -3 * g[_i] * normal[_i] * density_ratio
+                                // _A(U[_i], U[_i]) += transpose(N(U)) * N(U) * lit(m_ct[Nt]) * u[0] / lit(m_th) * normal[_i] ,
+                                // _a[U[_i]] += transpose(N(U)) * lit(3.0) / lit(2.0) * lit(m_ct[Nt]) * u[0] * u[0] * normal[_i]
                             ), // integrate
                             system_rhs +=-_A * _x + _a, // update global system RHS with element vector
 													  system_matrix += theta * _A
