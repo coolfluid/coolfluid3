@@ -89,6 +89,8 @@ private:
   FieldVariable<6, ScalarField> Ct;
   // Mean velocity on the disk
   FieldVariable<7, VectorField> uDisk;
+  // Sensibility of the force term
+  FieldVariable<8, VectorField> SensF;
 
 
   /// Access to the physics

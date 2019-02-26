@@ -27,6 +27,7 @@
 #include "ActuatorDiskCt.hpp"
 
 #include "solver/actions/Proto/SurfaceIntegration.hpp"
+#include "solver/actions/Proto/VolumeIntegration.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
@@ -147,6 +148,7 @@ void ActuatorDiskCt::trigger_setup()
 void ActuatorDiskCt::execute()
 {
   FieldVariable<0, VectorField> u("Velocity", "navier_stokes_solution");
+  FieldVariable<1, ScalarField> Ct("ThrustCoefficient", "actuator_disk");
   m_u_mean_disk = 0;
   const auto pow2 = make_lambda([](Real x ){
 	  return x*x;
@@ -155,9 +157,12 @@ void ActuatorDiskCt::execute()
 	  return x*x*x;
   });
 
-  surface_integral(m_u_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs((u*normal)[0]));
+  // surface_integral(m_u_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs((u*normal)[0]));
+  // m_u_mean_disk /= m_area;
+  volume_integral(m_u_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[0]}), u[0]);
+  // volume_integral(m_u_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[0]}), lit(1.0));
+  // m_u_mean_disk /= (m_area * m_th);
 
-  m_u_mean_disk /= m_area;
 
   m_f = -0.5 * m_ct * m_u_mean_disk * m_u_mean_disk / m_th;//(m_dt * m_u_mean_disk);
   // CFinfo << std::setprecision(20) <<"force set to " << m_f << ", a: " << m_a << "m_u_mean_disk :" << m_u_mean_disk <<  " pow2 " << m_u_mean_disk2 << " pow3 " << m_u_mean_disk3 << CFendl;
