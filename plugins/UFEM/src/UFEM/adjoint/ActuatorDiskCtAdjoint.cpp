@@ -27,6 +27,7 @@
 #include "ActuatorDiskCtAdjoint.hpp"
 
 #include "solver/actions/Proto/SurfaceIntegration.hpp"
+#include "solver/actions/Proto/VolumeIntegration.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
@@ -137,9 +138,11 @@ void ActuatorDiskCtAdjoint::execute()
   FieldVariable<0, VectorField> U("AdjVelocity", "adjoint_solution");
   m_U_mean_disk = 0;
 
-  surface_integral(m_U_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs((U*normal)[0]));
-
-  m_U_mean_disk /= m_area;
+  boost::mpl::vector<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D> etypes;
+  // surface_integral(m_U_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs((U*normal)[0]));
+  // m_U_mean_disk /= m_area;
+  volume_integral(m_U_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[0]}), U[0], etypes);
+  m_U_mean_disk /= (m_area * m_th);
 
   // m_F = -m_U_mean_disk * 
   // CFinfo << std::setprecision(20) <<"force set to " << m_f << ", a: " << m_a << "m_U_mean_disk :" << m_U_mean_disk <<  " pow2 " << m_u_mean_disk2 << " pow3 " << m_u_mean_disk3 << CFendl;
