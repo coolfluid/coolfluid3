@@ -69,6 +69,12 @@ VolumeIntegral::VolumeIntegral(const std::string& name) :
       .pretty_name("Result")
       .description("Result of the integration (read-only)")
       .mark_basic();
+  
+  options().add("component", m_component)
+      .pretty_name("Component")
+      .description("Component of the vector")
+      .link_to(&m_component)
+      .mark_basic();
 }
 
 VolumeIntegral::~VolumeIntegral()
@@ -93,6 +99,12 @@ void VolumeIntegral::execute()
   {
     FieldVariable<0, ScalarField> s(variable_name, tag);
     volume_integral(m_integral_value, m_loop_regions, s);
+  }
+  else if (m_component != 5)
+  {
+    boost::mpl::vector<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D> etypes;
+    FieldVariable<0, VectorField> v(variable_name, tag);
+    volume_integral(m_integral_value, m_loop_regions, v[m_component], etypes);
   }
   else
   {
