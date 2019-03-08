@@ -198,28 +198,29 @@ void AdjointCt::trigger_assembly()
       )
     )
   ));
-  Uint Nt = 0.;
-  for(auto&& region : m_actuator_regions)
-  {
-    // CFinfo << "Test assembly" << CFendl;
-      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Line2D,
-          mesh::LagrangeP1::Triag3D>(), group(
-                                                       // set element vector to zero Line2D Triag3D
-													  _A(q) = _0, _A(U) = _0, _a[U] = _0, _a[q] = _0,
+  // Uint Nt = 0.;
+  // for(auto&& region : m_actuator_regions)
+  // {
+  //   // CFinfo << "Test assembly" << CFendl;
+  //     auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Line2D,
+  //         mesh::LagrangeP1::Triag3D>(), group(
+  //                                                      // set element vector to zero Line2D Triag3D
+	// 												  _A(q) = _0, _A(U) = _0, _a[U] = _0, _a[q] = _0,
 
-                            element_quadrature
-                            (
-                                // _A(U[_i], U[_i]) += transpose(N(U)) * N(U) * lit(m_ct[Nt]) * u[0] / lit(m_th) * normal[_i] ,
-                                // _a[U[_i]] += transpose(N(U)) * lit(3.0) / lit(2.0) * lit(m_ct[Nt]) * u[0] * u[0] * normal[_i]
-                            ), // integrate
-                            system_rhs +=-_A * _x + _a, // update global system RHS with element vector
-													  system_matrix += theta * _A
-                                                   )));
-      m_assembly->add_component(region_action);
-      region_action->options().set("regions", std::vector<common::URI>({region->uri()}));
-      region_action->options().option("regions").add_tag("norecurse");
-      Nt+=1;
-  }
+  //                           element_quadrature
+  //                           (
+  //                               //_A(U[_i], U[_i]) += transpose(N(U)) * N(U) * Ct * uDisk[0]  /* / lit(m_th) */  * normal[_i],
+  //                               // _a[U[_i]] += -transpose(N(U)) * lit(m_U_mean_disk) * Ct * uDisk[0] * normal[_i],
+  //                               // _a[U[_i]] += transpose(N(U)) * lit(3.0) / lit(2.0) * Ct * uDisk[0] * uDisk[0] * normal[_i]
+  //                           ), // integrate
+  //                           system_rhs +=-_A * _x + _a, // update global system RHS with element vector
+	// 												  system_matrix += theta * _A
+  //                                                  )));
+  //     m_assembly->add_component(region_action);
+  //     region_action->options().set("regions", std::vector<common::URI>({region->uri()}));
+  //     region_action->options().option("regions").add_tag("norecurse");
+  //     Nt+=1;
+  // }
 
   m_update->add_component(create_proto_action("Update", nodes_expression(group
   (
