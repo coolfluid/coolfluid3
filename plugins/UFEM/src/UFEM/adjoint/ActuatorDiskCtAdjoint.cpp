@@ -138,7 +138,7 @@ void ActuatorDiskCtAdjoint::execute()
   FieldVariable<0, VectorField> U("AdjVelocity", "adjoint_solution");
   m_U_mean_disk = 0;
 
-  boost::mpl::vector<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D> etypes;
+  boost::mpl::vector<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D, mesh::LagrangeP1::Quad2D> etypes;
   // surface_integral(m_U_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs((U*normal)[0]));
   // m_U_mean_disk /= m_area;
   volume_integral(m_U_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[0]}), U[0], etypes);
