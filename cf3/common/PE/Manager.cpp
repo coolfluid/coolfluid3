@@ -246,7 +246,7 @@ void Manager::spawn_group ( const std::string & name,
     m_listener->start_listening();
 
 
-  delete forw_cstr;
+  delete[] forw_cstr;
 }
 
 ////////////////////////////////////////////////////////////////////////////

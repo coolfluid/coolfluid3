@@ -164,7 +164,6 @@ macro( coolfluid3_add_library )
         # python module support
         if( _PAR_PYTHON_MODULE )
           if( APPLE )
-            get_target_property(LIB_LOCNAME ${LIBNAME} LOCATION)
             set(DSO_LIB_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${LIBNAME}${CMAKE_SHARED_LIBRARY_SUFFIX}${LIB_SUFFIX})
             set(PYTHON_MODULE_NAME "${CMAKE_SHARED_LIBRARY_PREFIX}${LIBNAME}.so")
             add_custom_command(

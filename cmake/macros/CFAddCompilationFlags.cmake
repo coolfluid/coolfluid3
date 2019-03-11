@@ -7,7 +7,7 @@ macro( coolfluid_add_c_flags m_c_flags )
     set( N_CFLAG 0 )
   endif()
 
-  math( EXPR N_CFLAG '${N_CFLAG}+1'  )
+  math( EXPR N_CFLAG ${N_CFLAG}+1  )
 
   check_c_compiler_flag( ${m_c_flags} C_FLAG_TEST_${N_CFLAG} )
 
@@ -29,7 +29,7 @@ macro( coolfluid_add_cxx_flags m_cxx_flags )
     set( N_CXXFLAG 0 )
   endif()
 
-  math( EXPR N_CXXFLAG '${N_CXXFLAG}+1'  )
+  math(EXPR N_CXXFLAG ${N_CXXFLAG}+1)
 
   check_cxx_compiler_flag( ${m_cxx_flags} CXX_FLAG_TEST_${N_CXXFLAG} )
 

@@ -82,7 +82,7 @@ foreach( klib ${CF3_KERNEL_LIBS} )
   set( list_kernel_libs "${list_kernel_libs} ${klib}" )
 
   # break line if necessary
-  math( EXPR print_counter '${print_counter}+1'  )
+  math( EXPR print_counter ${print_counter}+1  )
   if( print_counter GREATER 5 )
     set( print_counter 0 )
     set( list_kernel_libs "${list_kernel_libs}\n\t\t " )
@@ -102,7 +102,7 @@ foreach( plugin ${CF3_PLUGIN_LIST} )
   set( list_plugins "${list_plugins} ${plugin}" )
 
   # break line if necessary
-  math( EXPR print_counter '${print_counter}+1'  )
+  math( EXPR print_counter ${print_counter}+1  )
   if( print_counter GREATER 5 )
     set( print_counter 0 )
     set( list_plugins "${list_plugins}\n\t\t " )
@@ -140,7 +140,7 @@ if( COMMAND feature_summary )
         set( list_features "${list_features} ${feature}")
 
         # break line if necessary
-        math( EXPR print_counter '${print_counter}+1'  )
+        math( EXPR print_counter ${print_counter}+1  )
         if( print_counter GREATER 5 )
           set( print_counter 0 )
           set( list_features "${list_features}\n\t\t " )
@@ -160,7 +160,7 @@ foreach( utest ${CF3_ENABLED_UTESTS} )
   set( list_enabled_utests "${list_enabled_utests} ${utest}" )
 
   # break line if necessary
-  math( EXPR print_counter '${print_counter}+1'  )
+  math( EXPR print_counter ${print_counter}+1  )
   if( print_counter GREATER 3 )
     set( print_counter 0 )
     set( list_enabled_utests "${list_enabled_utests}\n\t\t" )
@@ -177,7 +177,7 @@ foreach( utest ${CF3_DISABLED_UTESTS} )
   set( list_disabled_utests "${list_disabled_utests} ${utest}" )
 
   # break line if necessary
-  math( EXPR print_counter '${print_counter}+1'  )
+  math( EXPR print_counter ${print_counter}+1  )
   if( print_counter GREATER 3 )
     set( print_counter 0 )
     set( list_disabled_utests "${list_disabled_utests}\n\t\t" )
@@ -196,7 +196,7 @@ foreach( atest ${CF3_ENABLED_ATESTS} )
   set( list_enabled_atests "${list_enabled_atests} ${atest}" )
 
   # break line if necessary
-  math( EXPR print_counter '${print_counter}+1'  )
+  math( EXPR print_counter ${print_counter}+1  )
   if( print_counter GREATER 3 )
     set( print_counter 0 )
     set( list_enabled_atests "${list_enabled_atests}\n\t\t" )
@@ -214,7 +214,7 @@ foreach( atest ${CF3_DISABLED_ATESTS} )
   set( list_disabled_atests "${list_disabled_atests} ${atest}" )
 
   # break line if necessary
-  math( EXPR print_counter '${print_counter}+1'  )
+  math( EXPR print_counter ${print_counter}+1  )
   if( print_counter GREATER 3 )
     set( print_counter 0 )
     set( list_disabled_atests "${list_disabled_atests}\n\t\t" )
@@ -232,7 +232,7 @@ foreach( atest ${CF3_ENABLED_PTESTS} )
   set( list_enabled_ptests "${list_enabled_ptests} ${ptest}" )
 
   # break line if necessary
-  math( EXPR print_counter '${print_counter}+1'  )
+  math( EXPR print_counter ${print_counter}+1  )
   if( print_counter GREATER 3 )
     set( print_counter 0 )
     set( list_enabled_ptests "${list_enabled_ptests}\n\t\t" )
@@ -250,7 +250,7 @@ foreach( ptest ${CF3_DISABLED_PTESTS} )
   set( list_disabled_ptests "${list_disabled_ptests} ${ptest}" )
 
   # break line if necessary
-  math( EXPR print_counter '${print_counter}+1'  )
+  math( EXPR print_counter ${print_counter}+1  )
   if( print_counter GREATER 3 )
     set( print_counter 0 )
     set( list_disabled_ptests "${list_disabled_ptests}\n\t\t" )
