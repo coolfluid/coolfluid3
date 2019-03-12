@@ -56,7 +56,9 @@ DirectDifferentiationCt::DirectDifferentiationCt(const std::string& name) :
   density_ratio("density_ratio", "density_ratio"),
   g("Force", "body_force"),
   rho("density"),
-  nu("kinematic_viscosity")
+  nu("kinematic_viscosity"),
+  Ct("ThrustCoefficient", "actuator_disk"),
+  uDisk("MeanDiskSpeed", "actuator_disk")
   // J("sensitivity","sensitivity_derivative")
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("adjoint_solution")("adj_linearized_velocity")("navier_stokes_viscosity")("sensitivity_solution");
@@ -162,8 +164,8 @@ void DirectDifferentiationCt::trigger_assembly()
             _A(SensU[_i], SensU[_i]) += nu_eff * transpose(nabla(SensU)) * nabla(SensU) + transpose(N(u) + tau_su*u*nabla(SensU)) * u*nabla(SensU), // Diffusion + advection
             _A(SensU[_i], SensP)     += transpose(N(SensU) + tau_su*u*nabla(SensU)) * nabla(SensP)[_i], // Pressure gradient (standard and SUPG)
             _A(SensU[_i], SensU[_j]) += transpose(tau_bulk*nabla(SensU)[_i])*nabla(SensU)[_j] + transpose(N(SensU) + tau_su*u*nabla(SensU))*N(SensU)*_row(nabla(u)*nodal_values(u), _j)[_i],// + partial(u[_i],_j), // *(nabla(u)*partial(u[_i],_j)*transpose(nabla(u))),
-            // _a[SensU[_i]] += transpose(N(SensU) + tau_su*u*nabla(SensU)) * g[_i] /* * normal[_i] */ * density_ratio /(lit(m_a[Nt])*(lit(1.0)-lit(m_a[Nt]))),
-
+            // _a[SensU[_i]] += transpose(N(SensU) + tau_su*u*nabla(SensU)) * g[_i] /* * normal[_i] */ * density_ratio /lit(m_ct[Nt]),
+            // _a[SensU[_i]] += -transpose(N(SensU) + tau_su*u*nabla(SensU)) * lit(0.5) * uDisk[0] * uDisk[0] / lit(m_th) * density_ratio,
             _T(SensP    , SensU[_i]) += tau_ps * transpose(nabla(SensP)[_i]) * N(SensU), // Time, PSPG
             _T(SensU[_i], SensU[_i]) += transpose(N(SensU) + tau_su*u*nabla(SensU)) * N(SensU)
           ),
