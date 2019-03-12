@@ -117,6 +117,11 @@ AdjointCt::AdjointCt(const std::string& name) :
       .pretty_name("Result")
       .description("Result of the integration (read-only)")
       .mark_basic();
+  options().add("maxU", m_U_max)
+    .pretty_name("maxU")
+    .description("Max adjoint speed")
+    .link_to(&m_U_max)
+    .mark_basic();
 
   options().option("regions").add_tag("norecurse");
 
@@ -212,6 +217,8 @@ void AdjointCt::trigger_assembly()
   m_update->add_component(create_proto_action("Update", nodes_expression(group
   (
     U += solution(U),
+    U[_i] = _min( m_U_max, U[_i]),
+    U[_i] = _max(-m_U_max, U[_i]),
     q += solution(q)
   ))));
 
