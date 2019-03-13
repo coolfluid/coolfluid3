@@ -99,6 +99,8 @@ private:
   FieldVariable<10, ScalarField> Ct;
   // Mean disk velocity
   FieldVariable<11, VectorField> uDisk;
+  // Adjoint force field
+  FieldVariable<12, VectorField> F;
 
   /// Access to the physics
   PhysicsConstant rho;
