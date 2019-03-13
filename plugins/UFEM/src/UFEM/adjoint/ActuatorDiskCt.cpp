@@ -89,6 +89,8 @@ ActuatorDiskCt::ActuatorDiskCt(const std::string& name) :
   
   // The component that  will set the force
   create_static_component<ProtoAction>("SetForce")->options().option("regions").add_tag("norecurse");
+  create_static_component<ProtoAction>("SetCt")->options().option("regions").add_tag("norecurse");
+  create_static_component<ProtoAction>("SetuDisk")->options().option("regions").add_tag("norecurse");
 
   // Initialize the expression
   trigger_setup();
@@ -104,6 +106,8 @@ void ActuatorDiskCt::on_regions_set()
 
   // Set the regions when the option is set
   get_child("SetForce")->options().set("regions", std::vector<common::URI>({regions[0]}));
+  get_child("SetCt")->options().set("regions", std::vector<common::URI>({regions[0]}));
+  get_child("SetuDisk")->options().set("regions", std::vector<common::URI>({regions[0]}));
 }
 
 void ActuatorDiskCt::trigger_setup()
@@ -112,12 +116,31 @@ void ActuatorDiskCt::trigger_setup()
 
   FieldVariable<0, VectorField> f("Force", "body_force");
   FieldVariable<1, VectorField> u("Velocity", "navier_stokes_solution");
+  FieldVariable<2, ScalarField> Ct("ThrustCoefficient", "actuator_disk");
+  FieldVariable<3, VectorField> uDisk("MeanDiskSpeed", "actuator_disk");
   set_force->set_expression(nodes_expression
   (
     group
     (
       f[0] = lit(m_f)
      )
+  ));
+  Handle<ProtoAction> set_ct(get_child("SetCt"));
+  Handle<ProtoAction> set_uDisk(get_child("SetuDisk"));
+
+  set_ct->set_expression(nodes_expression
+  (
+    group
+    (
+      Ct = lit(m_ct)
+    )
+  ));
+  set_uDisk->set_expression(nodes_expression
+  (
+    group
+    (
+      uDisk[0] = lit(m_u_mean_disk)
+    )
   ));
 }
 
@@ -140,7 +163,11 @@ void ActuatorDiskCt::execute()
   // CFinfo << std::setprecision(20) <<"force set to " << m_f << ", a: " << m_a << "m_u_mean_disk :" << m_u_mean_disk <<  " pow2 " << m_u_mean_disk2 << " pow3 " << m_u_mean_disk3 << CFendl;
   options().set("result", m_u_mean_disk);
   Handle<ProtoAction> set_force(get_child("SetForce"));
+  Handle<ProtoAction> set_uDisk(get_child("SetuDisk"));
+  Handle<ProtoAction> set_ct(get_child("SetCt"));
   set_force->execute();
+  set_uDisk->execute();
+  set_ct->execute();
 }
 
 } // namespace adjoint

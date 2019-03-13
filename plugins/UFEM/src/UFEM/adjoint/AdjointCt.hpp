@@ -95,6 +95,10 @@ private:
   FieldVariable<8, ScalarField> epsilona;
   /// turbulent kinetic energy
   FieldVariable<9, ScalarField> k;
+  // thrust coefficient
+  FieldVariable<10, ScalarField> Ct;
+  // Mean disk velocity
+  FieldVariable<11, VectorField> uDisk;
 
   /// Access to the physics
   PhysicsConstant rho;
