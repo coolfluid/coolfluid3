@@ -171,9 +171,9 @@ void ActuatorDiskCt::execute()
   Handle<ProtoAction> set_force(get_child("SetForce"));
   Handle<ProtoAction> set_uDisk(get_child("SetuDisk"));
   Handle<ProtoAction> set_ct(get_child("SetCt"));
-  set_force->execute();
   set_uDisk->execute();
   set_ct->execute();
+  set_force->execute();
 }
 
 } // namespace adjoint
