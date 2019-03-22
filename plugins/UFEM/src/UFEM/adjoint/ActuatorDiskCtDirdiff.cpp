@@ -126,7 +126,7 @@ void ActuatorDiskCtDirdiff::trigger_setup()
   (
     group
     (
-      SensF[0] = 0.5 * uDisk[0] * uDisk[0] / lit(m_th)
+      SensF[0] = (0.5 * uDisk[0] * uDisk[0] + Ct * uDisk[0] * SensUDisk[0]) / lit(m_th)
      )
   ));
 
