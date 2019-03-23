@@ -85,8 +85,10 @@ ActuatorDiskCtDirdiff::ActuatorDiskCtDirdiff(const std::string& name) :
   
   // The component that  will set the force
   create_static_component<ProtoAction>("SetDirdiffForce")->options().option("regions").add_tag("norecurse");
+  create_static_component<ProtoAction>("SetDirdiffForce2")->options().option("regions").add_tag("norecurse");
   create_static_component<ProtoAction>("SetSensUDisk")->options().option("regions").add_tag("norecurse");
 
+  create_static_component<ProtoAction>("ResetForce")->options().option("regions").add_tag("norecurse");
   // Initialize the expression
   trigger_setup();
 }
@@ -99,9 +101,13 @@ void ActuatorDiskCtDirdiff::on_regions_set()
 {
   auto regions = options()["regions"].value<std::vector<common::URI>>();
 
+  m_NDiscs = regions.size();
   // Set the regions when the option is set
   get_child("SetDirdiffForce")->options().set("regions", std::vector<common::URI>({regions[0]}));
-  get_child("SetSensUDisk")->options().set("regions", std::vector<common::URI>({regions[0]}));
+  // get_child("SetSensUDisk")->options().set("regions", std::vector<common::URI>({regions[0]}));
+  get_child("SetDirdiffForce2")->options().set("regions", std::vector<common::URI>(regions));
+  get_child("ResetForce")->options().set("regions", std::vector<common::URI>(regions));
+  // All the discs of the domain have to be included to the regions, the first one beeing the one for which the sensitivity is computed
 }
 
 void ActuatorDiskCtDirdiff::trigger_setup()
@@ -121,38 +127,68 @@ void ActuatorDiskCtDirdiff::trigger_setup()
     )
   ));
 
+  Handle<ProtoAction> reset_force(get_child("ResetForce"));
+  reset_force->set_expression(nodes_expression
+  (
+    group
+    (
+      SensF[0] = 0.0
+    )
+  ));
+
   Handle<ProtoAction> set_dirdiff_force(get_child("SetDirdiffForce"));
   set_dirdiff_force->set_expression(nodes_expression
   (
     group
     (
-      SensF[0] = (0.5 * uDisk[0] * uDisk[0] + Ct * uDisk[0] * SensUDisk[0]) / lit(m_th)
+      SensF[0] = (0.5 * uDisk[0] * uDisk[0]) / lit(m_th)
      )
   ));
 
+  Handle<ProtoAction> set_dirdiff_force2(get_child("SetDirdiffForce2"));
+  set_dirdiff_force2->set_expression(nodes_expression
+  (
+    group
+    (
+      SensF[0] += (Ct * uDisk[0] * SensUDisk[0]) / lit(m_th)
+    )
+  ));
 }
 
 void ActuatorDiskCtDirdiff::execute()
 {
   FieldVariable<0, VectorField> SensU("SensU", "sensitivity_solution");
-  m_SensU_mean_disk = 0;
 
-  // surface_integral(m_SensU_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), ((SensU*normal)[0]));
-
-  boost::mpl::vector<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D, mesh::LagrangeP1::Quad2D> etypes;
-  volume_integral(m_SensU_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[0]}), SensU[0], etypes);
-  m_SensU_mean_disk /= (m_area * m_th);
+  std::vector<Real> SensU_mean_disk;
+  auto regions = options()["regions"].value<std::vector<common::URI>>();
+  int nDisc = regions.size();
+  SensU_mean_disk.resize(nDisc);
   
+  Handle<ProtoAction> set_SensUDisk(get_child("SetSensUDisk"));
+  // surface_integral(m_SensU_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), ((SensU*normal)[0]));
+  boost::mpl::vector<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D, mesh::LagrangeP1::Quad2D> etypes;
+  for (int index = 0; index < m_NDiscs; ++index)
+  {
+    volume_integral(m_SensU_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[index]}), SensU[0], etypes);
+    m_SensU_mean_disk /= (m_area * m_th);
+    set_SensUDisk->options().set("regions", std::vector<common::URI>({regions[index]}));
+    set_SensUDisk->execute();
+  }
+  
+  // m_SensU_mean_disk = SensU_mean_disk[0];
   // m_SensU_mean_disk /= m_area;
-
   // m_F = -m_U_mean_disk * 
   // CFinfo << std::setprecision(20) <<"force set to " << m_f << ", a: " << m_a << "m_U_mean_disk :" << m_U_mean_disk <<  " pow2 " << m_u_mean_disk2 << " pow3 " << m_u_mean_disk3 << CFendl;
   options().set("result", m_SensU_mean_disk);
-  Handle<ProtoAction> set_SensUDisk(get_child("SetSensUDisk"));
+  // Handle<ProtoAction> set_SensUDisk(get_child("SetSensUDisk"));
+  Handle<ProtoAction> reset_force(get_child("ResetForce"));
+  reset_force->execute();
+  
   Handle<ProtoAction> set_dirdiff_force(get_child("SetDirdiffForce"));
   set_dirdiff_force->execute();
-  set_SensUDisk->execute();
 
+  Handle<ProtoAction> set_dirdiff_force2(get_child("SetDirdiffForce2"));
+  set_dirdiff_force2->execute();
 }
 
 } // namespace adjoint

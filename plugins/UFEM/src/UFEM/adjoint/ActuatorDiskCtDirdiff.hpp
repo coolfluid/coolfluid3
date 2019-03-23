@@ -46,7 +46,9 @@ private:
   Real m_a = 0.;
   Real m_ct = 0.;
   Real m_th = 0.;
-  Real m_SensU_mean_disk = 0.;
+  // Real m_SensU_mean_disk = 0.;
+  int m_NDiscs =0;
+  Real m_SensU_mean_disk;
 
   cf3::solver::actions::Proto::SystemRHS rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;
