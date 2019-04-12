@@ -4,6 +4,8 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjoint
     ActuatorDisk.cpp
     ActuatorDiskCt.hpp
     ActuatorDiskCt.cpp
+    ActuatorDiskGauss.cpp
+    ActuatorDiskGauss.hpp
     ActuatorDiskCtAdjoint.hpp
     ActuatorDiskCtAdjoint.cpp
     ActuatorDiskCtDirdiff.hpp
