@@ -40,7 +40,6 @@ private:
 
   /// Called when an option that requires a rebuild of the expression is changed
   void trigger_setup();
-
   Real m_u_in = 0.;
   Real m_area = 0.;
   Real m_f = 0.;
@@ -48,6 +47,7 @@ private:
   Real m_ct = 0.;
   Real m_th = 0.;
   Real m_u_mean_disk = 0.;
+  Real m_real_volume = 0.0;
 
   cf3::solver::actions::Proto::SystemRHS rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;

@@ -49,6 +49,7 @@ private:
   // Real m_SensU_mean_disk = 0.;
   int m_NDiscs =0;
   Real m_SensU_mean_disk;
+  Real m_real_volume = 0.0;
 
   cf3::solver::actions::Proto::SystemRHS rhs;
   cf3::solver::actions::Proto::SystemMatrix system_matrix;

@@ -167,10 +167,18 @@ void ActuatorDiskCtDirdiff::execute()
   Handle<ProtoAction> set_SensUDisk(get_child("SetSensUDisk"));
   // surface_integral(m_SensU_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), ((SensU*normal)[0]));
   boost::mpl::vector<mesh::LagrangeP1::Triag2D, mesh::LagrangeP1::Tetra3D, mesh::LagrangeP1::Quad2D> etypes;
+
+  m_real_volume = 0.0;
+  volume_integral(m_real_volume, std::vector<Handle<mesh::Region>>({m_loop_regions[0]}), 1.0, etypes);
+  Real th_temp = 0.0;
+  th_temp = m_real_volume/m_area;
+
+  if (abs(th_temp-m_th)/th_temp > 0.05) throw cf3::common::SetupError(FromHere(), "The disc thickness seems to be wrong");
+  
   for (int index = 0; index < m_NDiscs; ++index)
   {
     volume_integral(m_SensU_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[index]}), SensU[0], etypes);
-    m_SensU_mean_disk /= (m_area * m_th);
+    m_SensU_mean_disk /= m_real_volume;
     set_SensUDisk->options().set("regions", std::vector<common::URI>({regions[index]}));
     set_SensUDisk->execute();
   }

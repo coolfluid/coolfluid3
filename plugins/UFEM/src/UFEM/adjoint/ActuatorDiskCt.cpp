@@ -33,6 +33,8 @@
 
 #include <iomanip>
 
+
+
 namespace cf3
 {
 
@@ -161,9 +163,15 @@ void ActuatorDiskCt::execute()
 
   // surface_integral(m_u_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[1]}), _abs((u*normal)[0]));
   // m_u_mean_disk /= m_area;
+  m_real_volume = 0.0;
+  volume_integral(m_real_volume, std::vector<Handle<mesh::Region>>({m_loop_regions[0]}), 1.0, etypes);
   volume_integral(m_u_mean_disk, std::vector<Handle<mesh::Region>>({m_loop_regions[0]}), u[0], etypes);
-  m_u_mean_disk /= (m_area * m_th);
+  
+  m_u_mean_disk /= m_real_volume;
+  Real th_temp = 0.0;
+  th_temp = m_real_volume/m_area;
 
+  if (abs(th_temp-m_th)/th_temp > 0.05) throw cf3::common::SetupError(FromHere(), "The disc thickness seems to be wrong");
 
   m_f = -0.5 * m_ct * m_u_mean_disk * m_u_mean_disk / m_th;//(m_dt * m_u_mean_disk);
   // CFinfo << std::setprecision(20) <<"force set to " << m_f << ", a: " << m_a << "m_u_mean_disk :" << m_u_mean_disk <<  " pow2 " << m_u_mean_disk2 << " pow3 " << m_u_mean_disk3 << CFendl;
