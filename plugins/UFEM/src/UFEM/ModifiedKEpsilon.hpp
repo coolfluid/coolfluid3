@@ -47,10 +47,10 @@ protected:
   Real m_beta_d = 1.0;
   Real m_beta_0 = 0.1;
   Real m_c_epsilon_4 = 0.37;
-  Real m_th;
+  Real m_th = 10.0;
   Real m_ren = 0;
-  Real m_Ct = 0.0;
-  Real m_u_infty = 0.0;
+  Real m_Ct = 0.1;
+  Real m_u_infty = 15.0;
 
 };
 
