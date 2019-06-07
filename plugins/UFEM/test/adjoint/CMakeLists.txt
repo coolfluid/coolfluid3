@@ -20,3 +20,9 @@ coolfluid_add_test( ATEST atest-actuatordiskCt-adjoint
 coolfluid_add_test( ATEST atest-actuatordiskCt-dirdiff
                     PYTHON atest-actuatordiskCt-dirdiff.py
                     MPI 4)
+
+coolfluid_add_test( ATEST atest-modified-kepsilon
+                    PYTHON atest-modified-kepsilon.py
+                    ARGUMENTS ${CMAKE_CURRENT_BINARY_DIR}/../meshes/actuator-1disk-2d.msh
+                    MPI 4)
+
