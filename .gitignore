@@ -8,6 +8,3 @@
 *.msh
 *.geo
 
-.vscode/c_cpp_properties.json
-.vscode/settings.json
-.vscode/tasks.json
