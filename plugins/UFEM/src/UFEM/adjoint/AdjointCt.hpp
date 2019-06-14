@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_Adjoint_hpp
-#define cf3_UFEM_Adjoint_hpp
+#ifndef cf3_UFEM_AdjointCt_hpp
+#define cf3_UFEM_AdjointCt_hpp
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
@@ -30,19 +30,19 @@ namespace cf3 {
 
 namespace UFEM {
 namespace adjoint {
-/// solver for the unsteady incompressible Adjoint equations
-class UFEM_API Adjoint : public LSSActionUnsteady
+/// solver for the unsteady incompressible AdjointCt equations
+class UFEM_API AdjointCt : public LSSActionUnsteady
 {
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  Adjoint ( const std::string& name );
+  AdjointCt ( const std::string& name );
 
-  virtual ~Adjoint();
+  virtual ~AdjointCt();
 
   /// Get the class name
-  static std::string type_name () { return "Adjoint"; }
+  static std::string type_name () { return "AdjointCt"; }
   virtual void execute();
 
 
@@ -95,6 +95,12 @@ private:
   FieldVariable<8, ScalarField> epsilona;
   /// turbulent kinetic energy
   FieldVariable<9, ScalarField> k;
+  // thrust coefficient
+  FieldVariable<10, ScalarField> Ct;
+  // Mean disk velocity
+  FieldVariable<11, VectorField> uDisk;
+  // Adjoint force field
+  FieldVariable<12, VectorField> F;
 
   /// Access to the physics
   PhysicsConstant rho;
@@ -112,6 +118,8 @@ private:
   Real m_turbulence = 0.;
   Real m_c_epsilon_1 = 1.44;
   Real m_c_mu = 0.09;
+  Real m_U_max = 1.0e5;
+
 
   bool m_first_call = true;
 
@@ -129,4 +137,4 @@ private:
 } // cf3
 
 
-#endif // cf3_UFEM_Adjoint_hpp
+#endif // cf3_UFEM_AdjointCt_hpp

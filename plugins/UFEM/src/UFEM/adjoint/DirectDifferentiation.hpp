@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UFEM_Adjoint_hpp
-#define cf3_UFEM_Adjoint_hpp
+#ifndef cf3_UFEM_DirectDifferentiation_hpp
+#define cf3_UFEM_DirectDifferentiation_hpp
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
@@ -31,19 +31,18 @@ namespace cf3 {
 namespace UFEM {
 namespace adjoint {
 /// solver for the unsteady incompressible Adjoint equations
-class UFEM_API Adjoint : public LSSActionUnsteady
+class UFEM_API DirectDifferentiation : public LSSActionUnsteady
 {
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  Adjoint ( const std::string& name );
+  DirectDifferentiation ( const std::string& name );
 
-  virtual ~Adjoint();
+  virtual ~DirectDifferentiation();
 
   /// Get the class name
-  static std::string type_name () { return "Adjoint"; }
-  virtual void execute();
+  static std::string type_name () { return "DirectDifferentiation"; }
 
 
 private:
@@ -52,9 +51,6 @@ private:
 
   // Update Ct list
   void trigger_ct();
-
-  // Update a list
-  void trigger_a();
 
   ///On region set
   virtual void on_regions_set();
@@ -78,23 +74,17 @@ private:
   /// The velocity solution field
   FieldVariable<0, VectorField> u;
   /// The pressure solution field
-  FieldVariable<1, ScalarField> epsilon;
-  /// Pressure Adjointturb
-  FieldVariable<2, ScalarField> q;
-  /// Velocity Adjointturb
-  FieldVariable<3, VectorField> U;
   /// Effective viscosity field
-  FieldVariable<4, ScalarField> nu_eff;
+  FieldVariable<1, ScalarField> nu_eff;
   // Body force
-  FieldVariable<5, VectorField> g;
+  FieldVariable<2, VectorField> g;
   /// Temperature field
-  FieldVariable<6, ScalarField> density_ratio;
+  FieldVariable<3, ScalarField> density_ratio;
   /// Adjoint turbulent kinetic energy
-  FieldVariable<7, ScalarField> ka;
-  /// Adjoint turbulence dissipation
-  FieldVariable<8, ScalarField> epsilona;
-  /// turbulent kinetic energy
-  FieldVariable<9, ScalarField> k;
+  // Sensitivity derivative van de snelheid
+  FieldVariable<4, VectorField> SensU;
+  // Sensitivity derivative van de druk
+  FieldVariable<5, ScalarField> SensP;
 
   /// Access to the physics
   PhysicsConstant rho;
@@ -109,11 +99,10 @@ private:
   Real m_U_mean_disk = 0.;
   Real m_area = 0.;
   bool m_updating = false;
+  bool m_first_call = true;
   Real m_turbulence = 0.;
   Real m_c_epsilon_1 = 1.44;
   Real m_c_mu = 0.09;
-
-  bool m_first_call = true;
 
   Handle<solver::ActionDirector> m_assembly;
   Handle<solver::ActionDirector> m_update;
@@ -129,4 +118,4 @@ private:
 } // cf3
 
 
-#endif // cf3_UFEM_Adjoint_hpp
+#endif // cf3_UFEM_DirectDifferentiation_hpp

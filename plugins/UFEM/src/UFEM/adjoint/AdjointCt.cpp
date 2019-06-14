@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Adjoint.hpp"
+#include "AdjointCt.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -44,9 +44,10 @@ using namespace solver::actions;
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-ComponentBuilder < Adjoint, LSSActionUnsteady, LibUFEMAdjoint > Adjoint_Builder;
 
-Adjoint::Adjoint(const std::string& name) :
+ComponentBuilder < AdjointCt, LSSActionUnsteady, LibUFEMAdjoint > AdjointCt_Builder;
+
+AdjointCt::AdjointCt(const std::string& name) :
   LSSActionUnsteady(name),
   u("Velocity", "navier_stokes_solution"),
   ka("ka", "keAdjoint_solution"),
@@ -58,8 +59,11 @@ Adjoint::Adjoint(const std::string& name) :
   nu_eff("EffectiveViscosity", "navier_stokes_viscosity"),
   density_ratio("density_ratio", "density_ratio"),
   g("Force", "body_force"),
+  F("AdjForce", "adjoint_body_force"),
   rho("density"),
-  nu("kinematic_viscosity")
+  nu("kinematic_viscosity"),
+  Ct("thrustCoefficient", "actuator_disk"),
+  uDisk("MeanDiskSpeed", "actuator_disk")
 {
   const std::vector<std::string> restart_field_tags = boost::assign::list_of("navier_stokes_solution")("adjoint_solution")("adj_linearized_velocity")("navier_stokes_viscosity");
   properties().add("restart_field_tags", restart_field_tags);
@@ -78,13 +82,13 @@ Adjoint::Adjoint(const std::string& name) :
   options().add("ct", m_ct)
     .pretty_name("trust coefficient")
     .description("trust coefficient")
-    .attach_trigger(boost::bind(&Adjoint::trigger_ct, this)) // the function trigger_ct is called whenever the ct option is changed
+    .attach_trigger(boost::bind(&AdjointCt::trigger_ct, this)) // the function trigger_ct is called whenever the ct option is changed
     .mark_basic();
 
   options().add("a", m_a)
     .pretty_name("Axial induction coefficient")
     .description("Axial induction coefficient")
-    .attach_trigger(boost::bind(&Adjoint::trigger_a, this))
+    .attach_trigger(boost::bind(&AdjointCt::trigger_a, this))
     .mark_basic();
 
   options().add("area", m_area)
@@ -114,6 +118,11 @@ Adjoint::Adjoint(const std::string& name) :
       .pretty_name("Result")
       .description("Result of the integration (read-only)")
       .mark_basic();
+  options().add("maxU", m_U_max)
+    .pretty_name("maxU")
+    .description("Max adjoint speed")
+    .link_to(&m_U_max)
+    .mark_basic();
 
   options().option("regions").add_tag("norecurse");
 
@@ -140,12 +149,12 @@ Adjoint::Adjoint(const std::string& name) :
   trigger_assembly();
 }
 
-Adjoint::~Adjoint()
+AdjointCt::~AdjointCt()
 {
 }
 
 
-void Adjoint::trigger_assembly()
+void AdjointCt::trigger_assembly()
 {
   m_assembly->clear();
   m_update->clear();
@@ -154,9 +163,10 @@ void Adjoint::trigger_assembly()
     "AdjointAssembly",
     elements_expression
     (
-      boost::mpl::vector2<
+      boost::mpl::vector3<
           mesh::LagrangeP1::Triag2D,
-          mesh::LagrangeP1::Tetra3D
+          mesh::LagrangeP1::Tetra3D,
+          mesh::LagrangeP1::Quad2D
           >(),
       group
       (
@@ -168,13 +178,13 @@ void Adjoint::trigger_assembly()
                   _A(q    , q)     += tau_ps * transpose(nabla(q)) * nabla(q), // Continuity, PSPG
                   _A(U[_i], U[_i]) += nu_eff * transpose(nabla(U)) * nabla(U) - transpose(N(u) - tau_su*u*nabla(U)) * u*nabla(U), // Diffusion + advection
                   _A(U[_i], q)     += transpose(N(U) - tau_su*u*nabla(U)) * nabla(q)[_i], // Pressure gradient (standard and SUPG)
-                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i])* nabla(U)[_j]-transpose(N(U) - tau_su*u*nabla(U)) * u[_j] * nabla(U)[_i], // Bulk viscosity + additional adjoint advection term
+                  _A(U[_i], U[_j]) += transpose(tau_bulk*nabla(U)[_i]) * nabla(U)[_j]-transpose(N(U) - tau_su*u*nabla(U)) * u[_j] * nabla(U)[_i], // Bulk viscosity + additional adjoint advection term
                                       //+ 0.5*u[_i]*(N(U) - tau_su*u*nabla(U)) * nabla(U)[_j], //  skew symmetric part of advection (standard +SUPG)
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
-                  _a[U[_i]] += /* -transpose(N(U) - tau_su*u*nabla(U)) * 3 * g[_i] * density_ratio */ + 
-                            m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
-                                            +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu* transpose(nabla(U)) *_col(partial(u[_i],_j)+partial(u[_j],_i),_i)))
+                  _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * F[_i] 
+                        //    + m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
+                        //                    +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu* transpose(nabla(U)) *_col(partial(u[_i],_j)+partial(u[_j],_i),_i)))
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
@@ -182,33 +192,35 @@ void Adjoint::trigger_assembly()
       )
     )
   ));
-  Uint Nt = 0.;
-  for(auto&& region : m_actuator_regions)
-  {
-    // CFinfo << "Test assembly" << CFendl;
-      auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<      mesh::LagrangeP1::Line2D,
-          mesh::LagrangeP1::Triag3D>(), group(
-                                                       // set element vector to zero Line2D Triag3D
-													  _A(q) = _0, _A(U) = _0, _a[U] = _0, _a[q] = _0,
+  // Uint Nt = 0.;
+  // for(auto&& region : m_actuator_regions)
+  // {
+  //   // CFinfo << "Test assembly" << CFendl;
+  //     auto region_action = create_proto_action(region->name(), elements_expression(boost::mpl::vector2<mesh::LagrangeP1::Line2D,
+  //         mesh::LagrangeP1::Triag3D>(), group(
+  //                                                      // set element vector to zero Line2D Triag3D
+	// 												  _A(q) = _0, _A(U) = _0, _a[U] = _0, _a[q] = _0,
 
-                            element_quadrature
-                            (
-                              _A(U[_i], U[_i]) += transpose(N(U))*N(U)*u[_i]* lit(4) * lit(m_a[Nt])/(lit(1)-lit(m_a[Nt]))/ lit(m_th)*density_ratio * normal[_i],
-                              _a[U[_i]] += transpose(N(U)) * lit(6.0) * u[0] * u[0] * lit(m_a[Nt])/(1 - lit(m_a[Nt])) * normal[_i] * density_ratio
-                              //_a[U[_i]] += transpose(N(U)) * -3 * g[_i] * normal[_i] * density_ratio
-                            ), // integrate
-                            system_rhs +=-_A * _x + _a, // update global system RHS with element vector
-													  system_matrix += theta * _A
-                                                   )));
-      m_assembly->add_component(region_action);
-      region_action->options().set("regions", std::vector<common::URI>({region->uri()}));
-      region_action->options().option("regions").add_tag("norecurse");
-      Nt+=1;
-  }
+  //                           element_quadrature
+  //                           (
+  //                               //_A(U[_i], U[_i]) += transpose(N(U)) * N(U) * Ct * uDisk[0]  /* / lit(m_th) */  * normal[_i],
+  //                               // _a[U[_i]] += -transpose(N(U)) * lit(m_U_mean_disk) * Ct * uDisk[0] * normal[_i],
+  //                               // _a[U[_i]] += transpose(N(U)) * lit(3.0) / lit(2.0) * Ct * uDisk[0] * uDisk[0] * normal[_i]
+  //                           ), // integrate
+  //                           system_rhs +=-_A * _x + _a, // update global system RHS with element vector
+	// 												  system_matrix += theta * _A
+  //                                                  )));
+  //     m_assembly->add_component(region_action);
+  //     region_action->options().set("regions", std::vector<common::URI>({region->uri()}));
+  //     region_action->options().option("regions").add_tag("norecurse");
+  //     Nt+=1;
+  // }
 
   m_update->add_component(create_proto_action("Update", nodes_expression(group
   (
     U += solution(U),
+    U[_i] = _min( m_U_max, U[_i]),
+    U[_i] = _max(-m_U_max, U[_i]),
     q += solution(q)
   ))));
 
@@ -223,7 +235,7 @@ void Adjoint::trigger_assembly()
 }
 
 //On region set actuator disk components
-void Adjoint::on_regions_set()
+void AdjointCt::on_regions_set()
 {  
 	if(m_updating == true){
 		return;
@@ -249,11 +261,11 @@ void Adjoint::on_regions_set()
   m_first_call = false;
 }
 
-void Adjoint::on_initial_conditions_set(InitialConditions& initial_conditions)
+void AdjointCt::on_initial_conditions_set(InitialConditions& initial_conditions)
 {
   m_initial_conditions = initial_conditions.create_initial_condition(solution_tag());
 }
-void Adjoint::execute()
+void AdjointCt::execute()
 {
 	LSSActionUnsteady::execute();
 	Uint Nt1 = 0.;
@@ -273,7 +285,7 @@ void Adjoint::execute()
   }
 }
 
-void Adjoint::trigger_ct()
+void AdjointCt::trigger_ct()
 {
   auto new_ct = options().value<std::vector<Real>>("ct");
   bool size_changed = new_ct.size() != m_ct.size(); // If the size changed, assembly needs to be ran again
@@ -294,7 +306,7 @@ void Adjoint::trigger_ct()
   }
 }
 
-void Adjoint::trigger_a()
+void AdjointCt::trigger_a()
 {
   auto new_a = options().value<std::vector<Real>>("a");
   bool size_changed = new_a.size() != m_a.size();

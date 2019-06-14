@@ -99,6 +99,8 @@ list( APPEND coolfluid_ufem_files
   LSSActionUnsteady.cpp
   Solver.hpp
   Solver.cpp
+  ModifiedKEpsilon.hpp
+  ModifiedKEpsilon.cpp
   NavierStokes.hpp
   NavierStokesAssembly.hpp
   NavierStokesSpecializations.hpp

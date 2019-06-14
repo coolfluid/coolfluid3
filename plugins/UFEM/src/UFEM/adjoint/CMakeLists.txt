@@ -2,20 +2,42 @@ coolfluid3_add_library(TARGET coolfluid_ufem_adjoint
   SOURCES
     ActuatorDisk.hpp
     ActuatorDisk.cpp
+    ActuatorDiskCt.hpp
+    ActuatorDiskCt.cpp
+    ActuatorDiskGauss.cpp
+    ActuatorDiskGauss.hpp
+    ActuatorDiskCtAdjoint.hpp
+    ActuatorDiskCtAdjoint.cpp
+    ActuatorDiskCtDirdiff.hpp
+    ActuatorDiskCtDirdiff.cpp
     ActuatorDisk3D.hpp
     ActuatorDisk3D.cpp
     Adjoint.hpp
     Adjoint.cpp
+    AdjointCt.cpp
+    AdjointCt.hpp
     keAdjointbase.cpp
     keAdjointbase.hpp
     BCAdjointpressurex.hpp
     BCAdjointpressurex.cpp
+    BCAdjointpressurexNew.hpp
+    BCAdjointpressurexNew.cpp
     BCAdjointpressurey.hpp
     BCAdjointpressurey.cpp
+    BCAdjointpressureyNew.hpp
+    BCAdjointpressureyNew.cpp
     BCAdjointpressurez.hpp
     BCAdjointpressurez.cpp
+    DirectDifferentiation.hpp
+    DirectDifferentiation.cpp
+    DirectDifferentiationCt.hpp
+    DirectDifferentiationCt.cpp
+    DirectDifferentiationSensitivityDisk.cpp
+    DirectDifferentiationSensitivityDisk.hpp
     keAdjoint.cpp
     keAdjoint.hpp
+    keAdjoint2.cpp
+    keAdjoint2.hpp
     kaRobinke.cpp
     kaRobinke.hpp
     RobinUt.cpp

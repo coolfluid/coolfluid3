@@ -42,7 +42,7 @@ public:
 private:
   /// Trigger on a change of the result
   void trigger_result();
-
+  int m_component = 5;
   /// Name of the variable to use
   std::string m_variable_name;
 

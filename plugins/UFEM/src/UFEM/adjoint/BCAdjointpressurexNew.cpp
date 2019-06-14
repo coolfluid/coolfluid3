@@ -27,7 +27,7 @@
 #include "mesh/LagrangeP0/Line.hpp"
 #include "solver/actions/Proto/Partial.hpp"
 
-#include "BCAdjointpressurex.hpp"
+#include "BCAdjointpressurexNew.hpp"
 #include "../AdjacentCellToFace.hpp"
 #include "../Tags.hpp"
 
@@ -38,14 +38,14 @@ namespace cf3
 
 namespace UFEM
 {
-namespace adjointtube
+namespace adjoint
 {
 using namespace solver::actions::Proto;
 using boost::proto::lit;
 
-common::ComponentBuilder < BCAdjointpressurex, common::Action, LibUFEMAdjointTube > BCAdjointpressurex_Builder;
+common::ComponentBuilder < BCAdjointpressurexNew, common::Action, LibUFEMAdjoint > BCAdjointpressurexNew_Builder;
 
-BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
+BCAdjointpressurexNew::BCAdjointpressurexNew(const std::string& name) :
   ProtoAction(name),
   system_rhs(options().add("lss", Handle<math::LSS::System>())
     .pretty_name("LSS")
@@ -95,8 +95,7 @@ BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
         (
           _A(U[_i],U[_j]) += transpose(N(U))*N(U)*(u[_j]*normal[_i]) / nu_eff, // Uj*uj*ni
           _A(U[_i],U[_i]) += transpose(N(U))*N(U)*((u*normal)[0]) / nu_eff, // Ui*uj*nj
-          _A(U[_i], q) += -transpose(N(U))*N(q)*normal[_i] / nu_eff, // -q*ni
-          _a[U[_i]] += transpose(N(U))*((0.5*(u*transpose(u))[0])*normal[_i] + (u*normal)[0]*u[_i]) / nu_eff //0.5 u^2*ni + uj*nj*ui
+          _A(U[_i], q) += -transpose(N(U))*N(q)*normal[_i] / nu_eff // -q*ni
         ),
         system_matrix+=_A,
         system_rhs += -_A*_x + _a
@@ -106,7 +105,7 @@ BCAdjointpressurex::BCAdjointpressurex(const std::string& name) :
 
 }
 
-BCAdjointpressurex::~BCAdjointpressurex()
+BCAdjointpressurexNew::~BCAdjointpressurexNew()
 {
 }
 
