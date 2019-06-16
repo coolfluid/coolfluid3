@@ -183,8 +183,8 @@ void AdjointCt::trigger_assembly()
                   _T(q    , U[_i]) += tau_ps * transpose(nabla(q)[_i]) * N(U), // Time, PSPG
                   _T(U[_i], U[_i]) += transpose(N(U) - tau_su*u*nabla(U)) * N(U), // Time, standard and SUPG
                   _a[U[_i]] += transpose(N(U) - tau_su*u*nabla(U)) * F[_i] 
-                        //    + m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
-                        //                    +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu* transpose(nabla(U)) *_col(partial(u[_i],_j)+partial(u[_j],_i),_i)))
+                           + m_turbulence*(-(transpose(N(U) - tau_su*u*nabla(U))*ka*gradient(k)[_i]) - (transpose(N(U) - tau_su*u*nabla(U))*epsilona*gradient(epsilon)[_i])
+                                           +(2*((ka*k/epsilon)+(epsilona*m_c_epsilon_1))*k*m_c_mu* transpose(nabla(U)) *_col(partial(u[_i],_j)+partial(u[_j],_i),_i)))
           ),
         system_rhs += -_A * _x + _a,
         _A(q) = _A(q) / theta,
