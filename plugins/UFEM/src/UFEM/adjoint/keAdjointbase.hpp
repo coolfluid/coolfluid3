@@ -24,6 +24,7 @@
 #include "../SUPG.hpp"
 
 #include "../LSSActionUnsteady.hpp"
+#include "../CrossWindDiffusion.hpp"
 
 
 namespace cf3 {
@@ -51,9 +52,10 @@ protected:
   void trigger_set_expression();
   virtual void on_regions_set();
 
-  boost::mpl::vector2<
+  boost::mpl::vector3<
   mesh::LagrangeP1::Triag2D,
-  mesh::LagrangeP1::Tetra3D
+  mesh::LagrangeP1::Tetra3D,
+  mesh::LagrangeP1::Quad2D
      > allowed_elements;
 
   FieldVariable<0, ScalarField> k;
@@ -82,9 +84,11 @@ protected:
   Real m_c_epsilon_1 = 1.35;
   Real m_c_epsilon_2 = 1.8;
   Real m_c_mu = 0.09;
+  Real m_c_tau = 6.0;
   Real m_minimal_viscosity_ratio = 1e-4;
   Real m_l_max = 1e6; // Maximum mixing length
 
+  CrosswindDiffusion cw;
 };
 } // adjoint
 } // UFEM
