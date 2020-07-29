@@ -83,7 +83,7 @@ struct ComputeNuWALE
     const SMatT grad_u = u.nabla(GaussT::instance().coords.col(0))*u.value();
     const SMatT S = 0.5*(grad_u + grad_u.transpose());
     const Real S_norm2 = S.squaredNorm();
-    const SMatT grad_u2 = grad_u*grad_u;
+    const SMatT grad_u2 = grad_u*grad_u.transpose();
 
     SMatT Sd = 0.5*(grad_u2 + grad_u2.transpose());
     Sd.diagonal().array() -= grad_u2.trace()/3.;
