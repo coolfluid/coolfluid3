@@ -307,11 +307,11 @@ void Writer::write()
   
   // Write connectivity
   XmlNode connectivity = cells.add_node("DataArray");
-  connectivity.set_attribute("type", "UInt32");
+  connectivity.set_attribute("type", "Int64");
   connectivity.set_attribute("Name", "connectivity");
   connectivity.set_attribute("format", "appended");
   connectivity.set_attribute("offset", to_str(appended_data.offset()));
-  appended_data.start_array(nb_conn_nodes, 4);
+  appended_data.start_array(nb_conn_nodes, 8);
   boost_foreach(const Handle<Elements const>& elements_h, elements_list)
   {
     const Elements& elements  = *elements_h;
@@ -323,19 +323,19 @@ void Writer::write()
     {
       const Connectivity::ConstRow row = conn_table[i];
       for(Uint j = 0; j != n_el_nodes; ++j)
-        appended_data.push_back(static_cast<boost::uint32_t>(row[j]));
+        appended_data.push_back(static_cast<int64_t>(row[j]));
     }
   }
   appended_data.finish_array();
 
   // Write the offsets
   XmlNode offsets = cells.add_node("DataArray");
-  offsets.set_attribute("type", "UInt32");
+  offsets.set_attribute("type", "Int64");
   offsets.set_attribute("Name", "offsets");
   offsets.set_attribute("format", "appended");
   offsets.set_attribute("offset", to_str(appended_data.offset()));
-  boost::uint32_t offset = 0;
-  appended_data.start_array(nb_elems, 4);
+  int64_t offset = 0;
+  appended_data.start_array(nb_elems, 8);
   boost_foreach(const Handle<Elements const>& elements_h, elements_list)
   {
     const Elements& elements  = *elements_h;
