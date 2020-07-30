@@ -174,6 +174,52 @@ BOOST_AUTO_TEST_CASE( NodeFunctor )
   BOOST_CHECK_CLOSE(vec_norm.m_sum, 501.*501.*sqrt(2),1e-8);
 }
 
+struct SetIfIndex : FunctionBase
+{
+  typedef void result_type;
+  
+  SetIfIndex()
+  {
+  }
+  
+  template<typename VectorT>
+  void operator()(const VectorT& vec, const Uint node_idx)
+  {
+    if(node_idx == 0)
+    {
+      std::cout << "keeping value for node " << node_idx << std::endl;
+      m_value = vec.norm();
+    }
+  }
+  
+  Real m_value = 0.0;
+};
+
+BOOST_AUTO_TEST_CASE( NodeIndexFunctor )
+{
+  Handle<Model> model(Core::instance().root().get_child("Model"));
+
+  FieldVariable<0, VectorField> u("u","velocity");
+  
+  SetIfIndex indexvalue;
+  
+  // Create an action that can wrap an expression
+  ProtoAction& action = *model->create_component<ProtoAction>("ActionIndexValue");
+
+  action.set_expression(nodes_expression(
+    lit(indexvalue)(u, node_index)
+  ));
+  
+  action.options().set("physical_model", model->physics().handle<physics::PhysModel>());
+  action.options().set(solver::Tags::regions(), std::vector<URI>(1, model->domain().get_child("mesh")->handle<Mesh>()->topology().uri()));
+  
+  action.execute();
+
+  std::cout << "value: " << indexvalue.m_value << std::endl;
+  
+  BOOST_CHECK_CLOSE(indexvalue.m_value, sqrt(2),1e-8);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
