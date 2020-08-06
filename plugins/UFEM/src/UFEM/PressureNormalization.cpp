@@ -91,17 +91,48 @@ void PressureNormalization::execute()
   using boost::proto::lit;
   const std::string tag = options().option("pressure_field_tag").value<std::string>();
   const std::string var = options().option("pressure_variable_name").value<std::string>();
-  FieldVariable<0, ScalarField> p(var, tag);
 
-  volume_integral(m_mean, m_loop_regions, p);
-  Real volume = 0.0;
-  volume_integral(volume, m_loop_regions, lit(1.0));
-  m_mean /= volume;
+  if(m_loop_regions.empty())
+  {
+    throw common::SetupError(FromHere(), "No regions to loop over for PressureNormalization");
+  }
+  mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(*m_loop_regions.front());
+  Handle<mesh::Dictionary> dict = common::find_component_ptr_with_tag<mesh::Dictionary>(mesh, tag);
+  if(is_null(dict))
+    dict = mesh.geometry_fields().handle<mesh::Dictionary>(); // fall back to the geometry if the dict is not found by tag
+  mesh::Field& pressure_field = common::find_component_with_tag<mesh::Field>(*dict, tag);
+  const math::VariablesDescriptor& descriptor = pressure_field.descriptor();
+  const Uint pressure_idx = descriptor.offset(var);
+
+  Real my_pressure = 0.0;
+  Real global_pressure = 0.0;
+  common::PE::Comm& comm = common::PE::Comm::instance();
+  if(comm.rank() == 0)
+  {
+    my_pressure = pressure_field[0][pressure_idx];
+  }
+  if(comm.is_active() && comm.size() > 1)
+  {
+    comm.all_reduce(common::PE::max(), &my_pressure, 1, &global_pressure);
+    if(global_pressure == 0.0)
+    {
+      comm.all_reduce(common::PE::min(), &my_pressure, 1, &global_pressure);
+    }
+  }
+  else
+  {
+    global_pressure = my_pressure;
+  }
+
+  if(comm.rank() == 0)
+  {
+    std::cout << "normalizing for pressure " << global_pressure << std::endl;
+  }
+
+  m_mean = global_pressure;
 
   ProtoAction::execute();
 }
-
-
 
 } // namespace UFEM
 
