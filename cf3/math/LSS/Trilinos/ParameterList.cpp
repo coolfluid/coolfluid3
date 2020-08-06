@@ -158,6 +158,12 @@ ParameterList::ParameterList(const std::string& name): Component(name)
     .description("Create a new ParameterList")
     .pretty_name("Create ParameterList")
     .signature( boost::bind ( &ParameterList::signature_create_parameter_list, this, _1) );
+
+  regist_signal( "read_parameter_list" )
+    .connect( boost::bind( &ParameterList::signal_read_parameter_list, this, _1 ) )
+    .description("Create a new ParameterList")
+    .pretty_name("Create ParameterList")
+    .signature( boost::bind ( &ParameterList::signature_read_parameter_list, this, _1) );
 }
 
 ParameterList::~ParameterList()
@@ -194,6 +200,12 @@ Handle< ParameterList > ParameterList::create_parameter_list ( const std::string
   new_list->set_parameter_list(m_parameters->sublist(trilinos_name));
   new_list->mark_basic();
   return new_list;
+}
+
+void ParameterList::read_parameter_list(const std::string& xmlpath)
+{
+  Teuchos::updateParametersFromXmlFile(xmlpath, m_parameters.ptr());
+  set_parameter_list(*m_parameters);
 }
 
 void ParameterList::trigger_parameter_changed()
@@ -245,7 +257,19 @@ void ParameterList::signature_create_parameter_list ( common::SignalArgs& args )
     .description("Name of the new parameter list, as required by Trilinos");
 }
 
+void ParameterList::signal_read_parameter_list ( common::SignalArgs& args )
+{
+  common::XML::SignalOptions options(args);
+  read_parameter_list(options.option("xmlpath").value<std::string>());
+}
 
+void ParameterList::signature_read_parameter_list ( common::SignalArgs& args )
+{
+  common::XML::SignalOptions options(args);
+  options.add("xmlpath", "unknown")
+    .pretty_name("XML Path")
+    .description("XML file to read parameters from");
+}
 
 } // namespace LSS
 } // namespace math

@@ -51,6 +51,10 @@ public:
   /// Create a new ParameterList as a child to the current list
   /// @param trilinos_name The name of the parameter list as Trilinos expects it
   Handle<ParameterList> create_parameter_list(const std::string& trilinos_name);
+
+  /// Create a new ParameterList as a child to the current list, reading settings from the XML file
+  /// @param xmlpath XML file to read from
+  void read_parameter_list(const std::string& xmlpath);
   
   /// Called when one of the parameter values changed, to update the underlying parameterlist
   void trigger_parameter_changed();
@@ -61,6 +65,8 @@ public:
   /// Signal and signature to create a new parameterlist
   void signal_create_parameter_list(common::SignalArgs& args);
   void signature_create_parameter_list(common::SignalArgs& args);
+  void signal_read_parameter_list(common::SignalArgs& args);
+  void signature_read_parameter_list(common::SignalArgs& args);
 
 private:
   Teuchos::RCP<Teuchos::ParameterList> m_parameters;
