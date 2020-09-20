@@ -11,6 +11,7 @@
 
 #include "common/Component.hpp"
 #include "common/Builder.hpp"
+#include "common/FindComponents.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/PropertyList.hpp"
@@ -70,6 +71,9 @@ WALE::WALE(const std::string& name) :
     .attach_trigger(boost::bind(&WALE::trigger_set_expression, this));
     
   m_reset_viscosity = create_component<ProtoAction>("ResetViscosity");
+
+  m_node_connectivity = create_static_component<mesh::NodeConnectivity>("NodeConnectivity");
+  m_wale_op.op.m_node_connectivity = m_node_connectivity.get();
     
   trigger_set_expression();
 }
@@ -106,6 +110,11 @@ void WALE::on_regions_set()
     m_node_valence->options().set("regions", options().option("regions").value());
   }
   m_reset_viscosity->options().set("regions", options().option("regions").value());
+  if(!m_loop_regions.empty())
+  {
+    mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(*m_loop_regions.front());
+    m_node_connectivity->initialize(common::find_components_recursively_with_filter<mesh::Elements>(mesh, mesh::IsElementsVolume()));
+  }
 }
 
 

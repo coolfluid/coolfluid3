@@ -10,6 +10,7 @@
 #include "../InitialConditions.hpp"
 
 #include "LibUFEMLES.hpp"
+#include "mesh/ConnectivityData.hpp"
 #include "solver/actions/Proto/ProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"
 
@@ -89,6 +90,20 @@ struct ComputeNuWALE
     Sd.diagonal().array() -= grad_u2.trace()/3.;
     const Real Sd_norm2 = Sd.squaredNorm();
 
+    const auto element_nodes = u.support().element_connectivity();
+    CFdebug << "looking up adjacent elements for element " << u.support().element_idx() << CFendl;
+    for(Uint node_idx : element_nodes)
+    {
+      CFdebug << "Elements next to node " << node_idx << ": ";
+      const Uint elements_begin = m_node_connectivity->node_first_elements()[node_idx];
+      const Uint elements_end = elements_begin + m_node_connectivity->node_element_counts()[node_idx];
+      for(Uint j = elements_begin; j != elements_end; ++j)
+      {
+        CFdebug << " " << m_node_connectivity->node_elements()[j].first << ", " << m_node_connectivity->node_elements()[j].second << " ";
+      }
+      CFdebug << CFendl;
+    }
+
     // Compute the anisotropic cell size adjustment using the method of Scotti et al.
     Real f = 1.;
     if(use_anisotropic_correction)
@@ -147,6 +162,7 @@ struct ComputeNuWALE
   // Model constant
   Real cw;
   bool use_anisotropic_correction;
+  mesh::NodeConnectivity* m_node_connectivity = nullptr;
 };
 
 }
@@ -171,6 +187,7 @@ private:
   Handle<InitialConditions> m_initial_conditions;
   Handle<common::Component> m_node_valence;
   Handle<solver::actions::Proto::ProtoAction> m_reset_viscosity;
+  Handle<mesh::NodeConnectivity> m_node_connectivity;
   
   /// The data stored by the WALE op terminal
   solver::actions::Proto::MakeSFOp<detail::ComputeNuWALE>::stored_type m_wale_op;
